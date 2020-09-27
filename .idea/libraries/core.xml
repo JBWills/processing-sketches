@@ -1,5 +1,5 @@
 <component name="libraryTable">
-  <library name="library">
+  <library name="core">
     <CLASSES>
       <root url="file:///Applications/Processing.app/Contents/Java/core/library" />
     </CLASSES>

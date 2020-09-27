@@ -1,5 +1,6 @@
+package controls
+
 import controlP5.ControlP5
-import controls.Control
 import coordinate.PaddingRect
 import coordinate.PixelPoint
 import coordinate.Point
