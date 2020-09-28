@@ -14,7 +14,6 @@ abstract class SketchConfig
 abstract class BaseSketch<TConfig : SketchConfig>(
   private val backgroundColor: Color = Color.white,
   private val svgBaseFileName: String = "output",
-  private val controls: List<Control> = listOf(),
   private var sketchConfig: TConfig? = null,
 ) : PAppletExt() {
 
@@ -101,13 +100,19 @@ abstract class BaseSketch<TConfig : SketchConfig>(
     dirty = true
   }
 
-  override fun setup() {
+  open fun getControls() = listOf<Control>()
+
+  fun updateControls(additionalControls: List<Control>) {
     val baseControls = listOf(
       Button("Randomize values") { randomize = true },
       Button("Save frame") { recordSvg = true }
     )
 
-    ControlFrame(400, 800, baseControls + controls)
+    ControlFrame(400, 800, baseControls + additionalControls)
+  }
+
+  override fun setup() {
+    updateControls(getControls())
 
     randomSeed(0)
 
