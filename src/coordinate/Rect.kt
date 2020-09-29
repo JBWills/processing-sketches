@@ -18,6 +18,15 @@ data class BoundRect(
   val height: Float,
   val width: Float,
 ) {
+
+  init {
+    if (height < 0) {
+      throw Exception("Can't make a rect with negative height: $height")
+    } else if (width < 0) {
+      throw Exception("Can't make a rect with negative width: $width")
+    }
+  }
+
   val top: Float = topLeft.y
   val left: Float = topLeft.x
   val bottom: Float = topLeft.y + height
@@ -31,10 +40,14 @@ data class BoundRect(
   val leftSegment get() = LineSegment(topLeft, bottomLeft)
   val rightSegment get() = LineSegment(topRight, bottomRight)
 
-  fun isTop(line: Line) = line.crossesThrough.y == top && line.slope.isHorizontal()
-  fun isBottom(line: Line) = line.crossesThrough.y == bottom && line.slope.isHorizontal()
-  fun isLeft(line: Line) = line.crossesThrough.y == left && line.slope.isVertical()
-  fun isRight(line: Line) = line.crossesThrough.y == right && line.slope.isVertical()
+  fun isTop(line: Line) = line.origin.y == top && line.slope.isHorizontal()
+  fun isBottom(line: Line) = line.origin.y == bottom && line.slope.isHorizontal()
+  fun isLeft(line: Line) = line.origin.x == left && line.slope.isVertical()
+  fun isRight(line: Line) = line.origin.x == right && line.slope.isVertical()
+
+  fun expand(amount: Float): BoundRect {
+    return BoundRect(topLeft - amount, width + 2 * amount, height + 2 * amount)
+  }
 
   fun getBoundSegment(line: Line): LineSegment? {
     if (isTop(line)) return topSegment

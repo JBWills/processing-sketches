@@ -15,9 +15,18 @@ class LineSegment(
 }
 
 class Line(
-  var crossesThrough: Point,
+  var origin: Point,
   var slope: Deg,
 ) {
+
+  fun getPointAtDist(dist: Float) = origin + (slope.unitVector * dist)
+
+  fun normal(clockWise: Boolean = true): Line {
+    val rotation = if (clockWise) -90 else 90
+    return Line(origin, slope + rotation)
+  }
+
+  fun angleBetween(other: Line): Int = slope.rotation(other.slope)
 
   fun intersect(other: Line): Point? {
     var this2d = toLine2d()
@@ -28,7 +37,7 @@ class Line(
   }
 
   fun intersect(other: LineSegment): Point? {
-    var this2d = toLine2d()
+    val this2d = toLine2d()
     val that2d = other.toLine2d()
     if (!this2d.intersectsLine(that2d)) return null
 
@@ -38,10 +47,10 @@ class Line(
   fun intersectsY(y: Float): Point? = intersect(Line(Point(0f, y), Deg(0)))
   fun intersectsX(x: Float): Point? = intersect(Line(Point(x, 0f), Deg(90)))
 
-  fun toLine2d(): Line2D {
-    val extender = slope.unitVector * 100000
-    val startPoint = crossesThrough + extender
-    val endPoint = crossesThrough - extender
+  private fun toLine2d(): Line2D {
+    val extender = slope.unitVector * 1_000_000
+    val startPoint = origin - extender
+    val endPoint = origin + extender
     return Line2D.Float(startPoint.x, startPoint.y, endPoint.x, endPoint.y)
   }
 
@@ -63,6 +72,6 @@ class Line(
   }
 
   override fun toString(): String {
-    return "Line(crossesThrough=$crossesThrough, slope=$slope)"
+    return "Line(crossesThrough=$origin, slope=$slope)"
   }
 }

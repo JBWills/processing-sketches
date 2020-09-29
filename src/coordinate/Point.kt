@@ -40,6 +40,8 @@ class PointProgression(
 }
 
 data class Point(var x: Float, var y: Float) : Comparable<Point> {
+  constructor(x: Number, y: Number) : this(x.toFloat(), y.toFloat())
+
   val magnitude
     get() = sqrt(x.squared() + y.squared())
 
@@ -51,13 +53,18 @@ data class Point(var x: Float, var y: Float) : Comparable<Point> {
 
   fun dist(other: Point) = (this - other).magnitude
 
+  fun flipX() = Point(-x, y)
+  fun flipY() = Point(x, -y)
+
   operator fun unaryMinus() = Point(-x, -y)
 
   operator fun unaryPlus() = Point(+x, +y)
 
   operator fun plus(other: Point) = Point(x + other.x, y + other.y)
+  operator fun plus(other: Number) = Point(x + other.toFloat(), y + other.toFloat())
+  operator fun minus(other: Point) = this + -other
+  operator fun minus(other: Number) = this + -other.toFloat()
 
-  operator fun minus(other: Point) = Point(x - other.x, y - other.y)
   operator fun times(other: Number) = Point(x * other.toFloat(), y * other.toFloat())
 
   override fun compareTo(other: Point) = if (this.magnitude > other.magnitude) 1 else -1

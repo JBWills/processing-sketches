@@ -38,17 +38,17 @@ class CircleSketch : BaseSketch<CircleConfig>(
     }
 
     fun drawConcentricCircles(limit: Int, center: Point, distanceBetween: Float, strokeColor: Color = Color.black) {
-      val numToDraw = max((max(SIZE_X, SIZE_Y) * 4 / distanceBetween).toInt(), limit)
+      val numToDraw = max((max(sizeX, sizeY) * 4 / distanceBetween).toInt(), limit)
       numToDraw.times { i -> drawCircle(center, (i.toFloat() * distanceBetween), strokeColor) }
     }
 
-    val center = Point(SIZE_X.toFloat() / 2, SIZE_Y.toFloat() / 2)
+    val center = Point(sizeX / 2, sizeY / 2)
 
     noStroke()
     config.originPointsX.times { xIndex ->
       drawConcentricCircles(
         config.circleLimit,
-        center + Point(SIZE_X * 3f * (xIndex / 20f) - SIZE_X, 0f),
+        center + Point(sizeX * 3f * (xIndex / 20f) - sizeX, 0f),
         config.distanceBetween, Color.BLACK)
     }
   }

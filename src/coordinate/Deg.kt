@@ -1,15 +1,19 @@
 package coordinate
 
 import util.cos
+import util.degreesToRadians
 import util.sin
-import kotlin.properties.Delegates.notNull
+import kotlin.math.abs
+import kotlin.math.min
+
+fun lockValueTo360(v: Int) = (360 + (v % 360)) % 360
 
 /**
  * Represents degrees from 0 to 360.
  *
  * On a 2d grid, assume 0 equals pointing right.
  */
-class Deg(val value: Int) {
+class Deg(var value: Int) {
   companion object {
     val HORIZONTAL = Deg(0)
     val UP_45 = Deg(45)
@@ -18,26 +22,30 @@ class Deg(val value: Int) {
   }
 
   init {
-    if (value !in 0..360) {
-      throw Exception("Degree value outside of [0,360] provided: $value")
-    }
+    value = lockValueTo360(value)
   }
 
-  val rad: Float
-    get() = Math.toRadians(value.toDouble()).toFloat()
+  val rad get() = value.degreesToRadians()
 
-  val unitVector: Point
-    get() = Point(rad.sin(), rad.cos())
+  val unitVector get() = Point(rad.cos(), -rad.sin())
+
+  fun rotation(other: Deg): Int {
+    val diff = abs(value - other.value)
+    return min(360 - diff, diff)
+  }
 
   operator fun plus(other: Deg) = Deg(value + other.value)
+  operator fun plus(rotation: Int) = Deg(value + rotation)
 
-  operator fun minus(other: Deg) = Deg(value - other.value)
+  operator fun minus(other: Deg) = this + -other
+  operator fun minus(rotation: Int) = this + -rotation
+  operator fun unaryMinus() = Deg(-value)
+  operator fun unaryPlus() = Deg(+value)
 
-  fun isHorizontal() = value == 0 || value == 180 || value == 360
-  fun isVertical() = value == 90 || value == 270
+  fun isHorizontal() = value % 180 == 0
+  fun isVertical() = value % 180 != 0 && value % 90 == 0
+
   override fun toString(): String {
     return "Deg(value=$value)"
   }
-
-
 }

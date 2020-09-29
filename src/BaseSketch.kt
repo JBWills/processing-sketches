@@ -12,9 +12,11 @@ import java.util.Locale
 abstract class SketchConfig
 
 abstract class BaseSketch<TConfig : SketchConfig>(
-  private val backgroundColor: Color = Color.white,
+  protected val backgroundColor: Color = Color.white,
   private val svgBaseFileName: String = "output",
   private var sketchConfig: TConfig? = null,
+  protected val sizeX: Int = 1000,
+  protected val sizeY: Int = 1000,
 ) : PAppletExt() {
 
   private var dirty = true
@@ -35,11 +37,8 @@ abstract class BaseSketch<TConfig : SketchConfig>(
     .withZone(ZoneId.systemDefault());
 
   companion object Factory {
-    const val SIZE_X: Int = 1000
-    const val SIZE_Y: Int = 1000
-
     fun <T : SketchConfig> run(app: BaseSketch<T>) {
-      app.setSize(SIZE_X, SIZE_Y)
+      app.setSize(app.sizeX, app.sizeY)
       app.runSketch()
     }
   }
