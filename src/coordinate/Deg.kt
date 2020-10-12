@@ -6,20 +6,22 @@ import util.sin
 import kotlin.math.abs
 import kotlin.math.min
 
-fun lockValueTo360(v: Int) = (360 + (v % 360)) % 360
+fun lockValueTo360(v: Float) = (360 + (v % 360)) % 360
 
 /**
  * Represents degrees from 0 to 360.
  *
  * On a 2d grid, assume 0 equals pointing right.
  */
-class Deg(var value: Int) {
+class Deg(var value: Float) {
   companion object {
-    val HORIZONTAL = Deg(0)
-    val UP_45 = Deg(45)
-    val DOWN_45 = Deg(135)
-    val VERTICAL = Deg(90)
+    val HORIZONTAL = Deg(0f)
+    val UP_45 = Deg(45f)
+    val DOWN_45 = Deg(135f)
+    val VERTICAL = Deg(90f)
   }
+
+  constructor(v: Int) : this(v.toFloat())
 
   init {
     value = lockValueTo360(value)
@@ -29,7 +31,7 @@ class Deg(var value: Int) {
 
   val unitVector get() = Point(rad.cos(), -rad.sin())
 
-  fun rotation(other: Deg): Int {
+  fun rotation(other: Deg): Float {
     val diff = abs(value - other.value)
     return min(360 - diff, diff)
   }
@@ -42,8 +44,8 @@ class Deg(var value: Int) {
   operator fun unaryMinus() = Deg(-value)
   operator fun unaryPlus() = Deg(+value)
 
-  fun isHorizontal() = value % 180 == 0
-  fun isVertical() = value % 180 != 0 && value % 90 == 0
+  fun isHorizontal() = value % 180f == 0f
+  fun isVertical() = value % 180f != 0f && value % 90f == 0f
 
   override fun toString(): String {
     return "Deg(value=$value)"

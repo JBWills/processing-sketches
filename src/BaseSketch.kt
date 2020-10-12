@@ -17,6 +17,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   private var sketchConfig: TConfig? = null,
   protected val sizeX: Int = 1000,
   protected val sizeY: Int = 1000,
+  var isDebugMode: Boolean = false
 ) : PAppletExt() {
 
   private var dirty = true
@@ -34,7 +35,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
 
   private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyMMdd--hh-mm-ss")
     .withLocale(Locale.US)
-    .withZone(ZoneId.systemDefault());
+    .withZone(ZoneId.systemDefault())
 
   companion object Factory {
     fun <T : SketchConfig> run(app: BaseSketch<T>) {

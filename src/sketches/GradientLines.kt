@@ -1,31 +1,34 @@
 package sketches
 
+import appletExtensions.drawParallelLinesInBound
 import BaseSketch
 import SketchConfig
 import controls.Control
 import coordinate.BoundRect
 import coordinate.Deg
-import coordinate.Line
 import coordinate.Point
 import java.awt.Color
 
-class GradientLinesConfig : SketchConfig() {
-}
+class GradientLinesConfig : SketchConfig()
 
-class GradientLinesSketch(
-  private var lineDegrees: Int = 0,
-  private val isDebugMode: Boolean = false
+open class GradientLinesSketch(
+  private var lineDegrees: Float = 0f,
+  isDebugMode: Boolean = false,
+  backgroundColor: Color = Color.BLACK,
+  sizeX: Int = 576,
+  sizeY: Int = 864
 ) : BaseSketch<GradientLinesConfig>(
-  backgroundColor = Color.BLACK,
-  svgBaseFileName = "sketches.CircleSketch",
+  backgroundColor = backgroundColor,
+  svgBaseFileName = "sketches.GradientLines",
   sketchConfig = null,
-  sizeX = 1000,
-  sizeY = 1500
+  sizeX = sizeX,
+  sizeY = sizeY,
+  isDebugMode = isDebugMode
 ) {
 
-  private val outerPaddingX: Float = sizeX * 0.2f
-  private val outerPaddingY: Float = sizeY * 0.4f
-  private var drawBound: BoundRect = BoundRect(
+  private val outerPaddingX: Float = sizeX * 0.05f
+  private val outerPaddingY: Float = sizeY * 0.05f
+  var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
     sizeY - 2 * outerPaddingY,
     sizeX - 2 * outerPaddingX
@@ -37,7 +40,7 @@ class GradientLinesSketch(
       range = 0f to 360f,
       handleChange =
       {
-        lineDegrees = it.toInt()
+        lineDegrees = it
         markDirty()
       }
     )
@@ -45,83 +48,13 @@ class GradientLinesSketch(
 
   override fun getRandomizedConfig() = GradientLinesConfig()
 
+  fun bounds(segmentHeight: Float, segIndexFromTop: Int, numSegs: Int = 1) = BoundRect(
+    drawBound.topLeft + Point(0f, segIndexFromTop * segmentHeight),
+    segmentHeight * numSegs,
+    drawBound.width
+  )
+
   override fun drawOnce(config: GradientLinesConfig) {
-    fun getTangentCornerBisector(bound: BoundRect, deg: Deg): Line {
-      val isUpward = (deg.value % 180) in 0..90
-
-      val leftCornerBisector = Line(bound.topLeft, Deg(-45))
-      val rightCornerBisector = Line(bound.topRight, Deg(-135))
-
-      return when {
-        deg.isVertical() || deg.isHorizontal() || isUpward ->
-          leftCornerBisector
-        else -> rightCornerBisector
-      }
-    }
-
-    fun getNormal(cornerBisector: Line, linesToDrawSlope: Deg): Line {
-      val tangentLine = Line(cornerBisector.origin, linesToDrawSlope)
-      val tangentNormalClockwise = tangentLine.normal(true)
-      val tangentNormalCounterClockwise = tangentLine.normal(false)
-
-      return if (cornerBisector.angleBetween(tangentNormalClockwise) <
-        cornerBisector.angleBetween(tangentNormalCounterClockwise)) {
-        tangentNormalClockwise
-      } else {
-        tangentNormalCounterClockwise
-      }
-    }
-
-    // return true if segment was in bounds
-    fun drawLineSegment(bound: BoundRect, line: Line): Boolean {
-      val lineSegment = bound.getBoundSegment(line)
-      if (lineSegment != null) {
-        line(lineSegment)
-        return true
-      }
-
-      return false
-    }
-
-    fun isMovingAwayFromAllCorners(bound: BoundRect, lastPosition: Point, currentPosition: Point): Boolean {
-      fun movingAwayFromCorner(corner: Point) = corner.dist(lastPosition) <= corner.dist(currentPosition)
-      return movingAwayFromCorner(bound.topLeft) &&
-        movingAwayFromCorner(bound.topRight) &&
-        movingAwayFromCorner(bound.bottomLeft) &&
-        movingAwayFromCorner(bound.bottomRight)
-    }
-
-    fun walkPoints(bound: BoundRect, deg: Deg, distanceBetween: Float, offset: Float = 0f) {
-      val cornerAndDirection = getTangentCornerBisector(bound, deg)
-      val walkDirection = getNormal(cornerAndDirection, deg)
-
-      if (isDebugMode) {
-        stroke(Color.RED.rgb)
-        line(walkDirection, 10, false)
-        stroke(Color.WHITE.rgb)
-      }
-
-      var currDist = offset
-      while (true) {
-        val newOrigin = walkDirection.getPointAtDist(currDist)
-
-        val wasInBound = drawLineSegment(bound, Line(newOrigin, deg))
-        if (isDebugMode) {
-          stroke(Color.RED.rgb)
-          line(Line(newOrigin, deg), 5)
-          stroke(Color.WHITE.rgb)
-        }
-
-        if (!wasInBound && isMovingAwayFromAllCorners(bound, walkDirection.getPointAtDist(currDist - distanceBetween), newOrigin)) {
-          // if you're not currently in bounds but you were before that means you've left
-          // the shape.
-          break
-        }
-
-        currDist += distanceBetween
-      }
-    }
-
     noStroke()
 
     stroke(Color.WHITE.rgb)
@@ -130,53 +63,50 @@ class GradientLinesSketch(
 
     val segmentHeight = drawBound.height / 7f
 
-    fun bounds(segIndexFromTop: Int, numSegs: Int = 1) = BoundRect(
-      drawBound.topLeft + Point(0f, segIndexFromTop * segmentHeight),
-      segmentHeight * numSegs,
-      drawBound.width
-    )
+    fun bounds(segIndexFromTop: Int, numSegs: Int = 1) = bounds(segmentHeight, segIndexFromTop, numSegs)
 
     rect(drawBound)
-    walkPoints(
+    drawParallelLinesInBound(
       bounds(0, 1),
-      Deg(lineDegrees),
-      distanceBetween = 2f
-    )
-
-    walkPoints(
-      bounds(1, 1),
       Deg(lineDegrees),
       distanceBetween = 4f
     )
 
-    walkPoints(
-      bounds(2, 1),
+    drawParallelLinesInBound(
+      bounds(1, 1),
       Deg(lineDegrees),
       distanceBetween = 8f
     )
 
-    walkPoints(
-      bounds(3, 1),
+    drawParallelLinesInBound(
+      bounds(2, 1),
       Deg(lineDegrees),
       distanceBetween = 16f
     )
 
-    walkPoints(
-      bounds(4, 1),
+    drawParallelLinesInBound(
+      bounds(3, 1),
       Deg(lineDegrees),
       distanceBetween = 32f
     )
 
-    walkPoints(
-      bounds(5, 1),
+    drawParallelLinesInBound(
+      bounds(4, 1),
       Deg(lineDegrees),
       distanceBetween = 64f
     )
 
-    walkPoints(
+    drawParallelLinesInBound(
+      bounds(5, 1),
+      Deg(lineDegrees),
+      distanceBetween = 128f,
+      offset = 32f
+    )
+
+    drawParallelLinesInBound(
       bounds(6, 1),
       Deg(lineDegrees),
-      distanceBetween = 128f
+      distanceBetween = 256f
     )
   }
 }

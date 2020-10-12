@@ -26,7 +26,7 @@ class Line(
     return Line(origin, slope + rotation)
   }
 
-  fun angleBetween(other: Line): Int = slope.rotation(other.slope)
+  fun angleBetween(other: Line): Float = slope.rotation(other.slope)
 
   fun intersect(other: Line): Point? {
     var this2d = toLine2d()

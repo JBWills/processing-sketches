@@ -17,3 +17,5 @@ fun Int.pow(other: Number): Float = toDouble().pow(other.toDouble()).toFloat()
 fun Float.squared(): Float = this * this
 
 fun Number.degreesToRadians(): Float = toRadians(toDouble()).toFloat()
+
+fun Number.inchesToPx(): Int = (this.toFloat() * 72f).toInt()
