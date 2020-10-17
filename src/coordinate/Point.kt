@@ -1,7 +1,12 @@
 package coordinate
 
 import util.squared
+import util.toDegrees
+import kotlin.math.atan2
 import kotlin.math.sqrt
+
+operator fun Number.times(p: Point) = p * this
+operator fun Number.plus(p: Point) = p + this
 
 class PointIterator(
   private val start: Point,
@@ -56,6 +61,8 @@ data class Point(var x: Float, var y: Float) : Comparable<Point> {
   fun flipX() = Point(-x, y)
   fun flipY() = Point(x, -y)
 
+  fun angle(): Deg = Deg(atan2(y, x).toDegrees())
+
   operator fun unaryMinus() = Point(-x, -y)
 
   operator fun unaryPlus() = Point(+x, +y)
@@ -77,6 +84,10 @@ data class Point(var x: Float, var y: Float) : Comparable<Point> {
     fun add(p1: Point, p2: Point) = p1 + p2
     fun subtract(p1: Point, p2: Point) = p1 - p2
     fun multiply(p1: Point, f: Float) = p1 * f
+
+    val Zero = Point(0, 0)
+    val One = Point(1, 1)
+    val Unit = Point(1, 0)
   }
 
   override fun toString(): String {

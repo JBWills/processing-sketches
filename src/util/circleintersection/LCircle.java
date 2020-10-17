@@ -1,15 +1,15 @@
-package util.geometry;
+package util.circleintersection;
 
 import java.io.Serializable;
 
-public final class Circle implements Serializable {
+public final class LCircle implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public final Vector2 c;
+	public final LVector2 c;
 	public final double r;
 
-	public Circle(Vector2 c, double r) {
+	public LCircle(LVector2 c, double r) {
 		if (!(r > 0)) throw new IllegalArgumentException("Radius must be positive");
 		this.c = c;
 		this.r = r;
@@ -34,7 +34,7 @@ public final class Circle implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Circle other = (Circle) obj;
+		LCircle other = (LCircle) obj;
 		if (c == null) {
 			if (other.c != null)
 				return false;

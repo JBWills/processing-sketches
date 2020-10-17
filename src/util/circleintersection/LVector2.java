@@ -1,42 +1,42 @@
-package util.geometry;
+package util.circleintersection;
 
 import static java.lang.Math.*;
 
 import java.io.Serializable;
 
-public final class Vector2 implements Serializable {
+public final class LVector2 implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final Vector2 NULL = new Vector2(0, 0);
-	public static final Vector2 X = new Vector2(1, 0);
-	public static final Vector2 Y = new Vector2(0, 1);
+	public static final LVector2 NULL = new LVector2(0, 0);
+	public static final LVector2 X = new LVector2(1, 0);
+	public static final LVector2 Y = new LVector2(0, 1);
 
 	public final double x;
 	public final double y;
 
-	public Vector2(double x, double y) {
+	public LVector2(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}
 
-	public Vector2 add(Vector2 a) {
-		return new Vector2(x + a.x, y + a.y);
+	public LVector2 add(LVector2 a) {
+		return new LVector2(x + a.x, y + a.y);
 	}
 
-	public Vector2 sub(Vector2 a) {
-		return new Vector2(x - a.x, y - a.y);
+	public LVector2 sub(LVector2 a) {
+		return new LVector2(x - a.x, y - a.y);
 	}
 
-	public Vector2 neg() {
-		return new Vector2(-x, -y);
+	public LVector2 neg() {
+		return new LVector2(-x, -y);
 	}
 
-	public Vector2 scale(double a) {
-		return new Vector2(a * x, a * y);
+	public LVector2 scale(double a) {
+		return new LVector2(a * x, a * y);
 	}
 
-	public double dot(Vector2 a) {
+	public double dot(LVector2 a) {
 		return x * a.x + y * a.y;
 	}
 
@@ -48,28 +48,28 @@ public final class Vector2 implements Serializable {
 		return sqrt(modSquared());
 	}
 
-	public Vector2 normalize() {
+	public LVector2 normalize() {
 		return scale(1 / mod());
 	}
 
-	public Vector2 rotPlus90() {
-		return new Vector2(-y, x);
+	public LVector2 rotPlus90() {
+		return new LVector2(-y, x);
 	}
 
-	public Vector2 rotMinus90() {
-		return new Vector2(y, -x);
+	public LVector2 rotMinus90() {
+		return new LVector2(y, -x);
 	}
 
 	public double angle() {
 		return atan2(y, x);
 	}
 
-	public static Vector2 fromAngle(double ang) {
-		return new Vector2(cos(ang), sin(ang));
+	public static LVector2 fromAngle(double ang) {
+		return new LVector2(cos(ang), sin(ang));
 	}
 
-	public static Vector2 fromPolar(double ang, double mod) {
-		return new Vector2(mod * cos(ang), mod * sin(ang));
+	public static LVector2 fromPolar(double ang, double mod) {
+		return new LVector2(mod * cos(ang), mod * sin(ang));
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public final class Vector2 implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Vector2 other = (Vector2) obj;
+		LVector2 other = (LVector2) obj;
 		if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
 			return false;
 		if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))

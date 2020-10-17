@@ -3,7 +3,7 @@ package sketches
 import processing.core.PApplet
 import processing.core.PConstants
 
-data class Circle(val radius: Float, val x: Float, val y: Float, var color: Int = 0)
+private data class Circle(val radius: Float, val x: Float, val y: Float, var color: Int = 0)
 
 class CirclePacking : PApplet() {
   companion object Factory {

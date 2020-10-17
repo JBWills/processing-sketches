@@ -1,10 +1,18 @@
 package coordinate
 
+import coordinate.RotationDirection.Clockwise
+import coordinate.RotationDirection.EitherDirection
 import util.cos
-import util.degreesToRadians
 import util.sin
+import util.toRadians
 import kotlin.math.abs
 import kotlin.math.min
+
+enum class RotationDirection {
+  Clockwise,
+  CounterClockwise,
+  EitherDirection
+}
 
 fun lockValueTo360(v: Float) = (360 + (v % 360)) % 360
 
@@ -27,27 +35,52 @@ class Deg(var value: Float) {
     value = lockValueTo360(value)
   }
 
-  val rad get() = value.degreesToRadians()
+  val rad get() = value.toRadians()
 
   val unitVector get() = Point(rad.cos(), -rad.sin())
 
-  fun rotation(other: Deg): Float {
-    val diff = abs(value - other.value)
-    return min(360 - diff, diff)
+  fun rotation(to: Deg, dir: RotationDirection = EitherDirection): Float {
+    val start = if (dir == Clockwise) value else to.value
+    val end = if (dir == Clockwise) to.value else value
+
+    val diff = abs(end - start)
+
+    return when {
+      (dir == EitherDirection) -> min(diff, 360 - diff)
+      (end >= start) -> diff
+      else -> 360 - diff
+    }
   }
 
   operator fun plus(other: Deg) = Deg(value + other.value)
-  operator fun plus(rotation: Int) = Deg(value + rotation)
+  operator fun plus(rotation: Number) = Deg(value + rotation.toFloat())
 
   operator fun minus(other: Deg) = this + -other
-  operator fun minus(rotation: Int) = this + -rotation
+  operator fun minus(rotation: Number) = this + -rotation.toFloat()
   operator fun unaryMinus() = Deg(-value)
   operator fun unaryPlus() = Deg(+value)
+  operator fun div(other: Deg) = Deg(value / other.value)
+  operator fun div(other: Number) = Deg(value / other.toFloat())
 
   fun isHorizontal() = value % 180f == 0f
   fun isVertical() = value % 180f != 0f && value % 90f == 0f
 
   override fun toString(): String {
     return "Deg(value=$value)"
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as Deg
+
+    if (value != other.value) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    return value.hashCode()
   }
 }

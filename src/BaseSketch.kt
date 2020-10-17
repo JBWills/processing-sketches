@@ -1,6 +1,7 @@
 import controls.Control
 import controls.Control.Button
 import controls.ControlFrame
+import coordinate.Point
 import processing.core.PConstants
 import util.PAppletExt
 import java.awt.Color
@@ -19,6 +20,8 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   protected val sizeY: Int = 1000,
   var isDebugMode: Boolean = false
 ) : PAppletExt() {
+
+  val center get() = Point(sizeX / 2, sizeY / 2)
 
   private var dirty = true
   private var recordSvg = false

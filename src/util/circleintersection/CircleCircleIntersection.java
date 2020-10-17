@@ -1,4 +1,4 @@
-package util.geometry;
+package util.circleintersection;
 
 import static java.lang.Math.*;
 
@@ -47,34 +47,34 @@ public final class CircleCircleIntersection {
 
 	}
 
-	public final Circle c1;
-	public final Circle c2;
+	public final LCircle c1;
+	public final LCircle c2;
 
 	// Results valid for all intersections:
 	public final Type type;
 	public final double distanceC1cC2c;
 
 	// Results valid for eccentric circles:
-	public final Vector2 radicalPoint;
+	public final LVector2 radicalPoint;
 	public final double distanceC1cRadicalLine;
 	public final double distanceC2cRadicalLine;
-	public final Vector2 versorC1cC2c;
-	public final Vector2 versorRadicalLine;
+	public final LVector2 versorC1cC2c;
+	public final LVector2 versorRadicalLine;
 
 	// Results valid for tangent circles:
-	public final Vector2 intersectionPoint;
+	public final LVector2 intersectionPoint;
 
 	// Results valid for overlapping circles:
-	public final Vector2 intersectionPoint1;
-	public final Vector2 intersectionPoint2;
+	public final LVector2 intersectionPoint1;
+	public final LVector2 intersectionPoint2;
 	public final double distanceRadicalPointIntersectionPoints;
 
-	public CircleCircleIntersection(Circle c1, Circle c2) {
+	public CircleCircleIntersection(LCircle c1, LCircle c2) {
 		this.c1 = c1;
 		this.c2 = c2;
 
 		// Vector going from c1 center to c2 center:
-		Vector2 vectorC1cC2c = c2.c.sub(c1.c);
+		LVector2 vectorC1cC2c = c2.c.sub(c1.c);
 		// Distance between circle centers:
 		distanceC1cC2c = vectorC1cC2c.mod();
 
@@ -160,14 +160,14 @@ public final class CircleCircleIntersection {
 	}
 
 	// Valid for noncoincident circles:
-	public Vector2[] getIntersectionPoints() {
+	public LVector2[] getIntersectionPoints() {
 		switch (type.getIntersectionPointCount()) {
 		case 0:
-			return new Vector2[] {};
+			return new LVector2[] {};
 		case 1:
-			return new Vector2[] { intersectionPoint };
+			return new LVector2[] { intersectionPoint };
 		case 2:
-			return new Vector2[] { intersectionPoint1, intersectionPoint2 };
+			return new LVector2[] { intersectionPoint1, intersectionPoint2 };
 		default:
 			throw new IllegalStateException("Coincident circles");
 		}
