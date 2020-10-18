@@ -2,24 +2,24 @@ package sketches
 
 import BaseSketch
 import SketchConfig
+import appletExtensions.intersection
 import controls.Control
-import coordinate.Arc
+import controls.Control.Slider
 import coordinate.BoundRect
 import coordinate.Circ
-import coordinate.Deg
 import coordinate.Point
 import java.awt.Color
 
-class ArcConfig : SketchConfig()
+class ArcTestConfig : SketchConfig()
 
-open class ArcSketch(
+open class ArcTestSketch(
   var startAngle: Float = 0f,
   var length: Float = 360f,
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.BLACK,
   sizeX: Int = 576,
   sizeY: Int = 864,
-) : BaseSketch<ArcConfig>(
+) : BaseSketch<ArcTestConfig>(
   backgroundColor = backgroundColor,
   svgBaseFileName = "sketches.StarterSketch",
   sketchConfig = null,
@@ -27,6 +27,9 @@ open class ArcSketch(
   sizeY = sizeY,
   isDebugMode = isDebugMode
 ) {
+
+  var position: Point = center
+  var size: Float = 50f
 
   private val outerPaddingX: Float = sizeX * 0.05f
   private val outerPaddingY: Float = sizeY * 0.05f
@@ -37,31 +40,49 @@ open class ArcSketch(
   )
 
   override fun getControls() = listOf<Control>(
-    Control.Slider("Start angle", Pair(0f, 360f)) {
+    Slider("Start angle", Pair(0f, 360f), startAngle) {
       startAngle = it
       markDirty()
     },
-    Control.Slider("length", Pair(0f, 360f)) {
+    Slider("length", Pair(0f, 360f), length) {
       length = it
+      markDirty()
+    },
+    Slider("posX", Pair(0f, sizeX.toFloat()), position.x) {
+      position.x = it
+      markDirty()
+    },
+    Slider("posY", Pair(0f, sizeY.toFloat()), position.y) {
+      position.y = it
+      markDirty()
+    },
+    Slider("size", Pair(0f, 150f), size) {
+      size = it
       markDirty()
     },
   )
 
-  override fun getRandomizedConfig() = ArcConfig()
+  override fun getRandomizedConfig() = ArcTestConfig()
 
-  override fun drawOnce(config: ArcConfig) {
+  override fun drawOnce(config: ArcTestConfig) {
     noStroke()
 
     stroke(Color.WHITE.rgb)
     strokeWeight(2f)
     noFill()
 
-    circle(Circ(center, 90f))
+    val baseCircle = Circ(center, 90f)
+    val moveCircle = Circ(position, size)
+    val clippedCircle = moveCircle.intersection(baseCircle)
 
-    arc(Arc(Deg(startAngle), length, Circ(center, 50f)))
+    circle(baseCircle)
+
+
+
+    arc(clippedCircle)
 
     rect(drawBound)
   }
 }
 
-fun main() = BaseSketch.run(ArcSketch())
+fun main() = BaseSketch.run(ArcTestSketch())

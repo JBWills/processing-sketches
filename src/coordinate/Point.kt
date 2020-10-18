@@ -67,6 +67,9 @@ data class Point(var x: Float, var y: Float) : Comparable<Point> {
 
   operator fun unaryPlus() = Point(+x, +y)
 
+  fun addX(amt: Number) = Point(x + amt.toFloat(), y)
+  fun addY(amt: Number) = Point(x, y + amt.toFloat())
+
   operator fun plus(other: Point) = Point(x + other.x, y + other.y)
   operator fun plus(other: Number) = Point(x + other.toFloat(), y + other.toFloat())
   operator fun minus(other: Point) = this + -other

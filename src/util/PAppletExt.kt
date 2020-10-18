@@ -3,6 +3,7 @@ package util
 import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
+import coordinate.Deg
 import coordinate.Line
 import coordinate.LineSegment
 import coordinate.Point
@@ -27,7 +28,7 @@ open class PAppletExt : PApplet() {
   fun line(p1: Point, p2: Point) = line(p1.x, p1.y, p2.x, p2.y)
   fun rect(r: BoundRect) = rect(r.left, r.top, r.width, r.height)
 
-  fun circle(c: Circ) = circle(c.origin.x, c.origin.y, c.radius)
+  fun circle(c: Circ) = circle(c.origin.x, c.origin.y, c.diameter)
 
   fun arc(a: Arc) {
     if (a.lengthClockwise >= 360f) {
@@ -35,15 +36,27 @@ open class PAppletExt : PApplet() {
       return
     }
 
-    val aFlipped = a.flippedVertically()
-    var endDeg = aFlipped.startDeg
-    val startDeg = aFlipped.endDeg
+    arc(a, a.startDeg, a.endDeg)
+  }
 
+  fun arcFlipped(a: Arc) {
+    if (a.lengthClockwise >= 360f) {
+      circle(a)
+      return
+    }
+
+    // Need to flip the arc and switch the start and end points because the arc Processing util draws counterclockwise,
+    // but our arcs store start and end degrees in clockwise notation.
+    val aFlipped = a.flippedVertically()
+    arc(a, aFlipped.endDeg, aFlipped.startDeg)
+  }
+
+  private fun arc(c: Circ, startDeg: Deg, endDeg: Deg) {
     val endDegValue = if (endDeg.value < startDeg.value) {
       endDeg.value + 360f
     } else endDeg.value
 
-    // spomethinng about this needs to be flipped
-    arc(a.origin.x, a.origin.y, a.radius, a.radius, startDeg.rad, endDegValue.toRadians())
+
+    arc(c.origin.x, c.origin.y, c.diameter, c.diameter, startDeg.rad, endDegValue.toRadians())
   }
 }

@@ -13,6 +13,7 @@ fun Point.toLVector() = LVector2(x.toDouble(), y.toDouble())
 open class Circ(var origin: Point, var radius: Float) {
   constructor(origin: Point, radius: Number) : this(origin, radius.toFloat())
   constructor(radius: Number) : this(Point.Zero, radius.toFloat())
+  constructor(c: Circ) : this(c.origin, c.radius)
 
   init {
     if (radius < 0) {
@@ -50,4 +51,6 @@ open class Circ(var origin: Point, var radius: Float) {
   override fun toString(): String {
     return "Circ(origin=$origin, radius=$radius)"
   }
+
+  val diameter get() = 2 * radius
 }

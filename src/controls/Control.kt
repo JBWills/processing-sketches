@@ -32,10 +32,13 @@ sealed class Control(
   class Slider(
     text: String,
     range: Pair<Float, Float> = 0f to 1f,
+    defaultValue: Float? = null,
     handleChange: (Float) -> Unit,
   ) : Control(
     sliderWith(text) {
       range(range)
+
+      this.defaultValue = defaultValue ?: range.first
       onChange { handleChange(value) }
     }
   )
