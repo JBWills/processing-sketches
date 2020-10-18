@@ -17,6 +17,7 @@ class ControlFrame(
   private val padding = PaddingRect(
     base = 30f,
     left = 10f,
+    right = 80f
   )
 
   private val elementPadding = PaddingRect(
