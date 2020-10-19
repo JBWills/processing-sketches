@@ -8,6 +8,8 @@ import controls.Control.Slider
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
+import util.pow
+import util.squared
 import java.awt.Color
 
 class ArcConfig : SketchConfig()
@@ -15,11 +17,11 @@ class ArcConfig : SketchConfig()
 open class ArcSketch(
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
-  sizeX: Int = 576,
-  sizeY: Int = 864,
+  sizeX: Int = 11 * 72,
+  sizeY: Int = 16 * 72,
 ) : BaseSketch<ArcConfig>(
   backgroundColor = backgroundColor,
-  svgBaseFileName = "sketches.StarterSketch",
+  svgBaseFileName = "sketches.ArcSketch",
   sketchConfig = null,
   sizeX = sizeX,
   sizeY = sizeY,
@@ -32,9 +34,11 @@ open class ArcSketch(
   var centerHeight = 180f
   var occludingSize = 246f
   var occludingHeight = 251f
+  var power = 1.1f
+  var power2 = 1.1f
 
-  private val outerPaddingX: Float = sizeX * 0.05f
-  private val outerPaddingY: Float = sizeY * 0.05f
+  private val outerPaddingX: Float = sizeX * 0.02f
+  private val outerPaddingY: Float = sizeY * 0.02f
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
     sizeY - 2 * outerPaddingY,
@@ -42,7 +46,7 @@ open class ArcSketch(
   )
 
   override fun getControls() = listOf<Control>(
-    Slider("Steps", Pair(20f, 560f), steps) {
+    Slider("Steps", Pair(20f, 10560f), steps) {
       steps = it
       markDirty()
     },
@@ -66,6 +70,14 @@ open class ArcSketch(
       occludingHeight = it
       markDirty()
     },
+    Slider("power", Pair(0f, 2f), power) {
+      power = it
+      markDirty()
+    },
+    Slider("power2", Pair(0f, 2f), power2) {
+      power2 = it
+      markDirty()
+    },
   )
 
   override fun getRandomizedConfig() = ArcConfig()
@@ -80,9 +92,9 @@ open class ArcSketch(
     val occludingCircle = Circ(center.addY(occludingHeight), occludingSize)
 
     val centerYBase = center.y - centerHeight
-    (1..steps.toInt() step step.toInt()).forEach {
-      val radius = it
-      val origin = Point(center.x, centerYBase + it * ratio)
+    (step.toInt()..steps.toInt() step step.toInt()).forEach {
+      val radius = (it / 2f).pow(power)
+      val origin = Point(center.x, centerYBase + (it / 2f).pow(power2) * ratio)
 
       val arcToDraw = Circ(origin, radius).intersection(occludingCircle)
 

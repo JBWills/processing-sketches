@@ -82,9 +82,6 @@ class Arc(var startDeg: Deg, var lengthClockwise: Float, circle: Circ) : Circ(ci
 
     val (first, second) = listOf(this, other).sortedBy { it.endDeg.value }
 
-    println("first: $first")
-    println("second: $second")
-
     val firstStart = first.startDeg.value
     val firstEnd = first.endDegUnbound
 

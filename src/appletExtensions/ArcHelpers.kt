@@ -119,21 +119,18 @@ fun Circ.splitIntoArcsWhereIntersects(rect: BoundRect): List<Arc> {
     .ifEmpty { listOf(Arc(this)) }
 }
 
-fun Circ.clipCircInsideRect(rect: BoundRect): List<Arc> = splitIntoArcsWhereIntersects(rect)
-  .filter { rect.inRect(it.pointAtBisector) }
+fun Circ.clipCircInsideRect(rect: BoundRect): List<Arc> =
+  splitIntoArcsWhereIntersects(rect)
+    .filter { rect.inRect(it.pointAtBisector) }
 
-fun Circ.clipCircOutsideRect(rect: BoundRect): List<Arc> = splitIntoArcsWhereIntersects(rect)
-  .filterNot { rect.inRect(it.pointAtBisector) }
+fun Circ.clipCircOutsideRect(rect: BoundRect): List<Arc> =
+  splitIntoArcsWhereIntersects(rect)
+    .filterNot { rect.inRect(it.pointAtBisector) }
 
-fun Arc.clipInsideRect(rect: BoundRect): List<Arc> {
-  println(this)
-  println(clipCircInsideRect(rect))
-  println(clipCircInsideRect(rect).map(this::getOverlap))
-  println(clipCircInsideRect(rect).map(this::getOverlap).flatten())
-  return clipCircInsideRect(rect)
+fun Arc.clipInsideRect(rect: BoundRect): List<Arc> =
+  clipCircInsideRect(rect)
     .map(this::getOverlap)
     .flatten()
-}
 
 fun Arc.clipOutsideRect(rect: BoundRect): List<Arc> =
   clipCircOutsideRect(rect)
