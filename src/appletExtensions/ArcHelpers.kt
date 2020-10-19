@@ -4,8 +4,10 @@ import appletExtensions.IntersectionData.Coincident
 import appletExtensions.IntersectionData.Overlapping
 import appletExtensions.IntersectionData.SeparateOrExternallyTangent
 import coordinate.Arc
+import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Deg
+import coordinate.LineSegment
 import coordinate.Point
 import coordinate.isInCircle
 import util.circleintersection.CircleCircleIntersection
@@ -16,6 +18,9 @@ import util.circleintersection.CircleCircleIntersection.Type.INTERNALLY_TANGENT
 import util.circleintersection.CircleCircleIntersection.Type.OVERLAPPING
 import util.circleintersection.LCircle
 import util.circleintersection.LVector2
+import util.squared
+import util.zipWithSiblingsCyclical
+import kotlin.math.sqrt
 
 sealed class IntersectionData {
   class Overlapping(val points: Pair<Point, Point>) : IntersectionData()
@@ -50,3 +55,87 @@ fun Circ.intersection(other: Circ): Arc = when (val intersection = toLCircle().i
   Coincident, IntersectionData.Contained -> Arc(Deg(0), 0f, this)
   IntersectionData.Container, SeparateOrExternallyTangent -> Arc(this)
 }
+
+// From S.O.: https://stackoverflow.com/a/13055116
+fun getCircleLineIntersectionPoint(
+  l: LineSegment,
+  circ: Circ,
+): List<Point> {
+  val pointDiff = l.p2 - l.p1
+  val centerToP1 = circ.origin - l.p1
+
+  val a = pointDiff.x.squared() + pointDiff.y.squared()
+  val bBy2 = pointDiff.x * centerToP1.x + pointDiff.y * centerToP1.y
+  val c = centerToP1.x.squared() + centerToP1.y.squared() - circ.radius.squared()
+  val pBy2 = bBy2 / a
+  val q = c / a
+  val disc = pBy2 * pBy2 - q
+  if (disc < 0) return emptyList()
+
+  // if disc == 0 ... dealt with later
+  val tmpSqrt = sqrt(disc)
+  val abScalingFactor1 = -pBy2 + tmpSqrt
+  val abScalingFactor2 = -pBy2 - tmpSqrt
+  val p1 = l.p1 - pointDiff * abScalingFactor1
+
+  if (disc == 0f) { // abScalingFactor1 == abScalingFactor2
+    return listOf(p1)
+  }
+
+  val p2 = l.p1 - pointDiff * abScalingFactor2
+  return listOf(p1, p2)
+}
+
+private fun isTangentIntersection(intersectionAndSurroundingPoints: Triple<Point, Point, Point>, c: Circ, r: BoundRect): Boolean {
+  val a1 = Arc(intersectionAndSurroundingPoints.first, intersectionAndSurroundingPoints.second, c)
+  val a2 = Arc(intersectionAndSurroundingPoints.second, intersectionAndSurroundingPoints.third, c)
+
+  val bothArcsOutsideRect = !r.inRect(a1.pointAtBisector) && !r.inRect(a2.pointAtBisector)
+  val bothArcsInsideRect = r.inRect(a1.pointAtBisector) && r.inRect(a2.pointAtBisector)
+
+  return bothArcsOutsideRect || bothArcsInsideRect
+}
+
+fun Circ.splitIntoArcsWhereIntersects(rect: BoundRect): List<Arc> {
+  val intersectionPoints = mutableListOf<Point>()
+  rect.segments.forEach {
+    intersectionPoints.addAll(getCircleLineIntersectionPoint(it, this))
+  }
+
+  if (intersectionPoints.isEmpty()) {
+    return listOf(Arc(this))
+  }
+
+  return intersectionPoints
+    // distinct in case a corner is counted twice
+    .distinct()
+    .sortedBy { p -> angleAtPoint(p).value }
+    .zipWithSiblingsCyclical()
+    .filterNot { isTangentIntersection(it, this, rect) }
+    .map { it.second }
+    .zipWithSiblingsCyclical()
+    .map { Arc(it.first, it.second, this) }
+    .sortedBy { it.startDeg.value }
+    .ifEmpty { listOf(Arc(this)) }
+}
+
+fun Circ.clipCircInsideRect(rect: BoundRect): List<Arc> = splitIntoArcsWhereIntersects(rect)
+  .filter { rect.inRect(it.pointAtBisector) }
+
+fun Circ.clipCircOutsideRect(rect: BoundRect): List<Arc> = splitIntoArcsWhereIntersects(rect)
+  .filterNot { rect.inRect(it.pointAtBisector) }
+
+fun Arc.clipInsideRect(rect: BoundRect): List<Arc> {
+  println(this)
+  println(clipCircInsideRect(rect))
+  println(clipCircInsideRect(rect).map(this::getOverlap))
+  println(clipCircInsideRect(rect).map(this::getOverlap).flatten())
+  return clipCircInsideRect(rect)
+    .map(this::getOverlap)
+    .flatten()
+}
+
+fun Arc.clipOutsideRect(rect: BoundRect): List<Arc> =
+  clipCircOutsideRect(rect)
+    .map(this::getOverlap)
+    .flatten()

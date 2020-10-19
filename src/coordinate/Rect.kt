@@ -18,7 +18,6 @@ data class BoundRect(
   val height: Float,
   val width: Float,
 ) {
-
   init {
     if (height < 0) {
       throw Exception("Can't make a rect with negative height: $height")
@@ -39,6 +38,8 @@ data class BoundRect(
   val bottomSegment get() = LineSegment(bottomLeft, bottomRight)
   val leftSegment get() = LineSegment(topLeft, bottomLeft)
   val rightSegment get() = LineSegment(topRight, bottomRight)
+
+  val segments get() = listOf(topSegment, bottomSegment, leftSegment, rightSegment)
 
   fun isTop(line: Line) = line.origin.y == top && line.slope.isHorizontal()
   fun isBottom(line: Line) = line.origin.y == bottom && line.slope.isHorizontal()

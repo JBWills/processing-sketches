@@ -8,14 +8,13 @@ import controls.Control.Slider
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
-import util.times
 import java.awt.Color
 
 class ArcConfig : SketchConfig()
 
 open class ArcSketch(
   isDebugMode: Boolean = false,
-  backgroundColor: Color = Color.BLACK,
+  backgroundColor: Color = Color.WHITE,
   sizeX: Int = 576,
   sizeY: Int = 864,
 ) : BaseSketch<ArcConfig>(
@@ -27,12 +26,12 @@ open class ArcSketch(
   isDebugMode = isDebugMode
 ) {
 
-  var steps = 150f
+  var steps = 312f
   var step = 4f
-  var ratio = 0.9f
-  var centerHeight = 200f
-  var occludingSize = 200f
-  var occludingHeight = 200f
+  var ratio = 0.92f
+  var centerHeight = 180f
+  var occludingSize = 246f
+  var occludingHeight = 251f
 
   private val outerPaddingX: Float = sizeX * 0.05f
   private val outerPaddingY: Float = sizeY * 0.05f
@@ -43,7 +42,7 @@ open class ArcSketch(
   )
 
   override fun getControls() = listOf<Control>(
-    Slider("Steps", Pair(20f, 360f), steps) {
+    Slider("Steps", Pair(20f, 560f), steps) {
       steps = it
       markDirty()
     },
@@ -74,7 +73,7 @@ open class ArcSketch(
   override fun drawOnce(config: ArcConfig) {
     noStroke()
 
-    stroke(Color.WHITE.rgb)
+    stroke(Color.BLACK.rgb)
     strokeWeight(2f)
     noFill()
 
@@ -85,7 +84,9 @@ open class ArcSketch(
       val radius = it
       val origin = Point(center.x, centerYBase + it * ratio)
 
-      arc(Circ(origin, radius).intersection(occludingCircle))
+      val arcToDraw = Circ(origin, radius).intersection(occludingCircle)
+
+      boundArc(arcToDraw, drawBound)
     }
 
     rect(drawBound)

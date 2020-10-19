@@ -1,5 +1,7 @@
 package util
 
+import appletExtensions.clipInsideRect
+import appletExtensions.clipOutsideRect
 import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
@@ -8,6 +10,7 @@ import coordinate.Line
 import coordinate.LineSegment
 import coordinate.Point
 import processing.core.PApplet
+import java.awt.Color
 
 open class PAppletExt : PApplet() {
   fun random(low: Int, high: Int) = random(low.toFloat(), high.toFloat())
@@ -59,4 +62,8 @@ open class PAppletExt : PApplet() {
 
     arc(c.origin.x, c.origin.y, c.diameter, c.diameter, startDeg.rad, endDegValue.toRadians())
   }
+
+  fun arcs(arcs: Iterable<Arc>) = arcs.forEach { a -> arc(a) }
+
+  fun boundArc(arc: Arc, bound: BoundRect) = arcs(arc.clipInsideRect(bound))
 }
