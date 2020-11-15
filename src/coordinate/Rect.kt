@@ -1,13 +1,16 @@
 package coordinate
 
+import kotlin.math.abs
+import kotlin.math.min
+
 data class PaddingRect(
-  val base: Float = 0f,
-  val vertical: Float = base,
-  val horizontal: Float = base,
-  val top: Float = vertical,
-  val bottom: Float = vertical,
-  val left: Float = horizontal,
-  val right: Float = horizontal,
+  val base: Double = 0.0,
+  val vertical: Double = base,
+  val horizontal: Double = base,
+  val top: Double = vertical,
+  val bottom: Double = vertical,
+  val left: Double = horizontal,
+  val right: Double = horizontal,
 ) {
   fun totalHorizontal() = left + right
   fun totalVertical() = top + bottom
@@ -15,8 +18,8 @@ data class PaddingRect(
 
 data class BoundRect(
   val topLeft: Point,
-  val height: Float,
-  val width: Float,
+  val height: Double,
+  val width: Double,
 ) {
   init {
     if (height < 0) {
@@ -26,18 +29,18 @@ data class BoundRect(
     }
   }
 
-  val top: Float = topLeft.y
-  val left: Float = topLeft.x
-  val bottom: Float = topLeft.y + height
-  val right: Float = topLeft.x + width
+  val top: Double = topLeft.y
+  val left: Double = topLeft.x
+  val bottom: Double = topLeft.y + height
+  val right: Double = topLeft.x + width
   val bottomRight = Point(right, bottom)
   val topRight = Point(right, top)
   val bottomLeft = Point(left, bottom)
 
-  val topSegment get() = LineSegment(topLeft, topRight)
-  val bottomSegment get() = LineSegment(bottomLeft, bottomRight)
-  val leftSegment get() = LineSegment(topLeft, bottomLeft)
-  val rightSegment get() = LineSegment(topRight, bottomRight)
+  val topSegment get() = Segment(topLeft, Deg(0), width)
+  val bottomSegment get() = Segment(bottomLeft, Deg(0), width)
+  val leftSegment get() = Segment(topLeft, bottomLeft)
+  val rightSegment get() = Segment(topRight, bottomRight)
 
   val segments get() = listOf(topSegment, bottomSegment, leftSegment, rightSegment)
 
@@ -46,11 +49,11 @@ data class BoundRect(
   fun isLeft(line: Line) = line.origin.x == left && line.slope.isVertical()
   fun isRight(line: Line) = line.origin.x == right && line.slope.isVertical()
 
-  fun expand(amount: Float): BoundRect {
+  fun expand(amount: Double): BoundRect {
     return BoundRect(topLeft - amount, width + 2 * amount, height + 2 * amount)
   }
 
-  fun getBoundSegment(line: Line): LineSegment? {
+  fun getBoundSegment(line: Line): Segment? {
     if (isTop(line)) return topSegment
     if (isBottom(line)) return bottomSegment
     if (isLeft(line)) return leftSegment
@@ -65,7 +68,26 @@ data class BoundRect(
       .sortedBy { (x, y) -> y * 1000 + x }
 
     if (intersections.size != 2 || intersections[0] == intersections[1]) return null
-    return LineSegment(intersections[0], intersections[1])
+    return Segment(intersections[0], intersections[1])
+  }
+
+  fun roughDistFromSides(point: Point): Double = min(
+    min(
+      abs(point.x - left),
+      abs(point.x - right)
+    ),
+    min(
+      abs(point.y - top),
+      abs(point.y - bottom)
+    ),
+  )
+
+  fun getBoundSegment(line: Segment): Segment? {
+    if (inRect(line.p1) && roughDistFromSides(line.p1) > line.length + 5) return Segment(line)
+
+    return getBoundSegment(line.toLine())
+      ?.getOverlapWith(line)
+      ?.withReorientedDirection(line)
   }
 
   fun inRect(p: Point) = p.y in top..bottom && p.x in left..right

@@ -12,7 +12,7 @@ import java.awt.Color
 class GradientLinesConfig : SketchConfig()
 
 open class GradientLinesSketch(
-  private var lineDegrees: Float = 0f,
+  private var lineDegrees: Double = 0.0,
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.BLACK,
   sizeX: Int = 576,
@@ -26,8 +26,8 @@ open class GradientLinesSketch(
   isDebugMode = isDebugMode
 ) {
 
-  private val outerPaddingX: Float = sizeX * 0.05f
-  private val outerPaddingY: Float = sizeY * 0.05f
+  private val outerPaddingX: Double = sizeX * 0.05
+  private val outerPaddingY: Double = sizeY * 0.05
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
     sizeY - 2 * outerPaddingY,
@@ -37,7 +37,7 @@ open class GradientLinesSketch(
   override fun getControls() = listOf(
     Control.Slider(
       text = "Line angle (degrees)",
-      range = 0f to 360f,
+      range = 0.0..360.0,
       handleChange =
       {
         lineDegrees = it
@@ -48,7 +48,7 @@ open class GradientLinesSketch(
 
   override fun getRandomizedConfig() = GradientLinesConfig()
 
-  fun bounds(segmentHeight: Float, segIndexFromTop: Int, numSegs: Int = 1) = BoundRect(
+  fun bounds(segmentHeight: Double, segIndexFromTop: Int, numSegs: Int = 1) = BoundRect(
     drawBound.topLeft + Point(0f, segIndexFromTop * segmentHeight),
     segmentHeight * numSegs,
     drawBound.width
@@ -69,38 +69,38 @@ open class GradientLinesSketch(
     drawParallelLinesInBound(
       bounds(0, 1),
       Deg(lineDegrees),
-      distanceBetween = 4f
+      distanceBetween = 4
     )
 
     drawParallelLinesInBound(
       bounds(1, 1),
       Deg(lineDegrees),
-      distanceBetween = 8f
+      distanceBetween = 8
     )
 
     drawParallelLinesInBound(
       bounds(2, 1),
       Deg(lineDegrees),
-      distanceBetween = 16f
+      distanceBetween = 16
     )
 
     drawParallelLinesInBound(
       bounds(3, 1),
       Deg(lineDegrees),
-      distanceBetween = 32f
+      distanceBetween = 32
     )
 
     drawParallelLinesInBound(
       bounds(4, 1),
       Deg(lineDegrees),
-      distanceBetween = 64f
+      distanceBetween = 64
     )
 
     drawParallelLinesInBound(
       bounds(5, 1),
       Deg(lineDegrees),
-      distanceBetween = 128f,
-      offset = 32f
+      distanceBetween = 128,
+      offset = 32
     )
 
     drawParallelLinesInBound(

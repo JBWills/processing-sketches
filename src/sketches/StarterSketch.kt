@@ -23,8 +23,8 @@ open class StarterSketch(
   isDebugMode = isDebugMode
 ) {
 
-  private val outerPaddingX: Float = sizeX * 0.05f
-  private val outerPaddingY: Float = sizeY * 0.05f
+  private val outerPaddingX: Double = sizeX * 0.05
+  private val outerPaddingY: Double = sizeY * 0.05
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
     sizeY - 2 * outerPaddingY,

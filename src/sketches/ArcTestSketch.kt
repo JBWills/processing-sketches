@@ -13,8 +13,8 @@ import java.awt.Color
 class ArcTestConfig : SketchConfig()
 
 open class ArcTestSketch(
-  var startAngle: Float = 0f,
-  var length: Float = 360f,
+  var startAngle: Double = 0.0,
+  var length: Double = 360.0,
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.BLACK,
   sizeX: Int = 576,
@@ -29,10 +29,10 @@ open class ArcTestSketch(
 ) {
 
   var position: Point = center
-  var size: Float = 50f
+  var size: Double = 50.0
 
-  private val outerPaddingX: Float = sizeX * 0.05f
-  private val outerPaddingY: Float = sizeY * 0.05f
+  private val outerPaddingX: Double = sizeX * 0.05
+  private val outerPaddingY: Double = sizeY * 0.05
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
     sizeY - 2 * outerPaddingY,
@@ -40,23 +40,23 @@ open class ArcTestSketch(
   )
 
   override fun getControls() = listOf<Control>(
-    Slider("Start angle", Pair(0f, 360f), startAngle) {
+    Slider("Start angle", 0.0..360.0, startAngle) {
       startAngle = it
       markDirty()
     },
-    Slider("length", Pair(0f, 360f), length) {
+    Slider("length", 0.0..360.0, length) {
       length = it
       markDirty()
     },
-    Slider("posX", Pair(0f, sizeX.toFloat()), position.x) {
+    Slider("posX", 0.0..sizeX.toDouble(), position.x) {
       position.x = it
       markDirty()
     },
-    Slider("posY", Pair(0f, sizeY.toFloat()), position.y) {
+    Slider("posY", 0.0..sizeY.toDouble(), position.y) {
       position.y = it
       markDirty()
     },
-    Slider("size", Pair(0f, 150f), size) {
+    Slider("size", 0.0..150.0, size) {
       size = it
       markDirty()
     },
@@ -71,7 +71,7 @@ open class ArcTestSketch(
     strokeWeight(2f)
     noFill()
 
-    val baseCircle = Circ(center, 90f)
+    val baseCircle = Circ(center, 90.0)
     val moveCircle = Circ(position, size)
     val clippedCircle = moveCircle.intersection(baseCircle)
 

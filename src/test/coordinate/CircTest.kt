@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 import util.times
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlin.test.assertFails
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -21,14 +20,14 @@ internal class CircTest {
     assertEquals(Point.Zero, Circ(Point.Zero, 1).origin)
     assertEquals(Point.One, Circ(Point.One, 2).origin)
     assertEquals(Point.One, Circ(Point.One, 0).origin)
-    assertEquals(2f, Circ(Point.One, 2).radius)
-    assertEquals(0f, Circ(Point.One, 0).radius)
+    assertEquals(2.0, Circ(Point.One, 2).radius)
+    assertEquals(0.0, Circ(Point.One, 0).radius)
   }
 
   @Test
   fun testConstructorWithoutOrigin() {
     assertEquals(Point.Zero, Circ(1).origin)
-    assertEquals(1f, Circ(1).radius)
+    assertEquals(1.0, Circ(1).radius)
   }
 
   @Test
@@ -75,7 +74,7 @@ internal class CircTest {
     val circ = Circ(Point(3, -3), 1)
 
     1000.times {
-      val deg = Deg(it.toFloat() / (360f * 1000))
+      val deg = Deg(it.toDouble() / (360.0 * 1000))
       val p = Point(cos(deg.rad), sin(deg.rad)) + Point(3, -3)
       assertTrue("circ.isOnCircle(p) with deg: $deg, circ: $circ, p: $p") { circ.isOnCircle(p) }
       assertTrue("p.isOnCircle(circ) with deg: $deg, circ: $circ, p: $p") { p.isOnCircle(circ) }
@@ -93,7 +92,7 @@ internal class CircTest {
     val circ = Circ(Point(3, -3), 1)
 
     1000.times {
-      val deg = Deg(it.toFloat() / (360f * 1000))
+      val deg = Deg(it.toDouble() / (360.0 * 1000))
       val pNotOnCircle = (Point(cos(deg.rad), sin(deg.rad)) * 0.9) + Point(3, -3)
       assertFalse("circ.isOnCircle(pNotOnCircle) with deg: $deg, circ: $circ, pNotOnCircle: $pNotOnCircle") { circ.isOnCircle(pNotOnCircle) }
       assertFalse("pNotOnCircle.isOnCircle(circ) with deg: $deg, circ: $circ, pNotOnCircle: $pNotOnCircle") { pNotOnCircle.isOnCircle(circ) }
@@ -105,7 +104,7 @@ internal class CircTest {
     val circ = Circ(Point(3, -3), 1)
 
     1000.times {
-      val deg = Deg(it.toFloat() / (360f * 1000))
+      val deg = Deg(it.toDouble() / (360.0 * 1000))
       val pNotOnCircle = (Point(cos(deg.rad), sin(deg.rad)) * 1.1) + Point(3, -3)
       assertFalse("circ.isOnCircle(pNotOnCircle) with deg: $deg, circ: $circ, pNotOnCircle: $pNotOnCircle") { circ.isOnCircle(pNotOnCircle) }
       assertFalse("pNotOnCircle.isOnCircle(circ) with deg: $deg, circ: $circ, pNotOnCircle: $pNotOnCircle") { pNotOnCircle.isOnCircle(circ) }
@@ -117,10 +116,10 @@ internal class CircTest {
     val circ = Circ(Point(3, -3), 1)
 
     1000.times {
-      val deg = Deg(it.toFloat() / (360f * 1000))
+      val deg = Deg(it.toDouble() / (360.0 * 1000))
       val p = Point(cos(deg.rad), sin(deg.rad)) + Point(3, -3)
-      assertTrue("circ.isInCircle(p) with deg: $deg, circ: $circ, p: $p") { circ.isInCircle(p) }
-      assertTrue("p.isInCircle(circ) with deg: $deg, circ: $circ, p: $p") { p.isInCircle(circ) }
+      assertTrue("circ.isInCircle(p) with \ndeg: $deg\ncirc: $circ\np: $p") { circ.isInCircle(p) }
+      assertTrue("p.isInCircle(circ) with \ndeg: $deg\ncirc: $circ\np: $p") { p.isInCircle(circ) }
     }
   }
 
@@ -129,7 +128,7 @@ internal class CircTest {
     val circ = Circ(Point(3, -3), 1)
 
     1000.times {
-      val deg = Deg(it.toFloat() / (360f * 1000))
+      val deg = Deg(it.toDouble() / (360.0 * 1000))
       val p = Point(cos(deg.rad), sin(deg.rad)) + Point(3, -3) * 0.9
       assertTrue("circ.isInCircle(p) with deg: $deg, circ: $circ, p: $p") { circ.isInCircle(p) }
       assertTrue("p.isInCircle(circ) with deg: $deg, circ: $circ, p: $p") { p.isInCircle(circ) }
@@ -141,7 +140,7 @@ internal class CircTest {
     val circ = Circ(Point(3, -3), 1)
 
     1000.times {
-      val deg = Deg(it.toFloat() / (360f * 1000))
+      val deg = Deg(it.toDouble() / (360.0 * 1000))
       val p = Point(cos(deg.rad), sin(deg.rad)) + Point(3, -3) * 1.1
       assertFalse("circ.isInCircle(p) with deg: $deg, circ: $circ, p: $p") { circ.isInCircle(p) }
       assertFalse("p.isInCircle(circ) with deg: $deg, circ: $circ, p: $p") { p.isInCircle(circ) }

@@ -15,13 +15,13 @@ class ControlFrame(
   private val cp5: ControlP5 by lazy { ControlP5(this) }
 
   private val padding = PaddingRect(
-    base = 30f,
-    left = 10f,
-    right = 80f
+    base = 30.0,
+    left = 10.0,
+    right = 80.0
   )
 
   private val elementPadding = PaddingRect(
-    vertical = 15f,
+    vertical = 15.0,
   )
 
   override fun settings() {

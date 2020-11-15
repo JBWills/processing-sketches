@@ -2,6 +2,9 @@ package coordinate
 
 import util.circleintersection.LCircle
 import util.circleintersection.LVector2
+import util.equalsDelta
+import util.lessThanEqualToDelta
+import util.notEqualsZero
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -10,9 +13,9 @@ fun Point.isInCircle(c: Circ) = c.isInCircle(this)
 
 fun Point.toLVector() = LVector2(x.toDouble(), y.toDouble())
 
-open class Circ(var origin: Point, var radius: Float) {
-  constructor(origin: Point, radius: Number) : this(origin, radius.toFloat())
-  constructor(radius: Number) : this(Point.Zero, radius.toFloat())
+open class Circ(var origin: Point, var radius: Double) {
+  constructor(origin: Point, radius: Number) : this(origin, radius.toDouble())
+  constructor(radius: Number) : this(Point.Zero, radius.toDouble())
   constructor(c: Circ) : this(c.origin, c.radius)
 
   init {
@@ -21,14 +24,14 @@ open class Circ(var origin: Point, var radius: Float) {
     }
   }
 
-  fun toLCircle(): LCircle = LCircle(origin.toLVector(), radius.toDouble())
+  fun toLCircle(): LCircle = LCircle(origin.toLVector(), radius)
 
   fun angleAtPoint(p: Point): Deg = (p - origin).angle()
 
   fun pointAtAngle(d: Deg): Point = (radius * Point(cos(d.rad), sin(d.rad))) + origin
 
-  fun isOnCircle(p: Point) = radius != 0f && origin.dist(p) == radius
-  fun isInCircle(p: Point) = radius != 0f && origin.dist(p) <= radius
+  fun isOnCircle(p: Point) = radius.notEqualsZero() && origin.dist(p).equalsDelta(radius)
+  fun isInCircle(p: Point) = radius.notEqualsZero() && origin.dist(p).lessThanEqualToDelta(radius)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

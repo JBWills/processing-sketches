@@ -1,13 +1,10 @@
 package coordinate
 
 import coordinate.RotationDirection.Clockwise
-import coordinate.RotationDirection.CounterClockwise
-import java.lang.Exception
-import kotlin.math.max
-import kotlin.math.min
 
-class Arc(var startDeg: Deg, var lengthClockwise: Float, circle: Circ) : Circ(circle.origin, circle.radius) {
-  constructor(circle: Circ) : this(Deg(0), 360f, circle)
+class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) : Circ(circle.origin, circle.radius) {
+  constructor(startDeg: Deg, lengthClockwise: Number, circle: Circ) : this(startDeg, lengthClockwise.toDouble(), circle)
+  constructor(circle: Circ) : this(Deg(0), 360, circle)
   constructor(arc: Arc) : this(arc.startDeg, arc.lengthClockwise, arc)
 
   constructor(startDeg: Deg, endDeg: Deg, circle: Circ) : this(
@@ -37,21 +34,21 @@ class Arc(var startDeg: Deg, var lengthClockwise: Float, circle: Circ) : Circ(ci
   val endDeg get(): Deg = startDeg + lengthClockwise
 
   val endDegUnbound
-    get(): Float = startDeg.value + lengthClockwise
+    get(): Double = startDeg.value + lengthClockwise
 
-  fun rotated(amt: Float) = Arc(startDeg + amt, lengthClockwise, Circ(origin, radius))
+  fun rotated(amt: Double) = Arc(startDeg + amt, lengthClockwise, Circ(origin, radius))
 
   fun flippedVertically() = Arc(-startDeg, -endDeg, Circ(origin, radius))
 
-  val crossesZero get() = endDegUnbound > 360f
+  val crossesZero get() = endDegUnbound > 360.0
 
-  val isSizeZero get() = lengthClockwise == 0f
+  val isSizeZero get() = lengthClockwise == 0.0
 
-  fun contains(deg: Number) = contains(Deg(deg.toFloat()))
+  fun contains(deg: Number) = contains(Deg(deg.toDouble()))
 
   fun contains(deg: Deg): Boolean {
     if (isSizeZero) return false
-    if (lengthClockwise == 360f) return true
+    if (lengthClockwise == 360.0) return true
 
     return when {
       deg.value == startDeg.value || deg.value == endDeg.value -> true
@@ -61,8 +58,8 @@ class Arc(var startDeg: Deg, var lengthClockwise: Float, circle: Circ) : Circ(ci
   }
 
   fun contains(a: Arc): Boolean {
-    if (lengthClockwise == 360f) return true
-    if (a.lengthClockwise == 360f) return false
+    if (lengthClockwise == 360.0) return true
+    if (a.lengthClockwise == 360.0) return false
 
     val distFromStartToStart = startDeg.rotation(a.startDeg, Clockwise)
     val distFromStartToEnd = startDeg.rotation(a.endDeg, Clockwise)
@@ -72,8 +69,8 @@ class Arc(var startDeg: Deg, var lengthClockwise: Float, circle: Circ) : Circ(ci
   fun getOverlap(other: Arc): List<Arc> {
     if (other.radius != radius ||
       other.origin != origin ||
-      lengthClockwise == 0f ||
-      other.lengthClockwise == 0f) {
+      lengthClockwise == 0.0 ||
+      other.lengthClockwise == 0.0) {
       return listOf()
     }
 
@@ -94,13 +91,13 @@ class Arc(var startDeg: Deg, var lengthClockwise: Float, circle: Circ) : Circ(ci
           Arc(second.startDeg, first.endDeg, this),
           Arc(first.startDeg, second.endDeg, this))
           .sortedBy { it.startDeg.value }
-          .filterNot { it.lengthClockwise == 0f }
+          .filterNot { it.lengthClockwise == 0.0 }
       }
       first.contains(secondStart) -> {
-        listOf(Arc(Deg(secondStart), Deg(firstEnd), this)).filterNot { it.lengthClockwise == 0f }
+        listOf(Arc(Deg(secondStart), Deg(firstEnd), this)).filterNot { it.lengthClockwise == 0.0 }
       }
       first.contains(secondEnd) -> {
-        listOf(Arc(Deg(firstStart), Deg(secondEnd), this)).filterNot { it.lengthClockwise == 0f }
+        listOf(Arc(Deg(firstStart), Deg(secondEnd), this)).filterNot { it.lengthClockwise == 0.0 }
       }
       else -> listOf()
     }

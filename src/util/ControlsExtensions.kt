@@ -4,6 +4,7 @@ import controlP5.Button
 import controlP5.ControlP5
 import controlP5.Controller
 import controlP5.Slider
+import controlP5.Slider2D
 import controlP5.Toggle
 import coordinate.PixelPoint
 import coordinate.Point
@@ -12,11 +13,13 @@ typealias Size = PixelPoint
 typealias Position = Point
 
 
-fun <T> Controller<T>.position(p: Position): T = setPosition(p.x, p.y)
+fun <T> Controller<T>.position(p: Position): T = setPosition(p.xf, p.yf)
 
 fun <T> Controller<T>.size(p: Size): T = setSize(p.x, p.y)
 
-fun Slider.range(r: Pair<Float, Float>): Slider = setRange(r.first, r.second)
+fun Slider.range(r: DoubleRange): Slider = setRange(r.start.toFloat(), r.endInclusive.toFloat())
+fun Slider2D.range(x: DoubleRange, y: DoubleRange): Slider2D =
+  setMinMax(x.start.toFloat(), y.start.toFloat(), x.endInclusive.toFloat(), y.endInclusive.toFloat())
 
 fun <T> Controller<T>.positionAndSize(p: Position?, s: Size?): Controller<T> {
   whenNotNull(p) { position(it) }
@@ -40,3 +43,7 @@ fun toggleWith(text: String, block: Toggle.() -> Unit = {})
 fun sliderWith(text: String, block: Slider.() -> Unit = {})
   : (ControlP5, pos: Position, size: Size) -> Unit =
   { c, pos, size -> c.addSlider(text).applyWithPosAndSize(pos, size, block) }
+
+fun slider2dWith(text: String, block: Slider2D.() -> Unit = {})
+  : (ControlP5, pos: Position, size: Size) -> Unit =
+  { c, pos, size -> c.addSlider2D(text).applyWithPosAndSize(pos, size, block) }

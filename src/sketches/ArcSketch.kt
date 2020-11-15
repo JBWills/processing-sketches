@@ -9,7 +9,6 @@ import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
 import util.pow
-import util.squared
 import java.awt.Color
 
 class ArcConfig : SketchConfig()
@@ -28,17 +27,17 @@ open class ArcSketch(
   isDebugMode = isDebugMode
 ) {
 
-  var steps = 312f
-  var step = 4f
-  var ratio = 0.92f
-  var centerHeight = 180f
-  var occludingSize = 246f
-  var occludingHeight = 251f
-  var power = 1.1f
-  var power2 = 1.1f
+  var steps = 312.0
+  var step = 4.0
+  var ratio = 0.92
+  var centerHeight = 180.0
+  var occludingSize = 246.0
+  var occludingHeight = 251.0
+  var power = 1.1
+  var power2 = 1.1
 
-  private val outerPaddingX: Float = sizeX * 0.02f
-  private val outerPaddingY: Float = sizeY * 0.02f
+  private val outerPaddingX: Double = sizeX * 0.02
+  private val outerPaddingY: Double = sizeY * 0.02
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
     sizeY - 2 * outerPaddingY,
@@ -46,35 +45,35 @@ open class ArcSketch(
   )
 
   override fun getControls() = listOf<Control>(
-    Slider("Steps", Pair(20f, 10560f), steps) {
+    Slider("Steps", 20.0..10560.0, steps) {
       steps = it
       markDirty()
     },
-    Slider("Step", Pair(1f, 20f), step) {
+    Slider("Step", 1.0..20.0, step) {
       step = it
       markDirty()
     },
-    Slider("ratio", Pair(-2f, 2f), ratio) {
+    Slider("ratio", -2.0..2.0, ratio) {
       ratio = it
       markDirty()
     },
-    Slider("centerHeight", Pair(-400f, 600f), centerHeight) {
+    Slider("centerHeight", -400.0..600.0, centerHeight) {
       centerHeight = it
       markDirty()
     },
-    Slider("occludingSize", Pair(10f, 600f), occludingSize) {
+    Slider("occludingSize", 10.0..600.0, occludingSize) {
       occludingSize = it
       markDirty()
     },
-    Slider("occludingHeight", Pair(-400f, 600f), occludingHeight) {
+    Slider("occludingHeight", -400.0..600.0, occludingHeight) {
       occludingHeight = it
       markDirty()
     },
-    Slider("power", Pair(0f, 2f), power) {
+    Slider("power", 0.0..2.0, power) {
       power = it
       markDirty()
     },
-    Slider("power2", Pair(0f, 2f), power2) {
+    Slider("power2", 0.0..2.0, power2) {
       power2 = it
       markDirty()
     },
@@ -93,8 +92,8 @@ open class ArcSketch(
 
     val centerYBase = center.y - centerHeight
     (step.toInt()..steps.toInt() step step.toInt()).forEach {
-      val radius = (it / 2f).pow(power)
-      val origin = Point(center.x, centerYBase + (it / 2f).pow(power2) * ratio)
+      val radius = (it / 2.0).pow(power)
+      val origin = Point(center.x, centerYBase + (it / 2.0).pow(power2) * ratio)
 
       val arcToDraw = Circ(origin, radius).intersection(occludingCircle)
 

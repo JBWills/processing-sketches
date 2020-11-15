@@ -1,25 +1,32 @@
 package util
 
 import appletExtensions.clipInsideRect
-import appletExtensions.clipOutsideRect
 import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Deg
 import coordinate.Line
-import coordinate.LineSegment
 import coordinate.Point
+import coordinate.Segment
+import fastnoise.FastNoise
+import fastnoise.FastNoise.NoiseType
 import processing.core.PApplet
-import java.awt.Color
 
 open class PAppletExt : PApplet() {
-  fun random(low: Int, high: Int) = random(low.toFloat(), high.toFloat())
-  fun random(low: Float, high: Int) = random(low, high.toFloat())
-  fun random(low: Int, high: Float) = random(low.toFloat(), high)
 
-  fun line(l: LineSegment) = line(l.p1, l.p2)
+  val PERLIN = getNoise(NoiseType.Perlin)
+
+  fun getNoise(type: NoiseType): FastNoise {
+    val noise = FastNoise()
+    noise.SetNoiseType(NoiseType.Perlin)
+    return noise
+  }
+
+  fun random(low: Number, high: Number) = random(low.toFloat(), high.toFloat())
+
+  fun line(l: Segment) = line(l.p1, l.p2)
   fun line(l: Line, length: Number, centered: Boolean = true) {
-    val lineExtender = (length.toFloat() / 2)
+    val lineExtender = (length.toDouble() / 2)
 
     if (centered) {
       line(l.getPointAtDist(-lineExtender), l.getPointAtDist(lineExtender))
@@ -28,13 +35,24 @@ open class PAppletExt : PApplet() {
     }
   }
 
-  fun line(p1: Point, p2: Point) = line(p1.x, p1.y, p2.x, p2.y)
-  fun rect(r: BoundRect) = rect(r.left, r.top, r.width, r.height)
+  fun strokeWeight(weight: Number) = strokeWeight(weight.toFloat())
 
-  fun circle(c: Circ) = circle(c.origin.x, c.origin.y, c.diameter)
+  fun circle(x: Number, y: Number, r: Number) = circle(x.toFloat(), y.toFloat(), r.toFloat())
+
+  fun point(p: Point) = point(p.x, p.y)
+  fun point(x: Number, y: Number) = point(x.toFloat(), y.toFloat())
+
+  fun line(p1: Point, p2: Point) = line(p1.xf, p1.yf, p2.xf, p2.yf)
+  fun rect(r: BoundRect) = rect(r.left.toFloat(), r.top.toFloat(), r.width.toFloat(), r.height.toFloat())
+
+  fun circle(c: Circ) = circle(c.origin.xf, c.origin.yf, c.diameter.toFloat())
+  fun debugCirc(p: Point) = circle(p.xf, p.yf, 5f)
+
+  fun noiseXY(p: Point) = Point(PERLIN.GetPerlin(p.xf, p.yf, 0f), PERLIN.GetPerlin(p.xf, p.yf, 100f))
+  fun noiseXY(x: Number, y: Number) = noiseXY(Point(x, y))
 
   fun arc(a: Arc) {
-    if (a.lengthClockwise >= 360f) {
+    if (a.lengthClockwise >= 360.0) {
       circle(a)
       return
     }
@@ -43,7 +61,7 @@ open class PAppletExt : PApplet() {
   }
 
   fun arcFlipped(a: Arc) {
-    if (a.lengthClockwise >= 360f) {
+    if (a.lengthClockwise >= 360.0) {
       circle(a)
       return
     }
@@ -56,14 +74,89 @@ open class PAppletExt : PApplet() {
 
   private fun arc(c: Circ, startDeg: Deg, endDeg: Deg) {
     val endDegValue = if (endDeg.value < startDeg.value) {
-      endDeg.value + 360f
+      endDeg.value + 360.0
     } else endDeg.value
 
 
-    arc(c.origin.x, c.origin.y, c.diameter, c.diameter, startDeg.rad, endDegValue.toRadians())
+    arc(c.origin.xf, c.origin.yf, c.diameter.toFloat(), c.diameter.toFloat(), startDeg.rad.toFloat(), endDegValue.toRadians().toFloat())
   }
 
   fun arcs(arcs: Iterable<Arc>) = arcs.forEach { a -> arc(a) }
 
   fun boundArc(arc: Arc, bound: BoundRect) = arcs(arc.clipInsideRect(bound))
+
+  fun vertex(p: Point) = vertex(p.xf, p.yf)
+
+  fun shape(vertices: List<Point>) {
+    beginShape()
+    vertices.forEach { vertex(it) }
+    endShape()
+  }
+
+  fun shapeSegments(segments: List<Segment>) {
+    beginShape()
+    segments.forEachIndexed { index, segment ->
+      vertex(segment.p1)
+      if (index == segments.size - 1) {
+        vertex(segment.p2)
+      }
+    }
+    endShape()
+  }
+
+  fun List<Point>.toSegments(): List<Segment> = mapWithNext { curr, next -> Segment(curr, next) }
+  fun List<Segment>.toVertices(): List<Point> = map { it.p1 }.addNotNull(lastOrNull()?.p2)
+
+  fun shape2(vertices: List<Point>, bound: BoundRect) {
+    val allSegments = vertices.toSegments()
+    val listOfLists = mutableListOf(mutableListOf<Segment>())
+
+    var shapeIndex = 0
+    allSegments.forEach { segment ->
+      val boundSeg = bound.getBoundSegment(segment)
+      var shouldAddNewShape = false
+      if (boundSeg == segment) {
+        listOfLists[shapeIndex].add(segment)
+      } else if (boundSeg != null) {
+        listOfLists[shapeIndex].add(boundSeg)
+        shouldAddNewShape = true
+      } else {
+        if (listOfLists[shapeIndex].isNotEmpty()) {
+          shouldAddNewShape = true
+        }
+      }
+
+      if (shouldAddNewShape) {
+        shapeIndex++
+        listOfLists.add(mutableListOf())
+      }
+    }
+
+    listOfLists.map { shapeList -> shape(shapeList.toVertices()) }
+  }
+
+  fun shape(vertices: List<Point>, bound: BoundRect) {
+    val listOfLists = mutableListOf(mutableListOf<Point>())
+    val currShape = mutableListOf<Point>()
+    vertices.mapWithNext { curr, next ->
+      val l = Segment(curr, next)
+      val l2 = bound.getBoundSegment(l)
+
+      when {
+        l2 == null -> {
+          listOfLists.add(currShape)
+        }
+        l != l2 -> {
+          currShape.add(l2.p2)
+          listOfLists.add(currShape)
+        }
+        else -> {
+          currShape.add(next)
+        }
+      }
+    }
+
+    listOfLists.filter { it.isNotEmpty() }
+      .forEach { shape(it) }
+  }
 }

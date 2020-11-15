@@ -11,10 +11,10 @@ import java.awt.Color
 typealias Sketch = BaseSketch<out SketchConfig>
 
 fun getTangentCornerBisector(bound: BoundRect, deg: Deg): Line {
-  val isUpward = (deg.value % 180) in 0f..90f
+  val isUpward = (deg.value % 180) in 0.0..90.0
 
-  val leftCornerBisector = Line(bound.topLeft, Deg(-45f))
-  val rightCornerBisector = Line(bound.topRight, Deg(-135f))
+  val leftCornerBisector = Line(bound.topLeft, Deg(-45))
+  val rightCornerBisector = Line(bound.topRight, Deg(-135))
 
   return when {
     deg.isVertical() || deg.isHorizontal() || isUpward ->
@@ -37,8 +37,8 @@ fun Sketch.drawLineSegment(bound: BoundRect, line: Line): Boolean {
 fun Sketch.drawParallelLinesInBound(
   bound: BoundRect,
   deg: Deg,
-  distanceBetween: Float,
-  offset: Float = 0f,
+  distanceBetween: Number,
+  offset: Number = 0.0,
   strokeColor: Color = Color.BLACK,
 ) {
   fun getNormal(cornerBisector: Line, linesToDrawSlope: Deg): Line {
@@ -71,7 +71,7 @@ fun Sketch.drawParallelLinesInBound(
     stroke(strokeColor.rgb)
   }
 
-  var currDist = offset
+  var currDist = offset.toDouble()
   while (true) {
     val newOrigin = walkDirection.getPointAtDist(currDist)
 
@@ -83,12 +83,12 @@ fun Sketch.drawParallelLinesInBound(
       stroke(strokeColor.rgb)
     }
 
-    if (!wasInBound && isMovingAwayFromAllCorners(bound, walkDirection.getPointAtDist(currDist - distanceBetween), newOrigin)) {
+    if (!wasInBound && isMovingAwayFromAllCorners(bound, walkDirection.getPointAtDist(currDist - distanceBetween.toDouble()), newOrigin)) {
       // if you're not currently in bounds but you were before that means you've left
       // the shape.
       break
     }
 
-    currDist += distanceBetween
+    currDist += distanceBetween.toDouble()
   }
 }

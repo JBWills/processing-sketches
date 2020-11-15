@@ -3,6 +3,7 @@ import controls.Control.Button
 import controls.ControlFrame
 import coordinate.Point
 import processing.core.PConstants
+import processing.event.MouseEvent
 import util.PAppletExt
 import java.awt.Color
 import java.time.Instant
@@ -18,7 +19,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   private var sketchConfig: TConfig? = null,
   protected val sizeX: Int = 1000,
   protected val sizeY: Int = 1000,
-  var isDebugMode: Boolean = false
+  var isDebugMode: Boolean = false,
 ) : PAppletExt() {
 
   val center get() = Point(sizeX / 2, sizeY / 2)
@@ -102,6 +103,12 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   fun markDirty() {
     dirty = true
   }
+
+  private fun MouseEvent?.run(f: (Point) -> Unit) = this?.let { f(Point(it.x, it.y)) } ?: Unit
+  override fun mouseClicked(event: MouseEvent?) = event.run { p -> mouseClicked(p) }
+  override fun mousePressed(event: MouseEvent?) = event.run { p -> mousePressed(p) }
+  open fun mousePressed(p: Point) {}
+  open fun mouseClicked(p: Point) {}
 
   open fun getControls() = listOf<Control>()
 

@@ -6,13 +6,10 @@ import controls.Control
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
-import coordinate.LineSegment
 import coordinate.Point
-import util.pEach
 import util.pow
 import util.times
 import java.awt.Color
-import java.util.Vector
 
 class GradientLinesOldConfig() : SketchConfig() {
 }
@@ -23,8 +20,8 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch<GradientLine
   sketchConfig = null,
 ) {
 
-  val outerPaddingX: Float = sizeX * 0.2f
-  val outerPaddingY: Float = sizeY * 0.2f
+  val outerPaddingX: Double = sizeX * 0.2
+  val outerPaddingY: Double = sizeY * 0.2
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
     sizeY - 2 * outerPaddingY,
@@ -34,7 +31,7 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch<GradientLine
   override fun getControls() = listOf(
     Control.Slider(
       text = "Line angle (degrees)",
-      range = 0f to 360f,
+      range = 0.0..360.0,
       handleChange =
       {
         lineDegrees = it.toInt()
@@ -47,7 +44,7 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch<GradientLine
 
   override fun drawOnce(config: GradientLinesOldConfig) {
     fun getPointsLinesShouldCrossThrough(bound: BoundRect, deg: Deg, numLines: Int): Iterable<Point> {
-      val isUpward = deg.value in 90..180 || deg.value in 270..360
+      val isUpward = deg.value in 90f..180f || deg.value in 270f..360f
       val start = if (isUpward) bound.topLeft else bound.topRight
       val end = if (isUpward) bound.bottomRight else bound.bottomLeft
 

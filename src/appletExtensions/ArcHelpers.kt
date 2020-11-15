@@ -7,7 +7,7 @@ import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Deg
-import coordinate.LineSegment
+import coordinate.Segment
 import coordinate.Point
 import coordinate.isInCircle
 import util.circleintersection.CircleCircleIntersection
@@ -52,13 +52,13 @@ fun Circ.intersection(other: Circ): Arc = when (val intersection = toLCircle().i
       .find { arc -> !arc.pointAtBisector.isInCircle(other) }
       ?: throw Exception("Arc could not be found of intersection between $this, $other")
   }
-  Coincident, IntersectionData.Contained -> Arc(Deg(0), 0f, this)
+  Coincident, IntersectionData.Contained -> Arc(Deg(0), 0.0, this)
   IntersectionData.Container, SeparateOrExternallyTangent -> Arc(this)
 }
 
 // From S.O.: https://stackoverflow.com/a/13055116
 fun getCircleLineIntersectionPoint(
-  l: LineSegment,
+  l: Segment,
   circ: Circ,
 ): List<Point> {
   val pointDiff = l.p2 - l.p1
@@ -78,7 +78,7 @@ fun getCircleLineIntersectionPoint(
   val abScalingFactor2 = -pBy2 - tmpSqrt
   val p1 = l.p1 - pointDiff * abScalingFactor1
 
-  if (disc == 0f) { // abScalingFactor1 == abScalingFactor2
+  if (disc == 0.0) { // abScalingFactor1 == abScalingFactor2
     return listOf(p1)
   }
 

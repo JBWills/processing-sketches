@@ -6,7 +6,7 @@ import coordinate.Deg
 import java.awt.Color
 
 class GradientLinesDiagonalSketch(
-  private var lineDegrees: Float = 44f,
+  private var lineDegrees: Double = 44.0,
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = 576,
@@ -21,7 +21,7 @@ class GradientLinesDiagonalSketch(
     strokeWeight(1f)
     noFill()
 
-    val segmentHeight = drawBound.height / 7f
+    val segmentHeight = drawBound.height / 7.0
 
     fun bounds(segIndexFromTop: Int, numSegs: Int = 1) = bounds(segmentHeight, segIndexFromTop, numSegs)
 

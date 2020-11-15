@@ -8,10 +8,10 @@ internal class PointTest {
 
   @Test
   fun testDist() {
-    assertEquals(5f, Point.Zero.dist(Point(0, 5)))
-    assertEquals(5f, Point.Zero.dist(Point(5, 0)))
-    assertEquals(5f, Point.Zero.dist(Point(3, 4)))
-    assertEquals(5f, Point.One.dist(Point(4, 5)))
-    assertEquals(5f, Point.One.dist(Point(-2, -3)))
+    assertEquals(5.0, Point.Zero.dist(Point(0, 5)))
+    assertEquals(5.0, Point.Zero.dist(Point(5, 0)))
+    assertEquals(5.0, Point.Zero.dist(Point(3, 4)))
+    assertEquals(5.0, Point.One.dist(Point(4, 5)))
+    assertEquals(5.0, Point.One.dist(Point(-2, -3)))
   }
 }

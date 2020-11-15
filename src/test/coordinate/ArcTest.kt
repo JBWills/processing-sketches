@@ -15,96 +15,96 @@ import kotlin.test.assertTrue
 
 internal class ArcTest {
 
-  private fun a(start: Number, l: Number) = Arc(Deg(start.toFloat()), l.toFloat(), Circ(Point.Zero, 1f))
+  private fun a(start: Number, l: Number) = Arc(Deg(start.toDouble()), l.toDouble(), Circ(Point.Zero, 1.0))
 
   @Test
   fun testPrimaryConstructor() {
-    val a = Arc(Deg(90), 10f, Circ(Point.Zero, 5f))
-    assertEquals(90f, a.startDeg.value)
-    assertEquals(10f, a.lengthClockwise)
+    val a = Arc(Deg(90), 10.0, Circ(Point.Zero, 5.0))
+    assertEquals(90.0, a.startDeg.value)
+    assertEquals(10.0, a.lengthClockwise)
     assertEquals(Point.Zero, a.origin)
-    assertEquals(5f, a.radius)
+    assertEquals(5.0, a.radius)
   }
 
   @Test
   fun testCircleConstructor() {
-    val a = Arc(Circ(Point.Zero, 5f))
+    val a = Arc(Circ(Point.Zero, 5.0))
     assertEquals(Deg(0), a.startDeg)
-    assertEquals(360f, a.lengthClockwise)
+    assertEquals(360.0, a.lengthClockwise)
   }
 
   @Test
   fun testDegreeConstructor() {
-    var a = Arc(Deg(90), Deg(100), Circ(Point.Zero, 5f))
+    var a = Arc(Deg(90), Deg(100), Circ(Point.Zero, 5.0))
     assertEquals(Deg(90), a.startDeg)
-    assertEquals(10f, a.lengthClockwise)
+    assertEquals(10.0, a.lengthClockwise)
 
 
-    a = Arc(Deg(90), Deg(50), Circ(Point.Zero, 5f))
+    a = Arc(Deg(90), Deg(50), Circ(Point.Zero, 5.0))
     assertEquals(Deg(90), a.startDeg)
-    assertEquals(320f, a.lengthClockwise)
+    assertEquals(320.0, a.lengthClockwise)
   }
 
   @Test
   fun testStartAndEndpointConstructor() {
-    var a = Arc(Point(0, -5), Point(0, 5), Circ(Point.Zero, 5f))
+    var a = Arc(Point(0, -5), Point(0, 5), Circ(Point.Zero, 5.0))
     assertEquals(Deg(270), a.startDeg)
-    assertEquals(180f, a.lengthClockwise)
+    assertEquals(180.0, a.lengthClockwise)
 
 
-    a = Arc(Point(0, 5), Point(0, -5), Circ(Point.Zero, 5f))
+    a = Arc(Point(0, 5), Point(0, -5), Circ(Point.Zero, 5.0))
     assertEquals(Deg(90), a.startDeg)
-    assertEquals(180f, a.lengthClockwise)
+    assertEquals(180.0, a.lengthClockwise)
 
-    a = Arc(Point(0, 5), Point(0, 5), Circ(Point.Zero, 5f))
+    a = Arc(Point(0, 5), Point(0, 5), Circ(Point.Zero, 5.0))
     assertEquals(Deg(90), a.startDeg)
-    assertEquals(0f, a.lengthClockwise)
+    assertEquals(0.0, a.lengthClockwise)
   }
 
   @Test
   fun testAngleBisector() {
     fun getBisector(start: Number, length: Number) = Arc(
-      Deg(start.toFloat()),
-      length.toFloat(),
-      Circ(Point.Zero, 5f)
+      Deg(start.toDouble()),
+      length.toDouble(),
+      Circ(Point.Zero, 5.0)
     ).angleBisector.value
 
-    assertEquals(180f, getBisector(0, 360))
-    assertEquals(90f, getBisector(0, 180))
-    assertEquals(45f, getBisector(0, 90))
-    assertEquals(0f, getBisector(0, 0))
+    assertEquals(180.0, getBisector(0, 360))
+    assertEquals(90.0, getBisector(0, 180))
+    assertEquals(45.0, getBisector(0, 90))
+    assertEquals(0.0, getBisector(0, 0))
 
-    assertEquals(0f, getBisector(350, 20))
-    assertEquals(355f, getBisector(350, 10))
-    assertEquals(352.5f, getBisector(350, 5))
+    assertEquals(0.0, getBisector(350, 20))
+    assertEquals(355.0, getBisector(350, 10))
+    assertEquals(352.5, getBisector(350, 5))
   }
 
   @Test
   fun testEngDeg() {
     fun getEndDeg(start: Number, length: Number) = Arc(
-      Deg(start.toFloat()),
-      length.toFloat(),
-      Circ(Point.Zero, 5f)
+      Deg(start.toDouble()),
+      length.toDouble(),
+      Circ(Point.Zero, 5.0)
     ).endDeg.value
 
-    assertEquals(0f, getEndDeg(0, 360))
-    assertEquals(180f, getEndDeg(0, 180))
-    assertEquals(90f, getEndDeg(0, 90))
-    assertEquals(0f, getEndDeg(0, 0))
+    assertEquals(0.0, getEndDeg(0, 360))
+    assertEquals(180.0, getEndDeg(0, 180))
+    assertEquals(90.0, getEndDeg(0, 90))
+    assertEquals(0.0, getEndDeg(0, 0))
 
-    assertEquals(10f, getEndDeg(350, 20))
-    assertEquals(0f, getEndDeg(350, 10))
-    assertEquals(355f, getEndDeg(350, 5))
+    assertEquals(10.0, getEndDeg(350, 20))
+    assertEquals(0.0, getEndDeg(350, 10))
+    assertEquals(355.0, getEndDeg(350, 5))
   }
 
   @Test
   fun testGetOverlapWithDifferentBaseCircles() {
-    val circSmallAtOrigin = Circ(Point.Zero, 1f)
-    val circLargeAtOrigin = Circ(Point.Zero, 5f)
-    val circSmallAtOne = Circ(Point.One, 1f)
-    val circLargeAtOne = Circ(Point.One, 5f)
+    val circSmallAtOrigin = Circ(Point.Zero, 1.0)
+    val circLargeAtOrigin = Circ(Point.Zero, 5.0)
+    val circSmallAtOne = Circ(Point.One, 1.0)
+    val circLargeAtOne = Circ(Point.One, 5.0)
 
-    fun arcWithCirc(c: Circ) = Arc(Deg(5), 5f, c)
+    fun arcWithCirc(c: Circ) = Arc(Deg(5), 5.0, c)
     assertEquals(EMPTY, arcWithCirc(circSmallAtOrigin).getOverlap(arcWithCirc(circLargeAtOrigin)))
     assertEquals(EMPTY, arcWithCirc(circLargeAtOrigin).getOverlap(arcWithCirc(circSmallAtOrigin)))
     assertEquals(EMPTY, arcWithCirc(circSmallAtOrigin).getOverlap(arcWithCirc(circSmallAtOne)))
@@ -191,7 +191,7 @@ internal class ArcTest {
     assertEquals(listOf(a(0, 10)), a(0, 180).getOverlap(a(180, 190)))
     assertEquals(listOf(a(0, 10), a(170, 10)), a(0, 180).getOverlap(a(170, 200)))
     assertEquals(listOf(a(0, 10), a(170, 10)), a(170, 200).getOverlap(a(0, 180)))
-    assertEquals(listOf(a(170, 190)), a(170, 190).getOverlap(Arc(Deg(0), 360f, Circ(Point.Zero, 1f))))
+    assertEquals(listOf(a(170, 190)), a(170, 190).getOverlap(Arc(Deg(0), 360.0, Circ(Point.Zero, 1.0))))
 
     assertEquals(listOf(a(4, 6), a(15, 9)), a(4, 20).getOverlap(a(15, 355)))
     assertEquals(listOf(a(4, 6), a(15, 9)), a(15, 355).getOverlap(a(4, 20)))
@@ -207,9 +207,9 @@ internal class ArcTest {
     assertFalse(a(90, 100).contains(200))
 
     // circle should contain everything
-    assertTrue(Arc(Circ(Point.Zero, 5f)).contains(20))
-    assertTrue(Arc(Circ(Point.Zero, 5f)).contains(0))
-    assertTrue(Arc(Circ(Point.Zero, 5f)).contains(359))
+    assertTrue(Arc(Circ(Point.Zero, 5.0)).contains(20))
+    assertTrue(Arc(Circ(Point.Zero, 5.0)).contains(0))
+    assertTrue(Arc(Circ(Point.Zero, 5.0)).contains(359))
 
     // size zero arc shouldn't contain anything
     assertFalse(a(10, 0).contains(20))
@@ -250,21 +250,21 @@ internal class ArcTest {
 
   @Test
   fun testSplitIntoArcsWhereIntersects() {
-    assertEquals(2, Circ(5).splitIntoArcsWhereIntersects(BoundRect(Point(-100, -100), 200f, 103f)).size)
-    assertEquals(1, Circ(5).splitIntoArcsWhereIntersects(BoundRect(Point(-5, -5), 10f, 10f)).size)
-    assertEquals(8, Circ(6).splitIntoArcsWhereIntersects(BoundRect(Point(-5, -5), 10f, 10f)).size)
-    assertEquals(listOf(Arc(Deg(0), Deg(90), Circ(1)), Arc(Deg(90), Deg(0), Circ(1))), Circ(1).splitIntoArcsWhereIntersects(BoundRect(Point.Zero, 10f, 10f)))
+    assertEquals(2, Circ(5).splitIntoArcsWhereIntersects(BoundRect(Point(-100, -100), 200.0, 103.0)).size)
+    assertEquals(1, Circ(5).splitIntoArcsWhereIntersects(BoundRect(Point(-5, -5), 10.0, 10.0)).size)
+    assertEquals(8, Circ(6).splitIntoArcsWhereIntersects(BoundRect(Point(-5, -5), 10.0, 10.0)).size)
+    assertEquals(listOf(Arc(Deg(0), Deg(90), Circ(1)), Arc(Deg(90), Deg(0), Circ(1))), Circ(1).splitIntoArcsWhereIntersects(BoundRect(Point.Zero, 10.0, 10.0)))
   }
 
   @Test
   fun testClipCircInsideRect() {
-    assertEquals(1, Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10f, 10f)).size)
-    assertEquals(listOf(Arc(Deg(0), Deg(90), Circ(1))), Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10f, 10f)))
+    assertEquals(1, Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10.0, 10.0)).size)
+    assertEquals(listOf(Arc(Deg(0), Deg(90), Circ(1))), Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10.0, 10.0)))
   }
 
   @Test
   fun testClipCircOutsideRect() {
-    assertEquals(1, Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10f, 10f)).size)
-    assertEquals(listOf(Arc(Deg(90), Deg(0), Circ(1))), Circ(1).clipCircOutsideRect(BoundRect(Point.Zero, 10f, 10f)))
+    assertEquals(1, Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10.0, 10.0)).size)
+    assertEquals(listOf(Arc(Deg(90), Deg(0), Circ(1))), Circ(1).clipCircOutsideRect(BoundRect(Point.Zero, 10.0, 10.0)))
   }
 }

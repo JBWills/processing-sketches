@@ -1,5 +1,6 @@
 package test.coordinate
 
+import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
 import coordinate.Point
@@ -10,157 +11,16 @@ import kotlin.math.sqrt
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-private typealias S = Segment
 
-internal class LineTest {
+internal class RectTest {
   /*
    * Line Segment tests
    */
   @Test
-  fun testToLine() {
-    fun assertToLineEquals(pointFrom: Point = Point.Zero, pointTo: Point, expectedDeg: Number) {
-      assertEquals(
-        Line(pointFrom, Deg(expectedDeg)),
-        S(pointFrom, pointTo).toLine()
-      )
-    }
-
-    assertToLineEquals(pointTo = Point.Up, expectedDeg = 90)
-    assertToLineEquals(pointTo = Point.Down, expectedDeg = 90)
-    assertToLineEquals(pointTo = Point.Right, expectedDeg = 0)
-    assertToLineEquals(pointFrom = Point.Right, pointTo = Point.Zero, expectedDeg = 0)
-    assertToLineEquals(pointTo = Point.Left, expectedDeg = 0)
-    assertToLineEquals(pointTo = Point.One, expectedDeg = 45)
-    assertToLineEquals(pointTo = Point(-1, 1), expectedDeg = 315)
-    assertToLineEquals(pointTo = -Point.One, expectedDeg = 45)
-  }
-
-  @Test
-  fun testConstructor() {
-    assertEquals(
-      S(Point.Zero, Point.Up),
-      S(Point.Zero, 1, Deg(90)))
-
-    assertEquals(
-      S(Point.Zero, Point.Down),
-      S(Point.Zero, 1, Deg(-90)))
-    assertEquals(
-      S(Point.Zero, Point.Left),
-      S(Point.Zero, 1, Deg(180)))
-    assertEquals(
-      S(Point.Zero, Point.Right),
-      S(Point.Zero, 1, Deg(0)))
-    assertEquals(
-      S(Point.Zero, Point(sqrt(0.5f), -sqrt(0.5f))),
-      S(Point.Zero, 1, Deg(45)))
-  }
-
-  @Test
-  fun testContainsWithVerticalLine() {
-    val line = S(Point.Zero, Point(0, 2))
-
-    assertTrue(line.contains(Point.Zero))
-    assertTrue(line.contains(Point(0, 1)))
-    assertTrue(line.contains(Point(0, 2)))
-    assertFalse(line.contains(Point(0, 2.1f)))
-    assertFalse(line.contains(Point(-0.1, 1)))
-    assertFalse(line.contains(Point(-0.1, 0)))
-    assertFalse(line.contains(Point(0.1, 0)))
-    assertFalse(line.contains(Point(0, -0.1)))
-
-    assertTrue(line.flip().contains(Point.Zero))
-    assertTrue(line.flip().contains(Point(0, 1)))
-    assertTrue(line.flip().contains(Point(0, 2)))
-    assertFalse(line.flip().contains(Point(0, 2.1f)))
-    assertFalse(line.flip().contains(Point(-0.1, 1)))
-    assertFalse(line.flip().contains(Point(-0.1, 0)))
-    assertFalse(line.flip().contains(Point(0.1, 0)))
-    assertFalse(line.flip().contains(Point(0, -0.1)))
-  }
-
-  @Test
-  fun testContainsWithHorizontalLine() {
-    val line = S(Point.Zero, Point(2, 0))
-
-    assertTrue(line.contains(Point.Zero))
-    assertTrue(line.contains(Point(1, 0)))
-    assertTrue(line.contains(Point(2, 0)))
-    assertFalse(line.contains(Point(2.1f, 0)))
-    assertFalse(line.contains(Point(1, -0.1f)))
-    assertFalse(line.contains(Point(0, -0.1f)))
-    assertFalse(line.contains(Point(0, 0.1f)))
-    assertFalse(line.contains(Point(-0.1, 0)))
-
-    assertTrue(line.flip().contains(Point.Zero))
-    assertTrue(line.flip().contains(Point(1, 0)))
-    assertTrue(line.flip().contains(Point(2, 0)))
-    assertFalse(line.flip().contains(Point(2.1f, 0)))
-    assertFalse(line.flip().contains(Point(1, -0.1f)))
-    assertFalse(line.flip().contains(Point(0, -0.1f)))
-    assertFalse(line.flip().contains(Point(0, 0.1f)))
-    assertFalse(line.flip().contains(Point(-0.1, 0)))
-  }
-
-  @Test
-  fun testContainsWithDiagonalLine() {
-    val line = S(Point.Zero, Point(2, 2))
-
-    assertTrue(line.contains(Point.Zero))
-    assertTrue(line.contains(Point(1, 1)))
-    assertTrue(line.contains(Point(2, 2)))
-    assertFalse(line.contains(Point(2.1f, 2.1f)))
-    assertFalse(line.contains(Point(-0.1f, -0.1f)))
-    assertFalse(line.contains(Point(0, -0.1f)))
-
-    assertTrue(line.flip().contains(Point.Zero))
-    assertTrue(line.flip().contains(Point(1, 1)))
-    assertTrue(line.flip().contains(Point(2, 2)))
-    assertFalse(line.flip().contains(Point(2.1f, 2.1f)))
-    assertFalse(line.flip().contains(Point(-0.1f, -0.1f)))
-    assertFalse(line.flip().contains(Point(0, -0.1f)))
-  }
-
-  @Test
-  fun testGetOverlap() {
-    val a = Point(1, 1)
-    val b = Point(2, 2)
-    val c = Point(3, 3)
-    val d = Point(4, 4)
-
-    fun test(expected: S, s1: S, s2: S) = assertEquals(expected, s1.getOverlapWith(s2))
-
-    test(expected = S(a, b), S(a, c), S(a, b))
-    test(expected = S(a, b), S(a, b), S(a, c))
-    test(expected = S(a, b), S(c, a), S(a, b))
-    test(expected = S(b, a), S(b, a), S(a, c))
-    test(expected = S(b, a), S(a, c), S(b, a))
-    test(expected = S(a, b), S(a, b), S(c, a))
-    test(expected = S(b, a), S(c, a), S(b, a))
-    test(expected = S(b, a), S(b, a), S(c, a))
-
-    test(expected = S(a, b), S(a, d), S(a, b))
-    test(expected = S(b, c), S(a, d), S(b, c))
-    test(expected = S(b, c), S(b, c), S(b, c))
-    test(expected = S(c, b), S(c, b), S(c, b))
-
-    test(expected = S(c, d), S(a, d), S(c, d))
-    test(expected = S(a, d), S(a, d), S(d, a))
-  }
-
-  @Test
-  fun testGetOverlapWithNoOverlap() {
-    val a = Point(1, 1)
-    val b = Point(2, 2)
-    val c = Point(3, 3)
-    val d = Point(4, 4)
-    val e = Point(5, 5)
-
-    fun test(expected: S?, s1: S, s2: S) = assertEquals(expected, s1.getOverlapWith(s2))
-
-    test(expected = null, S(a, b), S(d, e))
-    test(expected = null, S(a, b), S(b, e))
-    test(expected = null, S(a, b), S(b, b))
-    test(expected = null, S(a, c), S(b, b))
-    test(expected = null, S(a, c), S(d, d))
+  fun testGetBoundSegment() {
+    val r = BoundRect(Point(0, -1), 5.0, 5.0)
+    assertEquals(S(Point.Zero, Point(5, 0)), r.getBoundSegment(S(Point.Zero, Point(6, 0))))
+    assertEquals(S(Point.Zero, Point(5, 0)), r.getBoundSegment(S(Point(-1, 0), Point(6, 0))))
+    assertEquals(S(Point(0, -1), Point(5, -1)), r.getBoundSegment(S(Point(-1, -1), Point(6, -1))))
   }
 }

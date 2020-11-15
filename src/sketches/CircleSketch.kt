@@ -7,7 +7,7 @@ import util.times
 import java.awt.Color
 
 data class CircleConfig(
-  val distanceBetween: Float,
+  val distanceBetween: Double,
   val circleLimit: Int,
   val originPointsX: Int,
   val originPointsY: Int,
@@ -23,7 +23,7 @@ class CircleSketch : BaseSketch<CircleConfig>(
   sketchConfig = null,
 ) {
   override fun getRandomizedConfig() = CircleConfig(
-    distanceBetween = random(49, 50),
+    distanceBetween = random(49, 50).toDouble(),
     circleLimit = random(1, 20).toInt(),
     originPointsX = random(5, 10).toInt(),
     originPointsY = random(5, 50).toInt()
@@ -32,14 +32,14 @@ class CircleSketch : BaseSketch<CircleConfig>(
   override fun drawOnce(config: CircleConfig) {
     fun drawCircle(center: Point, size: Number, strokeColor: Color = Color.black) {
       stroke(strokeColor.rgb)
-      strokeWeight(0.5f)
+      strokeWeight(0.5)
       noFill()
-      circle(center.x, center.y, size.toFloat())
+      circle(center.x, center.y, size)
     }
 
-    fun drawConcentricCircles(limit: Int, center: Point, distanceBetween: Float, strokeColor: Color = Color.black) {
+    fun drawConcentricCircles(limit: Int, center: Point, distanceBetween: Double, strokeColor: Color = Color.black) {
       val numToDraw = max((max(sizeX, sizeY) * 4 / distanceBetween).toInt(), limit)
-      numToDraw.times { i -> drawCircle(center, (i.toFloat() * distanceBetween), strokeColor) }
+      numToDraw.times { i -> drawCircle(center, (i.toDouble() * distanceBetween), strokeColor) }
     }
 
     val center = Point(sizeX / 2, sizeY / 2)
@@ -48,7 +48,7 @@ class CircleSketch : BaseSketch<CircleConfig>(
     config.originPointsX.times { xIndex ->
       drawConcentricCircles(
         config.circleLimit,
-        center + Point(sizeX * 3f * (xIndex / 20f) - sizeX, 0f),
+        center + Point(sizeX * 3f * (xIndex / 20f) - sizeX, 0),
         config.distanceBetween, Color.BLACK)
     }
   }
