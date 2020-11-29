@@ -6,10 +6,15 @@ import util.DoubleRange
 import util.Position
 import util.Size
 import util.buttonWith
+import util.doubleToggleWith
 import util.range
 import util.slider2dWith
 import util.sliderWith
+import util.toDoubleRange
 import util.toggleWith
+import kotlin.reflect.KMutableProperty0
+
+val DEFAULT_RANGE = 0.0..1.0
 
 sealed class Control(
   val applyToControl: (c: ControlP5, pos: Position, size: Size) -> Unit,
@@ -25,33 +30,95 @@ sealed class Control(
 
   class Toggle(
     text: String,
+    defaultValue: Boolean = false,
     handleToggled: (Boolean) -> Unit,
   ) : Control(
     toggleWith(text) {
+      setValue(defaultValue)
       onChange { handleToggled(booleanValue) }
     }
+  ) {
+    constructor(
+      valRef: KMutableProperty0<Boolean>,
+      text: String? = null,
+      handleChange: (Boolean) -> Unit = {},
+    ) : this(text ?: valRef.name, valRef.get(), {
+      valRef.set(it)
+      handleChange(it)
+    })
+  }
+
+  class DoubleToggle(
+    valRef1: KMutableProperty0<Boolean>,
+    valRef2: KMutableProperty0<Boolean>,
+    handleFirstToggled: (Boolean) -> Unit = {},
+    handleSecondToggled: (Boolean) -> Unit = {},
+  ) : Control(
+    doubleToggleWith(
+      valRef1.name,
+      valRef2.name,
+      block = {
+        setValue(valRef1.get())
+        onChange {
+          valRef1.set(booleanValue)
+          handleFirstToggled(booleanValue)
+        }
+      },
+      block2 = {
+        setValue(valRef2.get())
+        onChange {
+          valRef2.set(booleanValue)
+          handleSecondToggled(booleanValue)
+        }
+      }
+    )
   )
 
   class Slider(
     text: String,
-    range: DoubleRange = 0.0..1.0,
+    range: DoubleRange = DEFAULT_RANGE,
     defaultValue: Double? = null,
     handleChange: (Double) -> Unit,
   ) : Control(
     sliderWith(text) {
       range(range)
 
-      this.defaultValue = defaultValue?.toFloat() ?: range.start.toFloat()
+      this.value = defaultValue?.toFloat() ?: range.start.toFloat()
       onChange { handleChange(value.toDouble()) }
     }
-  )
+  ) {
+    constructor(
+      valRef: KMutableProperty0<Double>,
+      range: DoubleRange = DEFAULT_RANGE,
+      text: String? = null,
+      handleChange: (Double) -> Unit = {},
+    ) : this(text ?: valRef.name, range, valRef.get(), {
+      valRef.set(it)
+      handleChange(it)
+    })
+
+    constructor(
+      valRef: KMutableProperty0<Int>,
+      range: IntRange,
+      text: String? = null,
+      handleChange: (Int) -> Unit = {},
+    ) : this(
+      text = text ?: valRef.name,
+      range = range.toDoubleRange(),
+      defaultValue = valRef.get().toDouble(),
+      handleChange =
+      {
+        valRef.set(it.toInt())
+        handleChange(it.toInt())
+      })
+  }
 
   class Slider2d(
     text: String,
-    rangeX: DoubleRange = 0.0..1.0,
-    rangeY: DoubleRange = 0.0..1.0,
+    rangeX: DoubleRange = DEFAULT_RANGE,
+    rangeY: DoubleRange = DEFAULT_RANGE,
     defaultValue: Point? = null,
-    handleChange: (Point) -> Unit
+    handleChange: (Point) -> Unit,
   ) : Control(
     slider2dWith(text) {
       range(rangeX, rangeY)
@@ -62,5 +129,16 @@ sealed class Control(
 
       onChange { handleChange(Point(cursorX, cursorY)) }
     }
-  )
+  ) {
+    constructor(
+      valRef: KMutableProperty0<Point>,
+      rangeX: DoubleRange = DEFAULT_RANGE,
+      rangeY: DoubleRange = DEFAULT_RANGE,
+      text: String? = null,
+      handleChange: (Point) -> Unit = {},
+    ) : this(text ?: valRef.name, rangeX, rangeY, valRef.get(), {
+      valRef.set(it)
+      handleChange(it)
+    })
+  }
 }

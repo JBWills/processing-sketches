@@ -107,7 +107,7 @@ open class PAppletExt : PApplet() {
   fun List<Point>.toSegments(): List<Segment> = mapWithNext { curr, next -> Segment(curr, next) }
   fun List<Segment>.toVertices(): List<Point> = map { it.p1 }.addNotNull(lastOrNull()?.p2)
 
-  fun shape2(vertices: List<Point>, bound: BoundRect) {
+  fun shape(vertices: List<Point>, bound: BoundRect) {
     val allSegments = vertices.toSegments()
     val listOfLists = mutableListOf(mutableListOf<Segment>())
 
@@ -133,30 +133,5 @@ open class PAppletExt : PApplet() {
     }
 
     listOfLists.map { shapeList -> shape(shapeList.toVertices()) }
-  }
-
-  fun shape(vertices: List<Point>, bound: BoundRect) {
-    val listOfLists = mutableListOf(mutableListOf<Point>())
-    val currShape = mutableListOf<Point>()
-    vertices.mapWithNext { curr, next ->
-      val l = Segment(curr, next)
-      val l2 = bound.getBoundSegment(l)
-
-      when {
-        l2 == null -> {
-          listOfLists.add(currShape)
-        }
-        l != l2 -> {
-          currShape.add(l2.p2)
-          listOfLists.add(currShape)
-        }
-        else -> {
-          currShape.add(next)
-        }
-      }
-    }
-
-    listOfLists.filter { it.isNotEmpty() }
-      .forEach { shape(it) }
   }
 }

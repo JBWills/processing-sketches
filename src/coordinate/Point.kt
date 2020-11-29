@@ -54,6 +54,8 @@ class PointProgression(
 data class Point(var x: Double, var y: Double) : Comparable<Point> {
   constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
 
+  fun toPixelPoint() = PixelPoint(x.toInt(), y.toInt())
+
   val xf get() = x.toFloat()
   val yf get() = y.toFloat()
 
@@ -84,6 +86,7 @@ data class Point(var x: Double, var y: Double) : Comparable<Point> {
   operator fun plus(other: Number) = Point(x + other.toDouble(), y + other.toDouble())
   operator fun minus(other: Point) = this + -other
   operator fun minus(other: Number) = this + -other.toDouble()
+  operator fun div(other: Point) = Point(x / other.x, y / other.y)
 
   operator fun times(other: Number) = Point(x * other.toDouble(), y * other.toDouble())
 
@@ -138,6 +141,8 @@ data class PixelPoint(var x: Int, var y: Int) {
   operator fun plus(other: PixelPoint) = PixelPoint(x + other.x, y + other.y)
 
   operator fun minus(other: PixelPoint) = PixelPoint(x - other.x, y - other.y)
+
+  fun toPoint() = Point(x, y)
 
   companion object {
     fun add(p1: PixelPoint, p2: PixelPoint) = p1 + p2
