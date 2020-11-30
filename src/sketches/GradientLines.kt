@@ -1,9 +1,10 @@
 package sketches
 
-import appletExtensions.drawParallelLinesInBound
 import BaseSketch
 import SketchConfig
+import appletExtensions.drawParallelLinesInBound
 import controls.Control
+import controls.toControlGroups
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Point
@@ -16,7 +17,7 @@ open class GradientLinesSketch(
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.BLACK,
   sizeX: Int = 576,
-  sizeY: Int = 864
+  sizeY: Int = 864,
 ) : BaseSketch<GradientLinesConfig>(
   backgroundColor = backgroundColor,
   svgBaseFileName = "sketches.GradientLines",
@@ -44,7 +45,7 @@ open class GradientLinesSketch(
         markDirty()
       }
     )
-  )
+  ).toControlGroups()
 
   override fun getRandomizedConfig() = GradientLinesConfig()
 

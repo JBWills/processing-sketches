@@ -5,6 +5,7 @@ import SketchConfig
 import appletExtensions.intersection
 import controls.Control
 import controls.Control.Slider
+import controls.toControlGroups
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
@@ -60,7 +61,7 @@ open class ArcTestSketch(
       size = it
       markDirty()
     },
-  )
+  ).toControlGroups()
 
   override fun getRandomizedConfig() = ArcTestConfig()
 

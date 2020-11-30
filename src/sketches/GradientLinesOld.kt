@@ -3,6 +3,7 @@ package sketches
 import BaseSketch
 import SketchConfig
 import controls.Control
+import controls.toControlGroups
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
@@ -38,7 +39,7 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch<GradientLine
         markDirty()
       }
     )
-  )
+  ).toControlGroups()
 
   override fun getRandomizedConfig() = GradientLinesOldConfig()
 

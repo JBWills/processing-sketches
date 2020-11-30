@@ -1,6 +1,7 @@
-import controls.Control
 import controls.Control.Button
 import controls.ControlFrame
+import controls.ControlGroup
+import controls.toControlGroups
 import coordinate.Point
 import processing.core.PConstants
 import processing.event.MouseEvent
@@ -110,15 +111,15 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   open fun mousePressed(p: Point) {}
   open fun mouseClicked(p: Point) {}
 
-  open fun getControls() = listOf<Control>()
+  open fun getControls() = listOf<ControlGroup>()
 
-  fun updateControls(additionalControls: List<Control>) {
+  fun updateControls(additionalControls: List<ControlGroup>) {
     val baseControls = listOf(
       Button("Randomize values") { randomize = true },
       Button("Save frame") { recordSvg = true }
-    )
+    ).toControlGroups()
 
-    ControlFrame(400, 800, baseControls + additionalControls)
+    ControlFrame(400, 800, (baseControls + additionalControls))
   }
 
   override fun setup() {

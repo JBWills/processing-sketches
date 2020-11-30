@@ -3,6 +3,7 @@ package sketches
 import BaseSketch
 import SketchConfig
 import controls.Control
+import controls.toControlGroups
 import coordinate.BoundRect
 import coordinate.Point
 import java.awt.Color
@@ -13,7 +14,7 @@ open class StarterSketch(
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.BLACK,
   sizeX: Int = 576,
-  sizeY: Int = 864
+  sizeY: Int = 864,
 ) : BaseSketch<StarterConfig>(
   backgroundColor = backgroundColor,
   svgBaseFileName = "sketches.StarterSketch",
@@ -31,7 +32,7 @@ open class StarterSketch(
     sizeX - 2 * outerPaddingX
   )
 
-  override fun getControls() = listOf<Control>()
+  override fun getControls() = listOf<Control>().toControlGroups()
 
   override fun getRandomizedConfig() = StarterConfig()
 

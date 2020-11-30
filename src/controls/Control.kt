@@ -10,6 +10,7 @@ import util.doubleToggleWith
 import util.range
 import util.slider2dWith
 import util.sliderWith
+import util.splitCamelCase
 import util.toDoubleRange
 import util.toggleWith
 import kotlin.reflect.KMutableProperty0
@@ -42,7 +43,7 @@ sealed class Control(
       valRef: KMutableProperty0<Boolean>,
       text: String? = null,
       handleChange: (Boolean) -> Unit = {},
-    ) : this(text ?: valRef.name, valRef.get(), {
+    ) : this(text ?: valRef.name.splitCamelCase(), valRef.get(), {
       valRef.set(it)
       handleChange(it)
     })
@@ -55,8 +56,8 @@ sealed class Control(
     handleSecondToggled: (Boolean) -> Unit = {},
   ) : Control(
     doubleToggleWith(
-      valRef1.name,
-      valRef2.name,
+      valRef1.name.splitCamelCase(),
+      valRef2.name.splitCamelCase(),
       block = {
         setValue(valRef1.get())
         onChange {
@@ -85,6 +86,8 @@ sealed class Control(
 
       this.value = defaultValue?.toFloat() ?: range.start.toFloat()
       onChange { handleChange(value.toDouble()) }
+      //valueLabel.align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE)
+      captionLabel.align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE)
     }
   ) {
     constructor(
@@ -92,7 +95,7 @@ sealed class Control(
       range: DoubleRange = DEFAULT_RANGE,
       text: String? = null,
       handleChange: (Double) -> Unit = {},
-    ) : this(text ?: valRef.name, range, valRef.get(), {
+    ) : this(text ?: valRef.name.splitCamelCase(), range, valRef.get(), {
       valRef.set(it)
       handleChange(it)
     })
@@ -103,7 +106,7 @@ sealed class Control(
       text: String? = null,
       handleChange: (Int) -> Unit = {},
     ) : this(
-      text = text ?: valRef.name,
+      text = text ?: valRef.name.splitCamelCase(),
       range = range.toDoubleRange(),
       defaultValue = valRef.get().toDouble(),
       handleChange =
@@ -136,7 +139,7 @@ sealed class Control(
       rangeY: DoubleRange = DEFAULT_RANGE,
       text: String? = null,
       handleChange: (Point) -> Unit = {},
-    ) : this(text ?: valRef.name, rangeX, rangeY, valRef.get(), {
+    ) : this(text ?: valRef.name.splitCamelCase(), rangeX, rangeY, valRef.get(), {
       valRef.set(it)
       handleChange(it)
     })
