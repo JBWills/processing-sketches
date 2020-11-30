@@ -14,7 +14,7 @@ import processing.core.PApplet
 
 open class PAppletExt : PApplet() {
 
-  val PERLIN = getNoise(NoiseType.Perlin)
+  val NOISE = getNoise(NoiseType.Perlin)
 
   fun getNoise(type: NoiseType): FastNoise {
     val noise = FastNoise()
@@ -48,7 +48,7 @@ open class PAppletExt : PApplet() {
   fun circle(c: Circ) = circle(c.origin.xf, c.origin.yf, c.diameter.toFloat())
   fun debugCirc(p: Point) = circle(p.xf, p.yf, 5f)
 
-  fun noiseXY(p: Point) = Point(PERLIN.GetPerlin(p.xf, p.yf, 0f), PERLIN.GetPerlin(p.xf, p.yf, 100f))
+  fun noiseXY(p: Point) = Point(NOISE.GetNoise(p.xf, p.yf, 0f), NOISE.GetNoise(p.xf, p.yf, 100f))
   fun noiseXY(x: Number, y: Number) = noiseXY(Point(x, y))
 
   fun arc(a: Arc) {

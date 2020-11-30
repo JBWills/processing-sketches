@@ -1,12 +1,13 @@
 package controls
 
 import controlP5.ControlP5
+import controlP5.DropdownList
 import coordinate.Point
 import util.DoubleRange
 import util.Position
 import util.Size
 import util.buttonWith
-import util.doubleToggleWith
+import util.dropdownWith
 import util.range
 import util.slider2dWith
 import util.sliderWith
@@ -48,32 +49,6 @@ sealed class Control(
       handleChange(it)
     })
   }
-
-  class DoubleToggle(
-    valRef1: KMutableProperty0<Boolean>,
-    valRef2: KMutableProperty0<Boolean>,
-    handleFirstToggled: (Boolean) -> Unit = {},
-    handleSecondToggled: (Boolean) -> Unit = {},
-  ) : Control(
-    doubleToggleWith(
-      valRef1.name.splitCamelCase(),
-      valRef2.name.splitCamelCase(),
-      block = {
-        setValue(valRef1.get())
-        onChange {
-          valRef1.set(booleanValue)
-          handleFirstToggled(booleanValue)
-        }
-      },
-      block2 = {
-        setValue(valRef2.get())
-        onChange {
-          valRef2.set(booleanValue)
-          handleSecondToggled(booleanValue)
-        }
-      }
-    )
-  )
 
   class Slider(
     text: String,
@@ -144,4 +119,24 @@ sealed class Control(
       handleChange(it)
     })
   }
+
+  class Dropdown<E : Enum<E>>(
+    enumRef: KMutableProperty0<E>,
+    text: String? = null,
+    handleChange: (E) -> Unit = {},
+  ) : Control(
+    dropdownWith(text ?: enumRef.get().declaringClass.simpleName) {
+      setType(DropdownList.LIST)
+      val options = enumRef.get().declaringClass.enumConstants.sortedBy { it.name }
+      setItems(options.map { it.name })
+
+      value = options.indexOf(enumRef.get()).toFloat()
+
+      onChange {
+        val selectedOption = options[value.toInt()]
+        enumRef.set(selectedOption)
+        handleChange(selectedOption)
+      }
+    }
+  )
 }

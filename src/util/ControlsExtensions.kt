@@ -5,6 +5,7 @@ import SketchConfig
 import controlP5.Button
 import controlP5.ControlP5
 import controlP5.Controller
+import controlP5.DropdownList
 import controlP5.Slider
 import controlP5.Slider2D
 import controlP5.Toggle
@@ -20,13 +21,14 @@ typealias Position = Point
 fun <TConfig : SketchConfig> BaseSketch<TConfig>.propertyToggle(prop: KMutableProperty0<Boolean>) =
   Control.Toggle(prop) { markDirty() }
 
-fun <TConfig : SketchConfig> BaseSketch<TConfig>.propertyDoubleToggle(prop: KMutableProperty0<Boolean>, prop2: KMutableProperty0<Boolean>) =
-  Control.DoubleToggle(prop, prop2, { markDirty() }, { markDirty() })
-
 fun <TConfig : SketchConfig> BaseSketch<TConfig>.propertySlider(
   prop: KMutableProperty0<Double>,
   r: DoubleRange = DEFAULT_RANGE,
 ) = Control.Slider(prop, r) { markDirty() }
+
+fun <TConfig : SketchConfig, E : Enum<E>> BaseSketch<TConfig>.propertyEnumDropdown(
+  prop: KMutableProperty0<E>,
+) = Control.Dropdown(prop) { markDirty() }
 
 fun <TConfig : SketchConfig> BaseSketch<TConfig>.propertySlider(
   prop: KMutableProperty0<Int>,
@@ -87,3 +89,7 @@ fun sliderWith(text: String, block: Slider.() -> Unit = {})
 fun slider2dWith(text: String, block: Slider2D.() -> Unit = {})
   : (ControlP5, pos: Position, size: Size) -> Unit =
   { c, pos, size -> c.addSlider2D(text).applyWithPosAndSize(pos, size, block) }
+
+fun dropdownWith(text: String, block: DropdownList.() -> Unit = {})
+  : (ControlP5, pos: Position, size: Size) -> Unit =
+  { c, pos, size -> c.addDropdownList(text).applyWithPosAndSize(pos, size, block) }

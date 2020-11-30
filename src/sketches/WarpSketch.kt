@@ -6,7 +6,10 @@ import controls.Control.Button
 import controls.ControlGroup
 import coordinate.BoundRect
 import coordinate.Point
+import fastnoise.FastNoise.NoiseType
+import fastnoise.FastNoise.NoiseType.PerlinFractal
 import util.property2DSlider
+import util.propertyEnumDropdown
 import util.propertySlider
 import util.propertyToggle
 import java.awt.Color
@@ -37,15 +40,16 @@ open class WarpSketch(
 
   private val points: MutableList<Point> = mutableListOf()
   private var xMidpointVal: Double = 0.5
-  private var yMidpointVal: Double = 0.5
   private var numLines: Int = 10
   private var withHorizontalLines: Boolean = true
   private var withVerticalLines: Boolean = true
   private var lineSpacing: Double = 30.0
-  private var noiseScale: Int = 1
+  private var noiseScale: Int = 15
   private var moveAmount: Int = 1
   private var noiseOffset: Point = Point(0, 0)
   private var quality: Double = 0.5
+  private var seed: Int = 1000
+  private var noiseType: NoiseType = PerlinFractal
 
   override fun getControls() = listOf(
     ControlGroup(
@@ -55,9 +59,9 @@ open class WarpSketch(
       }
     ),
     ControlGroup(
-      propertySlider(::xMidpointVal),
-      propertySlider(::yMidpointVal)
+      propertySlider(::xMidpointVal)
     ),
+    ControlGroup(propertyEnumDropdown(::noiseType), heightRatio = 5),
     ControlGroup(
       propertyToggle(::withVerticalLines),
       propertyToggle(::withHorizontalLines)
@@ -69,6 +73,7 @@ open class WarpSketch(
     ),
     ControlGroup(propertySlider(::noiseScale, r = 1..100)),
     ControlGroup(propertySlider(::moveAmount, r = 0..2000)),
+    ControlGroup(propertySlider(::seed, r = 0..2000)),
     ControlGroup(property2DSlider(::noiseOffset, Point.One..Point(1000, 1000)), heightRatio = 5)
   )
 
@@ -82,12 +87,13 @@ open class WarpSketch(
   private fun drawPoints() = points.forEach { point -> debugCirc(point) }
 
   private fun getNoiseMovement(p: Point): Point {
-    val noisePoint = noiseXY((p * (noiseScale / 100.0)) + (noiseOffset * 2)) - Point(0.5, 0.5)
-
+    val noisePoint = noiseXY((p * (noiseScale / 100.0)) + (noiseOffset * 2))
     return (noisePoint * moveAmount)
   }
 
   override fun drawOnce(config: WarpConfig) {
+    NOISE.SetSeed(seed)
+    NOISE.SetNoiseType(noiseType)
     noStroke()
 
     stroke(Color.BLACK.rgb)
