@@ -17,7 +17,7 @@ class GradientLinesOldConfig() : SketchConfig() {
 
 class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch<GradientLinesOldConfig>(
   backgroundColor = Color.BLACK,
-  svgBaseFileName = "sketches.CircleSketch",
+  svgBaseFileName = "svgs.CircleSketch",
   sketchConfig = null,
 ) {
 

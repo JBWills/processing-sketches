@@ -19,7 +19,7 @@ data class CircleConfig(
 
 class CircleSketch : BaseSketch<CircleConfig>(
   backgroundColor = Color.white,
-  svgBaseFileName = "sketches.CircleSketch",
+  svgBaseFileName = "svgs.CircleSketch",
   sketchConfig = null,
 ) {
   override fun getRandomizedConfig() = CircleConfig(

@@ -17,7 +17,7 @@ open class StarterSketch(
   sizeY: Int = 864,
 ) : BaseSketch<StarterConfig>(
   backgroundColor = backgroundColor,
-  svgBaseFileName = "sketches.StarterSketch",
+  svgBaseFileName = "svgs.StarterSketch",
   sketchConfig = null,
   sizeX = sizeX,
   sizeY = sizeY,

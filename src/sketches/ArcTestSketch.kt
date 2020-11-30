@@ -22,7 +22,7 @@ open class ArcTestSketch(
   sizeY: Int = 864,
 ) : BaseSketch<ArcTestConfig>(
   backgroundColor = backgroundColor,
-  svgBaseFileName = "sketches.StarterSketch",
+  svgBaseFileName = "svgs.StarterSketch",
   sketchConfig = null,
   sizeX = sizeX,
   sizeY = sizeY,

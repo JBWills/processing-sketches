@@ -56,7 +56,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   private fun getOutputFileName(): String {
     val curTime = dateTimeFormatter.format(Instant.now())
     val root = System.getProperty("user.dir")
-    return "$root/sketches/$svgBaseFileName-$curTime.svg"
+    return "$root/svgs/$svgBaseFileName-$curTime.svg"
   }
 
   private fun drawHelper(handleSetup: () -> Unit, runDraw: () -> Unit, cleanUp: () -> Unit): () -> Unit = {

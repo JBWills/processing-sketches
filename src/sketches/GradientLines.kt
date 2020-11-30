@@ -20,7 +20,7 @@ open class GradientLinesSketch(
   sizeY: Int = 864,
 ) : BaseSketch<GradientLinesConfig>(
   backgroundColor = backgroundColor,
-  svgBaseFileName = "sketches.GradientLines",
+  svgBaseFileName = "svgs.GradientLines",
   sketchConfig = null,
   sizeX = sizeX,
   sizeY = sizeY,

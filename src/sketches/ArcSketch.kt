@@ -21,7 +21,7 @@ open class ArcSketch(
   sizeY: Int = 16 * 72,
 ) : BaseSketch<ArcConfig>(
   backgroundColor = backgroundColor,
-  svgBaseFileName = "sketches.ArcSketch",
+  svgBaseFileName = "svgs.ArcSketch",
   sketchConfig = null,
   sizeX = sizeX,
   sizeY = sizeY,
