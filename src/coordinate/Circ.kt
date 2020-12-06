@@ -1,10 +1,12 @@
 package coordinate
 
+import util.at
 import util.circleintersection.LCircle
 import util.circleintersection.LVector2
 import util.equalsDelta
 import util.lessThanEqualToDelta
 import util.notEqualsZero
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -13,10 +15,12 @@ fun Point.isInCircle(c: Circ) = c.isInCircle(this)
 
 fun Point.toLVector() = LVector2(x.toDouble(), y.toDouble())
 
-open class Circ(var origin: Point, var radius: Double) {
+open class Circ(var origin: Point, var radius: Double) : Walkable {
   constructor(origin: Point, radius: Number) : this(origin, radius.toDouble())
   constructor(radius: Number) : this(Point.Zero, radius.toDouble())
   constructor(c: Circ) : this(c.origin, c.radius)
+
+  val circumference: Double get() = 2 * PI * radius
 
   init {
     if (radius < 0) {
@@ -28,10 +32,25 @@ open class Circ(var origin: Point, var radius: Double) {
 
   fun angleAtPoint(p: Point): Deg = (p - origin).angle()
 
-  fun pointAtAngle(d: Deg): Point = (radius * Point(cos(d.rad), sin(d.rad))) + origin
+  fun pointAtAngle(d: Deg): Point = pointAtRad(d.rad)
+  fun pointAtRad(rad: Double): Point = (radius * Point(cos(rad), sin(rad))) + origin
 
   fun isOnCircle(p: Point) = radius.notEqualsZero() && origin.dist(p).equalsDelta(radius)
   fun isInCircle(p: Point) = radius.notEqualsZero() && origin.dist(p).lessThanEqualToDelta(radius)
+
+  override fun walk(step: Double): List<Point> = walk(step) { it }
+
+  override fun <T> walk(step: Double, block: (Point) -> T): List<T> {
+    val startRad = 0.0
+    val endRad = 2 * PI
+    val numSteps = (circumference / step).toInt()
+
+    return (0..numSteps).map { i ->
+      val radians = (startRad..endRad).at(i / numSteps.toDouble())
+
+      block(pointAtRad(radians))
+    }
+  }
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

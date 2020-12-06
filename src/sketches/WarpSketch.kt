@@ -45,7 +45,8 @@ open class WarpSketch(
   private var withVerticalLines: Boolean = true
   private var lineSpacing: Double = 30.0
   private var noiseScale: Int = 15
-  private var moveAmount: Int = 1
+  private var moveAmountX: Int = 1
+  private var moveAmountY: Int = 1
   private var noiseOffset: Point = Point(0, 0)
   private var quality: Double = 0.5
   private var seed: Int = 1000
@@ -72,7 +73,7 @@ open class WarpSketch(
       propertySlider(::lineSpacing, r = 0.001..200.0)
     ),
     ControlGroup(propertySlider(::noiseScale, r = 1..100)),
-    ControlGroup(propertySlider(::moveAmount, r = 0..2000)),
+    ControlGroup(propertySlider(::moveAmountX, r = 0..2000), propertySlider(::moveAmountY, r = 0..2000)),
     ControlGroup(propertySlider(::seed, r = 0..2000)),
     ControlGroup(property2DSlider(::noiseOffset, Point.One..Point(1000, 1000)), heightRatio = 5)
   )
@@ -88,7 +89,7 @@ open class WarpSketch(
 
   private fun getNoiseMovement(p: Point): Point {
     val noisePoint = noiseXY((p * (noiseScale / 100.0)) + (noiseOffset * 2))
-    return (noisePoint * moveAmount)
+    return (noisePoint * Point(moveAmountX, moveAmountY))
   }
 
   override fun drawOnce(config: WarpConfig) {
@@ -118,7 +119,7 @@ open class WarpSketch(
     val xMin = drawBound.width * xMidpointVal + drawBound.left - (0 - numLines / 2) * lineSpacing
     val xMax = drawBound.width * xMidpointVal + drawBound.left - (numLines - numLines / 2) * lineSpacing
 
-    val leftWithSomeOverlap = drawBound.leftSegment.expand(moveAmount * 2)
+    val leftWithSomeOverlap = drawBound.leftSegment.expand(moveAmountY * 2)
 
     if (withHorizontalLines) {
       leftWithSomeOverlap.toProgression(lineSpacing)

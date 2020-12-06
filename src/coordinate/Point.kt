@@ -16,15 +16,27 @@ class PointIterator(
   step: Double,
 ) : Iterator<Point> {
 
-  private var curr = start
-
   private val unitVector = (endInclusive - start).normalized
 
   private val stepVector = unitVector * step
+  private var curr: Point? = null
 
-  private fun getNext() = curr + stepVector
+  private fun getNext(c: Point?): Point {
+    if (c == null) return start
 
-  override fun hasNext() = start.dist(endInclusive) >= start.dist(getNext())
+    val next = c + stepVector
+    if (isPastEnd(next)) {
+      return endInclusive
+    }
+
+    return next
+  }
+
+  private fun getNext(): Point = getNext(curr)
+
+  private fun isPastEnd(p: Point) = start.dist(endInclusive) < start.dist(p)
+
+  override fun hasNext() = curr == null || start.dist(endInclusive) > start.dist(curr!!)
 
   override fun next(): Point {
     val next = getNext()
@@ -44,7 +56,8 @@ class PointProgression(
   constructor(s: Segment, step: Double = 1.0) : this(s.p1, s.p2, step)
 
   override fun iterator(): Iterator<Point> =
-    PointIterator(start, endInclusive, step)
+    if (step > 0) PointIterator(start, endInclusive, step)
+    else PointIterator(endInclusive, start, -step)
 
   infix fun step(moveAmount: Double) = PointProgression(start, endInclusive, moveAmount)
 
@@ -87,8 +100,10 @@ data class Point(var x: Double, var y: Double) : Comparable<Point> {
   operator fun minus(other: Point) = this + -other
   operator fun minus(other: Number) = this + -other.toDouble()
   operator fun div(other: Point) = Point(x / other.x, y / other.y)
+  operator fun div(other: Number) = Point(x / other.toDouble(), y / other.toDouble())
 
   operator fun times(other: Number) = Point(x * other.toDouble(), y * other.toDouble())
+  operator fun times(other: Point) = Point(x * other.x, y * other.y)
 
   override fun compareTo(other: Point) = if (this.magnitude > other.magnitude) 1 else -1
 
@@ -100,6 +115,11 @@ data class Point(var x: Double, var y: Double) : Comparable<Point> {
     fun add(p1: Point, p2: Point) = p1 + p2
     fun subtract(p1: Point, p2: Point) = p1 - p2
     fun multiply(p1: Point, f: Double) = p1 * f
+
+    operator fun Number.times(p: Point) = p * toDouble()
+    operator fun Number.minus(p: Point) = p - toDouble()
+    operator fun Number.plus(p: Point) = p + toDouble()
+    operator fun Number.div(p: Point) = p / toDouble()
 
     val Zero = Point(0, 0)
     val Up = Point(0, -1)

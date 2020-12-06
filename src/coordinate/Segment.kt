@@ -28,7 +28,7 @@ class Segment(
   p1: Point,
   slope: Deg,
   var length: Double,
-) : Line(p1, slope) {
+) : Line(p1, slope), Walkable {
   constructor(p1: Point, p2: Point) : this(p1, getSlope(p1, p2), p1.dist(p2))
   constructor(s: Segment) : this(s.p1, s.p2)
   constructor(p1: Point, len: Number, slope: Deg)
@@ -36,6 +36,8 @@ class Segment(
 
   val p1: Point get() = origin
   val p2: Point get() = p1 + slope.unitVector * length
+
+  val unitVector get() = slope.unitVector
 
   /**
    * Sometimes segments can get flipped, this flips them back to their correct direction.
@@ -64,6 +66,10 @@ class Segment(
   fun toLine() = Line(p1, slope)
 
   fun toProgression(step: Double = 1.0) = PointProgression(this, step)
+
+  override fun walk(step: Double) = (p1..p2 step step).toList()
+
+  override fun <T> walk(step: Double, block: (Point) -> T) = (p1..p2 step step).map(block)
 
   fun contains(c: Point): Boolean {
     val crossProduct = (c.y - p1.y) * (p2.x - p1.x) - (c.x - p1.x) * (p2.y - p1.y)

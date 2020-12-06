@@ -105,7 +105,7 @@ sealed class Control(
       cursorX = defaultPoint.x.toFloat()
       cursorY = defaultPoint.y.toFloat()
 
-      onChange { handleChange(Point(cursorX, cursorY)) }
+      onChange { handleChange(Point(arrayValue[0], arrayValue[1])) }
     }
   ) {
     constructor(

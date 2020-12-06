@@ -42,6 +42,11 @@ fun <T, R> List<T>.mapWithSurroundingCyclical(block: (T, T, T) -> R) = mapIndexe
   block(prevItem, item, nextItem)
 }
 
+fun <T, R> List<T>.mapWithNextCyclical(block: (T, T) -> R) = mapIndexed { index, item ->
+  val nextItem = if (index == size - 1) this[0] else this[index + 1]
+  block(item, nextItem)
+}
+
 fun <T, R> List<T>.mapWithNext(block: (T, T) -> R) = mapWithSurrounding { _, curr, next ->
   next?.let { block(curr, next) }
 }.filterNotNull()

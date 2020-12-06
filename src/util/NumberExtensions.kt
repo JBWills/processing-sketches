@@ -13,6 +13,8 @@ fun Int.times(f: (Int) -> Unit) {
   for (i in 0.rangeTo(this)) f(i)
 }
 
+fun Number.remap(fromRange: DoubleRange, toRange: DoubleRange) = toRange.at(fromRange.percentAlong(this))
+
 fun Double.roundedString(decimals: Int = 2) = "%.${decimals}f".format(this)
 
 fun Number.equalsDelta(other: Number, threshold: Double = EPSILON) = abs(this.toDouble() - other.toDouble()) < threshold

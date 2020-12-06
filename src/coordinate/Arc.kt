@@ -1,6 +1,7 @@
 package coordinate
 
 import coordinate.RotationDirection.Clockwise
+import util.at
 
 class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) : Circ(circle.origin, circle.radius) {
   constructor(startDeg: Deg, lengthClockwise: Number, circle: Circ) : this(startDeg, lengthClockwise.toDouble(), circle)
@@ -33,6 +34,8 @@ class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) : Circ(c
   val pointAtBisector get(): Point = pointAtAngle(angleBisector)
   val endDeg get(): Deg = startDeg + lengthClockwise
 
+  val arcLength get(): Double = (startDeg.rotation(endDeg, Clockwise) / 360.0) * circumference
+
   val endDegUnbound
     get(): Double = startDeg.value + lengthClockwise
 
@@ -54,6 +57,20 @@ class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) : Circ(c
       deg.value == startDeg.value || deg.value == endDeg.value -> true
       deg.value > startDeg.value -> deg.value < endDegUnbound
       else -> crossesZero && endDeg.value > deg.value
+    }
+  }
+
+  override fun walk(step: Double): List<Point> = walk(step) { it }
+
+  override fun <T> walk(step: Double, block: (Point) -> T): List<T> {
+    val startRad = startDeg.rad
+    val endRad = endDeg.rad
+    val numSteps = (arcLength / step).toInt()
+
+    return (0..numSteps).map { i ->
+      val radians = (startRad..endRad).at(i / numSteps.toDouble())
+
+      block(pointAtRad(radians))
     }
   }
 

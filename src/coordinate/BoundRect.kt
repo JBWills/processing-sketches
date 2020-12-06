@@ -1,37 +1,14 @@
 package coordinate
 
+import util.mapWithNextCyclical
 import kotlin.math.abs
 import kotlin.math.min
-
-data class PaddingRect(
-  val base: Double = 0.0,
-  val vertical: Double = base,
-  val horizontal: Double = base,
-  val top: Double = vertical,
-  val bottom: Double = vertical,
-  val left: Double = horizontal,
-  val right: Double = horizontal,
-) {
-
-  constructor(
-    base: Number = 0.0,
-    vertical: Number = base,
-    horizontal: Number = base,
-    top: Number = vertical,
-    bottom: Number = vertical,
-    left: Number = horizontal,
-    right: Number = horizontal,
-  ) : this(base.toDouble(), vertical.toDouble(), horizontal.toDouble(), top.toDouble(), bottom.toDouble(), left.toDouble(), right.toDouble())
-
-  fun totalHorizontal() = left + right
-  fun totalVertical() = top + bottom
-}
 
 data class BoundRect(
   val topLeft: Point,
   val height: Double,
   val width: Double,
-) {
+) : Walkable {
   init {
     if (height < 0) {
       throw Exception("Can't make a rect with negative height: $height")
@@ -53,6 +30,8 @@ data class BoundRect(
   val leftSegment get() = Segment(topLeft, bottomLeft)
   val rightSegment get() = Segment(topRight, bottomRight)
 
+  val pointsClockwise get() = listOf(topLeft, topRight, bottomRight, bottomLeft)
+
   val segments get() = listOf(topSegment, bottomSegment, leftSegment, rightSegment)
 
   fun isTop(line: Line) = line.origin.y == top && line.slope.isHorizontal()
@@ -60,9 +39,8 @@ data class BoundRect(
   fun isLeft(line: Line) = line.origin.x == left && line.slope.isVertical()
   fun isRight(line: Line) = line.origin.x == right && line.slope.isVertical()
 
-  fun expand(amount: Double): BoundRect {
-    return BoundRect(topLeft - amount, width + 2 * amount, height + 2 * amount)
-  }
+  fun expand(amount: Double) =
+    BoundRect(topLeft - amount, width + 2 * amount, height + 2 * amount)
 
   fun getBoundSegment(line: Line): Segment? {
     if (isTop(line)) return topSegment
@@ -81,6 +59,16 @@ data class BoundRect(
     if (intersections.size != 2 || intersections[0] == intersections[1]) return null
     return Segment(intersections[0], intersections[1])
   }
+
+  override fun walk(step: Double): List<Point> = walk(step) { it }
+
+  override fun <T> walk(step: Double, block: (Point) -> T): List<T> =
+    pointsClockwise
+      .mapWithNextCyclical { curr, next ->
+        Segment(curr, next)
+          .walk(step, block)
+      }
+      .flatten()
 
   fun roughDistFromSides(point: Point): Double = min(
     min(
@@ -105,5 +93,9 @@ data class BoundRect(
 
   override fun toString(): String {
     return "BoundRect(top=$top, left=$left, bottom=$bottom, right=$right)"
+  }
+
+  companion object {
+    fun Point.mappedOnto(r: BoundRect) = Point(r.left + (x * r.width), r.top + (y * r.height))
   }
 }
