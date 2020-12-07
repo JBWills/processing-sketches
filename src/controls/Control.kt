@@ -4,6 +4,7 @@ import controlP5.ControlP5
 import controlP5.DropdownList
 import coordinate.Point
 import util.DoubleRange
+import util.PointRange
 import util.Position
 import util.Size
 import util.buttonWith
@@ -14,6 +15,8 @@ import util.sliderWith
 import util.splitCamelCase
 import util.toDoubleRange
 import util.toggleWith
+import util.xRange
+import util.yRange
 import kotlin.reflect.KMutableProperty0
 
 val DEFAULT_RANGE = 0.0..1.0
@@ -118,25 +121,40 @@ sealed class Control(
       valRef.set(it)
       handleChange(it)
     })
+
+    constructor(
+      text: String,
+      range: PointRange = Point.Zero..Point.One,
+      defaultValue: Point? = null,
+      handleChange: (Point) -> Unit,
+    ) : this(text, range.xRange, range.yRange, defaultValue, handleChange)
   }
 
   class Dropdown<E : Enum<E>>(
-    enumRef: KMutableProperty0<E>,
-    text: String? = null,
+    text: String,
+    defaultValue: E,
     handleChange: (E) -> Unit = {},
   ) : Control(
-    dropdownWith(text ?: enumRef.get().declaringClass.simpleName) {
+    dropdownWith(text) {
       setType(DropdownList.LIST)
-      val options = enumRef.get().declaringClass.enumConstants.sortedBy { it.name }
+      val options = defaultValue.declaringClass.enumConstants.sortedBy { it.name }
       setItems(options.map { it.name })
 
-      value = options.indexOf(enumRef.get()).toFloat()
+      value = options.indexOf(defaultValue).toFloat()
 
       onChange {
         val selectedOption = options[value.toInt()]
-        enumRef.set(selectedOption)
         handleChange(selectedOption)
       }
     }
-  )
+  ) {
+    constructor(
+      enumRef: KMutableProperty0<E>,
+      text: String? = null,
+      handleChange: (E) -> Unit = {},
+    ) : this(text ?: enumRef.get().declaringClass.simpleName, enumRef.get(), {
+      enumRef.set(it)
+      handleChange(it)
+    })
+  }
 }

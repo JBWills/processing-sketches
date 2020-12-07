@@ -5,6 +5,7 @@ import coordinate.Circ
 import coordinate.Point
 import coordinate.Segment
 import coordinate.Walkable
+import fastnoise.FastNoise.NoiseType
 import fastnoise.NoiseQuality.High
 import util.remap
 
@@ -20,17 +21,47 @@ fun Point.mapNoiseToPositiveValues() = this + Point(0.5, 0.5)
 fun Double.mapNoiseToPositiveValues() = this.remap(-0.5..0.5, 0.0..1.0)
 
 class Noise(
-  private val fastNoise: FastNoise,
+  val seed: Int,
+  val noiseType: NoiseType,
   val quality: NoiseQuality = High,
   val scale: Double,
   val offset: Point,
   val strength: Point,
 ) {
+
+  val fastNoise: FastNoise = createFastNoise(seed, noiseType)
+
   init {
     if (scale !in 0.0..1.0) {
       throw Exception("Scale must be between 0 and 1. Scale: $scale")
     }
   }
+
+  constructor(
+    noise: Noise,
+    seed: Int? = null,
+    noiseType: NoiseType? = null,
+    quality: NoiseQuality? = null,
+    scale: Double? = null,
+    offset: Point? = null,
+    strength: Point? = null,
+  ) : this(
+    seed ?: noise.seed,
+    noiseType ?: noise.noiseType,
+    quality ?: noise.quality,
+    scale ?: noise.scale,
+    offset ?: noise.offset,
+    strength ?: noise.strength
+  )
+
+  fun with(
+    seed: Int? = null,
+    noiseType: NoiseType? = null,
+    quality: NoiseQuality? = null,
+    scale: Double? = null,
+    offset: Point? = null,
+    strength: Point? = null,
+  ) = Noise(this, seed = seed, noiseType = noiseType, quality = quality, scale = scale, offset = offset, strength = strength)
 
   private fun noiseAt2D(p: Point) = Point(
     fastNoise.GetNoise(p.xf, p.yf, 0f),
