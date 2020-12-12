@@ -1,0 +1,4 @@
+package coordinate
+
+class MaskedShape {
+}
