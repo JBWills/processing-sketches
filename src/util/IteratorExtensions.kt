@@ -4,17 +4,23 @@ fun <T> List<T?>.filterNotNull(): List<T> = mapNotNull { it }
 
 fun <T> Iterable<T>.pEach() = println(map { it.toString() })
 
-fun <T> List<T>.forEachWithSurrounding(block: (T?, T, T?) -> Unit) = forEachIndexed { index, item ->
+fun <T> List<T>.forEachWithSurrounding(block: (T?, T, T?, Int) -> Unit) = forEachIndexed { index, item ->
   val prevItem = if (index == 0) null else this[index - 1]
   val nextItem = if (index == size - 1) null else this[index + 1]
-  block(prevItem, item, nextItem)
+  block(prevItem, item, nextItem, index)
 }
 
-fun <T> List<T>.forEachWithSurroundingCyclical(block: (T, T, T) -> Unit) = forEachIndexed { index, item ->
+fun <T> List<T>.forEachWithSurrounding(block: (T?, T, T?) -> Unit) =
+  forEachWithSurrounding { prev, curr, next, _ -> block(prev, curr, next) }
+
+fun <T> List<T>.forEachWithSurroundingCyclical(block: (T, T, T, Int) -> Unit) = forEachIndexed { index, item ->
   val prevItem = if (index == 0) this[size - 1] else this[index - 1]
   val nextItem = if (index == size - 1) this[0] else this[index + 1]
-  block(prevItem, item, nextItem)
+  block(prevItem, item, nextItem, index)
 }
+
+fun <T> List<T>.forEachWithSurroundingCyclical(block: (T, T, T) -> Unit) =
+  forEachWithSurroundingCyclical { prev, curr, next, _ -> block(prev, curr, next) }
 
 fun <T> List<T>.copy() = map { it }
 
@@ -30,16 +36,24 @@ fun <T, R> List<T>.mapWithFirst(block: (T, Boolean) -> R) = mapIndexed { index, 
   block(item, index == 0)
 }
 
-fun <T, R> List<T>.mapWithSurrounding(block: (T?, T, T?) -> R) = mapIndexed { index, item ->
+fun <T, R> List<T>.mapWithSurrounding(block: (T?, T, T?, Int) -> R) = mapIndexed { index, item ->
   val prevItem = if (index == 0) null else this[index - 1]
   val nextItem = if (index == size - 1) null else this[index + 1]
-  block(prevItem, item, nextItem)
+  block(prevItem, item, nextItem, index)
 }
 
-fun <T, R> List<T>.mapWithSurroundingCyclical(block: (T, T, T) -> R) = mapIndexed { index, item ->
+fun <T, R> List<T>.mapWithSurrounding(block: (T?, T, T?) -> R) = mapWithSurrounding { prev, curr, next, index ->
+  block(prev, curr, next)
+}
+
+fun <T, R> List<T>.mapWithSurroundingCyclical(block: (T, T, T, Int) -> R) = mapIndexed { index, item ->
   val prevItem = if (index == 0) this[size - 1] else this[index - 1]
   val nextItem = if (index == size - 1) this[0] else this[index + 1]
-  block(prevItem, item, nextItem)
+  block(prevItem, item, nextItem, index)
+}
+
+fun <T, R> List<T>.mapWithSurroundingCyclical(block: (T, T, T) -> R) = mapWithSurroundingCyclical { prev, curr, next, index ->
+  block(prev, curr, next)
 }
 
 fun <T, R> List<T>.mapWithNextCyclical(block: (T, T) -> R) = mapIndexed { index, item ->
@@ -50,6 +64,12 @@ fun <T, R> List<T>.mapWithNextCyclical(block: (T, T) -> R) = mapIndexed { index,
 fun <T, R> List<T>.mapWithNext(block: (T, T) -> R) = mapWithSurrounding { _, curr, next ->
   next?.let { block(curr, next) }
 }.filterNotNull()
+
+fun <T, R> List<T>.reduceGeneral(initial: R, block: (R, T) -> R): R {
+  var r = initial
+  forEach { r = block(r, it) }
+  return r
+}
 
 fun <T> List<T>.zipWithSiblings() = mapWithSurrounding { prev, curr, next -> Triple(prev, curr, next) }
 

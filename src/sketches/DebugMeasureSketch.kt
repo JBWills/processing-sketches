@@ -5,31 +5,27 @@ import SketchConfig
 import controls.ControlGroup
 import controls.noiseControls
 import coordinate.BoundRect
-import coordinate.BoundRect.Companion.mappedOnto
-import coordinate.Circ
-import coordinate.Deg
 import coordinate.Point
-import coordinate.Spiral
 import fastnoise.FastNoise.NoiseType.Perlin
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
+import util.print.DPI
+import util.print.Orientation
+import util.print.Paper
 import util.property2DSlider
 import util.propertySlider
-import util.squared
 import java.awt.Color
-import kotlin.math.sin
 
-class SpiralConfig : SketchConfig()
+class DebugMeasureConfig : SketchConfig()
 
-open class SpiralSketch(
+open class DebugMeasureSketch(
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
-  sizeX: Int = 9 * 72,
-  sizeY: Int = 9 * 72,
-) : BaseSketch<SpiralConfig>(
+  sizeX: Int = DPI.InkScape.toPixels(20),
+  sizeY: Int = DPI.InkScape.toPixels(20),
+) : BaseSketch<DebugMeasureConfig>(
   backgroundColor = backgroundColor,
-  svgBaseFileName = "SpiralSketch",
-  sketchConfig = null,
+  svgBaseFileName = "DebugMeasureSketch",
   sizeX = sizeX,
   sizeY = sizeY,
   isDebugMode = isDebugMode
@@ -43,7 +39,6 @@ open class SpiralSketch(
     sizeX - 2 * outerPaddingX
   )
 
-  private val points: MutableList<Point> = mutableListOf()
   private var numCircles: Int = 12
   private var circleSpacing: Double = 30.0
   private var moveAmountX: Double = 1.0
@@ -75,49 +70,27 @@ open class SpiralSketch(
     ControlGroup(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)
   )
 
-  override fun mousePressed(p: Point) {
-    points.add(p)
-    markDirty()
-  }
+  override fun getRandomizedConfig() = DebugMeasureConfig()
 
-  override fun getRandomizedConfig() = SpiralConfig()
-
-  override fun drawOnce(config: SpiralConfig) {
+  override fun drawOnce(config: DebugMeasureConfig) {
     noStroke()
 
     stroke(Color.BLACK.rgb)
     strokeWeight(2f)
     noFill()
+    for (paper in Paper.values()) {
+      paper.orientation = Orientation.Landscape
+      textAlign(RIGHT, BOTTOM)
+      textSize(32f)
+      fill(Color.BLACK.rgb)
+      val bound = BoundRect(Point.Zero, paper.verticalPx(), paper.horizontalPx())
+      text(paper.name, bound.bottomRight.xf, bound.bottomRight.yf)
 
-    val origin = centerOrigin.mappedOnto(drawBound.expand(200.0))
+      noFill()
+      rect(bound)
+    }
 
-    val c = Circ(origin, moveAmountY)
-
-    val outerSpiral = Spiral(
-      { t, percentAlong, deg ->
-        origin + c.pointAtRad(Deg(percentAlong * 360).rad)
-      },
-      { t, percentAlong, deg ->
-        spiralSpacing * t.squared()
-      },
-      spiralStartAngle..(spiralRotations + spiralStartAngle)
-    )
-
-    Spiral(
-      { t, percentAlong, deg ->
-        outerSpiral.pointAt(percentAlong)
-      },
-      { t, percentAlong, deg ->
-        moveAmountX * (-(-sin(2 * PI * percentAlong * 14) - 1) / 2) + 5
-        moveAmountX * (percentAlong * 10).squared()
-      },
-      interiorSpiralStartAngle..(numCircles.toDouble() + interiorSpiralStartAngle)
-    )
-      .walk(noise.quality.step / 50)
-      .draw(drawBound)
-
-    rect(drawBound)
   }
 }
 
-fun main() = BaseSketch.run(SpiralSketch())
+fun main() = BaseSketch.run(DebugMeasureSketch())

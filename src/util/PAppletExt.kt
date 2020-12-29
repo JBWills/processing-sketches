@@ -4,6 +4,7 @@ import appletExtensions.clipInsideRect
 import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
+import coordinate.ContinuousMaskedShape
 import coordinate.Deg
 import coordinate.Line
 import coordinate.Point
@@ -107,31 +108,16 @@ open class PAppletExt : PApplet() {
   fun List<Point>.toSegments(): List<Segment> = mapWithNext { curr, next -> Segment(curr, next) }
   fun List<Segment>.toVertices(): List<Point> = map { it.p1 }.addNotNull(lastOrNull()?.p2)
 
-  fun shape(vertices: List<Point>, bound: BoundRect) {
-    val allSegments = vertices.toSegments()
-    val listOfLists = mutableListOf(mutableListOf<Segment>())
+  fun getBoundLines(unboundLine: List<Point>, bound: BoundRect, boundInside: Boolean): List<List<Point>> =
+    ContinuousMaskedShape(unboundLine, bound).toBoundPoints(boundInside)
 
-    var shapeIndex = 0
-    allSegments.forEach { segment ->
-      val boundSeg = bound.getBoundSegment(segment)
-      var shouldAddNewShape = false
-      if (boundSeg == segment) {
-        listOfLists[shapeIndex].add(segment)
-      } else if (boundSeg != null) {
-        listOfLists[shapeIndex].add(boundSeg)
-        shouldAddNewShape = true
-      } else {
-        if (listOfLists[shapeIndex].isNotEmpty()) {
-          shouldAddNewShape = true
-        }
-      }
-
-      if (shouldAddNewShape) {
-        shapeIndex++
-        listOfLists.add(mutableListOf())
-      }
+  fun shape(vertices: List<Point>, bound: BoundRect, boundInside: Boolean = true) {
+    getBoundLines(vertices, bound, boundInside).map { shapeList ->
+      shape(shapeList)
     }
+  }
 
-    listOfLists.map { shapeList -> shape(shapeList.toVertices()) }
+  fun List<Point>.draw(bound: BoundRect, boundInside: Boolean = true) {
+    shape(this, bound, boundInside)
   }
 }

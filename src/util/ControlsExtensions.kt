@@ -26,9 +26,19 @@ fun <TConfig : SketchConfig> BaseSketch<TConfig>.propertySlider(
   r: DoubleRange = DEFAULT_RANGE,
 ) = Control.Slider(prop, r) { markDirty() }
 
+fun <TConfig : SketchConfig> BaseSketch<TConfig>.propertySliderPair(
+  prop: KMutableProperty0<Point>,
+  rx: DoubleRange = DEFAULT_RANGE,
+  ry: DoubleRange = DEFAULT_RANGE,
+) = arrayOf(
+  Control.Slider(prop.get().mutablePropX, rx, "${prop.name} X") { markDirty() },
+  Control.Slider(prop.get().mutablePropY, ry, "${prop.name} Y") { markDirty() }
+)
+
 fun <TConfig : SketchConfig, E : Enum<E>> BaseSketch<TConfig>.propertyEnumDropdown(
   prop: KMutableProperty0<E>,
-) = Control.Dropdown(prop) { markDirty() }
+  onChange: () -> Unit = { },
+) = Control.Dropdown(prop) { onChange(); markDirty() }
 
 fun <TConfig : SketchConfig> BaseSketch<TConfig>.propertySlider(
   prop: KMutableProperty0<Int>,

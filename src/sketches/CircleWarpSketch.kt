@@ -42,7 +42,7 @@ open class CircleWarpSketch(
   )
 
   private val points: MutableList<Point> = mutableListOf()
-  private var numCircles: Int = 1
+  private var numCircles: Int = 12
   private var circleSpacing: Double = 30.0
   private var moveAmountX: Int = 1
   private var moveAmountY: Int = 1

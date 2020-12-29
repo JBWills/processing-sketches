@@ -9,6 +9,11 @@ data class BoundRect(
   val height: Double,
   val width: Double,
 ) : Walkable {
+  constructor(topLeft: Point, height: Number, width: Number) : this(topLeft, height.toDouble(), width.toDouble())
+
+  fun centeredRect(center: Point, height: Number, width: Number) =
+    BoundRect(center - Point(width.toDouble() / 2.0, height.toDouble() / 2.0), height, width)
+
   init {
     if (height < 0) {
       throw Exception("Can't make a rect with negative height: $height")
@@ -30,6 +35,8 @@ data class BoundRect(
   val leftSegment get() = Segment(topLeft, bottomLeft)
   val rightSegment get() = Segment(topRight, bottomRight)
 
+  val center = Point(left + width / 2, top + height / 2)
+
   val pointsClockwise get() = listOf(topLeft, topRight, bottomRight, bottomLeft)
 
   val segments get() = listOf(topSegment, bottomSegment, leftSegment, rightSegment)
@@ -40,7 +47,17 @@ data class BoundRect(
   fun isRight(line: Line) = line.origin.x == right && line.slope.isVertical()
 
   fun expand(amount: Double) =
-    BoundRect(topLeft - amount, width + 2 * amount, height + 2 * amount)
+    BoundRect(topLeft - amount, height + 2 * amount, width + 2 * amount)
+
+  fun recentered(newCenter: Point) =
+    BoundRect(topLeft - (newCenter - center), height, width)
+
+  fun scaleX(scaleFactor: Double) = centeredRect(center, height, width * scaleFactor)
+
+  fun scaleY(scaleFactor: Double) = centeredRect(center, height * scaleFactor, width)
+
+  fun scale(scaleFactor: Point, newCenter: Point = center) =
+    centeredRect(newCenter, height * scaleFactor.y, width * scaleFactor.x)
 
   fun getBoundSegment(line: Line): Segment? {
     if (isTop(line)) return topSegment
@@ -90,6 +107,7 @@ data class BoundRect(
   }
 
   fun inRect(p: Point) = p.y in top..bottom && p.x in left..right
+  fun contains(p: Point) = inRect(p)
 
   override fun toString(): String {
     return "BoundRect(top=$top, left=$left, bottom=$bottom, right=$right)"

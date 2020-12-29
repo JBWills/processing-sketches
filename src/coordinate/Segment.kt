@@ -37,6 +37,8 @@ class Segment(
   val p1: Point get() = origin
   val p2: Point get() = p1 + slope.unitVector * length
 
+  val points get() = arrayOf(p1, p2)
+
   val unitVector get() = slope.unitVector
 
   /**

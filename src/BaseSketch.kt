@@ -15,13 +15,20 @@ import java.util.Locale
 abstract class SketchConfig
 
 abstract class BaseSketch<TConfig : SketchConfig>(
-  protected val backgroundColor: Color = Color.white,
+  protected var backgroundColor: Color = Color.white,
+  protected var strokeColor: Color = Color.BLACK,
   private val svgBaseFileName: String = "output",
   private var sketchConfig: TConfig? = null,
-  protected val sizeX: Int = 1000,
-  protected val sizeY: Int = 1000,
+  protected var sizeX: Int = 1000,
+  protected var sizeY: Int = 1000,
   var isDebugMode: Boolean = false,
 ) : PAppletExt() {
+
+  fun updateSize(newSizeX: Int, newSizeY: Int) {
+    sizeX = newSizeX
+    sizeY = newSizeY
+    surface.setSize(newSizeX, newSizeY)
+  }
 
   val center get() = Point(sizeX / 2, sizeY / 2)
 
@@ -95,6 +102,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
     onlyRunIfDirty {
       val sketchConfigNonNull = maybeRandomizeSketchConfig()
       background(backgroundColor.rgb)
+      stroke(strokeColor.rgb)
       wrapRecord {
         drawOnce(sketchConfigNonNull)
       }
@@ -123,6 +131,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   }
 
   override fun setup() {
+    surface.setResizable(true)
     updateControls(getControls())
 
     randomSeed(0)

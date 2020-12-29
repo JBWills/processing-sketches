@@ -67,6 +67,9 @@ class PointProgression(
 data class Point(var x: Double, var y: Double) : Comparable<Point> {
   constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
 
+  val mutablePropX = ::x
+  val mutablePropY = ::y
+
   fun toPixelPoint() = PixelPoint(x.toInt(), y.toInt())
 
   val xf get() = x.toFloat()
@@ -96,6 +99,7 @@ data class Point(var x: Double, var y: Double) : Comparable<Point> {
   fun addY(amt: Number) = Point(x, y + amt.toDouble())
 
   operator fun plus(other: Point) = Point(x + other.x, y + other.y)
+  operator fun plus(other: List<Point>) = listOf(this) + other
   operator fun plus(other: Number) = Point(x + other.toDouble(), y + other.toDouble())
   operator fun minus(other: Point) = this + -other
   operator fun minus(other: Number) = this + -other.toDouble()
@@ -120,6 +124,9 @@ data class Point(var x: Double, var y: Double) : Comparable<Point> {
     operator fun Number.minus(p: Point) = p - toDouble()
     operator fun Number.plus(p: Point) = p + toDouble()
     operator fun Number.div(p: Point) = p / toDouble()
+
+    fun List<Point>.plusIf(p: Point?): List<Point> = if (p != null) this.plusElement(p) else this
+    operator fun Point?.plus(other: List<Point>) = if (this != null) this + other else other
 
     val Zero = Point(0, 0)
     val Up = Point(0, -1)
