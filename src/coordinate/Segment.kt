@@ -34,8 +34,11 @@ class Segment(
   constructor(p1: Point, len: Number, slope: Deg)
     : this(p1, slope, len.toDouble())
 
+  val center = p1 + slope.unitVector * (length / 2)
   val p1: Point get() = origin
   val p2: Point get() = p1 + slope.unitVector * length
+
+  fun getPointAtPercent(percent: Double) = origin + (slope.unitVector * (length * percent))
 
   val points get() = arrayOf(p1, p2)
 

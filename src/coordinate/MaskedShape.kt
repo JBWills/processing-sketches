@@ -1,9 +1,9 @@
 package coordinate
 
 import coordinate.ContinuousPoints.Companion.splitInBounds
-import coordinate.Point.Companion.plusIf
+import coordinate.Point.Companion.addIf
 import util.forEachWithSurrounding
-import util.mapWithSurroundingCyclical
+import util.forEachWithSurroundingCyclical
 
 fun List<Point>.isCyclical() = size > 2 && first() == last()
 
@@ -54,22 +54,44 @@ class ContinuousMaskedShape(allPoints: List<Point>, val bound: BoundRect) {
 
   val isCyclical get() = first == last
 
-  fun toBoundPoints(boundInside: Boolean): List<List<Point>> =
-    points.mapWithSurroundingCyclical { prev, curr, next, index ->
-      if (curr.isInBound != boundInside) return@mapWithSurroundingCyclical null
+  fun toBoundPoints(boundInside: Boolean): List<List<Point>> {
+    val result: MutableList<List<Point>> = mutableListOf()
 
+    points.forEachWithSurroundingCyclical { prev, curr, next, index ->
       val isAtFirstEdge = index == 0 && !isCyclical
       val isAtLastEdge = index == points.size - 1 && !isCyclical
 
-      var points: List<Point> = curr.points
-      if (!isAtFirstEdge && prev.isInBound != curr.isInBound) {
-        points = bound.getBoundSegment(Segment(prev.last, curr.first))?.p1?.plus(points) ?: points
+      val prevBoundSegment = bound.getBoundSegment(Segment(prev.last, curr.first))
+      val nextBoundSegment = bound.getBoundSegment(Segment(curr.last, next.first))
+
+      if (!isAtFirstEdge && prevBoundSegment != null && prev.isInBound != boundInside) {
+        result.add(prevBoundSegment.points.toList())
       }
 
-      if (!isAtLastEdge && next.isInBound != curr.isInBound) {
-        points = points.plusIf(bound.getBoundSegment(Segment(curr.last, next.first))?.p2)
+      if (!isAtLastEdge && nextBoundSegment != null && next.isInBound != boundInside) {
+        result.add(nextBoundSegment.points.toList())
       }
 
-      points
-    }.filterNotNull()
+      if (curr.isInBound == boundInside) {
+        val pointsSoFar = mutableListOf<Point>()
+        if (!isAtFirstEdge && prev.isInBound != curr.isInBound) {
+          pointsSoFar.addIf(prevBoundSegment?.p1)
+        }
+
+        pointsSoFar.addAll(curr.points)
+
+        if (!isAtLastEdge && next.isInBound != curr.isInBound) {
+          pointsSoFar.addIf(nextBoundSegment?.p2)
+        }
+
+        result.add(pointsSoFar)
+      } else {
+        // consider adding logic here to segmentize all outside points, since they could cross over
+        // the bound box
+      }
+
+    }
+
+    return result
+  }
 }

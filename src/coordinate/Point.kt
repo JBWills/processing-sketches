@@ -126,7 +126,13 @@ data class Point(var x: Double, var y: Double) : Comparable<Point> {
     operator fun Number.div(p: Point) = p / toDouble()
 
     fun List<Point>.plusIf(p: Point?): List<Point> = if (p != null) this.plusElement(p) else this
-    operator fun Point?.plus(other: List<Point>) = if (this != null) this + other else other
+    fun MutableList<Point>.addIf(p: Point?): List<Point> {
+      if (p != null) this.add(p)
+
+      return this
+    }
+
+    fun Point?.plusIf(other: List<Point>) = if (this != null) this + other else other
 
     val Zero = Point(0, 0)
     val Up = Point(0, -1)
