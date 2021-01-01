@@ -64,11 +64,11 @@ class ContinuousMaskedShape(allPoints: List<Point>, val bound: BoundRect) {
       val prevBoundSegment = bound.getBoundSegment(Segment(prev.last, curr.first))
       val nextBoundSegment = bound.getBoundSegment(Segment(curr.last, next.first))
 
-      if (!isAtFirstEdge && prevBoundSegment != null && prev.isInBound != boundInside) {
+      if (!isAtFirstEdge && prevBoundSegment != null && curr.isInBound != boundInside && prev.isInBound != boundInside) {
         result.add(prevBoundSegment.points.toList())
       }
 
-      if (!isAtLastEdge && nextBoundSegment != null && next.isInBound != boundInside) {
+      if (!isAtLastEdge && nextBoundSegment != null && curr.isInBound != boundInside && next.isInBound != boundInside) {
         result.add(nextBoundSegment.points.toList())
       }
 

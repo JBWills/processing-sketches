@@ -48,6 +48,7 @@ open class PAppletExt : PApplet() {
 
   fun circle(c: Circ) = circle(c.origin.xf, c.origin.yf, c.diameter.toFloat())
   fun debugCirc(p: Point) = circle(p.xf, p.yf, 5f)
+  fun Point.drawDebugCirc() = debugCirc(this)
 
   fun noiseXY(p: Point) = Point(NOISE.GetNoise(p.xf, p.yf, 0f), NOISE.GetNoise(p.xf, p.yf, 100f))
   fun noiseXY(x: Number, y: Number) = noiseXY(Point(x, y))

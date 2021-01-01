@@ -50,11 +50,10 @@ class TestCanvasSketch : CanvasSketch("TestCanvasSketch") {
     Spiral(
       originFunc = { t, percent, deg -> startToEndLine.getPointAtPercent(percent) },
       lengthFunc = { t, percent, deg ->
-        (t - startAngle).squared() * (50 * sin(4 * deg.rad.toFloat()) + 5)
-        15.0
+        (t - startAngle).squared()
       },
       rotationsRange = startAngle..(angleLength + startAngle))
-      .walk(0.01)
+      .walk(0.001)
       .draw(boundRect)
   }
 }
