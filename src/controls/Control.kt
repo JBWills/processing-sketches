@@ -50,7 +50,7 @@ sealed class Control(
       valRef: KMutableProperty0<Boolean>,
       text: String? = null,
       handleChange: (Boolean) -> Unit = {},
-    ) : this(text ?: valRef.name.splitCamelCase(), valRef.get(), {
+    ) : this(text?.splitCamelCase() ?: valRef.name.splitCamelCase(), valRef.get(), {
       valRef.set(it)
       handleChange(it)
     })
@@ -76,7 +76,7 @@ sealed class Control(
       range: DoubleRange = DEFAULT_RANGE,
       text: String? = null,
       handleChange: (Double) -> Unit = {},
-    ) : this(text ?: valRef.name.splitCamelCase(), range, valRef.get(), {
+    ) : this(text?.splitCamelCase() ?: valRef.name.splitCamelCase(), range, valRef.get(), {
       valRef.set(it)
       handleChange(it)
     })
@@ -87,7 +87,7 @@ sealed class Control(
       text: String? = null,
       handleChange: (Int) -> Unit = {},
     ) : this(
-      text = text ?: valRef.name.splitCamelCase(),
+      text = text?.splitCamelCase() ?: valRef.name.splitCamelCase(),
       range = range.toDoubleRange(),
       defaultValue = valRef.get().toDouble(),
       handleChange =
@@ -120,7 +120,7 @@ sealed class Control(
       rangeY: DoubleRange = DEFAULT_RANGE,
       text: String? = null,
       handleChange: (Point) -> Unit = {},
-    ) : this(text ?: valRef.name.splitCamelCase(), rangeX, rangeY, valRef.get(), {
+    ) : this(text?.splitCamelCase() ?: valRef.name.splitCamelCase(), rangeX, rangeY, valRef.get(), {
       valRef.set(it)
       handleChange(it)
     })
@@ -138,7 +138,7 @@ sealed class Control(
     defaultValue: E,
     handleChange: (E) -> Unit = {},
   ) : Control(
-    dropdownWith(text) {
+    dropdownWith(text.splitCamelCase()) {
       setType(DropdownList.LIST)
       val options = defaultValue.declaringClass.enumConstants.sortedBy { it.name }
       setItems(options.map { it.name })
@@ -155,7 +155,7 @@ sealed class Control(
       enumRef: KMutableProperty0<E>,
       text: String? = null,
       handleChange: (E) -> Unit = {},
-    ) : this(text ?: enumRef.get().declaringClass.simpleName, enumRef.get(), {
+    ) : this(text?.splitCamelCase() ?: enumRef.get().declaringClass.simpleName, enumRef.get(), {
       enumRef.set(it)
       handleChange(it)
     })

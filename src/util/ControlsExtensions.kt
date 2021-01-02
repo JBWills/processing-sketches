@@ -80,20 +80,21 @@ fun <T> Controller<T>.positionAndSize(p: Position?, s: Size?): Controller<T> {
   return this
 }
 
-fun <T : Controller<T>> applyWithPosAndSize(t: T, pos: Position, size: Size, block: T.() -> Unit = {}, tab: Tab) {
-  t.moveTo(tab)
-  t.positionAndSize(pos, size)
-  t.block()
+fun <T : Controller<T>> applyWithPosAndSize(t: T, pos: Position, size: Size, block: T.() -> Unit = {}, tab: Tab, label: String) = t.with {
+  setLabel(label)
+  moveTo(tab)
+  positionAndSize(pos, size)
+  block()
 }
 
 fun buttonWith(text: String, block: Button.() -> Unit = {})
   : (ControlP5, Tab, pos: Position, size: Size) -> Unit =
-  { c, tab, pos, size -> applyWithPosAndSize(c.addButton(text), pos, size, block, tab) }
+  { c, tab, pos, size -> applyWithPosAndSize(c.addButton(text + tab.name), pos, size, block, tab, text) }
 
 fun toggleWith(text: String, block: Toggle.() -> Unit = {})
   : (ControlP5, Tab, pos: Position, size: Size) -> Unit =
   { c, tab, pos, size ->
-    applyWithPosAndSize(c.addToggle(text), pos, size, block, tab)
+    applyWithPosAndSize(c.addToggle(text + tab.name), pos, size, block, tab, text)
   }
 
 fun doubleToggleWith(text1: String, text2: String, block: Toggle.() -> Unit = {}, block2: Toggle.() -> Unit = {})
@@ -101,18 +102,18 @@ fun doubleToggleWith(text1: String, text2: String, block: Toggle.() -> Unit = {}
   { c, tab, pos, size ->
     val midPoint = Point(pos.x + (size.x / 2), pos.y)
     val halfWidth = (size.toPoint() / Point(2, 1)).toPixelPoint()
-    applyWithPosAndSize(c.addToggle(text1), pos, halfWidth, block, tab)
-    applyWithPosAndSize(c.addToggle(text2), midPoint, halfWidth, block2, tab)
+    applyWithPosAndSize(c.addToggle(text1 + tab.name), pos, halfWidth, block, tab, text1)
+    applyWithPosAndSize(c.addToggle(text2 + tab.name), midPoint, halfWidth, block2, tab, text2)
   }
 
 fun sliderWith(text: String, block: Slider.() -> Unit = {})
   : (ControlP5, Tab, pos: Position, size: Size) -> Unit =
-  { c, tab, pos, size -> applyWithPosAndSize(c.addSlider(text), pos, size, block, tab) }
+  { c, tab, pos, size -> applyWithPosAndSize(c.addSlider(text + tab.name), pos, size, block, tab, text) }
 
 fun slider2dWith(text: String, block: Slider2D.() -> Unit = {})
   : (ControlP5, Tab, pos: Position, size: Size) -> Unit =
-  { c, tab, pos, size -> applyWithPosAndSize(c.addSlider2D(text), pos, size, block, tab) }
+  { c, tab, pos, size -> applyWithPosAndSize(c.addSlider2D(text + tab.name), pos, size, block, tab, text) }
 
 fun dropdownWith(text: String, block: DropdownList.() -> Unit = {})
   : (ControlP5, Tab, pos: Position, size: Size) -> Unit =
-  { c, tab, pos, size -> applyWithPosAndSize(c.addDropdownList(text), pos, size, block, tab) }
+  { c, tab, pos, size -> applyWithPosAndSize(c.addDropdownList(text + tab.name), pos, size, block, tab, text) }
