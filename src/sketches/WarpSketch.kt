@@ -1,9 +1,11 @@
 package sketches
 
 import BaseSketch
+import LayerConfig
 import SketchConfig
 import controls.Control.Button
 import controls.ControlGroup
+import controls.ControlGroupable
 import coordinate.BoundRect
 import coordinate.Point
 import fastnoise.FastNoise.NoiseType
@@ -52,7 +54,7 @@ open class WarpSketch(
   private var seed: Int = 1000
   private var noiseType: NoiseType = PerlinFractal
 
-  override fun getControls() = listOf(
+  override fun getControls(): List<ControlGroupable> = listOf(
     ControlGroup(
       Button("clear") {
         points.clear()
@@ -92,7 +94,7 @@ open class WarpSketch(
     return (noisePoint * Point(moveAmountX, moveAmountY))
   }
 
-  override fun drawOnce(config: WarpConfig) {
+  override fun drawOnce(config: WarpConfig, layer: Int, layerConfig: LayerConfig) {
     NOISE.SetSeed(seed)
     NOISE.SetNoiseType(noiseType)
     noStroke()

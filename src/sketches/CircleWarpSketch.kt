@@ -1,8 +1,10 @@
 package sketches
 
 import BaseSketch
+import LayerConfig
 import SketchConfig
 import controls.ControlGroup
+import controls.ControlGroupable
 import controls.noiseControls
 import coordinate.BoundRect
 import coordinate.BoundRect.Companion.mappedOnto
@@ -57,7 +59,7 @@ open class CircleWarpSketch(
     strength = Point(0, 0)
   )
 
-  override fun getControls() = listOf(
+  override fun getControls(): List<ControlGroupable> = listOf(
     ControlGroup(
       propertySlider(::numCircles, r = 1..1000),
       propertySlider(::circleSpacing, r = 0.001..50.0)
@@ -74,7 +76,7 @@ open class CircleWarpSketch(
 
   override fun getRandomizedConfig() = CircleWarpConfig()
 
-  override fun drawOnce(config: CircleWarpConfig) {
+  override fun drawOnce(config: CircleWarpConfig, layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.BLACK.rgb)

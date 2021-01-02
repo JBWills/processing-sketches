@@ -1,11 +1,14 @@
 import controls.Control.Button
 import controls.ControlFrame
 import controls.ControlGroup
+import controls.ControlGroupable
+import controls.ControlTab
 import controls.toControlGroups
 import coordinate.Point
 import processing.core.PConstants
 import processing.event.MouseEvent
 import util.PAppletExt
+import util.print.Pen
 import java.awt.Color
 import java.time.Instant
 import java.time.ZoneId
@@ -13,6 +16,8 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 abstract class SketchConfig
+
+class LayerConfig(val pen: Pen)
 
 abstract class BaseSketch<TConfig : SketchConfig>(
   protected var backgroundColor: Color = Color.white,
@@ -23,6 +28,10 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   protected var sizeY: Int = 1000,
   var isDebugMode: Boolean = false,
 ) : PAppletExt() {
+
+  private val controlFrame: Lazy<ControlFrame> = lazy {
+    ControlFrame(400, 800, getAllControls())
+  }
 
   fun updateSize(newSizeX: Int, newSizeY: Int) {
     sizeX = newSizeX
@@ -56,7 +65,9 @@ abstract class BaseSketch<TConfig : SketchConfig>(
     }
   }
 
-  abstract fun drawOnce(config: TConfig)
+  open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Pen(1.0, strokeColor)))
+
+  abstract fun drawOnce(config: TConfig, layer: Int, layerConfig: LayerConfig)
 
   abstract fun getRandomizedConfig(): TConfig
 
@@ -101,10 +112,11 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   override fun draw() {
     onlyRunIfDirty {
       val sketchConfigNonNull = maybeRandomizeSketchConfig()
-      background(backgroundColor.rgb)
-      stroke(strokeColor.rgb)
       wrapRecord {
-        drawOnce(sketchConfigNonNull)
+        background(backgroundColor.rgb)
+        getLayers().forEachIndexed { index, layer ->
+          drawOnce(sketchConfigNonNull, index, layer)
+        }
       }
     }
   }
@@ -119,20 +131,23 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   open fun mousePressed(p: Point) {}
   open fun mouseClicked(p: Point) {}
 
-  open fun getControls() = listOf<ControlGroup>()
+  open fun getControlTabs(): Array<ControlTab> = arrayOf(ControlTab("controls", *getControls().toTypedArray()))
 
-  fun updateControls(additionalControls: List<ControlGroup>) {
-    val baseControls = listOf(
+  open fun getControls(): List<ControlGroupable> = listOf<ControlGroup>()
+
+  fun updateControls() = controlFrame.value.updateControls(getAllControls())
+
+  fun getAllControls() = listOf(
+    ControlTab("default", listOf(
       Button("Randomize values") { randomize = true },
       Button("Save frame") { recordSvg = true }
-    ).toControlGroups()
-
-    ControlFrame(400, 800, (baseControls + additionalControls))
-  }
+    ).toControlGroups()),
+    *getControlTabs(),
+  )
 
   override fun setup() {
     surface.setResizable(true)
-    updateControls(getControls())
+    controlFrame.value
 
     randomSeed(0)
 

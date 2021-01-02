@@ -1,10 +1,12 @@
 package sketches
 
 import BaseSketch
+import LayerConfig
 import SketchConfig
 import appletExtensions.intersection
 import controls.Control
 import controls.Control.Slider
+import controls.ControlGroupable
 import controls.toControlGroups
 import coordinate.BoundRect
 import coordinate.Circ
@@ -45,7 +47,7 @@ open class ArcSketch(
     sizeX - 2 * outerPaddingX
   )
 
-  override fun getControls() = listOf<Control>(
+  override fun getControls(): List<ControlGroupable> = listOf<Control>(
     Slider("Steps", 20.0..10560.0, steps) {
       steps = it
       markDirty()
@@ -82,7 +84,7 @@ open class ArcSketch(
 
   override fun getRandomizedConfig() = ArcConfig()
 
-  override fun drawOnce(config: ArcConfig) {
+  override fun drawOnce(config: ArcConfig, layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.BLACK.rgb)

@@ -16,6 +16,7 @@ enum class DPI(val dpiVal: Int) {
   High(300);
 
   fun toPixels(inches: Number) = (dpiVal * inches.toDouble()).toInt()
+  fun toPixelsFromMm(mm: Number) = toPixels(mm.toDouble() / 25.4)
 }
 
 enum class Orientation {

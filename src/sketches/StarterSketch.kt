@@ -1,8 +1,10 @@
 package sketches
 
 import BaseSketch
+import LayerConfig
 import SketchConfig
 import controls.Control
+import controls.ControlGroupable
 import controls.toControlGroups
 import coordinate.BoundRect
 import coordinate.Point
@@ -32,11 +34,11 @@ open class StarterSketch(
     sizeX - 2 * outerPaddingX
   )
 
-  override fun getControls() = listOf<Control>().toControlGroups()
+  override fun getControls(): List<ControlGroupable> = listOf<Control>().toControlGroups()
 
   override fun getRandomizedConfig() = StarterConfig()
 
-  override fun drawOnce(config: StarterConfig) {
+  override fun drawOnce(config: StarterConfig, layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.WHITE.rgb)

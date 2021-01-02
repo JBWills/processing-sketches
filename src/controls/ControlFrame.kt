@@ -7,13 +7,37 @@ import coordinate.Point
 import processing.core.PApplet
 import java.awt.Color
 
+class ControlTab(val name: String, val controlGroups: List<ControlGroup>) {
+  constructor(name: String, vararg groupables: ControlGroupable) : this(name, groupables.toList().toControlGroups())
+}
+
 class ControlFrame(
   private val w: Int,
   private val h: Int,
-  private val controlGroups: List<ControlGroup>,
+  private var tabs: List<ControlTab>,
 ) : PApplet() {
 
-  private val cp5: ControlP5 by lazy { ControlP5(this) }
+  private fun setTabs(newTabs: List<ControlTab>) {
+    tabs = newTabs
+    cp5.window.clear()
+    tabs.forEach { cp5.addTab(it.name) }
+  }
+
+  private val cp5: ControlP5 by lazy {
+    val c = ControlP5(this)
+
+    tabs.forEachIndexed { index, controlTab ->
+      if (index == 0) {
+        c.getTab("default").setLabel(controlTab.name)
+      } else {
+        c.addTab(controlTab.name)
+      }
+    }
+
+    c.window.activateTab(tabs.last().name)
+
+    c
+  }
 
   private val padding = PaddingRect(
     vertical = 20,
@@ -25,11 +49,19 @@ class ControlFrame(
     right = 15,
   )
 
+  fun updateControls(newControls: List<ControlTab>) {
+    setTabs(newControls)
+
+    newControls.forEach { setupTab(it) }
+  }
+
   override fun settings() {
     size(w, h)
   }
 
-  override fun setup() {
+  private fun setupTab(tab: ControlTab) {
+    val controlGroups = tab.controlGroups
+
     surface.setLocation(10, 10)
     val usableHeight = h - padding.totalVertical()
 
@@ -52,6 +84,7 @@ class ControlFrame(
         currentX += elementPadding.left
         control.applyToControl(
           cp5,
+          cp5.getTab(tab.name),
           Point(currentX, currentY),
           PixelPoint(elementWidth.toInt(), elementHeight.toInt())
         )
@@ -60,6 +93,10 @@ class ControlFrame(
 
       currentY += elementHeight + elementPadding.bottom
     }
+  }
+
+  override fun setup() {
+    tabs.forEach { setupTab(it) }
   }
 
   override fun draw() {

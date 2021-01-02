@@ -1,15 +1,16 @@
 package sketches.base
 
 import BaseSketch
+import LayerConfig
 import SketchConfig
-import controls.ControlGroup
+import controls.ControlField.Companion.enumField
+import controls.ControlGroupable
 import util.print.Paper
-import util.propertyEnumDropdown
 
 class EmptyConfig : SketchConfig()
 abstract class CanvasSketch(
   svgBaseFilename: String,
-  canvas: Paper = Paper.A4Black,
+  canvas: Paper = Paper.SquareBlack,
   isDebugMode: Boolean = false,
 ) : BaseSketch<EmptyConfig>(
   canvas.defaultBackgroundColor,
@@ -21,28 +22,25 @@ abstract class CanvasSketch(
   isDebugMode,
 ) {
 
-  var paper: Paper = Paper.ColoredPaper
-  fun setCanvas(newCanvas: Paper) {
-    updateSize(newCanvas.horizontalPx(), newCanvas.verticalPx())
+  private var paperField = enumField("paper", canvas) { markCanvasDirty() }
 
-    backgroundColor = newCanvas.defaultBackgroundColor
-    strokeColor = newCanvas.defaultStrokeColor
+  val paper get() = paperField.get()
+
+  private fun markCanvasDirty() {
+    updateSize(paper.horizontalPx(), paper.verticalPx())
+
+    backgroundColor = paper.defaultBackgroundColor
+    strokeColor = paper.defaultStrokeColor
   }
 
-  override fun getControls(): List<ControlGroup> = listOf(
-    ControlGroup(
-      propertyEnumDropdown(::paper) {
-        setCanvas(paper)
-      }
-    )
-  )
+  override fun getControls(): List<ControlGroupable> = listOf(paperField)
 
-  abstract fun drawOnce()
+  abstract fun drawOnce(layer: Int)
 
-  override fun drawOnce(config: EmptyConfig) {
-    stroke(strokeColor.rgb)
-    strokeWeight(3)
-    drawOnce()
+  override fun drawOnce(config: EmptyConfig, layer: Int, layerConfig: LayerConfig) {
+    stroke(layerConfig.pen.color.rgb)
+    strokeWeight(paper.dpi.toPixelsFromMm(layerConfig.pen.mm))
+    drawOnce(layer)
   }
 
   override fun getRandomizedConfig() = EmptyConfig()

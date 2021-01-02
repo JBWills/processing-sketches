@@ -2,6 +2,7 @@ package controls
 
 import controlP5.ControlP5
 import controlP5.DropdownList
+import controlP5.Tab
 import coordinate.Point
 import util.DoubleRange
 import util.PointRange
@@ -22,8 +23,10 @@ import kotlin.reflect.KMutableProperty0
 val DEFAULT_RANGE = 0.0..1.0
 
 sealed class Control(
-  val applyToControl: (c: ControlP5, pos: Position, size: Size) -> Unit,
-) {
+  val applyToControl: (c: ControlP5, t: Tab, pos: Position, size: Size) -> Unit,
+) : ControlGroupable {
+  override fun toControlGroup() = ControlGroup(this)
+
   class Button(
     text: String,
     handleClick: () -> Unit,

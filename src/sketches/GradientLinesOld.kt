@@ -1,8 +1,10 @@
 package sketches
 
 import BaseSketch
+import LayerConfig
 import SketchConfig
 import controls.Control
+import controls.ControlGroupable
 import controls.toControlGroups
 import coordinate.BoundRect
 import coordinate.Deg
@@ -29,7 +31,7 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch<GradientLine
     sizeX - 2 * outerPaddingX
   )
 
-  override fun getControls() = listOf(
+  override fun getControls(): List<ControlGroupable> = listOf(
     Control.Slider(
       text = "Line angle (degrees)",
       range = 0.0..360.0,
@@ -43,7 +45,7 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch<GradientLine
 
   override fun getRandomizedConfig() = GradientLinesOldConfig()
 
-  override fun drawOnce(config: GradientLinesOldConfig) {
+  override fun drawOnce(config: GradientLinesOldConfig, layer: Int, layerConfig: LayerConfig) {
     fun getPointsLinesShouldCrossThrough(bound: BoundRect, deg: Deg, numLines: Int): Iterable<Point> {
       val isUpward = deg.value in 90f..180f || deg.value in 270f..360f
       val start = if (isUpward) bound.topLeft else bound.topRight

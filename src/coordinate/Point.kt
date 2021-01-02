@@ -135,6 +135,7 @@ data class Point(var x: Double, var y: Double) : Comparable<Point> {
     fun Point?.plusIf(other: List<Point>) = if (this != null) this + other else other
 
     val Zero = Point(0, 0)
+    val Half = Point(0.5, 0.5)
     val Up = Point(0, -1)
     val Down = Point(0, 1)
     val Left = Point(-1, 0)

@@ -1,6 +1,7 @@
 package sketches
 
 import BaseSketch
+import LayerConfig
 import SketchConfig
 import coordinate.Point
 import util.times
@@ -29,7 +30,7 @@ class CircleSketch : BaseSketch<CircleConfig>(
     originPointsY = random(5, 50).toInt()
   )
 
-  override fun drawOnce(config: CircleConfig) {
+  override fun drawOnce(config: CircleConfig, layer: Int, layerConfig: LayerConfig) {
     fun drawCircle(center: Point, size: Number, strokeColor: Color = Color.black) {
       stroke(strokeColor.rgb)
       strokeWeight(0.5)

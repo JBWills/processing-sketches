@@ -1,10 +1,12 @@
 package sketches
 
 import BaseSketch
+import LayerConfig
 import SketchConfig
 import appletExtensions.intersection
 import controls.Control
 import controls.Control.Slider
+import controls.ControlGroupable
 import controls.toControlGroups
 import coordinate.BoundRect
 import coordinate.Circ
@@ -40,7 +42,7 @@ open class ArcTestSketch(
     sizeX - 2 * outerPaddingX
   )
 
-  override fun getControls() = listOf<Control>(
+  override fun getControls(): List<ControlGroupable> = listOf<Control>(
     Slider("Start angle", 0.0..360.0, startAngle) {
       startAngle = it
       markDirty()
@@ -65,7 +67,7 @@ open class ArcTestSketch(
 
   override fun getRandomizedConfig() = ArcTestConfig()
 
-  override fun drawOnce(config: ArcTestConfig) {
+  override fun drawOnce(config: ArcTestConfig, layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.WHITE.rgb)

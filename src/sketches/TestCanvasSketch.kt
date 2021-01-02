@@ -1,80 +1,81 @@
 package sketches
 
 import BaseSketch
+import LayerConfig
+import controls.ControlField.Companion.booleanField
+import controls.ControlField.Companion.doubleField
+import controls.ControlField.Companion.doublePairField
+import controls.ControlField.Companion.intField
+import controls.ControlField.Companion.pointField
 import controls.ControlGroup
+import controls.ControlTab
 import coordinate.Point
 import coordinate.Segment
 import coordinate.Spiral
 import sketches.base.CanvasSketch
-import util.property2DSlider
-import util.propertySlider
-import util.propertySliderPair
-import util.propertyToggle
-import util.randomColor
+import util.print.Pen
 import util.squared
 import util.toRadians
 import kotlin.math.sin
 
 class TestCanvasSketch : CanvasSketch("TestCanvasSketch") {
 
-  var boundBoxCenter = Point(0.5, 0.5)
-  var boundBoxScale = Point(0.6, 0.8)
-  var startAngle = 0.0
-  var angleLength = 1.0
-  var drawBoundRect = true
-  var startPoint = Point.Zero
-  var endPoint = Point.Zero
+  val START_END_POINT_RANGE = Point(-1000, -1000)..Point(1000, 1000)
 
-  var sinMinAmplitude = 0.0
-  var sinAmplitude = 140.0
-  var sinFreq = 10.0
+  var boundBoxCenter = doublePairField("boundBoxCenter", Point.Half)
+  var boundBoxScale = doublePairField("boundBoxScale", Point(0.8, 0.8))
+  var startAngle = doubleField("startAngle")
+  var angleLength = doubleField("angleLength", startVal = 1.0, range = 0.0..1000.0)
+  var drawBoundRect = booleanField("drawBoundRect", true)
+  var startPoint = pointField("startPoint", range = START_END_POINT_RANGE)
+  var endPoint = pointField("endPoint", range = START_END_POINT_RANGE)
 
-  var numStars = 3
+  var sinMinAmplitude = doubleField("sinMinAmplitude", range = 0.0..10.0)
+  var sinAmplitude = doubleField("sinAmplitude", startVal = 100.0, range = 0.0..400.0)
+  var sinFreq = doubleField("sinFreq", startVal = 4.0, range = 0.1..100.0)
+  var numStars = intField("numStars", startVal = 1, range = 1..10)
 
   init {
     markDirty()
   }
 
-  override fun getControls(): List<ControlGroup> = listOf(
-    *super.getControls().toTypedArray(),
-    ControlGroup(
-      propertyToggle(::drawBoundRect)
-    ),
-    ControlGroup(
-      *propertySliderPair(::boundBoxCenter)
-    ),
-    ControlGroup(
-      *propertySliderPair(::boundBoxScale)
-    ),
-    ControlGroup(propertySlider(::startAngle), propertySlider(::angleLength, 0.0..1000.0)),
-    ControlGroup(property2DSlider(::startPoint, -1000.0..1000.0, -1000.0..1000.0), property2DSlider(::endPoint, -1000.0..1000.0, -1000.0..1000.0)),
-    ControlGroup(propertySlider(::sinMinAmplitude, 0.0..50.0), propertySlider(::sinAmplitude, 0.0..400.0), propertySlider(::sinFreq, 0.1..100.0), propertySlider(::numStars, 1..10))
+  override fun getControlTabs(): Array<ControlTab> = arrayOf(
+    ControlTab("page setup", *super.getControls().toTypedArray()),
+    ControlTab(
+      "controls",
+      ControlGroup(drawBoundRect, heightRatio = 0.5),
+      boundBoxCenter, boundBoxScale,
+      ControlGroup(startAngle, angleLength),
+      ControlGroup(startPoint, endPoint),
+      ControlGroup(sinMinAmplitude, sinAmplitude, sinFreq, numStars)
+    )
   )
 
-  override fun drawOnce() {
+  override fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Pen.WhiteGellyThick), LayerConfig(Pen.WhiteGellyThin))
+
+  override fun drawOnce(layer: Int) {
     noFill()
-    val boundRect = paper.toBoundRect().scale(boundBoxScale, newCenter = boundBoxCenter * Point(sizeX, sizeY))
-    if (drawBoundRect) rect(boundRect)
+    val boundRect = paper.toBoundRect().scale(boundBoxScale.get(), newCenter = boundBoxCenter.get() * Point(sizeX, sizeY))
+    if (layer == 0) {
+      rect(boundRect)
+      return
+    }
 
-    val startToEndLine = Segment(center + startPoint, center + endPoint)
+    val startToEndLine = Segment(center + startPoint.get(), center + endPoint.get())
 
-    for (i in 1..numStars) {
-      val starSpacing = 1 / (sinFreq.toInt().toDouble() * numStars)
+    for (i in 1..numStars.get()) {
+      val starSpacing = 1 / (sinFreq.get().toInt().toDouble() * numStars.get())
 
-      val currStartAngle = startAngle + (starSpacing * (i - 1))
-      println(currStartAngle)
-      if (i != 1) {
-        stroke(randomColor())
-      }
+      val currStartAngle = startAngle.get() + (starSpacing * (i - 1))
 
       Spiral(
         originFunc = { t, percent, deg -> startToEndLine.getPointAtPercent(percent) },
         lengthFunc = { t, percent, deg ->
           (t).squared()
           val rad = ((t - currStartAngle) * 360).toRadians()
-          (sin(sinFreq.toInt() * rad) + sinMinAmplitude) * sinAmplitude
+          (sin(sinFreq.get().toInt() * rad) + sinMinAmplitude.get()) * sinAmplitude.get()
         },
-        rotationsRange = currStartAngle..(angleLength + currStartAngle))
+        rotationsRange = currStartAngle..(angleLength.get() + currStartAngle))
         .walk(0.0001)
         .draw(boundRect)
     }

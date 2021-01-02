@@ -1,11 +1,13 @@
 package sketches
 
 import BaseSketch
+import LayerConfig
 import SketchConfig
 import controls.Control.Button
 import controls.Control.Slider
 import controls.Control.Slider2d
 import controls.Control.Toggle
+import controls.ControlGroupable
 import controls.toControlGroups
 import coordinate.BoundRect
 import coordinate.Point
@@ -45,7 +47,7 @@ open class CurveSketch(
   private var noiseOffset: Point = Point(0, 0)
   private var quality: Double = 0.5
 
-  override fun getControls() = listOf(
+  override fun getControls(): List<ControlGroupable> = listOf(
     Button("clear") {
       points.clear()
       markDirty()
@@ -99,7 +101,7 @@ open class CurveSketch(
     return (noisePoint * moveAmount)
   }
 
-  override fun drawOnce(config: CurveConfig) {
+  override fun drawOnce(config: CurveConfig, layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.BLACK.rgb)

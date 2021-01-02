@@ -1,9 +1,11 @@
 package sketches
 
 import BaseSketch
+import LayerConfig
 import SketchConfig
 import appletExtensions.drawParallelLinesInBound
 import controls.Control
+import controls.ControlGroupable
 import controls.toControlGroups
 import coordinate.BoundRect
 import coordinate.Deg
@@ -35,7 +37,7 @@ open class GradientLinesSketch(
     sizeX - 2 * outerPaddingX
   )
 
-  override fun getControls() = listOf(
+  override fun getControls(): List<ControlGroupable> = listOf(
     Control.Slider(
       text = "Line angle (degrees)",
       range = 0.0..360.0,
@@ -55,7 +57,7 @@ open class GradientLinesSketch(
     drawBound.width
   )
 
-  override fun drawOnce(config: GradientLinesConfig) {
+  override fun drawOnce(config: GradientLinesConfig, layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.WHITE.rgb)

@@ -1,7 +1,8 @@
 package sketches
 
-import appletExtensions.drawParallelLinesInBound
 import BaseSketch
+import LayerConfig
+import appletExtensions.drawParallelLinesInBound
 import coordinate.Deg
 import java.awt.Color
 
@@ -14,7 +15,7 @@ class GradientLinesDiagonalSketch(
 ) : GradientLinesSketch(lineDegrees, isDebugMode, backgroundColor, sizeX, sizeY) {
   override fun getRandomizedConfig() = GradientLinesConfig()
 
-  override fun drawOnce(config: GradientLinesConfig) {
+  override fun drawOnce(config: GradientLinesConfig, layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.BLACK.rgb)
