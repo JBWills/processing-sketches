@@ -3,8 +3,12 @@ package sketches.base
 import BaseSketch
 import LayerConfig
 import SketchConfig
+import controls.ControlField.Companion.booleanField
+import controls.ControlField.Companion.doublePairField
 import controls.ControlField.Companion.enumField
+import controls.ControlGroup
 import controls.ControlGroupable
+import coordinate.Point
 import util.print.Paper
 
 class EmptyConfig : SketchConfig()
@@ -23,6 +27,9 @@ abstract class CanvasSketch(
 ) {
 
   private var paperField = enumField("paper", canvas) { markCanvasDirty() }
+  var boundBoxCenter = doublePairField("boundBoxCenter", Point.Half)
+  var boundBoxScale = doublePairField("boundBoxScale", Point(0.8, 0.8))
+  var drawBoundRect = booleanField("drawBoundRect", true)
 
   val paper get() = paperField.get()
 
@@ -33,7 +40,12 @@ abstract class CanvasSketch(
     strokeColor = paper.defaultStrokeColor
   }
 
-  override fun getControls(): List<ControlGroupable> = listOf(paperField)
+  override fun getControls(): List<ControlGroupable> = listOf(
+    paperField,
+    ControlGroup(drawBoundRect, heightRatio = 0.5),
+    boundBoxCenter,
+    boundBoxScale,
+  )
 
   abstract fun drawOnce(layer: Int)
 

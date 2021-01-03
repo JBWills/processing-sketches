@@ -19,8 +19,10 @@ class ControlFrame(
 
   private fun setTabs(newTabs: List<ControlTab>) {
     tabs = newTabs
-    cp5.window.clear()
-    tabs.forEach { cp5.addTab(it.name) }
+    tabs.forEach {
+      //cp5.getTab(it.name).close()
+      cp5.addTab(it.name)
+    }
   }
 
   private val cp5: ControlP5 by lazy {

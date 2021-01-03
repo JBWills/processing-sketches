@@ -12,6 +12,8 @@ import util.propertyToggle
 
 sealed class ControlField<T>(val sketch: BaseSketch<*>, val name: String, startVal: T) : ControlGroupable {
   abstract fun getControls(): Array<Control>
+  
+  fun getControlsList(): List<Control> = getControls().toList()
 
   override fun toControlGroup() = ControlGroup(*getControls())
 

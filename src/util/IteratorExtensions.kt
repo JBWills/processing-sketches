@@ -1,5 +1,9 @@
 package util
 
+fun <T> times(iterations: Int, block: (i: Int) -> T): List<T> = (0 until iterations).map(block)
+
+fun <T> List<T>.limit(i: Int) = filterIndexed { index, item -> index < i }
+
 fun <T> List<T?>.filterNotNull(): List<T> = mapNotNull { it }
 
 fun <T> Iterable<T>.pEach() = println(map { it.toString() })
