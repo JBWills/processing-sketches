@@ -1,10 +1,16 @@
 package coordinate
 
 import coordinate.RotationDirection.Clockwise
-import util.at
+import util.atAmountAlong
+import util.equalsZero
+import util.lessThanEqualToDelta
+import util.toRadians
 
-class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) : Circ(circle.origin, circle.radius) {
-  constructor(startDeg: Deg, lengthClockwise: Number, circle: Circ) : this(startDeg, lengthClockwise.toDouble(), circle)
+class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) :
+  Circ(circle.origin, circle.radius) {
+  constructor(startDeg: Deg, lengthClockwise: Number, circle: Circ) : this(startDeg,
+    lengthClockwise.toDouble(), circle)
+
   constructor(circle: Circ) : this(Deg(0), 360, circle)
   constructor(arc: Arc) : this(arc.startDeg, arc.lengthClockwise, arc)
 
@@ -25,7 +31,7 @@ class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) : Circ(c
   )
 
   init {
-    if (lengthClockwise > 360) {
+    if (lengthClockwise > 360.1) {
       throw Exception("Can't have an arc with angle length  > 360")
     }
   }
@@ -33,6 +39,9 @@ class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) : Circ(c
   val angleBisector get(): Deg = startDeg + (lengthClockwise / 2)
   val pointAtBisector get(): Point = pointAtAngle(angleBisector)
   val endDeg get(): Deg = startDeg + lengthClockwise
+
+  val startPoint = circle.pointAtAngle(startDeg)
+  val endPoint = circle.pointAtAngle(endDeg)
 
   val arcLength get(): Double = (startDeg.rotation(endDeg, Clockwise) / 360.0) * circumference
 
@@ -46,6 +55,25 @@ class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) : Circ(c
   val crossesZero get() = endDegUnbound > 360.0
 
   val isSizeZero get() = lengthClockwise == 0.0
+
+  fun pxToDeg(px: Double) = px * Deg.Whole / circumference
+  fun degToPx(deg: Deg) = (circumference / Deg.Whole) * deg.value
+
+  fun expandPixels(numPix: Double): Arc = expandDeg(pxToDeg(numPix))
+
+  fun expandDeg(amt: Double): Arc {
+    if (2 * amt + lengthClockwise >= 360) {
+      return Arc(startDeg - amt, 360, this)
+    } else if ((2 * amt + lengthClockwise).lessThanEqualToDelta(0.0)) {
+      return Arc(startDeg + lengthClockwise / 2, 0.0, this)
+    }
+
+    return Arc(
+      startDeg - amt,
+      endDeg + amt,
+      this
+    )
+  }
 
   fun contains(deg: Number) = contains(Deg(deg.toDouble()))
 
@@ -63,12 +91,14 @@ class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) : Circ(c
   override fun walk(step: Double): List<Point> = walk(step) { it }
 
   override fun <T> walk(step: Double, block: (Point) -> T): List<T> {
+    if (lengthClockwise == 360.0) return super.walk(step, block)
+
     val startRad = startDeg.rad
-    val endRad = endDeg.rad
+    val endRad = endDegUnbound.toRadians()
     val numSteps = (arcLength / step).toInt()
 
     return (0..numSteps).map { i ->
-      val radians = (startRad..endRad).at(i / numSteps.toDouble())
+      val radians = (startRad..endRad).atAmountAlong(i / numSteps.toDouble())
 
       block(pointAtRad(radians))
     }
@@ -80,14 +110,15 @@ class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) : Circ(c
 
     val distFromStartToStart = startDeg.rotation(a.startDeg, Clockwise)
     val distFromStartToEnd = startDeg.rotation(a.endDeg, Clockwise)
-    return distFromStartToStart <= distFromStartToEnd && distFromStartToEnd <= lengthClockwise
+    return distFromStartToEnd in distFromStartToStart..lengthClockwise
   }
 
   fun getOverlap(other: Arc): List<Arc> {
     if (other.radius != radius ||
       other.origin != origin ||
       lengthClockwise == 0.0 ||
-      other.lengthClockwise == 0.0) {
+      other.lengthClockwise == 0.0
+    ) {
       return listOf()
     }
 
@@ -118,15 +149,38 @@ class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) : Circ(c
       }
       else -> listOf()
     }
-
-//    return when {
-//      firstStart == secondStart -> listOf(Arc(Deg(firstStart), Deg(min(firstEnd, secondEnd)), this))
-//      firstEnd == secondEnd -> listOf(Arc(Deg(max(firstStart, secondStart)), Deg(firstEnd), this))
-//
-//      firstEnd <= secondStart -> listOf()
-//      else -> listOf(Arc(Deg(max(firstStart, secondStart)), Deg(min(firstEnd, secondEnd)), this))
-//    }
   }
+
+  fun minusAll(others: List<Arc>): List<Arc> {
+    var results = listOf(this)
+
+    others.forEach { other ->
+      results = results.map { it - other }.flatten()
+    }
+
+    return results
+  }
+
+  operator fun minus(other: Arc): List<Arc> = when {
+    getOverlap(other).isEmpty() -> listOf(Arc(this))
+    // If the other completely contains this, return nothing
+    other.contains(this) -> listOf()
+    // If this is a full circle, we want to get the inverse
+    lengthClockwise == 360.0 -> listOf(Arc(other.endDeg, 360 - other.lengthClockwise, this))
+    contains(other) -> listOf(
+      Arc(startDeg, other.startDeg, this),
+      Arc(other.endDeg, endDeg, this)
+    )
+    contains(other.startDeg) && !contains(other.endDeg) -> listOf(
+      Arc(startDeg, other.startDeg, this)
+    )
+    contains(other.endDeg) && !contains(other.startDeg) -> listOf(
+      Arc(other.endDeg, endDeg, this)
+    )
+    else -> listOf( // if both endpoints are contained but entire arc isn't contained
+      Arc(other.endDeg, other.startDeg, this)
+    )
+  }.filterNot { it.lengthClockwise.equalsZero() }
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

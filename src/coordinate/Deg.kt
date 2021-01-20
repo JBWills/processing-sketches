@@ -24,6 +24,9 @@ fun lockValueTo360(v: Double) = (360 + (v % 360)) % 360
  */
 class Deg(var value: Double) {
   companion object {
+    val Whole = 360.0
+    val Half = 180.0
+    val Quarter = 90.0
     val HORIZONTAL = Deg(0)
     val UP_45 = Deg(45)
     val DOWN_45 = Deg(135)
@@ -39,6 +42,11 @@ class Deg(var value: Double) {
   val rad get() = value.toRadians()
 
   val unitVector get() = Point(rad.cos(), -rad.sin())
+
+  fun rotatedTowards(amt: Deg, dir: RotationDirection = Clockwise): Deg {
+    val signedAmt = if (dir == Clockwise) amt.value else -(amt.value)
+    return Deg(value + signedAmt)
+  }
 
   fun rotation(to: Deg, dir: RotationDirection = EitherDirection): Double {
     val start = if (dir == Clockwise) value else to.value

@@ -11,24 +11,36 @@ import coordinate.Point
 import coordinate.Segment
 import coordinate.Spiral
 import sketches.base.LayeredCanvasSketch
+import util.ZeroToOne
 import util.pow
 import util.times
 
 class TestCanvasSketch : LayeredCanvasSketch("TestCanvasSketch") {
 
-  val START_END_POINT_RANGE = Point(-1000, -1000)..Point(1000, 1000)
+  val START_END_POINT_RANGE = (Point.NegativeToPositive..Point.NegativeToPositive) * 1000
 
   private val tabs: List<TabControls> = (1..MAX_LAYERS).map { TabControls() }
 
   inner class TabControls {
     var startAngle = doubleField("startAngle")
-    var angleLength = doubleField("angleLength", startVal = 1.0, range = 0.0..1000.0)
-    var startPoint = pointField("startPoint", range = START_END_POINT_RANGE)
-    var endPoint = pointField("endPoint", range = START_END_POINT_RANGE)
-    var sinMinAmplitude = doubleField("sinMinAmplitude", range = 0.0..10.0)
-    var sinAmplitude = doubleField("sinAmplitude", startVal = 100.0, range = 0.0..400.0)
-    var sinFreq = doubleField("sinFreq", startVal = 4.0, range = 0.1..100.0)
-    var numStars = intField("numStars", startVal = 1, range = 1..10)
+    var angleLength = doubleField("angleLength",
+      startVal = 1.0,
+      range = ZeroToOne * 1000)
+    var startPoint = pointField("startPoint",
+      range = START_END_POINT_RANGE)
+    var endPoint = pointField("endPoint",
+      range = START_END_POINT_RANGE)
+    var sinMinAmplitude = doubleField("sinMinAmplitude",
+      range = 0.0..10.0)
+    var sinAmplitude = doubleField("sinAmplitude",
+      startVal = 100.0,
+      range = 0.0..400.0)
+    var sinFreq = doubleField("sinFreq",
+      startVal = 4.0,
+      range = 0.1..100.0)
+    var numStars = intField("numStars",
+      startVal = 1,
+      range = 1..10)
 
     fun copyValuesFrom(other: TabControls) {
       startAngle.set(other.startAngle.get())
@@ -42,21 +54,32 @@ class TestCanvasSketch : LayeredCanvasSketch("TestCanvasSketch") {
     }
   }
 
-  fun getCopyLayerButton(currentTab: TabControls, tabToClone: Int) =
-    Button("copy L-${tabToClone + 1}") {
-      currentTab.copyValuesFrom(tabs[tabToClone])
-      updateControls()
-      markDirty()
-    }
+  private fun getCopyLayerButton(
+    currentTab: TabControls,
+    tabToClone: Int,
+  ) = Button("copy L-${tabToClone + 1}") {
+    currentTab.copyValuesFrom(tabs[tabToClone])
+    updateControls()
+    markDirty()
+  }
 
   override fun getControlsForLayer(index: Int): Array<ControlGroupable> {
     val controls = tabs[index]
 
     return arrayOf(
-      ControlGroup(times(4) { getCopyLayerButton(controls, it) }, 0.5),
-      ControlGroup(controls.startAngle, controls.angleLength),
-      ControlGroup(controls.startPoint, controls.endPoint),
-      ControlGroup(controls.sinMinAmplitude, controls.sinAmplitude, controls.sinFreq, controls.numStars)
+      ControlGroup(times(4) {
+        getCopyLayerButton(controls,
+          it)
+      },
+        0.5),
+      ControlGroup(controls.startAngle,
+        controls.angleLength),
+      ControlGroup(controls.startPoint,
+        controls.endPoint),
+      ControlGroup(controls.sinMinAmplitude,
+        controls.sinAmplitude,
+        controls.sinFreq,
+        controls.numStars)
     )
   }
 
@@ -65,16 +88,10 @@ class TestCanvasSketch : LayeredCanvasSketch("TestCanvasSketch") {
   }
 
   override fun drawOnce(layer: Int) {
-    noFill()
-    val boundRect = paper.toBoundRect().scale(boundBoxScale.get(), newCenter = boundBoxCenter.get() * Point(sizeX, sizeY))
-    if (layer == 0) {
-      rect(boundRect)
-      return
-    }
-
     val t = tabs[layer - 1]
 
-    val startToEndLine = Segment(center + t.startPoint.get(), center + t.endPoint.get())
+    val startToEndLine = Segment(center + t.startPoint.get(),
+      center + t.endPoint.get())
 
     for (i in 1..t.numStars.get()) {
       val starSpacing = 1 / (t.sinFreq.get().toInt().toDouble() * t.numStars.get())
@@ -88,10 +105,8 @@ class TestCanvasSketch : LayeredCanvasSketch("TestCanvasSketch") {
 //          val rad = ((time - currStartAngle) * 360).toRadians()
 //          (sin(t.sinFreq.get().toInt() * rad) + t.sinMinAmplitude.get()) * t.sinAmplitude.get()
           if (tadjusted < t.angleLength.get() / 2) {
-
             0.5 * (t.angleLength.get() - tadjusted).pow(1.2)
           } else {
-
             0.5 * tadjusted.pow(1.2)
           }
         },

@@ -1,6 +1,7 @@
 package coordinate
 
-import util.at
+import interfaces.shape.Walkable
+import util.atAmountAlong
 import util.circleintersection.LCircle
 import util.circleintersection.LVector2
 import util.equalsDelta
@@ -30,6 +31,8 @@ open class Circ(var origin: Point, var radius: Double) : Walkable {
 
   fun toLCircle(): LCircle = LCircle(origin.toLVector(), radius)
 
+  fun moved(amt: Point) = Circ(origin + amt, radius)
+
   fun angleAtPoint(p: Point): Deg = (p - origin).angle()
 
   fun pointAtAngle(d: Deg): Point = pointAtRad(d.rad)
@@ -46,7 +49,7 @@ open class Circ(var origin: Point, var radius: Double) : Walkable {
     val numSteps = (circumference / step).toInt()
 
     return (0..numSteps).map { i ->
-      val radians = (startRad..endRad).at(i / numSteps.toDouble())
+      val radians = (startRad..endRad).atAmountAlong(i / numSteps.toDouble())
 
       block(pointAtRad(radians))
     }

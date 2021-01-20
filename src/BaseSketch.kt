@@ -10,6 +10,7 @@ import processing.event.MouseEvent
 import util.PAppletExt
 import util.print.Pen
 import java.awt.Color
+import java.io.File
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -71,28 +72,38 @@ abstract class BaseSketch<TConfig : SketchConfig>(
 
   abstract fun getRandomizedConfig(): TConfig
 
-  private fun getOutputFileName(): String {
+  private fun getOutputFileName(layer: Int): String {
     val curTime = dateTimeFormatter.format(Instant.now())
     val root = System.getProperty("user.dir")
-    return "$root/svgs/$svgBaseFileName-$curTime.svg"
+    val theDir = File("$root/svgs/$svgBaseFileName")
+    if (!theDir.exists()) {
+      theDir.mkdirs()
+    }
+    return "$theDir/$curTime-layer-$layer.svg"
   }
 
-  private fun drawHelper(handleSetup: () -> Unit, runDraw: () -> Unit, cleanUp: () -> Unit): () -> Unit = {
+  private fun drawHelper(
+    handleSetup: () -> Unit, runDraw: () -> Unit, cleanUp: () -> Unit,
+  ): () -> Unit = {
     handleSetup()
     runDraw()
     cleanUp()
   }
 
-  private fun wrapRecord(f: () -> Unit) {
+  private fun wrapRecord(layer: Int, isLastLayer: Boolean = false, f: () -> Unit) {
     if (!recordSvg) {
       f()
       return
     }
 
-    beginRecord(SVG, getOutputFileName())
+    // if we're recording this to svgs, need to set
+    // the background before recording each layer.
+    background(backgroundColor.rgb)
+
+    beginRecord(SVG, getOutputFileName(layer))
     f()
     endRecord()
-    recordSvg = false
+    if (isLastLayer) recordSvg = false
   }
 
   private fun onlyRunIfDirty(f: () -> Unit) {
@@ -103,18 +114,23 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   }
 
   private fun maybeRandomizeSketchConfig(): TConfig {
-    val sketchConfigNonNull: TConfig = if (randomize) getRandomizedConfig() else sketchConfig ?: getRandomizedConfig()
+    val sketchConfigNonNull: TConfig =
+      if (randomize) getRandomizedConfig() else sketchConfig ?: getRandomizedConfig()
     sketchConfig = sketchConfigNonNull
     randomize = false
     return sketchConfigNonNull
   }
 
+  open fun drawSetup(sketchConfig: TConfig) {}
+
   override fun draw() {
     onlyRunIfDirty {
+      background(backgroundColor.rgb)
       val sketchConfigNonNull = maybeRandomizeSketchConfig()
-      wrapRecord {
-        background(backgroundColor.rgb)
-        getLayers().forEachIndexed { index, layer ->
+      val layers = getLayers()
+      drawSetup(sketchConfigNonNull)
+      layers.forEachIndexed { index, layer ->
+        wrapRecord(index + 1, index == layers.size - 1) {
           drawOnce(sketchConfigNonNull, index, layer)
         }
       }
@@ -131,7 +147,8 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   open fun mousePressed(p: Point) {}
   open fun mouseClicked(p: Point) {}
 
-  open fun getControlTabs(): Array<ControlTab> = arrayOf(ControlTab("controls", *getControls().toTypedArray()))
+  open fun getControlTabs(): Array<ControlTab> =
+    arrayOf(ControlTab("controls", *getControls().toTypedArray()))
 
   open fun getControls(): List<ControlGroupable> = listOf<ControlGroup>()
 

@@ -1,5 +1,6 @@
 package coordinate
 
+import interfaces.shape.Walkable
 import util.mapWithNextCyclical
 import kotlin.math.abs
 import kotlin.math.min
@@ -9,7 +10,8 @@ data class BoundRect(
   val height: Double,
   val width: Double,
 ) : Walkable {
-  constructor(topLeft: Point, height: Number, width: Number) : this(topLeft, height.toDouble(), width.toDouble())
+  constructor(topLeft: Point, height: Number, width: Number) : this(topLeft, height.toDouble(),
+    width.toDouble())
 
   fun centeredRect(center: Point, height: Number, width: Number) =
     BoundRect(center - Point(width.toDouble() / 2.0, height.toDouble() / 2.0), height, width)

@@ -15,7 +15,8 @@ import kotlin.test.assertTrue
 
 internal class ArcTest {
 
-  private fun a(start: Number, l: Number) = Arc(Deg(start.toDouble()), l.toDouble(), Circ(Point.Zero, 1.0))
+  private fun a(start: Number, l: Number) =
+    Arc(Deg(start.toDouble()), l.toDouble(), Circ(Point.Zero, 1.0))
 
   @Test
   fun testPrimaryConstructor() {
@@ -191,7 +192,8 @@ internal class ArcTest {
     assertEquals(listOf(a(0, 10)), a(0, 180).getOverlap(a(180, 190)))
     assertEquals(listOf(a(0, 10), a(170, 10)), a(0, 180).getOverlap(a(170, 200)))
     assertEquals(listOf(a(0, 10), a(170, 10)), a(170, 200).getOverlap(a(0, 180)))
-    assertEquals(listOf(a(170, 190)), a(170, 190).getOverlap(Arc(Deg(0), 360.0, Circ(Point.Zero, 1.0))))
+    assertEquals(listOf(a(170, 190)),
+      a(170, 190).getOverlap(Arc(Deg(0), 360.0, Circ(Point.Zero, 1.0))))
 
     assertEquals(listOf(a(4, 6), a(15, 9)), a(4, 20).getOverlap(a(15, 355)))
     assertEquals(listOf(a(4, 6), a(15, 9)), a(15, 355).getOverlap(a(4, 20)))
@@ -250,21 +252,90 @@ internal class ArcTest {
 
   @Test
   fun testSplitIntoArcsWhereIntersects() {
-    assertEquals(2, Circ(5).splitIntoArcsWhereIntersects(BoundRect(Point(-100, -100), 200.0, 103.0)).size)
+    assertEquals(2,
+      Circ(5).splitIntoArcsWhereIntersects(BoundRect(Point(-100, -100), 200.0, 103.0)).size)
     assertEquals(1, Circ(5).splitIntoArcsWhereIntersects(BoundRect(Point(-5, -5), 10.0, 10.0)).size)
     assertEquals(8, Circ(6).splitIntoArcsWhereIntersects(BoundRect(Point(-5, -5), 10.0, 10.0)).size)
-    assertEquals(listOf(Arc(Deg(0), Deg(90), Circ(1)), Arc(Deg(90), Deg(0), Circ(1))), Circ(1).splitIntoArcsWhereIntersects(BoundRect(Point.Zero, 10.0, 10.0)))
+    assertEquals(listOf(Arc(Deg(0), Deg(90), Circ(1)), Arc(Deg(90), Deg(0), Circ(1))),
+      Circ(1).splitIntoArcsWhereIntersects(BoundRect(Point.Zero, 10.0, 10.0)))
   }
 
   @Test
   fun testClipCircInsideRect() {
     assertEquals(1, Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10.0, 10.0)).size)
-    assertEquals(listOf(Arc(Deg(0), Deg(90), Circ(1))), Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10.0, 10.0)))
+    assertEquals(listOf(Arc(Deg(0), Deg(90), Circ(1))),
+      Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10.0, 10.0)))
   }
 
   @Test
   fun testClipCircOutsideRect() {
     assertEquals(1, Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10.0, 10.0)).size)
-    assertEquals(listOf(Arc(Deg(90), Deg(0), Circ(1))), Circ(1).clipCircOutsideRect(BoundRect(Point.Zero, 10.0, 10.0)))
+    assertEquals(listOf(Arc(Deg(90), Deg(0), Circ(1))),
+      Circ(1).clipCircOutsideRect(BoundRect(Point.Zero, 10.0, 10.0)))
+  }
+
+  @Test
+  fun testMinusWhenCompleteOverlap() {
+    assertEquals(listOf<Arc>(), a(10, 10) - a(0, 40))
+    assertEquals(listOf<Arc>(), a(10, 10) - a(10, 10))
+    assertEquals(listOf<Arc>(), a(10, 10) - a(10, 20))
+    assertEquals(listOf<Arc>(), a(10, 10) - a(0, 20))
+    assertEquals(listOf<Arc>(), a(10, 0) - a(0, 20))
+    assertEquals(listOf<Arc>(), a(20, 0) - a(0, 20))
+    assertEquals(listOf<Arc>(), a(355, 10) - a(354, 12))
+  }
+
+  @Test
+  fun testMinusWhenNoOverlap() {
+    assertEquals(listOf(a(10, 10)), a(10, 10) - a(30, 10))
+    assertEquals(listOf(a(10, 10)), a(10, 10) - a(30, 335))
+    assertEquals(listOf(a(355, 10)), a(355, 10) - a(30, 10))
+  }
+
+  @Test
+  fun testMinusWhenOverlapFromStart() {
+    assertEquals(listOf(a(10, 10)), a(10, 20) - a(20, 10))
+    assertEquals(listOf(a(10, 10)), a(10, 20) - a(20, 30))
+  }
+
+  @Test
+  fun testMinusWhenOverlapFromEnd() {
+    assertEquals(listOf(a(15, 15)), a(10, 20) - a(350, 25))
+  }
+
+  @Test
+  fun testMinusWhenOverlapFromBothEnds() {
+    assertEquals(listOf(a(10, 160)), a(0, 180) - a(170, 200))
+  }
+
+  @Test
+  fun testMinusAll() {
+    assertEquals(listOf(a(10, 10)), a(10, 20).minusAll(listOf(a(20, 10))))
+    assertEquals(listOf(a(30, 350)), a(10, 360).minusAll(listOf(a(20, 10))))
+    assertEquals(listOf(a(40, 340)), a(10, 360).minusAll(listOf(a(20, 10), a(30, 10))))
+    assertEquals(listOf(a(30, 10), a(50, 330)), a(10, 360).minusAll(listOf(a(20, 10), a(40, 10))))
+    assertEquals(
+      listOf(
+        a(30, 10),
+        a(50, 30),
+        a(180, 200)
+      ),
+      a(10, 360).minusAll(listOf(
+        a(20, 10),
+        a(40, 10),
+        a(80, 100)
+      ))
+    )
+
+  }
+
+  @Test
+  fun textExpand() {
+    assertEquals(a(0, 10), a(0, 10).expandDeg(0.0))
+    assertEquals(a(359, 12), a(0, 10).expandDeg(1.0))
+    assertEquals(a(1, 8), a(0, 10).expandDeg(-1.0))
+    assertEquals(a(5, 0), a(0, 10).expandDeg(-5.0))
+    assertEquals(a(5, 0), a(0, 10).expandDeg(-8.0))
+    assertEquals(a(90, 360), a(0, 90).expandDeg(270.0))
   }
 }

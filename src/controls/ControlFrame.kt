@@ -82,7 +82,7 @@ class ControlFrame(
       val elementHeight = elementBaseHeight * controlGroup.heightRatio.toDouble()
 
       var currentX = padding.left
-      controlGroup.controls.forEach { control ->
+      controlGroup.controls.forEachIndexed { index, control ->
         currentX += elementPadding.left
         control.applyToControl(
           cp5,

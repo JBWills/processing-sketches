@@ -1,13 +1,14 @@
 package coordinate
 
+import interfaces.shape.Walkable
 import util.DoubleRange
-import util.at
+import util.atAmountAlong
 import util.percentAlong
 
 open class FShape(val f: (Double, Double) -> Point, val tRange: DoubleRange) : Walkable {
 
-  open fun pointAt(percentAlong: Double) = f(tRange.at(percentAlong), percentAlong)
-  
+  open fun pointAt(percentAlong: Double) = f(tRange.atAmountAlong(percentAlong), percentAlong)
+
   override fun walk(step: Double): List<Point> {
     val res = mutableListOf<Point>()
     var i = tRange.start

@@ -1,4 +1,6 @@
-package coordinate
+package interfaces.shape
+
+import coordinate.Point
 
 interface Walkable {
 

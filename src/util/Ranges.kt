@@ -2,11 +2,26 @@ package util
 
 typealias DoubleRange = ClosedRange<Double>
 
+operator fun DoubleRange.times(other: Number) =
+  (start * other.toDouble())..(endInclusive * other.toDouble())
+
+operator fun DoubleRange.plus(other: Number) =
+  (start + other.toDouble())..(endInclusive + other.toDouble())
+
+operator fun DoubleRange.minus(other: Number) =
+  (start - other.toDouble())..(endInclusive - other.toDouble())
+
+operator fun DoubleRange.div(other: Number) =
+  (start / other.toDouble())..(endInclusive / other.toDouble())
+
 class DoubleProgression(
-  override val start: Double,
-  override val endInclusive: Double,
+  startNumber: Number,
+  endInclusiveNumber: Number,
   private val step: Double = 1.0,
 ) : Iterable<Double>, DoubleRange {
+  override val start: Double = startNumber.toDouble()
+  override val endInclusive: Double = endInclusiveNumber.toDouble()
+
   override fun iterator(): Iterator<Double> =
     if (step > 0) DoubleIterator(start, endInclusive, step)
     else DoubleIterator(endInclusive, start, -step)
@@ -46,7 +61,15 @@ class DoubleIterator(
   }
 }
 
+val ZeroToOne = 0.0..1.0
+val NegativeOneToOne = -1.0..1.0
+
+fun zeroTo(max: Number) = 0.0..max.toDouble()
+fun negToPos(minMax: Number) = -minMax.toDouble()..minMax.toDouble()
+
 infix fun DoubleRange.step(s: Double) = DoubleProgression(start, endInclusive) step s
 
-fun DoubleRange.at(amountAlong: Double = 0.0) = start + ((endInclusive - start) * amountAlong)
+fun DoubleRange.atAmountAlong(amountAlong: Double = 0.0) =
+  start + ((endInclusive - start) * amountAlong)
+
 fun DoubleRange.percentAlong(num: Number) = (num.toDouble() - start) / (endInclusive - start)

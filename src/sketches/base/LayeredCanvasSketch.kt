@@ -20,10 +20,11 @@ abstract class LayeredCanvasSketch(
   isDebugMode,
 ) {
   val MAX_LAYERS = 10
-  var numLayers = intField("numLayersToDisplay", startVal = 1, range = 0..10)
+  var numLayers = intField("numLayersToDisplay", startVal = 1, range = 0..getMaxLayers())
 
   abstract fun getControlsForLayer(index: Int): Array<ControlGroupable>
   open fun getGlobalControls(): Array<ControlGroupable> = arrayOf()
+  open fun getMaxLayers() = MAX_LAYERS
 
   override fun getLayers(): List<LayerConfig> = listOf(
     LayerConfig(Pen.WhiteGellyThick),
@@ -46,7 +47,7 @@ abstract class LayeredCanvasSketch(
       numLayers,
       *getGlobalControls()
     ),
-    *times(MAX_LAYERS) { index ->
+    *times(getMaxLayers()) { index ->
       ControlTab("L-${index + 1}", *getControlsForLayer(index))
     }.toTypedArray(),
   )

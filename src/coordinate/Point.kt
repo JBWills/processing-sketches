@@ -1,5 +1,6 @@
 package coordinate
 
+import interfaces.math.Mathable
 import util.equalsDelta
 import util.roundedString
 import util.squared
@@ -64,7 +65,7 @@ class PointProgression(
   fun expand(amt: Number) = PointProgression(segment.expand(amt), step)
 }
 
-data class Point(var x: Double, var y: Double) : Comparable<Point> {
+data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Point> {
   constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
 
   val mutablePropX = ::x
@@ -91,22 +92,22 @@ data class Point(var x: Double, var y: Double) : Comparable<Point> {
 
   fun angle(): Deg = Deg(atan2(y, x).toDegrees())
 
-  operator fun unaryMinus() = Point(-x, -y)
+  override operator fun unaryMinus() = Point(-x, -y)
 
-  operator fun unaryPlus() = Point(+x, +y)
+  override operator fun unaryPlus() = Point(+x, +y)
 
   fun addX(amt: Number) = Point(x + amt.toDouble(), y)
   fun addY(amt: Number) = Point(x, y + amt.toDouble())
 
   operator fun plus(other: Point) = Point(x + other.x, y + other.y)
   operator fun plus(other: List<Point>) = listOf(this) + other
-  operator fun plus(other: Number) = Point(x + other.toDouble(), y + other.toDouble())
+  override operator fun plus(other: Number) = Point(x + other.toDouble(), y + other.toDouble())
   operator fun minus(other: Point) = this + -other
-  operator fun minus(other: Number) = this + -other.toDouble()
+  override operator fun minus(other: Number) = this + -other.toDouble()
   operator fun div(other: Point) = Point(x / other.x, y / other.y)
-  operator fun div(other: Number) = Point(x / other.toDouble(), y / other.toDouble())
+  override operator fun div(other: Number) = this / Point(other, other)
 
-  operator fun times(other: Number) = Point(x * other.toDouble(), y * other.toDouble())
+  override operator fun times(other: Number) = this * Point(other, other)
   operator fun times(other: Point) = Point(x * other.x, y * other.y)
 
   override fun compareTo(other: Point) = if (this.magnitude > other.magnitude) 1 else -1
@@ -135,6 +136,7 @@ data class Point(var x: Double, var y: Double) : Comparable<Point> {
     fun Point?.plusIf(other: List<Point>) = if (this != null) this + other else other
 
     val Zero = Point(0, 0)
+    val NegativeToPositive = Point(-1, 1)
     val Half = Point(0.5, 0.5)
     val Up = Point(0, -1)
     val Down = Point(0, 1)

@@ -1,5 +1,6 @@
 package coordinate
 
+import interfaces.shape.Walkable
 import util.equalsZero
 import util.greaterThanEqualToDelta
 import util.notEqualsZero
@@ -54,13 +55,15 @@ class Segment(
     if (length < 0.3) return Segment(this)
 
     if (!slope.isParallelWith(d)) {
-      throw Exception("Error, trying to reorient Segment with non-parallel direction!\nLine: $this\nNewdir: $d")
+      throw Exception(
+        "Error, trying to reorient Segment with non-parallel direction!\nLine: $this\nNewdir: $d")
     }
 
     return if (slope.equalsRelaxed(d)) Segment(this) else flip()
   }
 
-  fun expand(amt: Number) = Segment(p1 - (slope.unitVector * (amt.toDouble() / 2)), slope, length + amt.toDouble())
+  fun expand(amt: Number) =
+    Segment(p1 - (slope.unitVector * (amt.toDouble() / 2)), slope, length + amt.toDouble())
 
   fun withReorientedDirection(l: Segment) = withReorientedDirection(l.slope)
 
@@ -111,7 +114,8 @@ class Segment(
     }
 
     val otherReoriented = other.withReorientedDirection(this)
-    val shorter = if (otherReoriented.length.greaterThanEqualToDelta(length)) this else otherReoriented
+    val shorter =
+      if (otherReoriented.length.greaterThanEqualToDelta(length)) this else otherReoriented
     val longer = if (otherReoriented.length < length) this else otherReoriented
 
     var segment: Segment? = null

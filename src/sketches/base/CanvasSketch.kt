@@ -27,11 +27,28 @@ abstract class CanvasSketch(
 ) {
 
   private var paperField = enumField("paper", canvas) { markCanvasDirty() }
-  var boundBoxCenter = doublePairField("boundBoxCenter", Point.Half)
-  var boundBoxScale = doublePairField("boundBoxScale", Point(0.8, 0.8))
-  var drawBoundRect = booleanField("drawBoundRect", true)
+  var boundBoxCenterField = doublePairField("boundBoxCenter", Point.Half)
+  var boundBoxCenter
+    get() = boundBoxCenterField.get()
+    set(value) = boundBoxCenterField.set(value)
+
+  var boundBoxScaleField = doublePairField("boundBoxScale", Point(0.8, 0.8))
+  var boundBoxScale
+    get() = boundBoxScaleField.get()
+    set(value) = boundBoxScaleField.set(value)
+
+  var drawBoundRectField = booleanField("drawBoundRect", true)
+  var drawBoundRect
+    get() = drawBoundRectField.get()
+    set(value) = drawBoundRectField.set(value)
+
+  var boundRect = calcBoundRect()
 
   val paper get() = paperField.get()
+
+  init {
+    markDirty()
+  }
 
   private fun markCanvasDirty() {
     updateSize(paper.horizontalPx(), paper.verticalPx())
@@ -42,18 +59,32 @@ abstract class CanvasSketch(
 
   override fun getControls(): List<ControlGroupable> = listOf(
     paperField,
-    ControlGroup(drawBoundRect, heightRatio = 0.5),
-    boundBoxCenter,
-    boundBoxScale,
+    ControlGroup(drawBoundRectField, heightRatio = 0.5),
+    boundBoxCenterField,
+    boundBoxScaleField,
   )
 
   abstract fun drawOnce(layer: Int)
 
   override fun drawOnce(config: EmptyConfig, layer: Int, layerConfig: LayerConfig) {
+    noFill()
     stroke(layerConfig.pen.color.rgb)
     strokeWeight(paper.dpi.toPixelsFromMm(layerConfig.pen.mm))
+    if (layer == 0) {
+      boundRect = calcBoundRect()
+
+      if (drawBoundRect) rect(boundRect)
+    }
+    
     drawOnce(layer)
   }
+
+  private fun calcBoundRect() = paper
+    .toBoundRect()
+    .scale(
+      boundBoxScale,
+      newCenter = boundBoxCenter * Point(sizeX, sizeY)
+    )
 
   override fun getRandomizedConfig() = EmptyConfig()
 }

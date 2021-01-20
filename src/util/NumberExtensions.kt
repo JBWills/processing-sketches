@@ -13,15 +13,22 @@ fun Int.times(f: (Int) -> Unit) {
   for (i in 0.rangeTo(this)) f(i)
 }
 
-fun Number.remap(fromRange: DoubleRange, toRange: DoubleRange) = toRange.at(fromRange.percentAlong(this))
+fun Number.remap(fromRange: DoubleRange, toRange: DoubleRange) =
+  toRange.atAmountAlong(fromRange.percentAlong(this))
 
 fun Double.roundedString(decimals: Int = 2) = "%.${decimals}f".format(this)
 
-fun Number.equalsDelta(other: Number, threshold: Double = EPSILON) = abs(this.toDouble() - other.toDouble()) < threshold
-fun Number.notEqualsDelta(other: Number, threshold: Double = EPSILON) = !equalsDelta(other, threshold)
+fun Number.equalsDelta(other: Number, threshold: Double = EPSILON) =
+  abs(this.toDouble() - other.toDouble()) < threshold
 
-fun Number.lessThanEqualToDelta(other: Number, threshold: Double = EPSILON) = this.toDouble() <= other.toDouble() + threshold
-fun Number.greaterThanEqualToDelta(other: Number, threshold: Double = EPSILON) = this.toDouble() >= other.toDouble() + threshold
+fun Number.notEqualsDelta(other: Number, threshold: Double = EPSILON) =
+  !equalsDelta(other, threshold)
+
+fun Number.lessThanEqualToDelta(other: Number, threshold: Double = EPSILON) =
+  this.toDouble() <= other.toDouble() + threshold
+
+fun Number.greaterThanEqualToDelta(other: Number, threshold: Double = EPSILON) =
+  this.toDouble() >= other.toDouble() + threshold
 
 fun Number.equalsZero() = equalsDelta(0)
 fun Number.notEqualsZero() = !equalsZero()
