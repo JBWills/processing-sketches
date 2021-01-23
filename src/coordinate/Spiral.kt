@@ -16,7 +16,4 @@ class Spiral(
   originFunc: (Double, Double, Deg) -> Point,
   lengthFunc: (Double, Double, Deg) -> Double,
   rotationsRange: DoubleRange,
-) : FShape(getSpiralPointFunc(originFunc, lengthFunc), rotationsRange) {
-  companion object {
-  }
-}
+) : FShape(getSpiralPointFunc(originFunc, lengthFunc), rotationsRange)
