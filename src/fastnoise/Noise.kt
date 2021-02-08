@@ -31,12 +31,6 @@ class Noise(
 
   val fastNoise: FastNoise = createFastNoise(seed, noiseType)
 
-  init {
-    if (scale !in 0.0..1.0) {
-      throw Exception("Scale must be between 0 and 1. Scale: $scale")
-    }
-  }
-
   constructor(
     noise: Noise,
     seed: Int? = null,
@@ -67,7 +61,7 @@ class Noise(
   private fun noiseAt2D(p: Point) = Point(
     fastNoise.GetNoise(p.xf, p.yf, 0f),
     fastNoise.GetNoise(p.xf, p.yf, 100f)
-  )
+  ) * strength
 
   private fun noiseAt(p: Point) = fastNoise.GetNoise(p.xf, p.yf, 0f).toDouble()
 

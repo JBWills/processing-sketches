@@ -1,5 +1,9 @@
 package util
 
+inline fun <T, reified R> List<T>.mapArray(block: (T) -> R): Array<R> {
+  return Array(this.size) { block(this[it]) }
+}
+
 fun <T> times(iterations: Int, block: (i: Int) -> T): List<T> = (0 until iterations).map(block)
 
 fun <T> List<T>.limit(i: Int) = filterIndexed { index, item -> index < i }
