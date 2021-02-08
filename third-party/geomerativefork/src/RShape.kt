@@ -1091,7 +1091,6 @@ open class RShape() : RGeomElem() {
       if (useContours && i > 0) g.beginContour()
       closed = closed or path.closed
       path.commands.forEachIndexed { index, command ->
-        println("Drawing Path: $i and commmand: $index, $command")
         val pnts = command.handles
         if (index == 0) g.vertex(pnts[0].x, pnts[0].y)
 
