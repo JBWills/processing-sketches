@@ -27,6 +27,7 @@ package geomerativefork.src
 import geomerativefork.src.RCommand.Companion.createBezier3
 import geomerativefork.src.RCommand.Companion.createLine
 import geomerativefork.src.util.flatMapArray
+import geomerativefork.src.util.toArrayString
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PGraphics
@@ -802,7 +803,7 @@ class RPath() : RGeomElem() {
   }
 
   override fun toString(): String {
-    return "RPath(length = ${points.size}, start = ${points.firstOrNull()}, end = ${points.lastOrNull()})"
+    return "RPath(points = ${points.toArrayString()}, length = ${points.size}, start = ${points.firstOrNull()}, end = ${points.lastOrNull()})"
   }
 
   fun clone() = RPath(this)

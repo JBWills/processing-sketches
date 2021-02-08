@@ -306,12 +306,14 @@ open class RShape() : RGeomElem() {
    * @related draw ( )
    */
   override fun toPolygon(): RPolygon =
-    RPolygon(children.flatMapArray { it.toPolygon().contours } + paths.mapArray { path ->
-      RContour(path.points).apply {
-        closed = path.closed
-        setStyle(path)
-      }
-    })
+    RPolygon(children.flatMapArray { it.toPolygon().contours } +
+      paths.flatMapArray { path ->
+        if (path.points.isEmpty()) return@flatMapArray arrayOf()
+        arrayOf(RContour(path.points).apply {
+          closed = path.closed
+          setStyle(path)
+        })
+      })
 
   fun polygonize() {
     paths.forEach(RPath::polygonize)
@@ -1044,7 +1046,6 @@ open class RShape() : RGeomElem() {
   }
 
   private fun drawUsingBreakShape(g: PGraphics) {
-    println("HERE!!!")
     if (paths.isEmpty() || !isIn(g)) return
     var closed = false
     val useContours = paths.size > 1

@@ -67,6 +67,10 @@ class PointProgression(
 }
 
 data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Point> {
+  init {
+    if (x.isNaN() || y.isNaN()) throw Exception("Can't create a point with nan values. x=$x, y=$y")
+  }
+
   constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
 
   val mutablePropX = ::x
@@ -151,7 +155,7 @@ data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Poi
     return "Point(x=${x.roundedString()}, y=${y.roundedString()})"
   }
 
-  fun toRPoint() = RPoint(xf, yf)
+  fun toRPoint(): RPoint = RPoint(xf, yf)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

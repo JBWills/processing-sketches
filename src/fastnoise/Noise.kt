@@ -48,6 +48,15 @@ class Noise(
     strength ?: noise.strength
   )
 
+  constructor(n: Noise) : this(
+    n.seed,
+    n.noiseType,
+    n.quality,
+    n.scale,
+    n.offset,
+    n.strength
+  )
+
   fun with(
     seed: Int? = null,
     noiseType: NoiseType? = null,

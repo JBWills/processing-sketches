@@ -10,6 +10,7 @@ import fastnoise.FastNoise.NoiseType.Perlin
 import fastnoise.Noise
 import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
+import geomerativefork.src.RShape
 import sketches.base.LayeredCanvasSketch
 import util.geomutil.toRShape
 
@@ -30,10 +31,29 @@ class GeomerativeSketch : LayeredCanvasSketch("GeomerativeSketch") {
     numLayers.set(1)
   }
 
+  var unionShape: RShape? = null
   override fun drawOnce(layer: Int) {
     if (layer == 0) return
 
-    Circ(center, 100).warped(noise).toRShape().draw()
+    (0..10).forEach { idx ->
+      var s = Circ(center, idx * 25)
+        .warped(Noise(noise, offset = noise.offset + (1000 * idx)))
+        .toRShape()
+
+      if (unionShape == null) {
+        unionShape = RShape(s)
+      } else {
+        unionShape?.let {
+          val sDiffed = s.diff(it)
+          unionShape = it.union(s)
+          s = sDiffed
+        }
+      }
+
+      s.draw()
+    }
+
+    unionShape = null
   }
 
   override fun getControlsForLayer(index: Int): Array<ControlGroupable> =

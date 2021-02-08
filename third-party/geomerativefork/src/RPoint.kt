@@ -39,6 +39,11 @@ import kotlin.math.sqrt
  * @related y
  */
 data class RPoint(var x: Float, var y: Float) {
+
+  init {
+    if (x.isNaN() || y.isNaN()) throw Exception("cannot create a point with NaN values")
+  }
+
   constructor(x: Number, y: Number) : this(x.toFloat(), y.toFloat())
 
   constructor(n: Number) : this(n.toFloat(), n.toFloat())

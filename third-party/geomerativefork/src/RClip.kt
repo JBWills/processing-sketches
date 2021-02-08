@@ -153,9 +153,8 @@ internal object RClip {
    * @param p2 One of the polygons to perform the union with
    */
   @JvmStatic
-  fun union(p1: RPolygon, p2: RPolygon): RPolygon {
-    return clip(OperationType.GPC_UNION, p1, p2, RPolygon::class.java)
-  }
+  fun union(p1: RPolygon, p2: RPolygon): RPolygon =
+    clip(OperationType.GPC_UNION, p1, p2, RPolygon::class.java)
 
   /**
    * Return the xor of `p1` and `p2` where the
@@ -165,9 +164,8 @@ internal object RClip {
    * @param p2 One of the polygons to performt he xor with
    */
   @JvmStatic
-  fun xor(p1: RPolygon, p2: RPolygon): RPolygon {
-    return clip(OperationType.GPC_XOR, p1, p2, RPolygon::class.java)
-  }
+  fun xor(p1: RPolygon, p2: RPolygon): RPolygon =
+    clip(OperationType.GPC_XOR, p1, p2, RPolygon::class.java)
 
   /**
    * Return the diff of `p1` and `p2` where the
@@ -177,9 +175,8 @@ internal object RClip {
    * @param p2 One of the polygons to performt he diff with
    */
   @JvmStatic
-  fun diff(p1: RPolygon, p2: RPolygon): RPolygon {
-    return clip(OperationType.GPC_DIFF, p1, p2, RPolygon::class.java)
-  }
+  fun diff(p1: RPolygon, p2: RPolygon): RPolygon =
+    clip(OperationType.GPC_DIFF, p1, p2, RPolygon::class.java)
 
   /**
    * Updates `p1`.
@@ -187,21 +184,19 @@ internal object RClip {
    * @param p1 One of the polygons to performt he diff with
    */
   @JvmStatic
-  fun update(p1: RPolygon): RPolygon {
-    return clip(OperationType.GPC_DIFF, p1, RPolygon(), RPolygon::class.java)
-  }
+  fun update(p1: RPolygon): RPolygon =
+    clip(OperationType.GPC_DIFF, p1, RPolygon(), RPolygon::class.java)
+
   // -----------------------
   // --- Private Methods ---
   // -----------------------
   /**
    * Create a new `RPolygon` type object using `polyClass`.
    */
-  private fun createNewPoly(polyClass: Class<*>): RPolygon {
-    return try {
-      polyClass.newInstance() as RPolygon
-    } catch (e: Exception) {
-      throw RuntimeException(e)
-    }
+  private fun createNewPoly(polyClass: Class<*>): RPolygon = try {
+    polyClass.newInstance() as RPolygon
+  } catch (e: Exception) {
+    throw RuntimeException(e)
   }
 
   /**

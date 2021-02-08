@@ -48,7 +48,7 @@ open class Circ(var origin: Point, var radius: Double) : Walkable {
     val endRad = 2 * PI
     val numSteps = (circumference / step).toInt()
 
-    return (0..numSteps).map { i ->
+    return (0 until numSteps).map { i ->
       val radians = (startRad..endRad).atAmountAlong(i / numSteps.toDouble())
 
       block(pointAtRad(radians))
