@@ -1085,7 +1085,6 @@ open class RShape() : RGeomElem() {
   }
 
   private fun drawUsingBreakShape(g: PApplet) {
-    println("Drawing Shape: $this")
     if (paths.isEmpty() || !isIn(g)) return
     var closed = false
     val useContours = paths.size > 1
@@ -1094,7 +1093,6 @@ open class RShape() : RGeomElem() {
       if (useContours && i > 0) g.beginContour()
       closed = closed or path.closed
       path.commands.forEachIndexed { index, command ->
-        println("Drawing Path: $i and commmand: $index, $command")
         val pnts = command.handles
         if (index == 0) g.vertex(pnts[0].x, pnts[0].y)
 
