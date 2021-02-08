@@ -5,6 +5,7 @@ import controls.ControlGroupable
 import controls.ControlTab
 import controls.toControlGroups
 import coordinate.Point
+import geomerativefork.src.RG
 import processing.core.PConstants
 import processing.event.MouseEvent
 import util.PAppletExt
@@ -163,6 +164,9 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   )
 
   override fun setup() {
+    RG.init(this)
+    RG.setPolygonizer(RG.ADAPTATIVE)
+
     surface.setResizable(true)
     controlFrame.value
 

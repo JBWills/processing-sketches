@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="geomerative">
     <CLASSES>
-      <root url="jar:///Applications/Processing.app/libraries/geomerative/library/geomerative.jar!/" />
+      <root url="jar:///Applications/Processing.app/Contents/libraries/geomerative/library/geomerative.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
