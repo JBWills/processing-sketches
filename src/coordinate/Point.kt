@@ -1,5 +1,6 @@
 package coordinate
 
+import geomerativefork.src.RPoint
 import interfaces.math.Mathable
 import util.equalsDelta
 import util.roundedString
@@ -149,6 +150,8 @@ data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Poi
   override fun toString(): String {
     return "Point(x=${x.roundedString()}, y=${y.roundedString()})"
   }
+
+  fun toRPoint() = RPoint(xf, yf)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

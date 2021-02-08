@@ -79,6 +79,8 @@ open class RShape() : RGeomElem() {
     points: Array<Array<RPoint>>,
   ) : this(paths = points.mapArray { RPath(it) }, children = null, style = null)
 
+  constructor(points: Array<RPoint>) : this(RPath(points))
+
   constructor(s: RShape) : this() {
     paths = Array(s.paths.size) { i -> s.paths[i].clone() }
     children = Array(s.children.size) { i -> RShape(s.children[i]) }
@@ -1083,6 +1085,7 @@ open class RShape() : RGeomElem() {
   }
 
   private fun drawUsingBreakShape(g: PApplet) {
+    println("Drawing Shape: $this")
     if (paths.isEmpty() || !isIn(g)) return
     var closed = false
     val useContours = paths.size > 1
@@ -1091,6 +1094,7 @@ open class RShape() : RGeomElem() {
       if (useContours && i > 0) g.beginContour()
       closed = closed or path.closed
       path.commands.forEachIndexed { index, command ->
+        println("Drawing Path: $i and commmand: $index, $command")
         val pnts = command.handles
         if (index == 0) g.vertex(pnts[0].x, pnts[0].y)
 
@@ -1192,17 +1196,15 @@ open class RShape() : RGeomElem() {
      * @eexample createRectangle
      */
     @JvmStatic
-    fun createRectangle(x: Float, y: Float, w: Float, h: Float): RShape {
-      val rect = RShape()
-      with(rect) {
-        addMoveTo(x, y)
-        addLineTo(x + w, y)
-        addLineTo(x + w, y + h)
-        addLineTo(x, y + h)
-        addLineTo(x, y)
-      }
-      return rect
-    }
+    fun createRectangle(x: Float, y: Float, w: Float, h: Float): RShape = RShape(RPath(arrayOf(
+      RPoint(x, y),
+      RPoint(x + w, y),
+      RPoint(x + w, y + h),
+      RPoint(x, y + h),
+    )).also { it.addClose() })
+
+    fun createRectangle(center: RPoint, w: Number, h: Number) =
+      createRectangle(center.x, center.y, w.toFloat(), h.toFloat())
 
     /**
      * Use this method to create a new elliptical shape.
@@ -1249,6 +1251,9 @@ open class RShape() : RGeomElem() {
       }
     }
 
-    fun createCircle(x: Float, y: Float, d: Float): RShape = createEllipse(x, y, d, d)
+    fun createCircle(x: Number, y: Number, d: Number): RShape =
+      createEllipse(x.toFloat(), y.toFloat(), d.toFloat(), d.toFloat())
+
+    fun createCircle(center: RPoint, d: Number): RShape = createCircle(center.x, center.y, d)
   }
 }

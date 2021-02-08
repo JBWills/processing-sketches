@@ -16,10 +16,15 @@ class GeomerativeSketch : LayeredCanvasSketch("GeomerativeSketch") {
     if (layer == 0) return
 
     // problem is these all create LINETOs
-    RShape.createCircle(center.xf, center.yf, 50f).draw(this)
-    RShape.createEllipse(center.xf, center.yf, 100f, 200f).draw(this)
-//    RShape.createRectangle(center.xf - 450, center.yf - 450, center.xf + 450, center.yf + 450)
-//      .draw(this)
+    RShape.createRectangle(center.toRPoint() - 150, 300f, 300f)
+      .intersection(RShape.createCircle(center.toRPoint() - 150, 50))
+      .draw(this)
+
+    RShape.createRectangle(center.toRPoint() - 50, 100f, 100f)
+      .draw(this)
+
+    RShape.createRectangle(center.toRPoint() - 15, 30f, 30f)
+      .draw(this)
   }
 
   override fun getControlsForLayer(index: Int): Array<ControlGroupable> =

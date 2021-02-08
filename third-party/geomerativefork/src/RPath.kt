@@ -624,7 +624,9 @@ class RPath() : RGeomElem() {
    */
   fun addLineTo(end: RPoint) {
 
-    if (lastPoint == null) lastPoint?.let { addCommand(createLine(it, end)) }
+    if (lastPoint == null) lastPoint = end
+
+    lastPoint?.let { addCommand(createLine(it, end)) }
   }
 
   /**
