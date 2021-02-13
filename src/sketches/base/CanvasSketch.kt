@@ -58,7 +58,7 @@ abstract class CanvasSketch(
   }
 
   override fun getControls(): List<ControlGroupable> = listOf(
-    paperField,
+    ControlGroup(paperField, heightRatio = 2.0),
     ControlGroup(drawBoundRectField, heightRatio = 0.5),
     boundBoxCenterField,
     boundBoxScaleField,
@@ -75,7 +75,7 @@ abstract class CanvasSketch(
 
       if (drawBoundRect) rect(boundRect)
     }
-    
+
     drawOnce(layer)
   }
 

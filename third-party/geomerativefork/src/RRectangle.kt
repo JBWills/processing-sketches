@@ -24,51 +24,17 @@ package geomerativefork.src
 
 class RRectangle(var topLeft: RPoint, var bottomRight: RPoint) {
 
-  /**
-   * @invisible
-   */
-  //return (topLeft.x > bottomRight.x) ? topLeft.x : bottomRight.x;
-  //return (topLeft.x < bottomRight.x) ? topLeft.x : bottomRight.x;
-  /**
-   * The x coordinate of the point.
-   *
-   * @eexample RPoint_x
-   * @usage Geometry
-   * @related y
-   */
   val maxX: Float
-    get() {
-      //return (topLeft.x > bottomRight.x) ? topLeft.x : bottomRight.x;
-      return bottomRight.x
-    }
+    get() = bottomRight.x
+
   val minX: Float
-    get() {
-      //return (topLeft.x < bottomRight.x) ? topLeft.x : bottomRight.x;
-      return topLeft.x
-    }
-  /**
-   * @invisible
-   */
-  //return (topLeft.y > bottomRight.y) ? topLeft.y : bottomRight.y;
-  //return (topLeft.y < bottomRight.y) ? topLeft.y : bottomRight.y;
-  /**
-   * The y coordinate of the point.
-   *
-   * @eexample RPoint_y
-   * @usage Geometry
-   * @related x
-   */
+    get() = topLeft.x
+
   val maxY: Float
-    get() {
-      //return (topLeft.y > bottomRight.y) ? topLeft.y : bottomRight.y;
-      return bottomRight.y
-    }
+    get() = bottomRight.y
 
   val minY: Float
-    get() {
-      //return (topLeft.y < bottomRight.y) ? topLeft.y : bottomRight.y;
-      return topLeft.y
-    }
+    get() = topLeft.y
 
   constructor(
     x: Float, y: Float, w: Float, h: Float,
@@ -82,7 +48,9 @@ class RRectangle(var topLeft: RPoint, var bottomRight: RPoint) {
       RPoint(topLeft.x, bottomRight.y),
     )
 
+  fun contains(p: RPoint): Boolean = p.x in minX..maxX && p.y in minY..maxY
+
   override fun toString(): String {
-    return ""
+    return "RRectangle(Topleft: $topLeft, bottomRight: $bottomRight)"
   }
 }

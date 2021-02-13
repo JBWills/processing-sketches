@@ -113,16 +113,14 @@ class ConcentricLayersSketch : LayeredCanvasSketch("ConcentricLayersSketch") {
   override fun drawOnce(layer: Int) {
     getArcsForLayer(layer, tabs[layer], trueNumCircles)
       .forEachIndexed { circleIndex, layerArc ->
-        layerArc
-          .minusAll(
-            getArcsAtIndex(circleIndex, layer + 1)
-              .mapIf({ !it.isSizeZero }) { it.expandPixels(spacing.get()) }
-          )
-          .forEach { arc ->
-            arc
-              .walk(1.0)
-              .draw(boundRect)
-          }
+        layerArc.minusAll(
+          getArcsAtIndex(circleIndex, layer + 1)
+            .mapIf({ !it.isSizeZero }) { it.expandPixels(spacing.get()) }
+        ).forEach { arc ->
+          arc
+            .walk(1.0)
+            .draw(boundRect)
+        }
       }
   }
 }

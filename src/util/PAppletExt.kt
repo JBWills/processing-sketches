@@ -11,6 +11,7 @@ import coordinate.Point
 import coordinate.Segment
 import fastnoise.FastNoise
 import fastnoise.FastNoise.NoiseType
+import geomerativefork.src.RPoint
 import processing.core.PApplet
 
 open class PAppletExt : PApplet() {
@@ -44,7 +45,8 @@ open class PAppletExt : PApplet() {
   fun point(x: Number, y: Number) = point(x.toFloat(), y.toFloat())
 
   fun line(p1: Point, p2: Point) = line(p1.xf, p1.yf, p2.xf, p2.yf)
-  fun rect(r: BoundRect) = rect(r.left.toFloat(), r.top.toFloat(), r.width.toFloat(), r.height.toFloat())
+  fun rect(r: BoundRect) =
+    rect(r.left.toFloat(), r.top.toFloat(), r.width.toFloat(), r.height.toFloat())
 
   fun circle(c: Circ) = circle(c.origin.xf, c.origin.yf, c.diameter.toFloat())
   fun debugCirc(p: Point) = circle(p.xf, p.yf, 5f)
@@ -80,7 +82,8 @@ open class PAppletExt : PApplet() {
     } else endDeg.value
 
 
-    arc(c.origin.xf, c.origin.yf, c.diameter.toFloat(), c.diameter.toFloat(), startDeg.rad.toFloat(), endDegValue.toRadians().toFloat())
+    arc(c.origin.xf, c.origin.yf, c.diameter.toFloat(), c.diameter.toFloat(),
+      startDeg.rad.toFloat(), endDegValue.toRadians().toFloat())
   }
 
   fun arcs(arcs: Iterable<Arc>) = arcs.forEach { a -> arc(a) }
@@ -92,6 +95,12 @@ open class PAppletExt : PApplet() {
   fun shape(vertices: List<Point>) {
     beginShape()
     vertices.forEach { vertex(it) }
+    endShape()
+  }
+
+  fun shape(vertices: Array<RPoint>) {
+    beginShape()
+    vertices.forEach { vertex(it.x, it.y) }
     endShape()
   }
 
@@ -109,7 +118,9 @@ open class PAppletExt : PApplet() {
   fun List<Point>.toSegments(): List<Segment> = mapWithNext { curr, next -> Segment(curr, next) }
   fun List<Segment>.toVertices(): List<Point> = map { it.p1 }.addNotNull(lastOrNull()?.p2)
 
-  fun getBoundLines(unboundLine: List<Point>, bound: BoundRect, boundInside: Boolean): List<List<Point>> =
+  fun getBoundLines(
+    unboundLine: List<Point>, bound: BoundRect, boundInside: Boolean,
+  ): List<List<Point>> =
     ContinuousMaskedShape(unboundLine, bound).toBoundPoints(boundInside)
 
   fun shape(vertices: List<Point>, bound: BoundRect, boundInside: Boolean = true) {

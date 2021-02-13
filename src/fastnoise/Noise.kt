@@ -72,16 +72,16 @@ class Noise(
     fastNoise.GetNoise(p.xf, p.yf, 100f)
   ) * strength
 
-  private fun noiseAt(p: Point) = fastNoise.GetNoise(p.xf, p.yf, 0f).toDouble()
+  fun noiseAt(p: Point) = fastNoise.GetNoise(p.xf, p.yf, 0f).toDouble()
 
-  private fun getPointOnNoisePlane(pointInDrawSpace: Point) = (pointInDrawSpace + offset) * scale
+  fun getPointOnNoisePlane(pointInDrawSpace: Point) = (pointInDrawSpace + offset) * scale
 
   private fun move(p: Point, scaleFn: (Point) -> Point = { it }): Point {
     val noisePoint = noiseAt2D(getPointOnNoisePlane(p))
     return p + scaleFn(noisePoint)
   }
 
-  private fun moveRadially(
+  fun moveRadially(
     pointToMove: Point,
     originPoint: Point,
     scaleFn: (Double) -> Double = { it },

@@ -27,6 +27,8 @@ package geomerativefork.src
 import geomerativefork.src.RCommand.Companion.createBezier3
 import geomerativefork.src.RCommand.Companion.createLine
 import geomerativefork.src.util.flatMapArray
+import geomerativefork.src.util.flatMapArrayIndexed
+import geomerativefork.src.util.mapArray
 import geomerativefork.src.util.toArrayString
 import processing.core.PApplet
 import processing.core.PConstants
@@ -118,6 +120,11 @@ class RPath() : RGeomElem() {
     setStyle(s)
   }
 
+  constructor(c: Array<RCommand>) : this() {
+    commands = c
+    lastPoint = c.lastOrNull()?.endPoint
+  }
+
   constructor(c: RCommand) : this() {
     addCommand(c)
   }
@@ -182,9 +189,7 @@ class RPath() : RGeomElem() {
    * @eexample RGroup_getPoints
    */
   override val pointsInPaths: Array<Array<RPoint>>
-    get() {
-      return arrayOf(points)
-    }
+    get() = arrayOf(points)
 
   /**
    * Use this to return the handles of each path of the path.  It returns the handles in the way of an array of array of RPoint.
@@ -193,9 +198,7 @@ class RPath() : RGeomElem() {
    * @eexample RGroup_getHandles
    */
   override val handlesInPaths: Array<Array<RPoint>>
-    get() {
-      return arrayOf(handles)
-    }
+    get() = arrayOf(handles)
 
   /**
    * Use this to return the tangents of each path of the path.  It returns the tangents in the way of an array of array of RPoint.
@@ -204,15 +207,13 @@ class RPath() : RGeomElem() {
    * @eexample RGroup_getTangents
    */
   override val tangentsInPaths: Array<Array<RPoint>>
-    get() {
-      return arrayOf(tangents)
-    }
+    get() = arrayOf(tangents)
 
   override fun calculateCurveLengths() {
     lenCurves = FloatArray(commands.size)
     lenCurve = 0f
-    for (i in 0 until commands.size) {
-      lenCurves[i] = commands[i].curveLength
+    commands.forEachIndexed { i, command ->
+      lenCurves[i] = command.curveLength
       lenCurve += lenCurves[i]
     }
   }
@@ -232,14 +233,11 @@ class RPath() : RGeomElem() {
       val result: MutableList<RPoint> = mutableListOf()
       for (i in 0 until numCommands) {
         val newTangents = commands[i].tangents
-        if (newTangents.isNotEmpty()) {
-          if (newTangents.size != 1) {
-            val overlap = 1
-            if (result.isEmpty()) {
-              result.addAll(newTangents)
-            } else {
-              result.addAll(newTangents.slice(0 until newTangents.size))
-            }
+        if (newTangents.size > 1) {
+          if (result.isEmpty()) {
+            result.addAll(newTangents)
+          } else {
+            result.addAll(newTangents.dropLast(1))
           }
         }
       }
@@ -252,7 +250,7 @@ class RPath() : RGeomElem() {
    * @return RPoint[], the intersection points returned in an array.
    */
   fun intersectionPoints(other: RCommand): Array<RPoint> =
-    commands.map { it.intersectionPoints(other).toList() }.flatten().toTypedArray()
+    commands.flatMapArray { it.intersectionPoints(other) }
 
   /**
    * Use this to return the intersection points between two paths. Returns null if no intersection exists.
@@ -260,16 +258,78 @@ class RPath() : RGeomElem() {
    * @return RPoint[], the intersection points returned in an array.
    */
   fun intersectionPoints(other: RPath): Array<RPoint> {
-    if (commands.isEmpty()) return arrayOf()
-    val result: MutableList<RPoint> = mutableListOf()
+    if (commands.isEmpty() || other.commands.isEmpty()) return arrayOf()
 
-    other.commands.forEach { otherCommand ->
-      commands.forEach { command ->
-        result.addAll(command.intersectionPoints(otherCommand))
+    return other.commands.flatMapArray { otherCommand ->
+      commands.flatMapArray { command ->
+        command.intersectionPoints(otherCommand)
       }
     }
+  }
 
-    return result.toTypedArray()
+  fun diff(other: RPath): Array<RPath> {
+    if (commands.isEmpty()) return arrayOf()
+    if (other.commands.isEmpty()) return arrayOf(this)
+
+    class Intersection(
+      val command: RCommand,
+      val otherCommand: RCommand,
+      val commandIndex: Int,
+      val point: RPoint,
+      val type: Int,
+    )
+
+    val TYPE_ENTERING = 0
+    val TYPE_EXITING = 1
+    val TYPE_TANGENT_INSIDE = 2
+    val TYPE_TANGENT_OUTSIDE = 3
+
+    val intersections: List<Intersection> = other.commands.flatMapArray { otherCommand ->
+      commands.flatMapArrayIndexed { commandIndex, command ->
+        val pts = command.intersectionPoints(otherCommand)
+          .mapArray { intersectionPoint ->
+
+            val startIsInsideOther = other.contains(command.startPoint)
+            val endIsInsideOther = other.contains(command.endPoint)
+
+            val intersectionType = when {
+              startIsInsideOther && endIsInsideOther -> TYPE_TANGENT_INSIDE
+              !startIsInsideOther && endIsInsideOther -> TYPE_ENTERING
+              startIsInsideOther && !endIsInsideOther -> TYPE_EXITING
+              else -> TYPE_TANGENT_OUTSIDE
+            }
+
+            Intersection(command, otherCommand, commandIndex, intersectionPoint, intersectionType)
+          }
+        return@flatMapArrayIndexed pts
+      }
+    }.filterNot { it.type == TYPE_TANGENT_INSIDE || it.type == TYPE_TANGENT_OUTSIDE }
+      .sortedBy { it.commandIndex }
+
+    val splitPaths = mutableListOf<RPath>()
+
+    if (intersections.isEmpty()) {
+      return if (other.contains(commands[0].startPoint)) arrayOf()
+      else arrayOf(this)
+    }
+
+    var lastIndex = if (closed) intersections.last().commandIndex else 0
+    (intersections.indices).forEach { i ->
+      val curr = intersections[i]
+      if (curr.type == TYPE_ENTERING) {
+        if (lastIndex > curr.commandIndex) {
+          splitPaths.add(RPath(
+            commands.sliceArray(lastIndex until commands.size) +
+              commands.sliceArray(0..curr.commandIndex)
+          ))
+        } else {
+          splitPaths.add(RPath(commands.sliceArray(lastIndex..curr.commandIndex)))
+        }
+      }
+      lastIndex = curr.commandIndex
+    }
+
+    return splitPaths.toTypedArray()
   }
 
   /**
@@ -361,29 +421,26 @@ class RPath() : RGeomElem() {
     val testx = p.x
     val testy = p.y
 
-    // Test for containment in bounding box
-    val bbox = bounds
-    val xmin = bbox.minX
-    val xmax = bbox.maxX
-    val ymin = bbox.minY
-    val ymax = bbox.maxY
-    if (testx < xmin || testx > xmax || testy < ymin || testy > ymax) {
+    if (!bounds.contains(p)) {
       return false
     }
 
     // Test for containment in path
     val verts = points
-    val nvert = verts.size
-    var j = 0
-    var c = false
-    var i = 0
-    j = nvert - 1
-    while (i < nvert) {
-      if (verts[i].y > testy != verts[j].y > testy && testx < (verts[j].x - verts[i].x) * (testy - verts[i].y) / (verts[j].y - verts[i].y) + verts[i].x) c =
-        !c
-      j = i++
+
+    var isContained = false
+    verts.forEachIndexed { index, (vx, vy) ->
+      val prevIndex = if (index == 0) verts.size - 1 else index - 1
+      val last = verts[prevIndex]
+
+      if (((vy > testy) != (last.y > testy)) &&
+        (testx < (last.x - vx) * (testy - vy) / (last.y - vy) + vx)
+      ) {
+        isContained = !isContained
+      }
     }
-    return c
+
+    return isContained
   }
 
   /**

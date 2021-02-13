@@ -10,7 +10,7 @@ import kotlin.math.sin
 val EPSILON = 0.00001
 
 fun Int.times(f: (Int) -> Unit) {
-  for (i in 0.rangeTo(this)) f(i)
+  for (i in 0 until this) f(i)
 }
 
 fun Number.remap(fromRange: DoubleRange, toRange: DoubleRange) =

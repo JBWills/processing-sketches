@@ -351,22 +351,13 @@ abstract class RGeomElem {
       return lenCurve
     }
 
-  open fun toPolygon(): RPolygon {
-    return toShape().toPolygon()
-  }
+  open fun toPolygon(): RPolygon = toShape().toPolygon()
 
-  open fun toMesh(): RMesh {
-    return toShape().toPolygon().toMesh()
-  }
+  open fun toMesh(): RMesh = toShape().toPolygon().toMesh()
 
   // Functions independent of the type of element
   // No need of being overrided
-  open fun transform(m: RMatrix) {
-    val ps = handles
-    for (i in ps.indices) {
-      ps[i].transform(m)
-    }
-  }
+  open fun transform(m: RMatrix) = handles.forEach { it.transform(m) }
 
   /**
    * Transform the geometric object to fit in a rectangle defined by the parameters passed.
@@ -390,10 +381,7 @@ abstract class RGeomElem {
     return
   }
 
-  fun transform(x: Float, y: Float, w: Float, h: Float) {
-    this.transform(x, y, w, h, true)
-    return
-  }
+  fun transform(x: Float, y: Float, w: Float, h: Float) = transform(x, y, w, h, true)
 
   /**
    * Use this method to get the bounding box of the element.

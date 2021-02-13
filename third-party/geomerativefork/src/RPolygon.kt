@@ -628,9 +628,6 @@ class RPolygon : RGeomElem {
    * This method should NOT be used outside the Clip algorithm.
    */
   fun setContributing(polyIndex: Int, contributes: Boolean) {
-//    if (contours.size != 1) {
-//      throw IllegalStateException("Only applies to polys of size 1")
-//    }
     contours[polyIndex].isContributing = contributes
   }
 
