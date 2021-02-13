@@ -1,3 +1,6 @@
+import RecordMode.NoRecord
+import RecordMode.RecordLayerSVGs
+import RecordMode.RecordSVG
 import controls.Control.Button
 import controls.ControlFrame
 import controls.ControlGroup
@@ -20,6 +23,12 @@ import java.util.Locale
 abstract class SketchConfig
 
 class LayerConfig(val pen: Pen)
+
+enum class RecordMode {
+  NoRecord,
+  RecordSVG,
+  RecordLayerSVGs
+}
 
 abstract class BaseSketch<TConfig : SketchConfig>(
   protected var backgroundColor: Color = Color.white,
@@ -44,7 +53,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   val center get() = Point(sizeX / 2, sizeY / 2)
 
   private var dirty = true
-  private var recordSvg = false
+  private var recordMode: RecordMode = NoRecord
     set(value) {
       if (field != value) markDirty()
       field = value
@@ -92,7 +101,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   }
 
   private fun wrapRecord(layer: Int, isLastLayer: Boolean = false, f: () -> Unit) {
-    if (!recordSvg) {
+    if (recordMode == NoRecord) {
       f()
       return
     }
@@ -104,7 +113,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
     beginRecord(SVG, getOutputFileName(layer))
     f()
     endRecord()
-    if (isLastLayer) recordSvg = false
+    if (isLastLayer) recordMode = NoRecord
   }
 
   private fun onlyRunIfDirty(f: () -> Unit) {
@@ -126,15 +135,25 @@ abstract class BaseSketch<TConfig : SketchConfig>(
 
   override fun draw() {
     onlyRunIfDirty {
-      background(backgroundColor.rgb)
       val sketchConfigNonNull = maybeRandomizeSketchConfig()
       val layers = getLayers()
       drawSetup(sketchConfigNonNull)
-      layers.forEachIndexed { index, layer ->
-        wrapRecord(index + 1, index == layers.size - 1) {
-          drawOnce(sketchConfigNonNull, index, layer)
+      if (recordMode == RecordLayerSVGs) {
+        layers.forEachIndexed { index, layer ->
+          wrapRecord(index + 1, index == layers.size - 1) {
+            background(backgroundColor.rgb)
+            drawOnce(sketchConfigNonNull, index, layer)
+          }
+        }
+      } else {
+        wrapRecord(1, true) {
+          background(backgroundColor.rgb)
+          layers.forEachIndexed { index, layer ->
+            drawOnce(sketchConfigNonNull, index, layer)
+          }
         }
       }
+
     }
   }
 
@@ -158,7 +177,8 @@ abstract class BaseSketch<TConfig : SketchConfig>(
   fun getAllControls() = listOf(
     ControlTab("default", listOf(
       Button("Randomize values") { randomize = true },
-      Button("Save frame") { recordSvg = true }
+      Button("Save frame") { recordMode = RecordSVG },
+      Button("Save frame as separateLayers") { recordMode = RecordLayerSVGs }
     ).toControlGroups()),
     *getControlTabs(),
   )
