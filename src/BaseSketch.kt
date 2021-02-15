@@ -153,7 +153,6 @@ abstract class BaseSketch<TConfig : SketchConfig>(
           }
         }
       }
-
     }
   }
 

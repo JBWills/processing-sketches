@@ -11,6 +11,7 @@ import coordinate.Point
 import coordinate.Segment
 import fastnoise.FastNoise
 import fastnoise.FastNoise.NoiseType
+import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
 import processing.core.PApplet
 
@@ -125,6 +126,12 @@ open class PAppletExt : PApplet() {
 
   fun shape(vertices: List<Point>, bound: BoundRect, boundInside: Boolean = true) {
     getBoundLines(vertices, bound, boundInside).map { shapeList ->
+      shape(shapeList)
+    }
+  }
+
+  fun shape(path: RPath, bound: BoundRect, boundInside: Boolean = true) {
+    getBoundLines(path.points.map { Point(it.x, it.y) }, bound, boundInside).map { shapeList ->
       shape(shapeList)
     }
   }

@@ -6,29 +6,29 @@ import controls.ControlField.Companion.intField
 import controls.ControlGroup
 import controls.ControlGroupable
 import controls.noiseControls
-import coordinate.Circ
 import coordinate.Point
+import coordinate.Segment
 import fastnoise.FastNoise.NoiseType.Cubic
 import fastnoise.Noise
+import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
 import geomerativefork.src.RPath
 import geomerativefork.src.RShape
 import geomerativefork.src.util.bound
-import geomerativefork.src.util.flatMapArray
 import sketches.base.EmptyConfig
 import sketches.base.LayeredCanvasSketch
 import util.RangeWithCurrent.Companion.at
 import util.atAmountAlong
-import util.geomutil.toRShape
+import util.geomutil.toRPath
+import util.percentAlong
 import util.randomLightColor
-import util.times
 import util.withRed
 import java.awt.Color
 
 class Waves : LayeredCanvasSketch("Waves") {
   val numCircles = intField("numCircles", 1..MAX_LAYERS at MAX_LAYERS)
-  val maxRad = doubleField("maxRad", 100.0..2000.0 at 300.0)
-  val minRad = doubleField("minRad", 0.0..400.0 at 30)
+  val maxHeight = doubleField("maxHeight", 100.0..2000.0 at boundRect.bottom)
+  val minHeight = doubleField("minHeight", 0.0..400.0 at boundRect.top)
   val baseNumInternalCircles = intField("baseNumInternalCircles", 1..100 at 1)
   val distBetweenNoisePerCircle = doubleField("distBetweenNoisePerCircle", 0.0..150.0 at 150)
 
@@ -47,7 +47,7 @@ class Waves : LayeredCanvasSketch("Waves") {
     arrayOf(
       ControlGroup(numCircles, baseNumInternalCircles),
       distBetweenNoisePerCircle,
-      ControlGroup(minRad, maxRad),
+      ControlGroup(minHeight, maxHeight),
       *noiseControls(::noise)
     )
 
@@ -64,80 +64,72 @@ class Waves : LayeredCanvasSketch("Waves") {
   override fun drawOnce(layer: Int) {
     if (layer == 0 || layer > numCircles.get()) return
 
-    val circleNum = layer - 1
+    val waveNum = layer - 1
 
     val tab = tabs[layer - 1]
 
-    val circleNoise = Noise(
+    val waveNoise = Noise(
       noise,
-      offset = noise.offset + (distBetweenNoisePerCircle.get() * circleNum))
+      offset = noise.offset + (distBetweenNoisePerCircle.get() * waveNum))
 
     val baseColor = randomLightColor()
 
-    val baseRadius = (minRad.get()..maxRad.get())
-      .atAmountAlong((circleNum.toDouble() + 1) / numCircles.get())
+    fun waveAmountAlong(n: Int) = (n.toDouble() + 1) / numCircles.get()
 
-    val baseCircle = Circ(center, baseRadius)
+    val baseHeight = (maxHeight.get()..minHeight.get())
+      .atAmountAlong(waveAmountAlong(waveNum))
+    val lastHeight = (maxHeight.get()..minHeight.get())
+      .atAmountAlong(waveAmountAlong(waveNum - 1))
 
-    val totalInternalCircles = baseNumInternalCircles.get() + tab.numInternalCircles.get()
+    val maxLineHeight = lastHeight + 2 * waveNoise.strength.y
 
-    totalInternalCircles.times { indexInverted ->
-      val innerCircleIndex = (totalInternalCircles - 1) - indexInverted
-      val amountAlongInnerCircle =
-        innerCircleIndex.toDouble() / totalInternalCircles
+    var height = baseHeight
 
-      stroke(baseColor.withRed(amountAlongInnerCircle.toFloat().bound()).rgb)
+    var nextUnionShape: RShape? = null
 
-      val radius = baseRadius - (innerCircleIndex * tab.distBetweenInternalCircles.get())
+    val baseWarpedPoints = Segment(Point(0, height), Point(sizeX, height))
+      .warped(waveNoise)
 
-      if (radius < minRad.get()) return@times
+    while (height < maxLineHeight) {
+      val percentAlong = (maxLineHeight..baseHeight).percentAlong(height)
+      val warpedPath = baseWarpedPoints.map {
+        it + Point(0, height - baseHeight)
+      }
+        .toRPath()
 
-      val c = Circ(center, radius)
-      val warpedCircle = c.walk(circleNoise.quality.step) {
-        val originalPoint = baseCircle.pointAtAngle(c.angleAtPoint(it))
+      if (height == baseHeight) {
+        val waveShape = RShape(warpedPath.apply {
+          addLineTo(sizeX.toFloat(), sizeY.toFloat())
+          addLineTo(0f, sizeY.toFloat())
+          addClose()
+        })
 
-        val movedOriginalPoint = circleNoise.moveRadially(originalPoint, center) { noiseVal ->
-          (noiseVal) * circleNoise.strength.magnitude * (if (circleNum == 0) 0 else 1)
-        }
-
-        return@walk it + (movedOriginalPoint - originalPoint)
+        nextUnionShape = if (unionShape == null) waveShape else unionShape?.union(waveShape)
       }
 
-      val s = warpedCircle
-        .toRShape().also { it.addClose() }
+      val warpedPaths: Array<RPath> =
+        unionShape?.let { warpedPath.diff(it.paths[0]) } ?: arrayOf(warpedPath)
 
-      if (unionShape == null) {
-        unionShape = RShape(s)
+
+      if (height == baseHeight)
         stroke(Color.white.rgb)
-        shape(warpedCircle)
-        return@times
-      }
+      else
+        stroke(baseColor.withRed(percentAlong.toFloat().bound()).rgb)
 
-      unionShape?.let { nonNullUnionShape ->
-        var sDiffed: Array<RPath> = arrayOf(s.paths[0])
+      warpedPaths.forEach { shape(it, boundRect) }
 
-        nonNullUnionShape.paths.forEach { unionPath ->
-          sDiffed = sDiffed.flatMapArray { it.diff(unionPath) }
-        }
-
-        if (amountAlongInnerCircle == 0.0) {
-          unionShape = nonNullUnionShape.union(s)
-        }
-
-        sDiffed.forEach { splitPath ->
-          splitPath.draw()
-        }
-      }
+      height += tab.distBetweenLines.get()
     }
+
+    unionShape = nextUnionShape
   }
 
   override fun getControlsForLayer(index: Int): Array<ControlGroupable> =
-    arrayOf(tabs[index].numInternalCircles, tabs[index].distBetweenInternalCircles)
+    arrayOf(tabs[index].offset, tabs[index].distBetweenLines)
 
   inner class WavesTab {
-    val numInternalCircles =
-      intField("numInternalCircles", 0..200 at 0)
-    val distBetweenInternalCircles = doubleField("distBetweenInternalCircles", 1.0..100.0 at 10)
+    val distBetweenLines = doubleField("distBetweenLines", 1.0..200.0 at 10)
+    val offset = doubleField("offset", -200.0..200.0 at 0)
   }
 }
 

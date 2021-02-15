@@ -325,6 +325,10 @@ class RPath() : RGeomElem() {
         } else {
           splitPaths.add(RPath(commands.sliceArray(lastIndex..curr.commandIndex)))
         }
+      } else if (i == intersections.size - 1 && !closed) {
+        // If it's an open ened path that ends after "exiting" the diff shape, draw the tail
+        // end of the path.
+        splitPaths.add(RPath(commands.sliceArray(curr.commandIndex until commands.size)))
       }
       lastIndex = curr.commandIndex
     }
