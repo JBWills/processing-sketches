@@ -13,6 +13,7 @@ import util.darkened
 import util.print.DPI
 import util.print.Orientation
 import util.print.Paper
+import java.awt.Color
 
 class EmptyConfig : SketchConfig()
 abstract class CanvasSketch(
@@ -25,8 +26,8 @@ abstract class CanvasSketch(
   canvas.defaultStrokeColor,
   svgBaseFilename,
   EmptyConfig(),
-  canvas.horizontalPx(),
-  canvas.verticalPx(),
+  canvas.horizontalPx(orientation),
+  canvas.verticalPx(orientation),
   isDebugMode,
 ) {
 
@@ -58,7 +59,7 @@ abstract class CanvasSketch(
   }
 
   private fun markCanvasDirty() {
-    updateSize(paper.horizontalPx(), paper.verticalPx())
+    updateSize(paper.horizontalPx(orientation), paper.verticalPx(orientation))
 
     backgroundColor = paper.defaultBackgroundColor
     strokeColor = paper.defaultStrokeColor
@@ -76,7 +77,10 @@ abstract class CanvasSketch(
 
   override fun drawOnce(config: EmptyConfig, layer: Int, layerConfig: LayerConfig) {
     noFill()
-    stroke(if (isRecording) layerConfig.pen.color.darkened(0.5f).rgb else layerConfig.pen.color.rgb)
+
+    val needsDarkStroke: Boolean = isRecording || paper.defaultBackgroundColor != Color.black
+    stroke(
+      if (needsDarkStroke) layerConfig.pen.color.darkened(0.5f).rgb else layerConfig.pen.color.rgb)
     strokeWeight(DPI.InkScape.toPixelsFromMm(layerConfig.pen.mm))
     if (layer == getLayers().size - 1) {
       boundRect = calcBoundRect()
@@ -88,7 +92,7 @@ abstract class CanvasSketch(
   }
 
   private fun calcBoundRect() = paper
-    .toBoundRect()
+    .toBoundRect(orientation)
     .scale(
       boundBoxScale,
       newCenter = boundBoxCenter * Point(sizeX, sizeY)

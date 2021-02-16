@@ -32,7 +32,7 @@ fun Color.map(block: (Int) -> Int) = rgbList()
   .toColor()
 
 fun Color.darkened(percent: Float) =
-  map { (it * (1 - percent)).boundInt(0, 255) }
+  map { (it * (1 - percent)).boundInt(0, (255 * (1 - percent)).toInt()) }
 
 fun Color.lightened(percent: Float) =
-  map { (it * (1 + percent)).boundInt(0, 255) }
+  map { (it * (1 + percent)).boundInt((percent * 255).toInt(), 255) }

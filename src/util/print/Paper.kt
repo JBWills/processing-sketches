@@ -2,6 +2,7 @@ package util.print
 
 import coordinate.BoundRect
 import coordinate.Point
+import util.lightened
 import util.print.Orientation.Landscape
 import java.awt.Color
 
@@ -35,17 +36,18 @@ enum class Paper(
   A4White(11.69, 8.27, Color.WHITE, Color.BLACK),
   A4Black(12, 9, Color.BLACK, Color.WHITE),
   SquareBlack(7.87, 7.87, Color.BLACK, Color.WHITE),
-  ColoredPaper(12.5, 9.5, Color.RED, Color.WHITE);
-  
+  ColoredPaper(12.5, 9.5, Color.RED.lightened(1f), Color.WHITE);
+
   private fun sidePx(sideInches: Double, dpi: DPI = DPI.InkScape) = dpi.toPixels(sideInches)
 
-  fun horizontalPx(orientation: Orientation = Landscape, dpi: DPI = DPI.InkScape) =
+  fun horizontalPx(orientation: Orientation, dpi: DPI = DPI.InkScape) =
     sidePx(if (orientation == Landscape) longSideInches else shortSideInches, dpi)
 
-  fun verticalPx(orientation: Orientation = Landscape, dpi: DPI = DPI.InkScape) =
+  fun verticalPx(orientation: Orientation, dpi: DPI = DPI.InkScape) =
     sidePx(if (orientation == Landscape) shortSideInches else longSideInches, dpi)
 
-  fun toBoundRect() = BoundRect(Point.Zero, verticalPx(), horizontalPx())
+  fun toBoundRect(orientation: Orientation) =
+    BoundRect(Point.Zero, verticalPx(orientation), horizontalPx(orientation))
 
   constructor(
     longSideInches: Number,

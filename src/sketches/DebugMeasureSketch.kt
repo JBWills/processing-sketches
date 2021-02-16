@@ -12,6 +12,7 @@ import fastnoise.FastNoise.NoiseType.Perlin
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import util.print.DPI
+import util.print.Orientation.Landscape
 import util.print.Paper
 import util.property2DSlider
 import util.propertySlider
@@ -86,7 +87,7 @@ open class DebugMeasureSketch(
       textAlign(RIGHT, BOTTOM)
       textSize(32f)
       fill(Color.BLACK.rgb)
-      val bound = BoundRect(Point.Zero, paper.verticalPx(), paper.horizontalPx())
+      val bound = paper.toBoundRect(Landscape)
       text(paper.name, bound.bottomRight.xf, bound.bottomRight.yf)
 
       noFill()
