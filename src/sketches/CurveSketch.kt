@@ -146,4 +146,4 @@ open class CurveSketch(
   }
 }
 
-fun main() = BaseSketch.run(CurveSketch())
+fun main() = CurveSketch().run()

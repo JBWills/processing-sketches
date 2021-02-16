@@ -1,7 +1,5 @@
 package sketches
 
-import BaseSketch
-import LayerConfig
 import controls.ControlField.Companion.doubleField
 import controls.ControlField.Companion.doublePairField
 import controls.ControlField.Companion.intField
@@ -111,21 +109,17 @@ class ConcentricLayersSketch :
     arcsPerLayer = (0 until numLayers.get()).map { getArcsForLayer(it, tabs[it], numCirclesFrozen) }
   }
 
-  override fun drawOnce(layer: Int) {
-    getArcsForLayer(layer, tabs[layer], trueNumCircles)
-      .forEachIndexed { circleIndex, layerArc ->
-        layerArc.minusAll(
-          getArcsAtIndex(circleIndex, layer + 1)
-            .mapIf({ !it.isSizeZero }) { it.expandPixels(spacing.get()) }
-        ).forEach { arc ->
-          arc
-            .walk(1.0)
-            .draw(boundRect)
-        }
-      }
-  }
-
-  override fun drawOnce(layer: Int, layerConfig: LayerConfig) = drawOnce(layer)
+  override fun drawOnce(layer: Int) = getArcsForLayer(layer, tabs[layer], trueNumCircles)
+    .flatMapIndexed { circleIndex, layerArc ->
+      layerArc.minusAll(
+        getArcsAtIndex(circleIndex, layer + 1)
+          .mapIf({ !it.isSizeZero }) { it.expandPixels(spacing.get()) }
+      )
+    }.forEach { arc ->
+      arc
+        .walk(1.0)
+        .draw(boundRect)
+    }
 }
 
-fun main() = BaseSketch.run(ConcentricLayersSketch())
+fun main() = ConcentricLayersSketch().run()

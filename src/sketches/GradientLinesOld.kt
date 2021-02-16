@@ -121,4 +121,4 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
   }
 }
 
-fun main() = BaseSketch.run(GradientLinesOldSketch())
+fun main() = GradientLinesOldSketch().run()

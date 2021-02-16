@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import controls.ControlField.Companion.booleanField
 import controls.ControlField.Companion.doubleField
 import controls.ControlField.Companion.intField
@@ -135,4 +134,4 @@ class Flower : LayeredCanvasSketch("Flower") {
   }
 }
 
-fun main() = BaseSketch.run(Flower())
+fun main() = Flower().run()

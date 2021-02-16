@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import controls.ControlField.Companion.doubleField
 import controls.ControlField.Companion.intField
 import controls.ControlGroup
@@ -119,4 +118,4 @@ class Waves : LayeredCanvasSketch("Waves") {
   }
 }
 
-fun main() = BaseSketch.run(Waves())
+fun main() = Waves().run()

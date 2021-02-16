@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import LayerConfig
 import appletExtensions.drawParallelLinesInBound
 import coordinate.Deg
@@ -70,4 +69,4 @@ class GradientLinesDiagonalSketch(
   }
 }
 
-fun main() = BaseSketch.run(GradientLinesDiagonalSketch())
+fun main() = GradientLinesDiagonalSketch().run()

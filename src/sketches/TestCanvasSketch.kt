@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import controls.Control.Button
 import controls.ControlField.Companion.doubleField
 import controls.ControlField.Companion.intField
@@ -118,4 +117,4 @@ class TestCanvasSketch : LayeredCanvasSketch("TestCanvasSketch") {
   }
 }
 
-fun main() = BaseSketch.run(TestCanvasSketch())
+fun main() = TestCanvasSketch().run()

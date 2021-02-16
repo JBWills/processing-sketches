@@ -109,4 +109,4 @@ open class GradientLinesSketch(
   }
 }
 
-fun main() = BaseSketch.run(GradientLinesSketch())
+fun main() = GradientLinesSketch().run()

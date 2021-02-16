@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import controls.ControlField.Companion.doubleField
 import controls.ControlField.Companion.intField
 import controls.ControlGroup
@@ -120,4 +119,4 @@ class GeomerativeSketch : LayeredCanvasSketch("GeomerativeSketch") {
   }
 }
 
-fun main() = BaseSketch.run(GeomerativeSketch())
+fun main() = GeomerativeSketch().run()

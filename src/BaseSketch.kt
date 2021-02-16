@@ -67,11 +67,9 @@ abstract class BaseSketch(
     .withLocale(Locale.US)
     .withZone(ZoneId.systemDefault())
 
-  companion object Factory {
-    fun run(app: BaseSketch) {
-      app.setSize(app.sizeX, app.sizeY)
-      app.runSketch()
-    }
+  fun run() {
+    setSize(sizeX, sizeY)
+    runSketch()
   }
 
   open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Pen(1.0, strokeColor)))
@@ -92,6 +90,10 @@ abstract class BaseSketch(
     }
   }
 
+  /**
+   * This function is run once before each draw call. Use it to set up
+   * your drawing before actually drawing anything.
+   */
   open fun drawSetup() {}
 
   override fun draw() {

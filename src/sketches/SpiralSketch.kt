@@ -119,4 +119,4 @@ open class SpiralSketch(
   }
 }
 
-fun main() = BaseSketch.run(SpiralSketch())
+fun main() = SpiralSketch().run()

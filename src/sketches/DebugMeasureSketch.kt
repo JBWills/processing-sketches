@@ -92,4 +92,4 @@ open class DebugMeasureSketch(
   }
 }
 
-fun main() = BaseSketch.run(DebugMeasureSketch())
+fun main() = DebugMeasureSketch().run()

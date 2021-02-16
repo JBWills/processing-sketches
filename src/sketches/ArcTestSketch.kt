@@ -82,4 +82,4 @@ open class ArcTestSketch(
   }
 }
 
-fun main() = BaseSketch.run(ArcTestSketch())
+fun main() = ArcTestSketch().run()

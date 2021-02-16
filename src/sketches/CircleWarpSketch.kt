@@ -99,4 +99,4 @@ open class CircleWarpSketch(
   }
 }
 
-fun main() = BaseSketch.run(CircleWarpSketch())
+fun main() = CircleWarpSketch().run()

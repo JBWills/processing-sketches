@@ -44,4 +44,4 @@ open class StarterSketch(
   }
 }
 
-fun main() = BaseSketch.run(StarterSketch())
+fun main() = StarterSketch().run()

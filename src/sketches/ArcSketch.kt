@@ -101,4 +101,4 @@ open class ArcSketch(
   }
 }
 
-fun main() = BaseSketch.run(ArcSketch())
+fun main() = ArcSketch().run()

@@ -145,4 +145,4 @@ open class WarpSketch(
   }
 }
 
-fun main() = BaseSketch.run(WarpSketch())
+fun main() = WarpSketch().run()
