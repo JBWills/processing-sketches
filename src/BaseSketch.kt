@@ -1,5 +1,4 @@
 import RecordMode.NoRecord
-import RecordMode.RecordLayerSVGs
 import RecordMode.RecordSVG
 import controls.Control.Button
 import controls.ControlFrame
@@ -12,6 +11,7 @@ import geomerativefork.src.RG
 import processing.core.PConstants
 import processing.event.MouseEvent
 import util.PAppletExt
+import util.combineDrawLayersIntoSVG
 import util.print.Pen
 import java.awt.Color
 import java.io.File
@@ -26,8 +26,7 @@ class LayerConfig(val pen: Pen)
 
 enum class RecordMode {
   NoRecord,
-  RecordSVG,
-  RecordLayerSVGs
+  RecordSVG
 }
 
 abstract class BaseSketch<TConfig : SketchConfig>(
@@ -84,14 +83,11 @@ abstract class BaseSketch<TConfig : SketchConfig>(
 
   abstract fun getRandomizedConfig(): TConfig
 
-  private fun getOutputFileName(layer: Int): String {
-    val curTime = dateTimeFormatter.format(Instant.now())
+  private fun getOutputPath(): String {
     val root = System.getProperty("user.dir")
     val theDir = File("$root/svgs/$svgBaseFileName")
-    if (!theDir.exists()) {
-      theDir.mkdirs()
-    }
-    return "$theDir/$curTime-layer-$layer.svg"
+    if (!theDir.exists()) theDir.mkdirs()
+    return theDir.absolutePath
   }
 
   private fun drawHelper(
@@ -100,22 +96,6 @@ abstract class BaseSketch<TConfig : SketchConfig>(
     handleSetup()
     runDraw()
     cleanUp()
-  }
-
-  private fun wrapRecord(layer: Int, isLastLayer: Boolean = false, f: () -> Unit) {
-    if (recordMode == NoRecord) {
-      f()
-      return
-    }
-
-    // if we're recording this to SVGs, need to set
-    // the background before recording each layer.
-    background(backgroundColor.rgb)
-
-    beginRecord(SVG, getOutputFileName(layer))
-    f()
-    endRecord()
-    if (isLastLayer) recordMode = NoRecord
   }
 
   private fun onlyRunIfDirty(f: () -> Unit) {
@@ -141,17 +121,17 @@ abstract class BaseSketch<TConfig : SketchConfig>(
       val layers = getLayers()
       background(backgroundColor.rgb)
       drawSetup(sketchConfigNonNull)
-      if (recordMode == RecordLayerSVGs) {
-        layers.forEachIndexed { index, layer ->
-          wrapRecord(index + 1, index == layers.size - 1) {
-            drawOnce(sketchConfigNonNull, index, layer)
-          }
+      if (recordMode == RecordSVG) {
+        combineDrawLayersIntoSVG(
+          getOutputPath(),
+          dateTimeFormatter.format(Instant.now()),
+          layers.size
+        ) { layerIndex ->
+          drawOnce(sketchConfigNonNull, layerIndex, layers[layerIndex])
         }
       } else {
-        wrapRecord(1, true) {
-          layers.forEachIndexed { index, layer ->
-            drawOnce(sketchConfigNonNull, index, layer)
-          }
+        layers.forEachIndexed { index, layer ->
+          drawOnce(sketchConfigNonNull, index, layer)
         }
       }
     }
@@ -171,7 +151,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
     arrayOf(ControlTab("controls", *getControls().toTypedArray()))
 
   open fun getControls(): List<ControlGroupable> = listOf<ControlGroup>()
-  
+
   fun updateControls() = controlFrame.value.updateControls(getAllControls())
 
   fun setActiveTab(tabName: String) = controlFrame.value.setActiveTab(tabName)
@@ -180,7 +160,6 @@ abstract class BaseSketch<TConfig : SketchConfig>(
     ControlTab("default", listOf(
       Button("Randomize values") { randomize = true },
       Button("Save frame") { recordMode = RecordSVG },
-      Button("Save frame as separateLayers") { recordMode = RecordLayerSVGs }
     ).toControlGroups()),
     *getControlTabs(),
   )
