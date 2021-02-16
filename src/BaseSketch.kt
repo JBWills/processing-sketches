@@ -59,6 +59,8 @@ abstract class BaseSketch<TConfig : SketchConfig>(
       field = value
     }
 
+  val isRecording get() = recordMode != NoRecord
+
   private var randomize = false
     set(value) {
       if (field != value) markDirty()
@@ -137,17 +139,16 @@ abstract class BaseSketch<TConfig : SketchConfig>(
     onlyRunIfDirty {
       val sketchConfigNonNull = maybeRandomizeSketchConfig()
       val layers = getLayers()
+      background(backgroundColor.rgb)
       drawSetup(sketchConfigNonNull)
       if (recordMode == RecordLayerSVGs) {
         layers.forEachIndexed { index, layer ->
           wrapRecord(index + 1, index == layers.size - 1) {
-            background(backgroundColor.rgb)
             drawOnce(sketchConfigNonNull, index, layer)
           }
         }
       } else {
         wrapRecord(1, true) {
-          background(backgroundColor.rgb)
           layers.forEachIndexed { index, layer ->
             drawOnce(sketchConfigNonNull, index, layer)
           }

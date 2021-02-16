@@ -14,17 +14,13 @@ import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import geomerativefork.src.RPath
 import geomerativefork.src.RShape
-import geomerativefork.src.util.bound
 import geomerativefork.src.util.flatMapArray
 import sketches.base.EmptyConfig
 import sketches.base.LayeredCanvasSketch
 import util.RangeWithCurrent.Companion.at
 import util.atAmountAlong
 import util.geomutil.toRShape
-import util.randomLightColor
 import util.times
-import util.withRed
-import java.awt.Color
 
 class Flower : LayeredCanvasSketch("Flower") {
   val clipToBounds = booleanField("clipToBounds", false)
@@ -74,9 +70,7 @@ class Flower : LayeredCanvasSketch("Flower") {
     val circleNoise = Noise(
       noise,
       offset = noise.offset + (distBetweenNoisePerCircle.get() * circleNum))
-
-    val baseColor = randomLightColor()
-
+    
     val baseRadius = (minRad.get()..maxRad.get())
       .atAmountAlong((circleNum.toDouble() + 1) / numCircles.get())
 
@@ -88,8 +82,6 @@ class Flower : LayeredCanvasSketch("Flower") {
       val innerCircleIndex = (totalInternalCircles - 1) - indexInverted
       val amountAlongInnerCircle =
         innerCircleIndex.toDouble() / totalInternalCircles
-
-      stroke(baseColor.withRed(amountAlongInnerCircle.toFloat().bound()).rgb)
 
       val radius = baseRadius - (innerCircleIndex * tab.distBetweenInternalCircles.get())
 
@@ -111,7 +103,6 @@ class Flower : LayeredCanvasSketch("Flower") {
 
       if (unionShape == null) {
         unionShape = RShape(s)
-        stroke(Color.white.rgb)
         shape(warpedCircle)
         return@times
       }

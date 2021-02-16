@@ -14,16 +14,11 @@ import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
 import geomerativefork.src.RPath
 import geomerativefork.src.RShape
-import geomerativefork.src.util.bound
 import sketches.base.EmptyConfig
 import sketches.base.LayeredCanvasSketch
 import util.RangeWithCurrent.Companion.at
 import util.atAmountAlong
 import util.geomutil.toRPath
-import util.percentAlong
-import util.randomLightColor
-import util.withRed
-import java.awt.Color
 
 class Waves : LayeredCanvasSketch("Waves") {
   val numCircles = intField("numCircles", 1..MAX_LAYERS at MAX_LAYERS)
@@ -72,8 +67,6 @@ class Waves : LayeredCanvasSketch("Waves") {
       noise,
       offset = noise.offset + (distBetweenNoisePerCircle.get() * waveNum))
 
-    val baseColor = randomLightColor()
-
     fun waveAmountAlong(n: Int) = (n.toDouble() + 1) / numCircles.get()
 
     val baseHeight = (maxHeight.get()..minHeight.get())
@@ -91,7 +84,6 @@ class Waves : LayeredCanvasSketch("Waves") {
       .warped(waveNoise)
 
     while (height < maxLineHeight) {
-      val percentAlong = (maxLineHeight..baseHeight).percentAlong(height)
       val warpedPath = baseWarpedPoints.map {
         it + Point(0, height - baseHeight)
       }
@@ -109,12 +101,6 @@ class Waves : LayeredCanvasSketch("Waves") {
 
       val warpedPaths: Array<RPath> =
         unionShape?.let { warpedPath.diff(it.paths[0]) } ?: arrayOf(warpedPath)
-
-
-      if (height == baseHeight)
-        stroke(Color.white.rgb)
-      else
-        stroke(baseColor.withRed(percentAlong.toFloat().bound()).rgb)
 
       warpedPaths.forEach { shape(it, boundRect) }
 

@@ -9,6 +9,7 @@ import controls.ControlField.Companion.enumField
 import controls.ControlGroup
 import controls.ControlGroupable
 import coordinate.Point
+import util.darkened
 import util.print.Paper
 
 class EmptyConfig : SketchConfig()
@@ -68,7 +69,7 @@ abstract class CanvasSketch(
 
   override fun drawOnce(config: EmptyConfig, layer: Int, layerConfig: LayerConfig) {
     noFill()
-    stroke(layerConfig.pen.color.rgb)
+    stroke(if (isRecording) layerConfig.pen.color.darkened(0.5f).rgb else layerConfig.pen.color.rgb)
     strokeWeight(paper.dpi.toPixelsFromMm(layerConfig.pen.mm))
     if (layer == 0) {
       boundRect = calcBoundRect()
