@@ -2,7 +2,6 @@ package sketches
 
 import BaseSketch
 import LayerConfig
-import SketchConfig
 import controls.ControlGroup
 import controls.ControlGroupable
 import controls.noiseControls
@@ -18,14 +17,12 @@ import util.property2DSlider
 import util.propertySlider
 import java.awt.Color
 
-class DebugMeasureConfig : SketchConfig()
-
 open class DebugMeasureSketch(
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = DPI.InkScape.toPixels(20),
   sizeY: Int = DPI.InkScape.toPixels(20),
-) : BaseSketch<DebugMeasureConfig>(
+) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "DebugMeasureSketch",
   sizeX = sizeX,
@@ -75,9 +72,7 @@ open class DebugMeasureSketch(
     ControlGroup(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)
   )
 
-  override fun getRandomizedConfig() = DebugMeasureConfig()
-
-  override fun drawOnce(config: DebugMeasureConfig, layer: Int, layerConfig: LayerConfig) {
+  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.BLACK.rgb)

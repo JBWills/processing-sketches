@@ -14,7 +14,7 @@ import util.propertySliderPair
 import util.propertyToggle
 import util.toIntRange
 
-sealed class ControlField<T>(val sketch: BaseSketch<*>, val name: String, startVal: T) :
+sealed class ControlField<T>(val sketch: BaseSketch, val name: String, startVal: T) :
   ControlGroupable {
   abstract fun getControls(): Array<Control>
 
@@ -41,46 +41,46 @@ sealed class ControlField<T>(val sketch: BaseSketch<*>, val name: String, startV
     fun toControlGroups(vararg controlFields: ControlField<*>) =
       controlFields.map { it.toControlGroup() }.toTypedArray()
 
-    fun BaseSketch<*>.intField(
+    fun BaseSketch.intField(
       name: String,
       startVal: Int = 0,
       range: IntRange = 0..10,
     ) = IntField(this, name, startVal, range)
 
-    fun BaseSketch<*>.intField(
+    fun BaseSketch.intField(
       name: String,
       range: RangeWithCurrent<Int> = 0..10 at 0,
     ) = IntField(this, name, range.value, range.range.toIntRange())
 
-    fun BaseSketch<*>.doubleField(
+    fun BaseSketch.doubleField(
       name: String,
       startVal: Number = 0.0,
       range: DoubleRange = 0.0..1.0,
     ) = DoubleField(this, name, startVal.toDouble(), range)
 
-    fun BaseSketch<*>.doubleField(
+    fun BaseSketch.doubleField(
       name: String,
       range: RangeWithCurrent<Double> = 0.0..1.0 at 0.0,
     ) = DoubleField(this, name, range.value, range.range)
 
-    fun BaseSketch<*>.pointField(
+    fun BaseSketch.pointField(
       name: String,
       startVal: Point = (Point.One / 2.0),
       range: PointRange = Point.Zero..Point.One,
     ) = PointField(this, name, startVal, range)
 
-    fun BaseSketch<*>.doubleField(
+    fun BaseSketch.doubleField(
       name: String,
       range: RangeWithCurrent<Point>,
     ) = PointField(this, name, range.value, range.range)
 
-    fun BaseSketch<*>.doublePairField(
+    fun BaseSketch.doublePairField(
       name: String,
       startVal: Point = Point.Zero,
       ranges: Pair<DoubleRange, DoubleRange> = 0.0..1.0 to 0.0..1.0,
     ) = DoublePair(this, name, startVal, ranges)
 
-    fun BaseSketch<*>.doublePairField(
+    fun BaseSketch.doublePairField(
       name: String,
       ranges: Pair<RangeWithCurrent<Double>, RangeWithCurrent<Double>> = (0.0..1.0 at 0) and (0.0..1.0 at 0),
     ) = DoublePair(
@@ -90,12 +90,12 @@ sealed class ControlField<T>(val sketch: BaseSketch<*>, val name: String, startV
       ranges.first.range to ranges.second.range
     )
 
-    fun BaseSketch<*>.booleanField(
+    fun BaseSketch.booleanField(
       name: String,
       startVal: Boolean = false,
     ) = BooleanField(this, name, startVal)
 
-    fun <E : Enum<E>> BaseSketch<*>.enumField(
+    fun <E : Enum<E>> BaseSketch.enumField(
       name: String,
       startVal: E,
       onChange: () -> Unit = {},
@@ -103,7 +103,7 @@ sealed class ControlField<T>(val sketch: BaseSketch<*>, val name: String, startV
   }
 
   class IntField(
-    sketch: BaseSketch<*>,
+    sketch: BaseSketch,
     name: String,
     startVal: Int = 0,
     val range: IntRange = 0..10,
@@ -113,7 +113,7 @@ sealed class ControlField<T>(val sketch: BaseSketch<*>, val name: String, startV
   }
 
   class DoubleField(
-    sketch: BaseSketch<*>,
+    sketch: BaseSketch,
     name: String,
     startVal: Double = 0.0,
     val range: DoubleRange = 0.0..1.0,
@@ -123,7 +123,7 @@ sealed class ControlField<T>(val sketch: BaseSketch<*>, val name: String, startV
   }
 
   class DoublePair(
-    sketch: BaseSketch<*>,
+    sketch: BaseSketch,
     name: String,
     startVal: Point = Point.Zero,
     val ranges: Pair<DoubleRange, DoubleRange> = Pair(0.0..1.0, 0.0..1.0),
@@ -133,7 +133,7 @@ sealed class ControlField<T>(val sketch: BaseSketch<*>, val name: String, startV
   }
 
   class PointField(
-    sketch: BaseSketch<*>,
+    sketch: BaseSketch,
     name: String,
     startVal: Point = (Point.One / 2.0),
     val range: PointRange = Point.Zero..Point.One,
@@ -143,7 +143,7 @@ sealed class ControlField<T>(val sketch: BaseSketch<*>, val name: String, startV
   }
 
   class BooleanField(
-    sketch: BaseSketch<*>,
+    sketch: BaseSketch,
     name: String,
     startVal: Boolean = false,
   ) : ControlField<Boolean>(sketch, name, startVal) {
@@ -152,7 +152,7 @@ sealed class ControlField<T>(val sketch: BaseSketch<*>, val name: String, startV
   }
 
   class EnumField<E : Enum<E>>(
-    sketch: BaseSketch<*>,
+    sketch: BaseSketch,
     name: String,
     startVal: E,
     val onChange: () -> Unit = {},

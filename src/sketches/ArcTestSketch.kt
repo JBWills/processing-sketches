@@ -2,7 +2,6 @@ package sketches
 
 import BaseSketch
 import LayerConfig
-import SketchConfig
 import appletExtensions.intersection
 import controls.Control
 import controls.Control.Slider
@@ -13,8 +12,6 @@ import coordinate.Circ
 import coordinate.Point
 import java.awt.Color
 
-class ArcTestConfig : SketchConfig()
-
 open class ArcTestSketch(
   var startAngle: Double = 0.0,
   var length: Double = 360.0,
@@ -22,10 +19,9 @@ open class ArcTestSketch(
   backgroundColor: Color = Color.BLACK,
   sizeX: Int = 576,
   sizeY: Int = 864,
-) : BaseSketch<ArcTestConfig>(
+) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "svgs.StarterSketch",
-  sketchConfig = null,
   sizeX = sizeX,
   sizeY = sizeY,
   isDebugMode = isDebugMode
@@ -65,9 +61,7 @@ open class ArcTestSketch(
     },
   ).toControlGroups()
 
-  override fun getRandomizedConfig() = ArcTestConfig()
-
-  override fun drawOnce(config: ArcTestConfig, layer: Int, layerConfig: LayerConfig) {
+  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.WHITE.rgb)

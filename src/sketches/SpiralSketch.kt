@@ -2,7 +2,6 @@ package sketches
 
 import BaseSketch
 import LayerConfig
-import SketchConfig
 import controls.ControlGroup
 import controls.ControlGroupable
 import controls.noiseControls
@@ -21,17 +20,14 @@ import util.squared
 import java.awt.Color
 import kotlin.math.sin
 
-class SpiralConfig : SketchConfig()
-
 open class SpiralSketch(
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = 9 * 72,
   sizeY: Int = 9 * 72,
-) : BaseSketch<SpiralConfig>(
+) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "SpiralSketch",
-  sketchConfig = null,
   sizeX = sizeX,
   sizeY = sizeY,
   isDebugMode = isDebugMode
@@ -70,9 +66,12 @@ open class SpiralSketch(
       propertySlider(::numCircles, r = 1..1000),
       propertySlider(::circleSpacing, r = 0.001..50.0)
     ),
-    ControlGroup(propertySlider(::moveAmountX, r = 0.0..5.0), propertySlider(::moveAmountY, r = 0.0..2000.0)),
-    ControlGroup(propertySlider(::spiralRotations, r = 0.0..10.0), propertySlider(::spiralSpacing, r = 0.0..50.0)),
-    ControlGroup(propertySlider(::spiralStartAngle, r = 0.0..2.0), propertySlider(::interiorSpiralStartAngle, r = 0.0..2.0)),
+    ControlGroup(propertySlider(::moveAmountX, r = 0.0..5.0),
+      propertySlider(::moveAmountY, r = 0.0..2000.0)),
+    ControlGroup(propertySlider(::spiralRotations, r = 0.0..10.0),
+      propertySlider(::spiralSpacing, r = 0.0..50.0)),
+    ControlGroup(propertySlider(::spiralStartAngle, r = 0.0..2.0),
+      propertySlider(::interiorSpiralStartAngle, r = 0.0..2.0)),
     *noiseControls(::noise),
     ControlGroup(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)
   )
@@ -82,9 +81,7 @@ open class SpiralSketch(
     markDirty()
   }
 
-  override fun getRandomizedConfig() = SpiralConfig()
-
-  override fun drawOnce(config: SpiralConfig, layer: Int, layerConfig: LayerConfig) {
+  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.BLACK.rgb)

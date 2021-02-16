@@ -15,7 +15,6 @@ import fastnoise.NoiseQuality.High
 import geomerativefork.src.RPath
 import geomerativefork.src.RShape
 import geomerativefork.src.util.flatMapArray
-import sketches.base.EmptyConfig
 import sketches.base.LayeredCanvasSketch
 import util.RangeWithCurrent.Companion.at
 import util.atAmountAlong
@@ -56,7 +55,7 @@ class Flower : LayeredCanvasSketch("Flower") {
 
   var unionShape: RShape? = null
 
-  override fun drawSetup(sketchConfig: EmptyConfig) {
+  override fun drawSetup() {
     unionShape = null
   }
 

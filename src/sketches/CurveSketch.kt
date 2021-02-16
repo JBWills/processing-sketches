@@ -2,7 +2,6 @@ package sketches
 
 import BaseSketch
 import LayerConfig
-import SketchConfig
 import controls.Control.Button
 import controls.Control.Slider
 import controls.Control.Slider2d
@@ -13,17 +12,14 @@ import coordinate.BoundRect
 import coordinate.Point
 import java.awt.Color
 
-class CurveConfig : SketchConfig()
-
 open class CurveSketch(
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = 9 * 72,
   sizeY: Int = 12 * 72,
-) : BaseSketch<CurveConfig>(
+) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "svgs.CurveSketch",
-  sketchConfig = null,
   sizeX = sizeX,
   sizeY = sizeY,
   isDebugMode = isDebugMode
@@ -91,8 +87,6 @@ open class CurveSketch(
     markDirty()
   }
 
-  override fun getRandomizedConfig() = CurveConfig()
-
   private fun drawPoints() = points.forEach { point -> debugCirc(point) }
 
   private fun getNoiseMovement(p: Point): Point {
@@ -101,7 +95,7 @@ open class CurveSketch(
     return (noisePoint * moveAmount)
   }
 
-  override fun drawOnce(config: CurveConfig, layer: Int, layerConfig: LayerConfig) {
+  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.BLACK.rgb)
@@ -124,14 +118,17 @@ open class CurveSketch(
     }.toDouble()
 
     val xMin = drawBound.width * xMidpointVal + drawBound.left - (0 - numLines / 2) * lineSpacing
-    val xMax = drawBound.width * xMidpointVal + drawBound.left - (numLines - numLines / 2) * lineSpacing
+    val xMax =
+      drawBound.width * xMidpointVal + drawBound.left - (numLines - numLines / 2) * lineSpacing
 
     val leftWithSomeOverlap = drawBound.leftSegment.expand(moveAmount * 2)
 
     if (withHorizontalLines) {
       leftWithSomeOverlap.toProgression(lineSpacing)
         .map { it.y }
-        .map { y -> (Point(xMax, y)..Point(xMin, y) step stepsPerPixel).map { p -> p + getNoiseMovement(p) } }
+        .map { y ->
+          (Point(xMax, y)..Point(xMin, y) step stepsPerPixel).map { p -> p + getNoiseMovement(p) }
+        }
         .forEach { linePoints -> shape(linePoints, drawBound) }
     }
 

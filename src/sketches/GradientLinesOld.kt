@@ -2,7 +2,6 @@ package sketches
 
 import BaseSketch
 import LayerConfig
-import SketchConfig
 import controls.Control
 import controls.ControlGroupable
 import controls.toControlGroups
@@ -14,13 +13,9 @@ import util.pow
 import util.times
 import java.awt.Color
 
-class GradientLinesOldConfig() : SketchConfig() {
-}
-
-class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch<GradientLinesOldConfig>(
+class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
   backgroundColor = Color.BLACK,
   svgBaseFileName = "svgs.CircleSketch",
-  sketchConfig = null,
 ) {
 
   val outerPaddingX: Double = sizeX * 0.2
@@ -43,10 +38,10 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch<GradientLine
     )
   ).toControlGroups()
 
-  override fun getRandomizedConfig() = GradientLinesOldConfig()
-
-  override fun drawOnce(config: GradientLinesOldConfig, layer: Int, layerConfig: LayerConfig) {
-    fun getPointsLinesShouldCrossThrough(bound: BoundRect, deg: Deg, numLines: Int): Iterable<Point> {
+  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
+    fun getPointsLinesShouldCrossThrough(
+      bound: BoundRect, deg: Deg, numLines: Int,
+    ): Iterable<Point> {
       val isUpward = deg.value in 90f..180f || deg.value in 270f..360f
       val start = if (isUpward) bound.topLeft else bound.topRight
       val end = if (isUpward) bound.bottomRight else bound.bottomLeft

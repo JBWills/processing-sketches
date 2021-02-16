@@ -1,7 +1,6 @@
 package controls
 
 import BaseSketch
-import SketchConfig
 import controls.Control.Dropdown
 import controls.Control.Slider
 import controls.Control.Slider2d
@@ -13,7 +12,7 @@ import util.propertyEnumDropdown
 import util.propertySlider
 import kotlin.reflect.KMutableProperty0
 
-fun <TConfig : SketchConfig> BaseSketch<TConfig>.noiseControls(
+fun BaseSketch.noiseControls(
   noiseTypeProp: KMutableProperty0<NoiseType>,
   seedProp: KMutableProperty0<Int>,
   noiseOffsetProp: KMutableProperty0<Point>,
@@ -27,7 +26,7 @@ fun <TConfig : SketchConfig> BaseSketch<TConfig>.noiseControls(
   ControlGroup(property2DSlider(centerOriginProp, Point.Zero..Point(1, 1)), heightRatio = 5),
 )
 
-fun <TConfig : SketchConfig> BaseSketch<TConfig>.noiseControls(
+fun BaseSketch.noiseControls(
   noiseProp: KMutableProperty0<Noise>,
 ): Array<ControlGroup> {
   fun setNoiseFieldAndMarkDirty(fn: Noise.() -> (Noise)) {

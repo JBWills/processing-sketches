@@ -14,7 +14,6 @@ import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
 import geomerativefork.src.RPath
 import geomerativefork.src.RShape
-import sketches.base.EmptyConfig
 import sketches.base.LayeredCanvasSketch
 import util.RangeWithCurrent.Companion.at
 import util.atAmountAlong
@@ -53,7 +52,7 @@ class Waves : LayeredCanvasSketch("Waves") {
 
   var unionShape: RShape? = null
 
-  override fun drawSetup(sketchConfig: EmptyConfig) {
+  override fun drawSetup() {
     unionShape = null
   }
 

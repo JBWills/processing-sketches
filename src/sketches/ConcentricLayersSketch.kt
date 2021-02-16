@@ -1,6 +1,7 @@
 package sketches
 
 import BaseSketch
+import LayerConfig
 import controls.ControlField.Companion.doubleField
 import controls.ControlField.Companion.doublePairField
 import controls.ControlField.Companion.intField
@@ -9,7 +10,6 @@ import controls.ControlGroupable
 import coordinate.Arc
 import coordinate.Circ
 import coordinate.Deg
-import sketches.base.EmptyConfig
 import sketches.base.LayeredCanvasSketch
 import util.RangeWithCurrent.Companion.at
 import util.and
@@ -106,7 +106,7 @@ class ConcentricLayersSketch :
     }
   }
 
-  override fun drawSetup(sketchConfig: EmptyConfig) {
+  override fun drawSetup() {
     val numCirclesFrozen = numCircles
     arcsPerLayer = (0 until numLayers.get()).map { getArcsForLayer(it, tabs[it], numCirclesFrozen) }
   }
@@ -124,6 +124,8 @@ class ConcentricLayersSketch :
         }
       }
   }
+
+  override fun drawOnce(layer: Int, layerConfig: LayerConfig) = drawOnce(layer)
 }
 
 fun main() = BaseSketch.run(ConcentricLayersSketch())

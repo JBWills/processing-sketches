@@ -2,7 +2,6 @@ package sketches.base
 
 import BaseSketch
 import LayerConfig
-import SketchConfig
 import controls.ControlField.Companion.booleanField
 import controls.ControlField.Companion.doublePairField
 import controls.ControlField.Companion.enumField
@@ -15,17 +14,15 @@ import util.print.Orientation
 import util.print.Paper
 import java.awt.Color
 
-class EmptyConfig : SketchConfig()
 abstract class CanvasSketch(
   svgBaseFilename: String,
   canvas: Paper = Paper.SquareBlack,
   orientation: Orientation = Orientation.Landscape,
   isDebugMode: Boolean = false,
-) : BaseSketch<EmptyConfig>(
+) : BaseSketch(
   canvas.defaultBackgroundColor,
   canvas.defaultStrokeColor,
   svgBaseFilename,
-  EmptyConfig(),
   canvas.horizontalPx(orientation),
   canvas.verticalPx(orientation),
   isDebugMode,
@@ -75,7 +72,7 @@ abstract class CanvasSketch(
 
   abstract fun drawOnce(layer: Int)
 
-  override fun drawOnce(config: EmptyConfig, layer: Int, layerConfig: LayerConfig) {
+  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noFill()
 
     val needsDarkStroke: Boolean = isRecording || paper.defaultBackgroundColor != Color.black
@@ -98,5 +95,4 @@ abstract class CanvasSketch(
       newCenter = boundBoxCenter * Point(sizeX, sizeY)
     )
 
-  override fun getRandomizedConfig() = EmptyConfig()
 }

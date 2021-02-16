@@ -1,14 +1,13 @@
 package appletExtensions
 
 import BaseSketch
-import SketchConfig
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
 import coordinate.Point
 import java.awt.Color
 
-typealias Sketch = BaseSketch<out SketchConfig>
+typealias Sketch = BaseSketch
 
 fun getTangentCornerBisector(bound: BoundRect, deg: Deg): Line {
   val isUpward = (deg.value % 180) in 0.0..90.0
@@ -47,15 +46,19 @@ fun Sketch.drawParallelLinesInBound(
     val tangentNormalCounterClockwise = tangentLine.normal(false)
 
     return if (cornerBisector.angleBetween(tangentNormalClockwise) <
-      cornerBisector.angleBetween(tangentNormalCounterClockwise)) {
+      cornerBisector.angleBetween(tangentNormalCounterClockwise)
+    ) {
       tangentNormalClockwise
     } else {
       tangentNormalCounterClockwise
     }
   }
 
-  fun isMovingAwayFromAllCorners(bound: BoundRect, lastPosition: Point, currentPosition: Point): Boolean {
-    fun movingAwayFromCorner(corner: Point) = corner.dist(lastPosition) <= corner.dist(currentPosition)
+  fun isMovingAwayFromAllCorners(
+    bound: BoundRect, lastPosition: Point, currentPosition: Point,
+  ): Boolean {
+    fun movingAwayFromCorner(corner: Point) =
+      corner.dist(lastPosition) <= corner.dist(currentPosition)
     return movingAwayFromCorner(bound.topLeft) &&
       movingAwayFromCorner(bound.topRight) &&
       movingAwayFromCorner(bound.bottomLeft) &&
@@ -83,7 +86,9 @@ fun Sketch.drawParallelLinesInBound(
       stroke(strokeColor.rgb)
     }
 
-    if (!wasInBound && isMovingAwayFromAllCorners(bound, walkDirection.getPointAtDist(currDist - distanceBetween.toDouble()), newOrigin)) {
+    if (!wasInBound && isMovingAwayFromAllCorners(bound,
+        walkDirection.getPointAtDist(currDist - distanceBetween.toDouble()), newOrigin)
+    ) {
       // if you're not currently in bounds but you were before that means you've left
       // the shape.
       break

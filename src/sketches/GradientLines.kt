@@ -2,7 +2,6 @@ package sketches
 
 import BaseSketch
 import LayerConfig
-import SketchConfig
 import appletExtensions.drawParallelLinesInBound
 import controls.Control
 import controls.ControlGroupable
@@ -12,18 +11,15 @@ import coordinate.Deg
 import coordinate.Point
 import java.awt.Color
 
-class GradientLinesConfig : SketchConfig()
-
 open class GradientLinesSketch(
   private var lineDegrees: Double = 0.0,
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.BLACK,
   sizeX: Int = 576,
   sizeY: Int = 864,
-) : BaseSketch<GradientLinesConfig>(
+) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "svgs.GradientLines",
-  sketchConfig = null,
   sizeX = sizeX,
   sizeY = sizeY,
   isDebugMode = isDebugMode
@@ -49,15 +45,13 @@ open class GradientLinesSketch(
     )
   ).toControlGroups()
 
-  override fun getRandomizedConfig() = GradientLinesConfig()
-
   fun bounds(segmentHeight: Double, segIndexFromTop: Int, numSegs: Int = 1) = BoundRect(
     drawBound.topLeft + Point(0f, segIndexFromTop * segmentHeight),
     segmentHeight * numSegs,
     drawBound.width
   )
 
-  override fun drawOnce(config: GradientLinesConfig, layer: Int, layerConfig: LayerConfig) {
+  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.WHITE.rgb)
@@ -66,7 +60,8 @@ open class GradientLinesSketch(
 
     val segmentHeight = drawBound.height / 7f
 
-    fun bounds(segIndexFromTop: Int, numSegs: Int = 1) = bounds(segmentHeight, segIndexFromTop, numSegs)
+    fun bounds(segIndexFromTop: Int, numSegs: Int = 1) =
+      bounds(segmentHeight, segIndexFromTop, numSegs)
 
     rect(drawBound)
     drawParallelLinesInBound(

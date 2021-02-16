@@ -20,8 +20,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-abstract class SketchConfig
-
 class LayerConfig(val pen: Pen)
 
 enum class RecordMode {
@@ -29,11 +27,10 @@ enum class RecordMode {
   RecordSVG
 }
 
-abstract class BaseSketch<TConfig : SketchConfig>(
+abstract class BaseSketch(
   protected var backgroundColor: Color = Color.white,
   protected var strokeColor: Color = Color.BLACK,
   private val svgBaseFileName: String = "output",
-  private var sketchConfig: TConfig? = null,
   protected var sizeX: Int = 1000,
   protected var sizeY: Int = 1000,
   var isDebugMode: Boolean = false,
@@ -71,7 +68,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
     .withZone(ZoneId.systemDefault())
 
   companion object Factory {
-    fun <T : SketchConfig> run(app: BaseSketch<T>) {
+    fun run(app: BaseSketch) {
       app.setSize(app.sizeX, app.sizeY)
       app.runSketch()
     }
@@ -79,9 +76,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
 
   open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Pen(1.0, strokeColor)))
 
-  abstract fun drawOnce(config: TConfig, layer: Int, layerConfig: LayerConfig)
-
-  abstract fun getRandomizedConfig(): TConfig
+  abstract fun drawOnce(layer: Int, layerConfig: LayerConfig)
 
   private fun getOutputPath(): String {
     val root = System.getProperty("user.dir")
@@ -90,48 +85,31 @@ abstract class BaseSketch<TConfig : SketchConfig>(
     return theDir.absolutePath
   }
 
-  private fun drawHelper(
-    handleSetup: () -> Unit, runDraw: () -> Unit, cleanUp: () -> Unit,
-  ): () -> Unit = {
-    handleSetup()
-    runDraw()
-    cleanUp()
-  }
-
   private fun onlyRunIfDirty(f: () -> Unit) {
-    if (!dirty) return
-
-    f()
-    dirty = false
+    if (dirty) {
+      f()
+      dirty = false
+    }
   }
 
-  private fun maybeRandomizeSketchConfig(): TConfig {
-    val sketchConfigNonNull: TConfig =
-      if (randomize) getRandomizedConfig() else sketchConfig ?: getRandomizedConfig()
-    sketchConfig = sketchConfigNonNull
-    randomize = false
-    return sketchConfigNonNull
-  }
-
-  open fun drawSetup(sketchConfig: TConfig) {}
+  open fun drawSetup() {}
 
   override fun draw() {
     onlyRunIfDirty {
-      val sketchConfigNonNull = maybeRandomizeSketchConfig()
       val layers = getLayers()
       background(backgroundColor.rgb)
-      drawSetup(sketchConfigNonNull)
+      drawSetup()
       if (recordMode == RecordSVG) {
         combineDrawLayersIntoSVG(
           getOutputPath(),
           dateTimeFormatter.format(Instant.now()),
           layers.size
         ) { layerIndex ->
-          drawOnce(sketchConfigNonNull, layerIndex, layers[layerIndex])
+          drawOnce(layerIndex, layers[layerIndex])
         }
       } else {
         layers.forEachIndexed { index, layer ->
-          drawOnce(sketchConfigNonNull, index, layer)
+          drawOnce(index, layer)
         }
       }
     }

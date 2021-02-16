@@ -2,7 +2,6 @@ package sketches
 
 import BaseSketch
 import LayerConfig
-import SketchConfig
 import controls.ControlGroup
 import controls.ControlGroupable
 import controls.noiseControls
@@ -19,17 +18,14 @@ import util.property2DSlider
 import util.propertySlider
 import java.awt.Color
 
-class CircleWarpConfig : SketchConfig()
-
 open class CircleWarpSketch(
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = 9 * 72,
   sizeY: Int = 12 * 72,
-) : BaseSketch<CircleWarpConfig>(
+) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "CircleWarpSketch",
-  sketchConfig = null,
   sizeX = sizeX,
   sizeY = sizeY,
   isDebugMode = isDebugMode
@@ -64,7 +60,8 @@ open class CircleWarpSketch(
       propertySlider(::numCircles, r = 1..1000),
       propertySlider(::circleSpacing, r = 0.001..50.0)
     ),
-    ControlGroup(propertySlider(::moveAmountX, r = 0..2000), propertySlider(::moveAmountY, r = 0..2000)),
+    ControlGroup(propertySlider(::moveAmountX, r = 0..2000),
+      propertySlider(::moveAmountY, r = 0..2000)),
     *noiseControls(::noise),
     ControlGroup(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)
   )
@@ -74,9 +71,7 @@ open class CircleWarpSketch(
     markDirty()
   }
 
-  override fun getRandomizedConfig() = CircleWarpConfig()
-
-  override fun drawOnce(config: CircleWarpConfig, layer: Int, layerConfig: LayerConfig) {
+  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.BLACK.rgb)

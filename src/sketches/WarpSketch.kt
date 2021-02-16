@@ -2,7 +2,6 @@ package sketches
 
 import BaseSketch
 import LayerConfig
-import SketchConfig
 import controls.Control.Button
 import controls.ControlGroup
 import controls.ControlGroupable
@@ -16,17 +15,14 @@ import util.propertySlider
 import util.propertyToggle
 import java.awt.Color
 
-class WarpConfig : SketchConfig()
-
 open class WarpSketch(
   isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = 9 * 72,
   sizeY: Int = 12 * 72,
-) : BaseSketch<WarpConfig>(
+) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "WarpSketch",
-  sketchConfig = null,
   sizeX = sizeX,
   sizeY = sizeY,
   isDebugMode = isDebugMode
@@ -75,7 +71,8 @@ open class WarpSketch(
       propertySlider(::lineSpacing, r = 0.001..200.0)
     ),
     ControlGroup(propertySlider(::noiseScale, r = 1..100)),
-    ControlGroup(propertySlider(::moveAmountX, r = 0..2000), propertySlider(::moveAmountY, r = 0..2000)),
+    ControlGroup(propertySlider(::moveAmountX, r = 0..2000),
+      propertySlider(::moveAmountY, r = 0..2000)),
     ControlGroup(propertySlider(::seed, r = 0..2000)),
     ControlGroup(property2DSlider(::noiseOffset, Point.One..Point(1000, 1000)), heightRatio = 5)
   )
@@ -85,8 +82,6 @@ open class WarpSketch(
     markDirty()
   }
 
-  override fun getRandomizedConfig() = WarpConfig()
-
   private fun drawPoints() = points.forEach { point -> debugCirc(point) }
 
   private fun getNoiseMovement(p: Point): Point {
@@ -94,7 +89,7 @@ open class WarpSketch(
     return (noisePoint * Point(moveAmountX, moveAmountY))
   }
 
-  override fun drawOnce(config: WarpConfig, layer: Int, layerConfig: LayerConfig) {
+  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     NOISE.SetSeed(seed)
     NOISE.SetNoiseType(noiseType)
     noStroke()
@@ -119,20 +114,24 @@ open class WarpSketch(
     }.toDouble()
 
     val xMin = drawBound.width * xMidpointVal + drawBound.left - (0 - numLines / 2) * lineSpacing
-    val xMax = drawBound.width * xMidpointVal + drawBound.left - (numLines - numLines / 2) * lineSpacing
+    val xMax =
+      drawBound.width * xMidpointVal + drawBound.left - (numLines - numLines / 2) * lineSpacing
 
     val leftWithSomeOverlap = drawBound.leftSegment.expand(moveAmountY * 2)
 
     if (withHorizontalLines) {
       leftWithSomeOverlap.toProgression(lineSpacing)
         .map { it.y }
-        .map { y -> (Point(xMax, y)..Point(xMin, y) step stepsPerPixel).map { p -> p + getNoiseMovement(p) } }
+        .map { y ->
+          (Point(xMax, y)..Point(xMin, y) step stepsPerPixel).map { p -> p + getNoiseMovement(p) }
+        }
         .forEach { linePoints -> shape(linePoints, drawBound) }
     }
 
     if (withVerticalLines) {
       for (line in 0..numLines) {
-        val x = drawBound.width * xMidpointVal + drawBound.left - (line - numLines / 2) * lineSpacing
+        val x =
+          drawBound.width * xMidpointVal + drawBound.left - (line - numLines / 2) * lineSpacing
 
         val linePoints = leftWithSomeOverlap.toProgression(stepsPerPixel)
           .map { Point(x, it.y) }

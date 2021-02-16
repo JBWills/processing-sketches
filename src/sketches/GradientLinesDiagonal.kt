@@ -13,9 +13,8 @@ class GradientLinesDiagonalSketch(
   sizeX: Int = 576,
   sizeY: Int = 864,
 ) : GradientLinesSketch(lineDegrees, isDebugMode, backgroundColor, sizeX, sizeY) {
-  override fun getRandomizedConfig() = GradientLinesConfig()
 
-  override fun drawOnce(config: GradientLinesConfig, layer: Int, layerConfig: LayerConfig) {
+  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.BLACK.rgb)
@@ -24,7 +23,8 @@ class GradientLinesDiagonalSketch(
 
     val segmentHeight = drawBound.height / 7.0
 
-    fun bounds(segIndexFromTop: Int, numSegs: Int = 1) = bounds(segmentHeight, segIndexFromTop, numSegs)
+    fun bounds(segIndexFromTop: Int, numSegs: Int = 1) =
+      bounds(segmentHeight, segIndexFromTop, numSegs)
 
     rect(drawBound)
     drawParallelLinesInBound(
