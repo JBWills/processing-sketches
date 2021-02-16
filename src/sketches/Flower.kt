@@ -61,18 +61,16 @@ class Flower : LayeredCanvasSketch("Flower") {
   }
 
   override fun drawOnce(layer: Int) {
-    if (layer == 0 || layer > numCircles.get()) return
+    if (layer > numCircles.get()) return
 
-    val circleNum = layer - 1
-
-    val tab = tabs[layer - 1]
+    val tab = tabs[layer]
 
     val circleNoise = Noise(
       noise,
-      offset = noise.offset + (distBetweenNoisePerCircle.get() * circleNum))
-    
+      offset = noise.offset + (distBetweenNoisePerCircle.get() * layer))
+
     val baseRadius = (minRad.get()..maxRad.get())
-      .atAmountAlong((circleNum.toDouble() + 1) / numCircles.get())
+      .atAmountAlong((layer.toDouble() + 1) / numCircles.get())
 
     val baseCircle = Circ(center, baseRadius)
 
@@ -92,7 +90,7 @@ class Flower : LayeredCanvasSketch("Flower") {
         val originalPoint = baseCircle.pointAtAngle(c.angleAtPoint(it))
 
         val movedOriginalPoint = circleNoise.moveRadially(originalPoint, center) { noiseVal ->
-          (noiseVal) * circleNoise.strength.magnitude * (if (circleNum == 0) 0 else 1)
+          (noiseVal) * circleNoise.strength.magnitude * (if (layer == 0) 0 else 1)
         }
 
         return@walk it + (movedOriginalPoint - originalPoint)

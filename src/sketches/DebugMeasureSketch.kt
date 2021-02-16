@@ -12,7 +12,6 @@ import fastnoise.FastNoise.NoiseType.Perlin
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import util.print.DPI
-import util.print.Orientation
 import util.print.Paper
 import util.property2DSlider
 import util.propertySlider
@@ -65,9 +64,12 @@ open class DebugMeasureSketch(
       propertySlider(::numCircles, r = 1..1000),
       propertySlider(::circleSpacing, r = 0.001..50.0)
     ),
-    ControlGroup(propertySlider(::moveAmountX, r = 0.0..5.0), propertySlider(::moveAmountY, r = 0.0..2000.0)),
-    ControlGroup(propertySlider(::spiralRotations, r = 0.0..10.0), propertySlider(::spiralSpacing, r = 0.0..50.0)),
-    ControlGroup(propertySlider(::spiralStartAngle, r = 0.0..2.0), propertySlider(::interiorSpiralStartAngle, r = 0.0..2.0)),
+    ControlGroup(propertySlider(::moveAmountX, r = 0.0..5.0),
+      propertySlider(::moveAmountY, r = 0.0..2000.0)),
+    ControlGroup(propertySlider(::spiralRotations, r = 0.0..10.0),
+      propertySlider(::spiralSpacing, r = 0.0..50.0)),
+    ControlGroup(propertySlider(::spiralStartAngle, r = 0.0..2.0),
+      propertySlider(::interiorSpiralStartAngle, r = 0.0..2.0)),
     *noiseControls(::noise),
     ControlGroup(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)
   )
@@ -81,7 +83,6 @@ open class DebugMeasureSketch(
     strokeWeight(2f)
     noFill()
     for (paper in Paper.values()) {
-      paper.orientation = Orientation.Landscape
       textAlign(RIGHT, BOTTOM)
       textSize(32f)
       fill(Color.BLACK.rgb)

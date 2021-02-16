@@ -57,8 +57,6 @@ class GeomerativeSketch : LayeredCanvasSketch("GeomerativeSketch") {
 
   var unionShape: RShape? = null
   override fun drawOnce(layer: Int) {
-    if (layer == 0) return
-
     (0 until numCircles.get()).forEach { idx ->
       val circleNoise = Noise(
         noise,

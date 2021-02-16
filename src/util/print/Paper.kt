@@ -36,12 +36,14 @@ enum class Paper(
   A4Black(12, 9, Color.BLACK, Color.WHITE),
   SquareBlack(7.87, 7.87, Color.BLACK, Color.WHITE),
   ColoredPaper(12.5, 9.5, Color.RED, Color.WHITE);
+  
+  private fun sidePx(sideInches: Double, dpi: DPI = DPI.InkScape) = dpi.toPixels(sideInches)
 
-  var orientation = Landscape
-  var dpi = DPI.InkScape
-  private fun sidePx(sideInches: Double) = dpi.toPixels(sideInches)
-  fun horizontalPx() = sidePx(if (orientation == Landscape) longSideInches else shortSideInches)
-  fun verticalPx() = sidePx(if (orientation == Landscape) shortSideInches else longSideInches)
+  fun horizontalPx(orientation: Orientation = Landscape, dpi: DPI = DPI.InkScape) =
+    sidePx(if (orientation == Landscape) longSideInches else shortSideInches, dpi)
+
+  fun verticalPx(orientation: Orientation = Landscape, dpi: DPI = DPI.InkScape) =
+    sidePx(if (orientation == Landscape) shortSideInches else longSideInches, dpi)
 
   fun toBoundRect() = BoundRect(Point.Zero, verticalPx(), horizontalPx())
 

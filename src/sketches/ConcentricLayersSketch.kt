@@ -20,7 +20,10 @@ import util.zeroTo
 import kotlin.math.max
 import kotlin.math.min
 
-class ConcentricLayersSketch : LayeredCanvasSketch("ConcentricLayersSketch") {
+const val MAX_CIRCLES = 8
+
+class ConcentricLayersSketch :
+  LayeredCanvasSketch("ConcentricLayersSketch", maxLayers = MAX_CIRCLES) {
   inner class TabControls {
     val startAngleDelta =
       doubleField("startAngleDelta", negToPos(180) at 5)
@@ -38,7 +41,7 @@ class ConcentricLayersSketch : LayeredCanvasSketch("ConcentricLayersSketch") {
     val endCircle = intField("endCircle", 0..100 at 100)
   }
 
-  private val tabs: List<TabControls> = (1..MAX_LAYERS).map { TabControls() }
+  private val tabs: List<TabControls> = (1..MAX_CIRCLES).map { TabControls() }
 
   val numCirclesField = intField("numCircles", 1..100 at 50)
   val numCircles get() = numCirclesField.get()
@@ -65,8 +68,6 @@ class ConcentricLayersSketch : LayeredCanvasSketch("ConcentricLayersSketch") {
       ControlGroup(controls.startLength, controls.angleLengthDelta),
     )
   }
-
-  override fun getMaxLayers(): Int = 8
 
   override fun getGlobalControls(): Array<ControlGroupable> = arrayOf(
     numCirclesField,

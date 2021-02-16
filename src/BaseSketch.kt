@@ -108,7 +108,7 @@ abstract class BaseSketch<TConfig : SketchConfig>(
       return
     }
 
-    // if we're recording this to svgs, need to set
+    // if we're recording this to SVGs, need to set
     // the background before recording each layer.
     background(backgroundColor.rgb)
 
@@ -171,8 +171,10 @@ abstract class BaseSketch<TConfig : SketchConfig>(
     arrayOf(ControlTab("controls", *getControls().toTypedArray()))
 
   open fun getControls(): List<ControlGroupable> = listOf<ControlGroup>()
-
+  
   fun updateControls() = controlFrame.value.updateControls(getAllControls())
+
+  fun setActiveTab(tabName: String) = controlFrame.value.setActiveTab(tabName)
 
   fun getAllControls() = listOf(
     ControlTab("default", listOf(

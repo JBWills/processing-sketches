@@ -21,11 +21,12 @@ import util.atAmountAlong
 import util.geomutil.toRPath
 
 class Waves : LayeredCanvasSketch("Waves") {
-  val numCircles = intField("numCircles", 1..MAX_LAYERS at MAX_LAYERS)
-  val maxHeight = doubleField("maxHeight", 100.0..2000.0 at boundRect.bottom)
-  val minHeight = doubleField("minHeight", 0.0..400.0 at boundRect.top)
-  val baseNumInternalCircles = intField("baseNumInternalCircles", 1..100 at 1)
-  val distBetweenNoisePerCircle = doubleField("distBetweenNoisePerCircle", 0.0..150.0 at 150)
+  private val numCircles = intField("numCircles", 1..MAX_LAYERS at MAX_LAYERS)
+  private val maxHeight = doubleField("maxHeight", 100.0..2000.0 at boundRect.bottom)
+  private val minHeight = doubleField("minHeight", 0.0..400.0 at boundRect.top)
+  private val baseNumInternalCircles = intField("baseNumInternalCircles", 1..100 at 1)
+  private val distBetweenNoisePerCircle =
+    doubleField("distBetweenNoisePerCircle", 0.0..150.0 at 150)
 
   val tabs: List<WavesTab> = (1..MAX_LAYERS).map { WavesTab() }
 
@@ -57,22 +58,20 @@ class Waves : LayeredCanvasSketch("Waves") {
   }
 
   override fun drawOnce(layer: Int) {
-    if (layer == 0 || layer > numCircles.get()) return
+    if (layer > numCircles.get() - 1) return
 
-    val waveNum = layer - 1
-
-    val tab = tabs[layer - 1]
+    val tab = tabs[layer]
 
     val waveNoise = Noise(
       noise,
-      offset = noise.offset + (distBetweenNoisePerCircle.get() * waveNum))
+      offset = noise.offset + (distBetweenNoisePerCircle.get() * layer))
 
     fun waveAmountAlong(n: Int) = (n.toDouble() + 1) / numCircles.get()
 
     val baseHeight = (maxHeight.get()..minHeight.get())
-      .atAmountAlong(waveAmountAlong(waveNum))
+      .atAmountAlong(waveAmountAlong(layer))
     val lastHeight = (maxHeight.get()..minHeight.get())
-      .atAmountAlong(waveAmountAlong(waveNum - 1))
+      .atAmountAlong(waveAmountAlong(layer - 1))
 
     val maxLineHeight = lastHeight + 2 * waveNoise.strength.y
 
@@ -111,11 +110,13 @@ class Waves : LayeredCanvasSketch("Waves") {
   }
 
   override fun getControlsForLayer(index: Int): Array<ControlGroupable> =
-    arrayOf(tabs[index].offset, tabs[index].distBetweenLines)
+    tabs[index].getControls()
 
   inner class WavesTab {
     val distBetweenLines = doubleField("distBetweenLines", 1.0..200.0 at 10)
     val offset = doubleField("offset", -200.0..200.0 at 0)
+
+    fun getControls(): Array<ControlGroupable> = arrayOf(offset, distBetweenLines)
   }
 }
 

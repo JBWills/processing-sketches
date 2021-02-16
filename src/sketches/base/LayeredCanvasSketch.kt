@@ -5,6 +5,7 @@ import controls.ControlField.Companion.intField
 import controls.ControlGroupable
 import controls.ControlTab
 import util.limit
+import util.print.Orientation
 import util.print.Paper
 import util.print.Pen
 import util.times
@@ -13,21 +14,21 @@ import java.awt.Color
 abstract class LayeredCanvasSketch(
   svgBaseFilename: String,
   canvas: Paper = Paper.SquareBlack,
+  orientation: Orientation = Orientation.Landscape,
+  val maxLayers: Int = MAX_LAYERS,
   isDebugMode: Boolean = false,
 ) : CanvasSketch(
   svgBaseFilename,
   canvas,
+  orientation,
   isDebugMode,
 ) {
-  val MAX_LAYERS = 10
-  var numLayers = intField("numLayersToDisplay", startVal = 1, range = 0..getMaxLayers())
+  var numLayers = intField("numLayersToDisplay", startVal = 1, range = 0..maxLayers)
 
   abstract fun getControlsForLayer(index: Int): Array<ControlGroupable>
   open fun getGlobalControls(): Array<ControlGroupable> = arrayOf()
-  open fun getMaxLayers() = MAX_LAYERS
 
   override fun getLayers(): List<LayerConfig> = listOf(
-    LayerConfig(Pen.WhiteGellyThick),
     LayerConfig(Pen(Color.BLUE)),
     LayerConfig(Pen(Color.RED)),
     LayerConfig(Pen(Color.GREEN)),
@@ -38,17 +39,29 @@ abstract class LayeredCanvasSketch(
     LayerConfig(Pen(Color.CYAN)),
     LayerConfig(Pen(Color.GRAY)),
     LayerConfig(Pen(Color.MAGENTA)),
-  ).limit(numLayers.get() + 1)
+  ).limit(numLayers.get()) + LayerConfig(Pen.WhiteGellyThick)
 
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
     ControlTab(
-      "page setup",
+      CANVAS_TAB_NAME,
       *super.getControls().toTypedArray(),
       numLayers,
-      *getGlobalControls()
     ),
-    *times(getMaxLayers()) { index ->
+    ControlTab(GLOBAL_CONFIG_TAB_NAME, *getGlobalControls()),
+    *times(maxLayers) { index ->
       ControlTab("L-${index + 1}", *getControlsForLayer(index))
     }.toTypedArray(),
   )
+
+  override fun setup() {
+    super.setup()
+
+    setActiveTab(GLOBAL_CONFIG_TAB_NAME)
+  }
+
+  companion object {
+    const val GLOBAL_CONFIG_TAB_NAME = "global config"
+    const val CANVAS_TAB_NAME = "canvas"
+    const val MAX_LAYERS = 10
+  }
 }

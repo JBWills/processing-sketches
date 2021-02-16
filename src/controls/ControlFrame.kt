@@ -1,6 +1,7 @@
 package controls
 
 import controlP5.ControlP5
+import controlP5.Tab
 import coordinate.PaddingRect
 import coordinate.PixelPoint
 import coordinate.Point
@@ -8,7 +9,8 @@ import processing.core.PApplet
 import java.awt.Color
 
 class ControlTab(val name: String, val controlGroups: List<ControlGroup>) {
-  constructor(name: String, vararg groupables: ControlGroupable) : this(name, groupables.toList().toControlGroups())
+  constructor(name: String, vararg groupables: ControlGroupable) : this(name,
+    groupables.toList().toControlGroups())
 }
 
 class ControlFrame(
@@ -16,14 +18,6 @@ class ControlFrame(
   private val h: Int,
   private var tabs: List<ControlTab>,
 ) : PApplet() {
-
-  private fun setTabs(newTabs: List<ControlTab>) {
-    tabs = newTabs
-    tabs.forEach {
-      //cp5.getTab(it.name).close()
-      cp5.addTab(it.name)
-    }
-  }
 
   private val cp5: ControlP5 by lazy {
     val c = ControlP5(this)
@@ -51,11 +45,24 @@ class ControlFrame(
     right = 15,
   )
 
-  fun updateControls(newControls: List<ControlTab>) {
+  fun updateControls(newControls: List<ControlTab>, selectedIndex: Int = 0) {
     setTabs(newControls)
 
-    newControls.forEach { setupTab(it) }
+    newControls.forEach(this::setupTab)
+
+    newControls.getOrNull(selectedIndex)?.let { setActiveTab(it.name) }
   }
+
+  private fun setTabs(newTabs: List<ControlTab>) {
+    tabs = newTabs
+    tabs.forEach {
+      cp5.addTab(it.name)
+    }
+  }
+
+  fun setActiveTab(tabName: String) = cp5.controlWindow.tabs.get()
+    .map { it as Tab }
+    .forEach { tab -> tab.isActive = tab.name == tabName }
 
   override fun settings() {
     size(w, h)
@@ -82,7 +89,7 @@ class ControlFrame(
       val elementHeight = elementBaseHeight * controlGroup.heightRatio.toDouble()
 
       var currentX = padding.left
-      controlGroup.controls.forEachIndexed { index, control ->
+      controlGroup.controls.forEach { control ->
         currentX += elementPadding.left
         control.applyToControl(
           cp5,

@@ -10,12 +10,15 @@ import controls.ControlGroup
 import controls.ControlGroupable
 import coordinate.Point
 import util.darkened
+import util.print.DPI
+import util.print.Orientation
 import util.print.Paper
 
 class EmptyConfig : SketchConfig()
 abstract class CanvasSketch(
   svgBaseFilename: String,
   canvas: Paper = Paper.SquareBlack,
+  orientation: Orientation = Orientation.Landscape,
   isDebugMode: Boolean = false,
 ) : BaseSketch<EmptyConfig>(
   canvas.defaultBackgroundColor,
@@ -28,6 +31,11 @@ abstract class CanvasSketch(
 ) {
 
   private var paperField = enumField("paper", canvas) { markCanvasDirty() }
+  val paper get() = paperField.get()
+
+  private var orientationField = enumField("orientation", orientation) { markCanvasDirty() }
+  val orientation get() = orientationField.get()
+
   var boundBoxCenterField = doublePairField("boundBoxCenter", Point.Half)
   var boundBoxCenter
     get() = boundBoxCenterField.get()
@@ -45,8 +53,6 @@ abstract class CanvasSketch(
 
   var boundRect = calcBoundRect()
 
-  val paper get() = paperField.get()
-
   init {
     markDirty()
   }
@@ -60,6 +66,7 @@ abstract class CanvasSketch(
 
   override fun getControls(): List<ControlGroupable> = listOf(
     ControlGroup(paperField, heightRatio = 2.0),
+    ControlGroup(orientationField, heightRatio = 1.0),
     ControlGroup(drawBoundRectField, heightRatio = 0.5),
     boundBoxCenterField,
     boundBoxScaleField,
@@ -70,14 +77,14 @@ abstract class CanvasSketch(
   override fun drawOnce(config: EmptyConfig, layer: Int, layerConfig: LayerConfig) {
     noFill()
     stroke(if (isRecording) layerConfig.pen.color.darkened(0.5f).rgb else layerConfig.pen.color.rgb)
-    strokeWeight(paper.dpi.toPixelsFromMm(layerConfig.pen.mm))
-    if (layer == 0) {
+    strokeWeight(DPI.InkScape.toPixelsFromMm(layerConfig.pen.mm))
+    if (layer == getLayers().size - 1) {
       boundRect = calcBoundRect()
 
       if (drawBoundRect) rect(boundRect)
+    } else {
+      drawOnce(layer)
     }
-
-    drawOnce(layer)
   }
 
   private fun calcBoundRect() = paper
