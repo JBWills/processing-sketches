@@ -5,6 +5,7 @@ import controls.ControlField.Companion.intField
 import controls.ControlGroup
 import controls.ControlGroupable
 import controls.noiseControls
+import controls.tabs.TabWithControls
 import coordinate.Point
 import coordinate.Segment
 import fastnoise.FastNoise.NoiseType.Cubic
@@ -26,7 +27,7 @@ class Waves : LayeredCanvasSketch("Waves") {
   private val distBetweenNoisePerCircle =
     doubleField("distBetweenNoisePerCircle", 0.0..150.0 at 150)
 
-  val tabs: List<WavesTab> = (1..MAX_LAYERS).map { WavesTab() }
+  val tabs: List<WaveTab> = (1..MAX_LAYERS).map { WaveTab() }
 
   private var noise: Noise = Noise(
     seed = 100,
@@ -108,13 +109,11 @@ class Waves : LayeredCanvasSketch("Waves") {
   }
 
   override fun getControlsForLayer(index: Int): Array<ControlGroupable> =
-    tabs[index].getControls()
+    tabs[index].getControls<WaveTab>()
 
-  inner class WavesTab {
+  inner class WaveTab : TabWithControls() {
     val distBetweenLines = doubleField("distBetweenLines", 1.0..200.0 at 10)
     val offset = doubleField("offset", -200.0..200.0 at 0)
-
-    fun getControls(): Array<ControlGroupable> = arrayOf(offset, distBetweenLines)
   }
 }
 
