@@ -28,7 +28,7 @@ fun BaseSketch.noiseControls(
 
 fun BaseSketch.noiseControls(
   noiseProp: KMutableProperty0<Noise>,
-): Array<ControlGroup> {
+): Array<ControlGroupable> {
   fun setNoiseFieldAndMarkDirty(fn: Noise.() -> (Noise)) {
     noiseProp.set(noiseProp.get().fn())
     markDirty()

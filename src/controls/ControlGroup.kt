@@ -1,10 +1,25 @@
 package controls
 
-interface ControlGroupable {
-  abstract fun toControlGroup(): ControlGroup
+import geomerativefork.src.util.flatMapArray
+
+interface ControlSectionable {
+  fun toControlGroups(): Array<ControlGroupable>
+}
+
+interface ControlGroupable : ControlSectionable {
+  fun toControlGroup(): ControlGroup
+  override fun toControlGroups(): Array<ControlGroupable> = arrayOf(toControlGroup())
 }
 
 fun List<ControlGroupable>.toControlGroups() = map { it.toControlGroup() }
+fun List<ControlSectionable>.flatten(): List<ControlGroupable> =
+  flatMap { it.toControlGroups().toList() }
+
+fun controls(vararg sections: ControlSectionable): List<ControlGroupable> =
+  sections.flatMap { it.toControlGroups().toList() }
+
+fun controlsArray(vararg sections: ControlSectionable): Array<ControlGroupable> =
+  sections.flatMapArray { it.toControlGroups() }
 
 class ControlGroup(vararg val controls: Control, val heightRatio: Number = 1) : ControlGroupable {
   val size get() = controls.size
@@ -15,7 +30,9 @@ class ControlGroup(vararg val controls: Control, val heightRatio: Number = 1) : 
     vararg controlFields: ControlField<*>,
     heightRatio: Number = 1,
   ) : this(
-    controlFields.toList(),
+    *controlFields.flatMapArray { field ->
+      field.toControlGroups().flatMapArray { it.toControlGroup().controlsList.toTypedArray() }
+    },
     heightRatio = heightRatio
   )
 

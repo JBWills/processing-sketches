@@ -65,7 +65,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="javax.vecmath:vecmath:1.5.2" level="project" />
-    <orderEntry type="library" name="geomerative" level="project" />
     <orderEntry type="module-library">
       <library name="JUnit5.4">
         <CLASSES>
@@ -82,5 +81,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="com.github.rocketraman:kpropmap:0.0.2" level="project" />
   </component>
 </module>

@@ -2,6 +2,7 @@ package controls
 
 import BaseSketch
 import coordinate.Point
+import fastnoise.Noise
 import util.DoubleRange
 import util.PointRange
 import util.RangeWithCurrent
@@ -12,23 +13,15 @@ import util.propertyEnumDropdown
 import util.propertySlider
 import util.propertySliderPair
 import util.propertyToggle
+import util.toDoubleRange
 import util.toIntRange
+import kotlin.reflect.KProperty0
 
-sealed class ControlField<T>(val sketch: BaseSketch, val name: String, startVal: T) :
-  ControlGroupable {
-  abstract fun getControls(): Array<Control>
-
-  fun getControlsList(): List<Control> = getControls().toList()
-
-  override fun toControlGroup() = ControlGroup(*getControls())
-
-  fun toControlGroup(vararg otherControls: Control = arrayOf()) =
-    ControlGroup(*getControls(), *otherControls)
-
-  fun toControlGroups(vararg otherControls: Array<Control> = arrayOf()) =
-    ControlGroup(*getControls())
-
-  fun getControl(index: Int = 0) = getControls()[index]
+sealed class ControlField<T>(
+  val sketch: BaseSketch,
+  val name: String,
+  startVal: T,
+) : ControlSectionable {
 
   var backingField = startVal
 
@@ -38,8 +31,33 @@ sealed class ControlField<T>(val sketch: BaseSketch, val name: String, startVal:
   }
 
   companion object {
-    fun toControlGroups(vararg controlFields: ControlField<*>) =
-      controlFields.map { it.toControlGroup() }.toTypedArray()
+    fun <T> BaseSketch.fieldFrom(
+      prop: KProperty0<T>,
+      range: IntRange = 0..10,
+    ) = when (prop.get()) {
+      is Int -> IntField(this, prop.name, prop.get() as Int, range)
+      is Double -> DoubleField(this, prop.name, prop.get() as Double, range.toDoubleRange())
+      else -> throw Exception(
+        "Tried to call fieldFrom with IntRange and type ${prop.get()!!::class}")
+    }
+
+    fun BaseSketch.booleanField(
+      prop: KProperty0<Boolean>,
+    ) = booleanField(prop.name, prop.get())
+
+    fun BaseSketch.intField(
+      prop: KProperty0<Int>,
+      range: IntRange = 0..10,
+    ) = intField(prop.name, prop.get(), range)
+
+    fun BaseSketch.doubleField(
+      prop: KProperty0<Double>,
+      range: DoubleRange = 0.0..1.0,
+    ) = doubleField(prop.name, prop.get(), range)
+
+    fun BaseSketch.noiseField(
+      prop: KProperty0<Noise>,
+    ) = NoiseField(this, prop.name, prop.get())
 
     fun BaseSketch.intField(
       name: String,
@@ -81,6 +99,16 @@ sealed class ControlField<T>(val sketch: BaseSketch, val name: String, startVal:
     ) = DoublePair(this, name, startVal, ranges)
 
     fun BaseSketch.doublePairField(
+      prop1: KProperty0<Double>,
+      prop2: KProperty0<Double>,
+      ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0),
+    ) = DoublePair(
+      this,
+      prop1.name + prop2.name,
+      Point(prop1.get(), prop2.get()), ranges.first to ranges.second
+    )
+
+    fun BaseSketch.doublePairField(
       name: String,
       ranges: Pair<RangeWithCurrent<Double>, RangeWithCurrent<Double>> = (0.0..1.0 at 0) and (0.0..1.0 at 0),
     ) = DoublePair(
@@ -102,14 +130,23 @@ sealed class ControlField<T>(val sketch: BaseSketch, val name: String, startVal:
     ) = EnumField(this, name, startVal, onChange)
   }
 
+  class NoiseField(
+    sketch: BaseSketch,
+    name: String,
+    startVal: Noise,
+  ) : ControlField<Noise>(sketch, name, startVal) {
+    override fun toControlGroups(): Array<ControlGroupable> =
+      sketch.noiseControls(::backingField)
+  }
+
   class IntField(
     sketch: BaseSketch,
     name: String,
     startVal: Int = 0,
     val range: IntRange = 0..10,
   ) : ControlField<Int>(sketch, name, startVal) {
-    override fun getControls(): Array<Control> =
-      arrayOf(sketch.propertySlider(::backingField, range, name = name))
+    override fun toControlGroups(): Array<ControlGroupable> =
+      arrayOf(ControlGroup(sketch.propertySlider(::backingField, range, name = name)))
   }
 
   class DoubleField(
@@ -118,8 +155,8 @@ sealed class ControlField<T>(val sketch: BaseSketch, val name: String, startVal:
     startVal: Double = 0.0,
     val range: DoubleRange = 0.0..1.0,
   ) : ControlField<Double>(sketch, name, startVal) {
-    override fun getControls(): Array<Control> =
-      arrayOf(sketch.propertySlider(::backingField, range, name = name))
+    override fun toControlGroups(): Array<ControlGroupable> =
+      arrayOf(ControlGroup(sketch.propertySlider(::backingField, range, name = name)))
   }
 
   class DoublePair(
@@ -128,8 +165,9 @@ sealed class ControlField<T>(val sketch: BaseSketch, val name: String, startVal:
     startVal: Point = Point.Zero,
     val ranges: Pair<DoubleRange, DoubleRange> = Pair(0.0..1.0, 0.0..1.0),
   ) : ControlField<Point>(sketch, name, startVal) {
-    override fun getControls(): Array<Control> =
-      arrayOf(*sketch.propertySliderPair(::backingField, ranges.first, ranges.second, name))
+    override fun toControlGroups(): Array<ControlGroupable> =
+      arrayOf(
+        ControlGroup(*sketch.propertySliderPair(::backingField, ranges.first, ranges.second, name)))
   }
 
   class PointField(
@@ -138,8 +176,8 @@ sealed class ControlField<T>(val sketch: BaseSketch, val name: String, startVal:
     startVal: Point = (Point.One / 2.0),
     val range: PointRange = Point.Zero..Point.One,
   ) : ControlField<Point>(sketch, name, startVal) {
-    override fun getControls(): Array<Control> =
-      arrayOf(sketch.property2DSlider(::backingField, range, name = name))
+    override fun toControlGroups(): Array<ControlGroupable> =
+      arrayOf(ControlGroup(sketch.property2DSlider(::backingField, range, name = name)))
   }
 
   class BooleanField(
@@ -147,8 +185,8 @@ sealed class ControlField<T>(val sketch: BaseSketch, val name: String, startVal:
     name: String,
     startVal: Boolean = false,
   ) : ControlField<Boolean>(sketch, name, startVal) {
-    override fun getControls(): Array<Control> =
-      arrayOf(sketch.propertyToggle(::backingField, name = name))
+    override fun toControlGroups(): Array<ControlGroupable> =
+      arrayOf(ControlGroup(sketch.propertyToggle(::backingField, name = name)))
   }
 
   class EnumField<E : Enum<E>>(
@@ -157,7 +195,8 @@ sealed class ControlField<T>(val sketch: BaseSketch, val name: String, startVal:
     startVal: E,
     val onChange: () -> Unit = {},
   ) : ControlField<E>(sketch, name, startVal) {
-    override fun getControls(): Array<Control> =
-      arrayOf(sketch.propertyEnumDropdown(::backingField, name = name, onChange = onChange))
+    override fun toControlGroups(): Array<ControlGroupable> =
+      arrayOf(
+        ControlGroup(sketch.propertyEnumDropdown(::backingField, name = name, onChange = onChange)))
   }
 }

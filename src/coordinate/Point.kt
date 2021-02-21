@@ -72,6 +72,7 @@ data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Poi
   }
 
   constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
+  constructor(p: Point) : this(p.x, p.y)
 
   val mutablePropX = ::x
   val mutablePropY = ::y

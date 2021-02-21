@@ -7,6 +7,7 @@ import controls.ControlField.Companion.doublePairField
 import controls.ControlField.Companion.enumField
 import controls.ControlGroup
 import controls.ControlGroupable
+import controls.controls
 import coordinate.Point
 import util.darkened
 import util.print.DPI
@@ -62,7 +63,7 @@ abstract class CanvasSketch(
     strokeColor = paper.defaultStrokeColor
   }
 
-  override fun getControls(): List<ControlGroupable> = listOf(
+  override fun getControls(): List<ControlGroupable> = controls(
     ControlGroup(paperField, heightRatio = 2.0),
     ControlGroup(orientationField, heightRatio = 1.0),
     ControlGroup(drawBoundRectField, heightRatio = 0.5),

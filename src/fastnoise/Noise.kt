@@ -20,7 +20,7 @@ enum class NoiseQuality(val step: Double) {
 fun Point.mapNoiseToPositiveValues() = this + Point(0.5, 0.5)
 fun Double.mapNoiseToPositiveValues() = this.remap(-0.5..0.5, 0.0..1.0)
 
-class Noise(
+data class Noise(
   val seed: Int,
   val noiseType: NoiseType,
   val quality: NoiseQuality = High,
@@ -44,8 +44,8 @@ class Noise(
     noiseType ?: noise.noiseType,
     quality ?: noise.quality,
     scale ?: noise.scale,
-    offset ?: noise.offset,
-    strength ?: noise.strength
+    Point(offset ?: noise.offset),
+    Point(strength ?: noise.strength)
   )
 
   constructor(n: Noise) : this(
@@ -112,6 +112,8 @@ class Noise(
     w: Walkable, aroundPoint: Point, scaleFn: (Double) -> Double = { it },
   ): List<Point> = w.walk(quality.step) { moveRadially(it, aroundPoint, scaleFn) }
 
+  fun clone() = Noise(this)
+
   companion object {
     fun Walkable.warped(noise: Noise, scaleFn: (Point) -> Point = { it }) =
       noise.warp(this, scaleFn)
@@ -126,4 +128,5 @@ class Noise(
       noise: Noise, aroundPoint: Point, scaleFn: (Double) -> Double = { it },
     ) = noise.warpRadially(this, aroundPoint, scaleFn)
   }
+
 }
