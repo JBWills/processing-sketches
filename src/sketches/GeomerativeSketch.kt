@@ -103,7 +103,7 @@ class GeomerativeSketch : LayeredCanvasSketch<TabFields, GlobalFields>("Geomerat
   )
 
   override fun initProps(): Props<TabFields, GlobalFields> = object : Props<TabFields, GlobalFields>(maxLayers) {
-    override fun globalControls(): PropFields<GlobalFields> = object : PropFields<GlobalFields>() {
+    override fun globalControls() = object : PropFields<GlobalFields> {
       val defaults = GlobalFields()
       val numCircles = intField(defaults::numCircles, 1..40)
       val maxRad = doubleField(defaults::maxRad, 100.0..2000.0)
@@ -128,7 +128,7 @@ class GeomerativeSketch : LayeredCanvasSketch<TabFields, GlobalFields>("Geomerat
       )
     }
 
-    override fun tabControls(tabIndex: Int): PropFields<TabFields> = object : PropFields<TabFields>() {
+    override fun tabControls(tabIndex: Int) = object : PropFields<TabFields> {
       val defaults = TabFields()
       val numInternalCircles = intField(defaults::numInternalCircles, 1..20)
       override fun toControls(): List<ControlGroupable> = controls(numInternalCircles)

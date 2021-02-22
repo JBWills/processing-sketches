@@ -111,7 +111,7 @@ class Waves : LayeredCanvasSketch<WaveTab, GlobalTab>("Waves") {
   override fun initProps(): Props<WaveTab, GlobalTab> =
     object : Props<WaveTab, GlobalTab>(maxLayers) {
       override fun globalControls(): PropFields<GlobalTab> =
-        object : PropFields<GlobalTab>() {
+        object : PropFields<GlobalTab> {
           private val defaults = GlobalTab()
           private val numCirclesField = intField(defaults::numCircles, 1..MAX_LAYERS)
           private val maxHeightField = doubleField(defaults::maxHeight, 100.0..2000.0)
@@ -141,7 +141,7 @@ class Waves : LayeredCanvasSketch<WaveTab, GlobalTab>("Waves") {
         }
 
       override fun tabControls(tabIndex: Int): PropFields<WaveTab> =
-        object : PropFields<WaveTab>() {
+        object : PropFields<WaveTab> {
           private val defaults = WaveTab()
           private val distBetweenLinesField = doubleField(defaults::distBetweenLines, 1.0..200.0)
           private val offsetField = doubleField(defaults::offset, -200.0..200.0)

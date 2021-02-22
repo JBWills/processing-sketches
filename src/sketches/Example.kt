@@ -34,7 +34,7 @@ class Example : LayeredCanvasSketch<ExampleTabValues, ExampleGlobalValues>("Exam
   override fun initProps(): Props<ExampleTabValues, ExampleGlobalValues> =
     object : Props<ExampleTabValues, ExampleGlobalValues>(maxLayers) {
       override fun globalControls(): PropFields<ExampleGlobalValues> =
-        object : PropFields<ExampleGlobalValues>() {
+        object : PropFields<ExampleGlobalValues> {
           private val defaults = ExampleGlobalValues()
           val exampleField = intField(defaults::exampleField, 0..100)
 
@@ -46,7 +46,7 @@ class Example : LayeredCanvasSketch<ExampleTabValues, ExampleGlobalValues>("Exam
         }
 
       override fun tabControls(tabIndex: Int): PropFields<ExampleTabValues> =
-        object : PropFields<ExampleTabValues>() {
+        object : PropFields<ExampleTabValues> {
           private val defaults = ExampleTabValues()
           val exampleField = intField(defaults::exampleField, 0..100)
 

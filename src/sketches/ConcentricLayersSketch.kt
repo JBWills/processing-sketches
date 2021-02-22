@@ -103,7 +103,7 @@ class ConcentricLayersSketch : LayeredCanvasSketch<TabValues, GlobalValues>(
   override fun initProps(): Props<TabValues, GlobalValues> =
     object : Props<TabValues, GlobalValues>(maxLayers) {
       override fun globalControls(): PropFields<GlobalValues> =
-        object : PropFields<GlobalValues>() {
+        object : PropFields<GlobalValues> {
           private val defaults = GlobalValues()
           val numCirclesField = intField(defaults::numCircles, 1..100)
 
@@ -128,7 +128,7 @@ class ConcentricLayersSketch : LayeredCanvasSketch<TabValues, GlobalValues>(
         }
 
       override fun tabControls(tabIndex: Int): PropFields<TabValues> =
-        object : PropFields<TabValues>() {
+        object : PropFields<TabValues> {
           private val defaults = TabValues()
 
           private val startAngleDelta =

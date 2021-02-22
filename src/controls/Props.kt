@@ -5,9 +5,9 @@ import util.mapArray
 /**
  * Basically a wrapper to get values and controls from an object.
  */
-abstract class PropFields<T> {
-  abstract fun toControls(): List<ControlGroupable>
-  abstract fun toValues(): T
+interface PropFields<T> {
+  fun toControls(): List<ControlGroupable>
+  fun toValues(): T
 }
 
 /**

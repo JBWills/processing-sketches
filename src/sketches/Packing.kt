@@ -29,7 +29,6 @@ class Packing : LayeredCanvasSketch<Tab, Global>("Packing") {
   }
 
   override fun drawOnce(layer: LayerInfo) {
-    println(layer.layerIndex)
     val (
       noise,
       boundDotsToCircle,
@@ -84,7 +83,7 @@ class Packing : LayeredCanvasSketch<Tab, Global>("Packing") {
   override fun initProps(): Props<Tab, Global> =
     object : Props<Tab, Global>(maxLayers) {
       override fun globalControls(): PropFields<Global> =
-        object : PropFields<Global>() {
+        object : PropFields<Global> {
           private val defaults = Global()
           val boundDotsToCircleField = booleanField(defaults::boundDotsToCircle)
           val noiseField = noiseField(defaults::noise)
@@ -119,7 +118,7 @@ class Packing : LayeredCanvasSketch<Tab, Global>("Packing") {
         }
 
       override fun tabControls(tabIndex: Int): PropFields<Tab> =
-        object : PropFields<Tab>() {
+        object : PropFields<Tab> {
           private val defaults = Tab()
           val PackingField = intField(defaults::PackingField, 0..100)
 

@@ -139,7 +139,7 @@ class Flower : LayeredCanvasSketch<FlowerTab, GlobalTab>("Flower") {
   override fun initProps(): Props<FlowerTab, GlobalTab> =
     object : Props<FlowerTab, GlobalTab>(maxLayers) {
       override fun globalControls(): PropFields<GlobalTab> =
-        object : PropFields<GlobalTab>() {
+        object : PropFields<GlobalTab> {
           private val defaults = GlobalTab()
           val clipToBounds = booleanField(defaults::clipToBounds)
           val numCircles = intField(defaults::numCircles, 1..MAX_LAYERS)
@@ -171,7 +171,7 @@ class Flower : LayeredCanvasSketch<FlowerTab, GlobalTab>("Flower") {
         }
 
       override fun tabControls(tabIndex: Int): PropFields<FlowerTab> =
-        object : PropFields<FlowerTab>() {
+        object : PropFields<FlowerTab> {
           private val defaults = FlowerTab()
           private val distBetweenInternalCirclesField =
             doubleField(defaults::distBetweenInternalCircles, 1.0..200.0)
