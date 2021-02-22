@@ -14,11 +14,6 @@ import util.PAppletExt
 import util.combineDrawLayersIntoSVG
 import util.print.Pen
 import java.awt.Color
-import java.io.File
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 class LayerConfig(val pen: Pen)
 
@@ -63,10 +58,6 @@ abstract class BaseSketch(
       field = value
     }
 
-  private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyMMdd--hh-mm-ss")
-    .withLocale(Locale.US)
-    .withZone(ZoneId.systemDefault())
-
   fun run() {
     setSize(sizeX, sizeY)
     runSketch()
@@ -76,12 +67,7 @@ abstract class BaseSketch(
 
   abstract fun drawOnce(layer: Int, layerConfig: LayerConfig)
 
-  private fun getOutputPath(): String {
-    val root = System.getProperty("user.dir")
-    val theDir = File("$root/svgs/$svgBaseFileName")
-    if (!theDir.exists()) theDir.mkdirs()
-    return theDir.absolutePath
-  }
+  open fun getFilenameSuffix(): String = ""
 
   private fun onlyRunIfDirty(f: () -> Unit) {
     if (dirty) {
@@ -102,11 +88,7 @@ abstract class BaseSketch(
       background(backgroundColor.rgb)
       drawSetup()
       if (recordMode == RecordSVG) {
-        combineDrawLayersIntoSVG(
-          getOutputPath(),
-          dateTimeFormatter.format(Instant.now()),
-          layers.size
-        ) { layerIndex ->
+        combineDrawLayersIntoSVG(svgBaseFileName, getFilenameSuffix(), layers.size) { layerIndex ->
           drawOnce(layerIndex, layers[layerIndex])
         }
       } else {

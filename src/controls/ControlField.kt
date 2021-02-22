@@ -109,6 +109,15 @@ sealed class ControlField<T>(
     )
 
     fun BaseSketch.doublePairField(
+      prop: KProperty0<Point>,
+      ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0),
+    ) = DoublePair(
+      this,
+      prop.name,
+      Point(prop.get().x, prop.get().y), ranges.first to ranges.second
+    )
+
+    fun BaseSketch.doublePairField(
       name: String,
       ranges: Pair<RangeWithCurrent<Double>, RangeWithCurrent<Double>> = (0.0..1.0 at 0) and (0.0..1.0 at 0),
     ) = DoublePair(

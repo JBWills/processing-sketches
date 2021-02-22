@@ -46,6 +46,19 @@ inline fun <T, reified R> Array<T>.mapArrayWithNext(block: (T, T) -> R): Array<R
 inline fun <T, reified R> Array<T>.mapArray(block: (T) -> R): Array<R> =
   Array(size) { i -> block(this[i]) }
 
+inline fun <T, reified R> List<T>.mapArray(block: (T) -> R): Array<R> =
+  Array(size) { i -> block(this[i]) }
+
+inline fun <T, reified R> Iterable<T>.flatMapArray(block: (T) -> Array<R>): Array<R> =
+  flatMapArrayIndexed { _, elem -> block(elem) }
+
+inline fun <T, reified R> Iterable<T>.flatMapArrayIndexed(block: (Int, T) -> Array<R>): Array<R> {
+  val l = mutableListOf<R>()
+  forEachIndexed { index, elem -> l.addAll(block(index, elem)) }
+
+  return l.toTypedArray()
+}
+
 inline fun <T, reified R> Array<T>.flatMapArray(block: (T) -> Array<R>): Array<R> =
   flatMapArrayIndexed { _, elem -> block(elem) }
 

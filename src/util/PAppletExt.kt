@@ -87,6 +87,8 @@ open class PAppletExt : PApplet() {
       startDeg.rad.toFloat(), endDegValue.toRadians().toFloat())
   }
 
+  fun Iterable<Point>.drawPoints(radius: Int = 2) = forEach { circle(Circ(it, radius)) }
+
   fun arcs(arcs: Iterable<Arc>) = arcs.forEach { a -> arc(a) }
 
   fun boundArc(arc: Arc, bound: BoundRect) = arcs(arc.clipInsideRect(bound))

@@ -116,7 +116,9 @@ data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Poi
   override operator fun times(other: Number) = this * Point(other, other)
   operator fun times(other: Point) = Point(x * other.x, y * other.y)
 
-  override fun compareTo(other: Point) = if (this.magnitude > other.magnitude) 1 else -1
+  override operator fun compareTo(other: Point): Int =
+    if (x != other.x) x.compareTo(other.x)
+    else y.compareTo(other.y)
 
   operator fun rangeTo(other: Point) = PointProgression(this, other)
 

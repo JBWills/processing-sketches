@@ -63,6 +63,8 @@ abstract class CanvasSketch(
     strokeColor = paper.defaultStrokeColor
   }
 
+  override fun getFilenameSuffix(): String = paper.name
+
   override fun getControls(): List<ControlGroupable> = controls(
     ControlGroup(paperField, heightRatio = 2.0),
     ControlGroup(orientationField, heightRatio = 1.0),

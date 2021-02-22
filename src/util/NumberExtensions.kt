@@ -9,6 +9,8 @@ import kotlin.math.sin
 
 val EPSILON = 0.00001
 
+fun <R> Int.map(f: (Int) -> R) = (0 until this).map(f)
+
 fun Int.times(f: (Int) -> Unit) {
   for (i in 0 until this) f(i)
 }

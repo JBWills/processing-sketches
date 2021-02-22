@@ -1,5 +1,6 @@
 package util
 
+
 inline fun <T, reified R> List<T>.mapArray(block: (T) -> R): Array<R> {
   return Array(this.size) { block(this[it]) }
 }

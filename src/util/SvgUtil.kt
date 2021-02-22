@@ -2,7 +2,11 @@ package util
 
 import processing.core.PApplet
 import processing.data.XML
+import util.io.getSVGNameAndPath
+import util.io.getTempFileNameAndPath
+import util.io.getTempFilepath
 import java.io.File
+import java.time.Instant
 
 fun PApplet.recordSvg(filename: String, block: () -> Unit) {
   beginRecord(PApplet.SVG, filename)
@@ -15,15 +19,15 @@ fun PApplet.recordSvg(filename: String, block: () -> Unit) {
  * Inscape's grouping labels.
  */
 fun PApplet.combineDrawLayersIntoSVG(
-  pathToSVGFolder: String,
-  baseFilename: String,
+  baseSketchName: String,
+  fileSuffix: String,
   numLayers: Int,
   drawLayer: (Int) -> Unit,
 ) {
-  val resultFile = "$pathToSVGFolder/$baseFilename.svg"
+  val time: Instant = Instant.now()
+  val resultFile = getSVGNameAndPath(baseSketchName, fileSuffix, time)
 
-  val tempFolder = "$pathToSVGFolder/temp"
-  File(tempFolder).mkdirs()
+  val tempFolder = getTempFilepath(baseSketchName)
 
   // Create an empty SVG file and load it
   recordSvg(resultFile) {}
@@ -33,12 +37,12 @@ fun PApplet.combineDrawLayersIntoSVG(
   xml.setString("xmlns:inkscape", "http://www.inkscape.org/namespaces/inkscape/")
 
   numLayers.times { layerIndex ->
-    val tempFileName = "$tempFolder/$baseFilename--layer-$layerIndex.svg"
+    val tempFileName = getTempFileNameAndPath(baseSketchName, fileSuffix, layerIndex, time)
     recordSvg(tempFileName) { drawLayer(layerIndex) }
     xml.addChild(XML("g").also { layerGroup ->
       layerGroup.setString("inkscape:groupmode", "layer")
-      layerGroup.setString("inkscape:label", baseFilename)
-      layerGroup.setString("id", baseFilename)
+      layerGroup.setString("inkscape:label", resultFile)
+      layerGroup.setString("id", resultFile)
       XML(File(tempFileName))
         .children
         .filter { child -> child.name == "g" }

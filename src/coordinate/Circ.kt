@@ -41,6 +41,8 @@ open class Circ(var origin: Point, var radius: Double) : Walkable {
   fun isOnCircle(p: Point) = radius.notEqualsZero() && origin.dist(p).equalsDelta(radius)
   fun isInCircle(p: Point) = radius.notEqualsZero() && origin.dist(p).lessThanEqualToDelta(radius)
 
+  fun contains(p: Point) = origin.dist(p) <= radius
+
   override fun walk(step: Double): List<Point> = walk(step) { it }
 
   override fun <T> walk(step: Double, block: (Point) -> T): List<T> {
