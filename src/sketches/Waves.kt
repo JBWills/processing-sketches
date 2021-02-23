@@ -1,13 +1,11 @@
 package sketches
 
-import controls.ControlField.Companion.doubleField
-import controls.ControlField.Companion.intField
-import controls.ControlField.Companion.noiseField
+import BaseSketch
 import controls.ControlGroup
-import controls.ControlGroupable
-import controls.PropFields
-import controls.Props
 import controls.controls
+import controls.doubleProp
+import controls.intProp
+import controls.noiseProp
 import coordinate.Point
 import coordinate.Segment
 import fastnoise.FastNoise.NoiseType.Cubic
@@ -16,15 +14,14 @@ import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
 import geomerativefork.src.RPath
 import geomerativefork.src.RShape
-import sketches.Waves.GlobalTab
-import sketches.Waves.WaveTab
+import interfaces.Bindable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.geomutil.toRPath
 
-class Waves : LayeredCanvasSketch<WaveTab, GlobalTab>("Waves") {
+class Waves : LayeredCanvasSketch<WaveTab, WaveGlobal>("Waves", WaveGlobal(), { WaveTab() }) {
   init {
-    numLayers.set(MAX_LAYERS)
+    numLayers = MAX_LAYERS
   }
 
   var unionShape: RShape? = null
@@ -86,72 +83,43 @@ class Waves : LayeredCanvasSketch<WaveTab, GlobalTab>("Waves") {
 
     unionShape = nextUnionShape
   }
+}
 
-  inner class WaveTab(
-    val distBetweenLines: Double = 10.0,
-    val offset: Double = 0.0,
+data class WaveTab(
+  var distBetweenLines: Double = 10.0,
+  var offset: Double = 0.0,
+) : Bindable {
+  override fun bind(s: BaseSketch) = controls(
+    s.doubleProp(::distBetweenLines, 1.0..200.0),
+    s.doubleProp(::offset, -200.0..200.0)
   )
+}
 
-  inner class GlobalTab(
-    val noise: Noise = Noise(
-      seed = 100,
-      noiseType = Cubic,
-      quality = High,
-      scale = 1.0,
-      offset = Point.Zero,
-      strength = Point(10, 0)
+data class WaveGlobal(
+  var noise: Noise = Noise(
+    seed = 100,
+    noiseType = Cubic,
+    quality = High,
+    scale = 1.0,
+    offset = Point.Zero,
+    strength = Point(10, 0)
+  ),
+  var numCircles: Int = 5,
+  var maxHeight: Double = 500.0,
+  var minHeight: Double = 0.0,
+  var baseNumInternalCircles: Int = 1,
+  var distBetweenNoisePerCircle: Double = 150.0,
+) : Bindable {
+  override fun bind(s: BaseSketch) = controls(
+    s.intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
+    ControlGroup(
+      s.doubleProp(::maxHeight, 100.0..2000.0),
+      s.doubleProp(::minHeight, -400.0..400.0),
     ),
-    val numCircles: Int = maxLayers,
-    val maxHeight: Double = boundRect.bottom,
-    val minHeight: Double = boundRect.top,
-    val baseNumInternalCircles: Int = 1,
-    val distBetweenNoisePerCircle: Double = 150.0,
+    s.intProp(::baseNumInternalCircles, 1..100),
+    s.doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
+    s.noiseProp(::noise),
   )
-
-  override fun initProps(): Props<WaveTab, GlobalTab> =
-    object : Props<WaveTab, GlobalTab>(maxLayers) {
-      override fun globalControls(): PropFields<GlobalTab> =
-        object : PropFields<GlobalTab> {
-          private val defaults = GlobalTab()
-          private val numCirclesField = intField(defaults::numCircles, 1..MAX_LAYERS)
-          private val maxHeightField = doubleField(defaults::maxHeight, 100.0..2000.0)
-          private val minHeightField = doubleField(defaults::minHeight, 0.0..400.0)
-          private val baseNumInternalCirclesField =
-            intField(defaults::baseNumInternalCircles, 1..100)
-          private val distBetweenNoisePerCircleField =
-            doubleField(defaults::distBetweenNoisePerCircle, 0.0..150.0)
-
-          private val noiseField = noiseField(defaults::noise)
-
-          override fun toControls(): List<ControlGroupable> = controls(
-            ControlGroup(numCirclesField, baseNumInternalCirclesField),
-            distBetweenNoisePerCircleField,
-            ControlGroup(minHeightField, maxHeightField),
-            noiseField
-          )
-
-          override fun toValues(): GlobalTab = GlobalTab(
-            noiseField.get().clone(),
-            numCirclesField.get(),
-            maxHeightField.get(),
-            minHeightField.get(),
-            baseNumInternalCirclesField.get(),
-            distBetweenNoisePerCircleField.get(),
-          )
-        }
-
-      override fun tabControls(tabIndex: Int): PropFields<WaveTab> =
-        object : PropFields<WaveTab> {
-          private val defaults = WaveTab()
-          private val distBetweenLinesField = doubleField(defaults::distBetweenLines, 1.0..200.0)
-          private val offsetField = doubleField(defaults::offset, -200.0..200.0)
-
-          override fun toControls(): List<ControlGroupable> =
-            controls(distBetweenLinesField, offsetField)
-
-          override fun toValues() = WaveTab(distBetweenLinesField.get(), offsetField.get())
-        }
-    }
 }
 
 fun main() = Waves().run()

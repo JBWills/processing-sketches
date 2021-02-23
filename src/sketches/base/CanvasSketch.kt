@@ -2,12 +2,12 @@ package sketches.base
 
 import BaseSketch
 import LayerConfig
-import controls.ControlField.Companion.booleanField
-import controls.ControlField.Companion.doublePairField
-import controls.ControlField.Companion.enumField
 import controls.ControlGroup
 import controls.ControlGroupable
+import controls.booleanProp
 import controls.controls
+import controls.doublePairProp
+import controls.enumProp
 import coordinate.Point
 import util.darkened
 import util.print.DPI
@@ -18,7 +18,7 @@ import java.awt.Color
 abstract class CanvasSketch(
   svgBaseFilename: String,
   canvas: Paper = Paper.SquareBlack,
-  orientation: Orientation = Orientation.Landscape,
+  var orientation: Orientation = Orientation.Landscape,
   isDebugMode: Boolean = false,
 ) : BaseSketch(
   canvas.defaultBackgroundColor,
@@ -29,26 +29,10 @@ abstract class CanvasSketch(
   isDebugMode,
 ) {
 
-  private var paperField = enumField("paper", canvas) { markCanvasDirty() }
-  val paper get() = paperField.get()
-
-  private var orientationField = enumField("orientation", orientation) { markCanvasDirty() }
-  val orientation get() = orientationField.get()
-
-  var boundBoxCenterField = doublePairField("boundBoxCenter", Point.Half)
-  var boundBoxCenter
-    get() = boundBoxCenterField.get()
-    set(value) = boundBoxCenterField.set(value)
-
-  var boundBoxScaleField = doublePairField("boundBoxScale", Point(0.8, 0.8))
-  var boundBoxScale
-    get() = boundBoxScaleField.get()
-    set(value) = boundBoxScaleField.set(value)
-
-  var drawBoundRectField = booleanField("drawBoundRect", true)
-  var drawBoundRect
-    get() = drawBoundRectField.get()
-    set(value) = drawBoundRectField.set(value)
+  var paper: Paper = canvas
+  var boundBoxCenter: Point = Point.Half
+  var boundBoxScale: Point = Point(0.8, 0.8)
+  var drawBoundRect: Boolean = true
 
   var boundRect = calcBoundRect()
 
@@ -66,11 +50,11 @@ abstract class CanvasSketch(
   override fun getFilenameSuffix(): String = paper.name
 
   override fun getControls(): List<ControlGroupable> = controls(
-    ControlGroup(paperField, heightRatio = 2.0),
-    ControlGroup(orientationField, heightRatio = 1.0),
-    ControlGroup(drawBoundRectField, heightRatio = 0.5),
-    boundBoxCenterField,
-    boundBoxScaleField,
+    ControlGroup(enumProp(::paper) { markCanvasDirty() }, heightRatio = 2.0),
+    ControlGroup(enumProp(::orientation) { markCanvasDirty() }, heightRatio = 1.0),
+    ControlGroup(booleanProp(::drawBoundRect), heightRatio = 0.5),
+    doublePairProp(::boundBoxCenter),
+    doublePairProp(::boundBoxScale),
   )
 
   abstract fun drawOnce(layer: Int)

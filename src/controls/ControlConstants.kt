@@ -5,26 +5,8 @@ import controls.Control.Dropdown
 import controls.Control.Slider
 import controls.Control.Slider2d
 import coordinate.Point
-import fastnoise.FastNoise.NoiseType
 import fastnoise.Noise
-import util.property2DSlider
-import util.propertyEnumDropdown
-import util.propertySlider
 import kotlin.reflect.KMutableProperty0
-
-fun BaseSketch.noiseControls(
-  noiseTypeProp: KMutableProperty0<NoiseType>,
-  seedProp: KMutableProperty0<Int>,
-  noiseOffsetProp: KMutableProperty0<Point>,
-  centerOriginProp: KMutableProperty0<Point>,
-  noiseScaleProp: KMutableProperty0<Int>,
-) = arrayOf(
-  ControlGroup(propertyEnumDropdown(noiseTypeProp), heightRatio = 5),
-  ControlGroup(propertySlider(seedProp, r = 0..2000)),
-  ControlGroup(propertySlider(noiseScaleProp, r = 1..100)),
-  ControlGroup(property2DSlider(noiseOffsetProp, Point.One..Point(1000, 1000)), heightRatio = 5),
-  ControlGroup(property2DSlider(centerOriginProp, Point.Zero..Point(1, 1)), heightRatio = 5),
-)
 
 fun BaseSketch.noiseControls(
   noiseProp: KMutableProperty0<Noise>,

@@ -1,9 +1,10 @@
 package sketches.base
 
 import LayerConfig
-import controls.ControlField.Companion.intField
 import controls.ControlTab
 import controls.Props
+import controls.intProp
+import interfaces.Bindable
 import util.letWith
 import util.limit
 import util.print.Orientation
@@ -13,8 +14,10 @@ import util.times
 import java.awt.Color
 
 
-abstract class LayeredCanvasSketch<TabValues, GlobalValues>(
+abstract class LayeredCanvasSketch<TabValues : Bindable, GlobalValues : Bindable>(
   svgBaseFilename: String,
+  val defaultGlobal: GlobalValues,
+  val layerToDefaultTab: (Int) -> TabValues,
   canvas: Paper = Paper.SquareBlack,
   orientation: Orientation = Orientation.Landscape,
   val maxLayers: Int = MAX_LAYERS,
@@ -25,13 +28,12 @@ abstract class LayeredCanvasSketch<TabValues, GlobalValues>(
   orientation,
   isDebugMode,
 ) {
-  abstract fun initProps(): Props<TabValues, GlobalValues>
 
-  private val props: Props<TabValues, GlobalValues> by lazy { initProps() }
+  private val props: Props<TabValues, GlobalValues> = object : Props<TabValues, GlobalValues>(this, maxLayers, defaultGlobal, layerToDefaultTab) {}
 
   private var frozenValues: DrawInfo? = null
 
-  val numLayers = intField("numLayersToDisplay", startVal = maxLayers, range = 0..maxLayers)
+  var numLayers: Int = maxLayers
 
   override fun getLayers(): List<LayerConfig> = listOf(
     LayerConfig(Pen(Color.BLUE)),
@@ -44,13 +46,13 @@ abstract class LayeredCanvasSketch<TabValues, GlobalValues>(
     LayerConfig(Pen(Color.CYAN)),
     LayerConfig(Pen(Color.GRAY)),
     LayerConfig(Pen(Color.MAGENTA)),
-  ).limit(numLayers.get()) + LayerConfig(Pen.WhiteGellyThick)
+  ).limit(numLayers) + LayerConfig(Pen.WhiteGellyThick)
 
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
     ControlTab(
       CANVAS_TAB_NAME,
       *super.getControls().toTypedArray(),
-      numLayers,
+      intProp(::numLayers, range = 0..maxLayers),
     ),
     ControlTab(GLOBAL_CONFIG_TAB_NAME, *props.globalControls),
     *times(maxLayers) { index ->

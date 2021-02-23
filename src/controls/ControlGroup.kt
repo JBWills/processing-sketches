@@ -18,16 +18,13 @@ fun List<ControlSectionable>.flatten(): List<ControlGroupable> =
 fun controls(vararg sections: ControlSectionable): List<ControlGroupable> =
   sections.flatMap { it.toControlGroups().toList() }
 
-fun controlsArray(vararg sections: ControlSectionable): Array<ControlGroupable> =
-  sections.flatMapArray { it.toControlGroups() }
-
 class ControlGroup(vararg val controls: Control, val heightRatio: Number = 1) : ControlGroupable {
   val size get() = controls.size
 
   val controlsList get() = controls.toList()
 
   constructor(
-    vararg controlFields: ControlField<*>,
+    vararg controlFields: ControlProp<*>,
     heightRatio: Number = 1,
   ) : this(
     *controlFields.flatMapArray { field ->
