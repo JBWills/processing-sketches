@@ -15,7 +15,6 @@ import java.awt.Color
 open class ArcTestSketch(
   var startAngle: Double = 0.0,
   var length: Double = 360.0,
-  isDebugMode: Boolean = false,
   backgroundColor: Color = Color.BLACK,
   sizeX: Int = 576,
   sizeY: Int = 864,
@@ -24,7 +23,6 @@ open class ArcTestSketch(
   svgBaseFileName = "svgs.StarterSketch",
   sizeX = sizeX,
   sizeY = sizeY,
-  isDebugMode = isDebugMode
 ) {
 
   var position: Point = center

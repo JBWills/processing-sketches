@@ -1,6 +1,5 @@
-package util
+package appletExtensions
 
-import appletExtensions.clipInsideRect
 import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
@@ -14,6 +13,9 @@ import fastnoise.FastNoise.NoiseType
 import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
 import processing.core.PApplet
+import util.addNotNull
+import util.mapWithNext
+import util.toRadians
 
 open class PAppletExt : PApplet() {
 
@@ -25,7 +27,6 @@ open class PAppletExt : PApplet() {
     return noise
   }
 
-  fun random(low: Number, high: Number) = random(low.toFloat(), high.toFloat())
 
   fun line(l: Segment) = line(l.p1, l.p2)
   fun line(l: Line, length: Number, centered: Boolean = true) {

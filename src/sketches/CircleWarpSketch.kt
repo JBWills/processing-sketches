@@ -19,7 +19,6 @@ import util.propertySlider
 import java.awt.Color
 
 open class CircleWarpSketch(
-  isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = 9 * 72,
   sizeY: Int = 12 * 72,
@@ -28,7 +27,6 @@ open class CircleWarpSketch(
   svgBaseFileName = "CircleWarpSketch",
   sizeX = sizeX,
   sizeY = sizeY,
-  isDebugMode = isDebugMode
 ) {
 
   private val outerPaddingX: Double = sizeX * 0.02

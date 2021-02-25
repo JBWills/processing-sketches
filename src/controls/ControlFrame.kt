@@ -1,16 +1,23 @@
 package controls
 
+import appletExtensions.setTabs
 import controlP5.ControlP5
 import controlP5.Tab
 import coordinate.PaddingRect
 import coordinate.PixelPoint
 import coordinate.Point
 import geomerativefork.src.util.flatMapArray
+import geomerativefork.src.util.mapArray
 import processing.core.PApplet
 import java.awt.Color
 
-class ControlTab(val name: String, val controlSections: List<ControlGroup>) {
-  constructor(name: String, vararg groupables: ControlGroupable) : this(name,
+class ControlTab(val name: String, sections: List<ControlSectionable>) {
+  val controlSections: List<ControlGroup> = sections.flatMapArray { section ->
+    section.toControlGroups().mapArray { it.toControlGroup() }
+  }.toList()
+
+  constructor(name: String, vararg groupables: ControlGroupable) : this(
+    name,
     groupables.map { it.toControlGroup() })
 
   constructor(name: String, vararg sectionables: ControlSectionable) : this(
@@ -26,19 +33,9 @@ class ControlFrame(
 ) : PApplet() {
 
   private val cp5: ControlP5 by lazy {
-    val c = ControlP5(this)
-
-    tabs.forEachIndexed { index, controlTab ->
-      if (index == 0) {
-        c.getTab("default").setLabel(controlTab.name)
-      } else {
-        c.addTab(controlTab.name)
-      }
+    ControlP5(this).apply {
+      setTabs(tabs, activeTab = tabs.firstOrNull())
     }
-
-    c.window.activateTab(tabs.last().name)
-
-    c
   }
 
   private val padding = PaddingRect(
@@ -61,9 +58,7 @@ class ControlFrame(
 
   private fun setTabs(newTabs: List<ControlTab>) {
     tabs = newTabs
-    tabs.forEach {
-      cp5.addTab(it.name)
-    }
+    cp5.setTabs(tabs, activeTab = tabs.firstOrNull())
   }
 
   fun setActiveTab(tabName: String) = cp5.controlWindow.tabs.get()

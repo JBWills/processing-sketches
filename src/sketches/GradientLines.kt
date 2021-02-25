@@ -13,7 +13,6 @@ import java.awt.Color
 
 open class GradientLinesSketch(
   private var lineDegrees: Double = 0.0,
-  isDebugMode: Boolean = false,
   backgroundColor: Color = Color.BLACK,
   sizeX: Int = 576,
   sizeY: Int = 864,
@@ -22,7 +21,6 @@ open class GradientLinesSketch(
   svgBaseFileName = "svgs.GradientLines",
   sizeX = sizeX,
   sizeY = sizeY,
-  isDebugMode = isDebugMode
 ) {
 
   private val outerPaddingX: Double = sizeX * 0.05

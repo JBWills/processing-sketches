@@ -19,14 +19,12 @@ abstract class CanvasSketch(
   svgBaseFilename: String,
   canvas: Paper = Paper.SquareBlack,
   var orientation: Orientation = Orientation.Landscape,
-  isDebugMode: Boolean = false,
 ) : BaseSketch(
   canvas.defaultBackgroundColor,
   canvas.defaultStrokeColor,
   svgBaseFilename,
   canvas.horizontalPx(orientation),
   canvas.verticalPx(orientation),
-  isDebugMode,
 ) {
 
   var paper: Paper = canvas
@@ -53,6 +51,7 @@ abstract class CanvasSketch(
     ControlGroup(enumProp(::paper) { markCanvasDirty() }, heightRatio = 2.0),
     ControlGroup(enumProp(::orientation) { markCanvasDirty() }, heightRatio = 1.0),
     ControlGroup(booleanProp(::drawBoundRect), heightRatio = 0.5),
+    ControlGroup(booleanProp(::isDebugMode), heightRatio = 0.5),
     doublePairProp(::boundBoxCenter),
     doublePairProp(::boundBoxScale),
   )

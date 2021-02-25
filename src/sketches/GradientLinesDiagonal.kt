@@ -7,11 +7,10 @@ import java.awt.Color
 
 class GradientLinesDiagonalSketch(
   private var lineDegrees: Double = 44.0,
-  isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = 576,
   sizeY: Int = 864,
-) : GradientLinesSketch(lineDegrees, isDebugMode, backgroundColor, sizeX, sizeY) {
+) : GradientLinesSketch(lineDegrees, backgroundColor, sizeX, sizeY) {
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()

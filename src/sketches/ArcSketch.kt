@@ -14,7 +14,6 @@ import util.pow
 import java.awt.Color
 
 open class ArcSketch(
-  isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = 11 * 72,
   sizeY: Int = 16 * 72,
@@ -22,10 +21,8 @@ open class ArcSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "svgs.ArcSketch",
   sizeX = sizeX,
-  sizeY = sizeY,
-  isDebugMode = isDebugMode
+  sizeY = sizeY
 ) {
-
   var steps = 312.0
   var step = 4.0
   var ratio = 0.92

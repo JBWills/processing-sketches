@@ -21,12 +21,10 @@ abstract class LayeredCanvasSketch<TabValues : Bindable, GlobalValues : Bindable
   canvas: Paper = Paper.SquareBlack,
   orientation: Orientation = Orientation.Landscape,
   val maxLayers: Int = MAX_LAYERS,
-  isDebugMode: Boolean = false,
 ) : CanvasSketch(
   svgBaseFilename,
   canvas,
   orientation,
-  isDebugMode,
 ) {
 
   private val props: Props<TabValues, GlobalValues> = object : Props<TabValues, GlobalValues>(this, maxLayers, defaultGlobal, layerToDefaultTab) {}

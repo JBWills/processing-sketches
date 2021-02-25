@@ -1,16 +1,17 @@
 import RecordMode.NoRecord
 import RecordMode.RecordSVG
+import appletExtensions.PAppletExt
 import controls.Control.Button
 import controls.ControlFrame
 import controls.ControlGroup
 import controls.ControlGroupable
 import controls.ControlTab
-import controls.toControlGroups
+import controls.booleanProp
+import controls.controls
 import coordinate.Point
 import geomerativefork.src.RG
 import processing.core.PConstants
 import processing.event.MouseEvent
-import util.PAppletExt
 import util.combineDrawLayersIntoSVG
 import util.print.Pen
 import java.awt.Color
@@ -28,8 +29,9 @@ abstract class BaseSketch(
   private val svgBaseFileName: String = "output",
   var sizeX: Int = 1000,
   var sizeY: Int = 1000,
-  var isDebugMode: Boolean = false,
 ) : PAppletExt() {
+
+  var isDebugMode: Boolean = true
 
   private val controlFrame: Lazy<ControlFrame> = lazy {
     ControlFrame(400, 800, getAllControls())
@@ -109,20 +111,27 @@ abstract class BaseSketch(
   open fun mousePressed(p: Point) {}
   open fun mouseClicked(p: Point) {}
 
+  /**
+   * Override this to add multiple controlTabs to your sketch.
+   */
   open fun getControlTabs(): Array<ControlTab> =
     arrayOf(ControlTab("controls", *getControls().toTypedArray()))
 
+  /**
+   * Override this to add controls to your sketch.
+   */
   open fun getControls(): List<ControlGroupable> = listOf<ControlGroup>()
 
   fun updateControls() = controlFrame.value.updateControls(getAllControls())
 
   fun setActiveTab(tabName: String) = controlFrame.value.setActiveTab(tabName)
 
-  fun getAllControls() = listOf(
-    ControlTab("default", listOf(
+  private fun getAllControls() = listOf(
+    ControlTab("file", controls(
+      ControlGroup(booleanProp(::isDebugMode), heightRatio = 0.3),
       Button("Randomize values") { randomize = true },
       Button("Save frame") { recordMode = RecordSVG },
-    ).toControlGroups()),
+    )),
     *getControlTabs(),
   )
 

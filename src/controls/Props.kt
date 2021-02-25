@@ -5,23 +5,15 @@ import interfaces.Bindable
 import util.mapArray
 
 /**
- * Basically a wrapper to get values and controls from an object.
- */
-interface PropFields<T> {
-  fun toControls(): List<ControlGroupable>
-  fun toValues(): T
-}
-
-/**
  * Props for a sketch.
  */
 abstract class Props<TabValues : Bindable, GlobalValues : Bindable>(
-  val sketch: BaseSketch,
+  private val sketch: BaseSketch,
   maxLayers: Int,
   var defaultGlobal: GlobalValues,
   layerToDefaultTab: (Int) -> TabValues,
 ) {
-  val defaultTabs: List<TabValues> = (0 until maxLayers).map(layerToDefaultTab)
+  private val defaultTabs: List<TabValues> = (0 until maxLayers).map(layerToDefaultTab)
   fun globalControls(): ControlProp<GlobalValues> = sketch.prop(this::defaultGlobal) {
     it.bind(sketch)
   }

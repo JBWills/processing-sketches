@@ -21,7 +21,6 @@ import java.awt.Color
 import kotlin.math.sin
 
 open class SpiralSketch(
-  isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = 9 * 72,
   sizeY: Int = 9 * 72,
@@ -30,7 +29,6 @@ open class SpiralSketch(
   svgBaseFileName = "SpiralSketch",
   sizeX = sizeX,
   sizeY = sizeY,
-  isDebugMode = isDebugMode
 ) {
 
   private val outerPaddingX: Double = sizeX * 0.02

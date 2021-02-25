@@ -18,7 +18,6 @@ import util.propertySlider
 import java.awt.Color
 
 open class DebugMeasureSketch(
-  isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = DPI.InkScape.toPixels(20),
   sizeY: Int = DPI.InkScape.toPixels(20),
@@ -27,7 +26,6 @@ open class DebugMeasureSketch(
   svgBaseFileName = "DebugMeasureSketch",
   sizeX = sizeX,
   sizeY = sizeY,
-  isDebugMode = isDebugMode
 ) {
 
   private val outerPaddingX: Double = sizeX * 0.02

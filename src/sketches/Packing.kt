@@ -1,6 +1,8 @@
 package sketches
 
 import BaseSketch
+import appletExtensions.withStroke
+import controls.ControlGroup
 import controls.ControlGroupable
 import controls.booleanProp
 import controls.controls
@@ -21,6 +23,7 @@ import util.geomutil.toRPath
 import util.letWith
 import util.map
 import util.randomPoint
+import java.awt.Color
 
 class Packing : LayeredCanvasSketch<Tab, Global>("Packing", Global(), { Tab() }) {
   init {
@@ -29,31 +32,43 @@ class Packing : LayeredCanvasSketch<Tab, Global>("Packing", Global(), { Tab() })
 
   override fun drawOnce(layer: LayerInfo) {
     val (
-      noise,
+      centroidNoise,
+      dotNoise,
       boundDotsToCircle,
       drawDots,
       numDots,
       numCentroids,
+      iterations,
       equalCardinality,
       circleSize,
       circleOffset,
     ) = layer.globalValues
 
+    randomSeed(centroidNoise.seed.toLong())
+
     val c = Circ(center + circleOffset, circleSize)
 
-    val points = numDots.map { randomPoint(c) }.letWith {
-      return@letWith if (boundDotsToCircle) filter { c.contains(it) } else this
+    val points = dotNoise
+      .move(numDots.map { randomPoint(c) })
+      .letWith {
+        return@letWith if (boundDotsToCircle) filter { c.contains(it) } else this
+      }
+
+    val centroids = centroidNoise
+      .move(numCentroids.map { randomPoint(c) })
+      .letWith {
+        return@letWith if (boundDotsToCircle) filter { c.contains(it) } else this
+      }
+
+    if (isDebugMode) withStroke(Color.green) {
+      centroids.drawPoints()
     }
 
-    val centroids = noise.move(numCentroids.map { randomPoint(boundRect) }) { it * noise.strength }.letWith {
-      return@letWith if (boundDotsToCircle) filter { c.contains(it) } else this
-    }
-
-    val pointSets = points.kMeans(centroids, equalCardinality)
+    val pointSets = points.kMeans(centroids, iterations, equalCardinality)
 
     pointSets.forEach { pointSet ->
       if (drawDots) pointSet.drawPoints()
-      pointSet.makeHull().toRPath().apply { addClose() }.draw()
+      pointSet.makeHull().toRPath(closed = true).draw()
     }
   }
 }
@@ -66,32 +81,47 @@ data class Tab(
 }
 
 data class Global(
-  var noise: Noise = Noise(
+  var centroidNoise: Noise = Noise(
     seed = 100,
     noiseType = Cubic,
     quality = High,
     scale = 1.0,
     offset = Point.Zero,
-    strength = Point(10, 0)
+    strength = Point(0, 0)
+  ),
+  var dotNoise: Noise = Noise(
+    seed = 100,
+    noiseType = Cubic,
+    quality = High,
+    scale = 1.0,
+    offset = Point.Zero,
+    strength = Point(0, 0)
   ),
   var boundDotsToCircle: Boolean = true,
   var drawDots: Boolean = true,
   var numDots: Int = 1000,
   var numCentroids: Int = 5,
+  var iterations: Int = 32,
   var equalCardinality: Boolean = false,
   var circleSize: Double = 300.0,
   var circleOffset: Point = Point.Zero,
 ) : Bindable {
 
   override fun bind(s: BaseSketch): List<ControlGroupable> = controls(
-    s.booleanProp(this::boundDotsToCircle),
-    s.noiseProp(this::noise),
-    s.booleanProp(this::drawDots),
-    s.intProp(this::numDots, 0..100_000),
-    s.intProp(this::numCentroids, 1..10_000),
-    s.booleanProp(this::equalCardinality),
-    s.doubleProp(this::circleSize, 50.0..800.0),
-    s.doublePairProp(this::circleOffset, -s.sizeX.toDouble()..s.sizeX.toDouble() to -s.sizeY.toDouble()..s.sizeY.toDouble()),
+    s.noiseProp(::centroidNoise),
+    s.noiseProp(::dotNoise),
+    ControlGroup(
+      s.booleanProp(::drawDots),
+      s.booleanProp(::boundDotsToCircle),
+    ),
+    ControlGroup(
+      s.intProp(::numDots, 0..100_000),
+      s.intProp(::numCentroids, 1..10_000),
+    ),
+    s.intProp(::iterations, 1..32),
+    s.booleanProp(::equalCardinality),
+    s.doubleProp(::circleSize, 50.0..800.0),
+    s.doublePairProp(::circleOffset, -s.sizeX.toDouble()..s.sizeX.toDouble() to -s.sizeY.toDouble()..s.sizeY.toDouble()),
   )
 }
 

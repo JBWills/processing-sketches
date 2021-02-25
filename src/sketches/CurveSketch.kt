@@ -13,7 +13,6 @@ import coordinate.Point
 import java.awt.Color
 
 open class CurveSketch(
-  isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = 9 * 72,
   sizeY: Int = 12 * 72,
@@ -22,7 +21,6 @@ open class CurveSketch(
   svgBaseFileName = "svgs.CurveSketch",
   sizeX = sizeX,
   sizeY = sizeY,
-  isDebugMode = isDebugMode
 ) {
 
   private val outerPaddingX: Double = sizeX * 0.02

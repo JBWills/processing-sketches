@@ -16,7 +16,6 @@ import util.propertyToggle
 import java.awt.Color
 
 open class WarpSketch(
-  isDebugMode: Boolean = false,
   backgroundColor: Color = Color.WHITE,
   sizeX: Int = 9 * 72,
   sizeY: Int = 12 * 72,
@@ -25,7 +24,6 @@ open class WarpSketch(
   svgBaseFileName = "WarpSketch",
   sizeX = sizeX,
   sizeY = sizeY,
-  isDebugMode = isDebugMode
 ) {
 
   private val outerPaddingX: Double = sizeX * 0.02

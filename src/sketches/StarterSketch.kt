@@ -10,7 +10,6 @@ import coordinate.Point
 import java.awt.Color
 
 open class StarterSketch(
-  isDebugMode: Boolean = false,
   backgroundColor: Color = Color.BLACK,
   sizeX: Int = 576,
   sizeY: Int = 864,
@@ -19,7 +18,6 @@ open class StarterSketch(
   svgBaseFileName = "svgs.StarterSketch",
   sizeX = sizeX,
   sizeY = sizeY,
-  isDebugMode = isDebugMode
 ) {
 
   private val outerPaddingX: Double = sizeX * 0.05

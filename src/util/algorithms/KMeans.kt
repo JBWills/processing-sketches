@@ -6,11 +6,10 @@ import util.letWith
 
 fun Iterable<Point>.to2DDoubleArray(): Array<DoubleArray> = map { doubleArrayOf(it.x, it.y) }.toTypedArray()
 
-
-fun Iterable<Point>.kMeans(centroids: List<Point>, equalCardinality: Boolean = false): List<Set<Point>> {
+fun Iterable<Point>.kMeans(centroids: List<Point>, iterations: Int = 32, equalCardinality: Boolean = false): List<Set<Point>> {
   val list: List<Point> = if (this is List<Point>) this else this.toList()
   val assignments: IntArray = EKmeans(centroids.to2DDoubleArray(), to2DDoubleArray()).letWith {
-    iteration = 32
+    iteration = iterations
     isEqual = equalCardinality
     run()
     return@letWith assignments

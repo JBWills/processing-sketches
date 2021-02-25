@@ -1,5 +1,6 @@
 package util
 
+import appletExtensions.PAppletExt
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
@@ -8,6 +9,8 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+
+fun PAppletExt.random(low: Number, high: Number) = random(low.toFloat(), high.toFloat())
 
 fun PAppletExt.randomPoint(min: Point, max: Point) =
   Point(random(min.x, max.x), random(min.y, max.y))
