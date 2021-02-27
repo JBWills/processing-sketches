@@ -1,9 +1,8 @@
 package sketches
 
 import BaseSketch
-import controls.ControlGroup
-import controls.ControlGroupable
-import controls.controls
+import controls.ControlGroup.Companion.group
+import controls.ControlSection.Companion.section
 import controls.doubleProp
 import controls.intProp
 import coordinate.Arc
@@ -78,8 +77,8 @@ class ConcentricLayersSketch : LayeredCanvasSketch<TabValues, GlobalValues>(
         getArcsAtIndex(circleIndex, values.layerIndex + 1)
           .mapIf({ !it.isSizeZero }) { it.expandPixels(values.globalValues.spacing) }
       )
-    }.forEach { arc ->
-      arc
+    }.forEach {
+      it
         .walk(1.0)
         .draw(boundRect)
     }
@@ -93,13 +92,13 @@ data class TabValues(
   var startCircle: Int = 0,
   var endCircle: Int = 0,
 ) : Bindable {
-  override fun bind(s: BaseSketch): List<ControlGroupable> = controls(
-    s.doubleProp(::startAngleDelta, negToPos(180)),
-    s.doubleProp(::angleLengthDelta, negToPos(16)),
-    s.doubleProp(::startAngle, negToPos(360)),
-    s.doubleProp(::startLength, zeroTo(360)),
-    s.intProp(::startCircle, 0..100),
-    s.intProp(::endCircle, 0..100),
+  override fun BaseSketch.bind() = section(
+    doubleProp(::startAngleDelta, negToPos(180)),
+    doubleProp(::angleLengthDelta, negToPos(16)),
+    doubleProp(::startAngle, negToPos(360)),
+    doubleProp(::startLength, zeroTo(360)),
+    intProp(::startCircle, 0..100),
+    intProp(::endCircle, 0..100),
   )
 }
 
@@ -109,13 +108,13 @@ data class GlobalValues(
   var endRad: Double = 500.0,
   var spacing: Double = 5.0,
 ) : Bindable {
-  override fun bind(s: BaseSketch): List<ControlGroupable> = controls(
-    s.intProp(::numCircles, 1..100),
-    ControlGroup(
-      s.doubleProp(::startRad, zeroTo(500)),
-      s.doubleProp(::endRad, zeroTo(1000)),
+  override fun BaseSketch.bind() = section(
+    intProp(::numCircles, 1..100),
+    group(
+      doubleProp(::startRad, zeroTo(500)),
+      doubleProp(::endRad, zeroTo(1000)),
     ),
-    s.doubleProp(::spacing, zeroTo(360)),
+    doubleProp(::spacing, zeroTo(360)),
   )
 }
 

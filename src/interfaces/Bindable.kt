@@ -1,8 +1,13 @@
 package interfaces
 
 import BaseSketch
-import controls.ControlGroupable
+import controls.ControlSectionable
 
 interface Bindable {
-  fun bind(s: BaseSketch): List<ControlGroupable>
+
+  /**
+   * Just a helper so this can be called from outside of Bindable
+   */
+  fun bindSketch(s: BaseSketch): ControlSectionable = s.bind()
+  fun BaseSketch.bind(): ControlSectionable
 }

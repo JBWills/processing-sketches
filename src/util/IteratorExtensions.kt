@@ -5,9 +5,15 @@ inline fun <T, reified R> List<T>.mapArray(block: (T) -> R): Array<R> {
   return Array(this.size) { block(this[it]) }
 }
 
+fun <T, K> List<List<T>>.map2DIndexed(block: (T, Int, Int) -> K) = mapIndexed { xIndex, list ->
+  list.mapIndexed { yIndex, elem ->
+    block(elem, xIndex, yIndex)
+  }
+}
+
 fun <T> times(iterations: Int, block: (i: Int) -> T): List<T> = (0 until iterations).map(block)
 
-fun <T> List<T>.limit(i: Int) = filterIndexed { index, item -> index < i }
+fun <T> List<T>.limit(i: Int) = filterIndexed { index, _ -> index < i }
 
 fun <T> List<T?>.filterNotNull(): List<T> = mapNotNull { it }
 
@@ -22,6 +28,12 @@ fun <T> List<T>.forEachWithSurrounding(block: (T?, T, T?, Int) -> Unit) =
 
 fun <T> List<T>.forEachWithSurrounding(block: (T?, T, T?) -> Unit) =
   forEachWithSurrounding { prev, curr, next, _ -> block(prev, curr, next) }
+
+fun <T> List<T>.forEachWithNext(block: (T, T?) -> Unit) =
+  forEachWithSurrounding { _, curr, next, _ -> block(curr, next) }
+
+fun <T> List<T>.forEachWithNextIndexed(block: (T, T?, Int) -> Unit) =
+  forEachWithSurrounding { _, curr, next, index -> block(curr, next, index) }
 
 fun <T> List<T>.forEachWithSurroundingCyclical(block: (T, T, T, Int) -> Unit) =
   forEachIndexed { index, item ->

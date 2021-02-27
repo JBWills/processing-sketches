@@ -2,10 +2,9 @@ package sketches
 
 import BaseSketch
 import appletExtensions.withStroke
-import controls.ControlGroup
-import controls.ControlGroupable
+import controls.ControlGroup.Companion.group
+import controls.ControlSection.Companion.section
 import controls.booleanProp
-import controls.controls
 import controls.doublePairProp
 import controls.doubleProp
 import controls.intProp
@@ -17,12 +16,14 @@ import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import interfaces.Bindable
 import sketches.base.LayeredCanvasSketch
+import util.NegativeOneToOne
 import util.algorithms.kMeans
 import util.algorithms.makeHull
 import util.geomutil.toRPath
 import util.letWith
 import util.map
 import util.randomPoint
+import util.times
 import java.awt.Color
 
 class Packing : LayeredCanvasSketch<Tab, Global>("Packing", Global(), { Tab() }) {
@@ -76,8 +77,9 @@ class Packing : LayeredCanvasSketch<Tab, Global>("Packing", Global(), { Tab() })
 data class Tab(
   var PackingField: Int = 1
 ) : Bindable {
-  override fun bind(s: BaseSketch): List<ControlGroupable> =
-    controls(s.intProp(this::PackingField, 1..100))
+  override fun BaseSketch.bind() = section(
+    intProp(::PackingField, 1..100)
+  )
 }
 
 data class Global(
@@ -107,21 +109,21 @@ data class Global(
   var circleOffset: Point = Point.Zero,
 ) : Bindable {
 
-  override fun bind(s: BaseSketch): List<ControlGroupable> = controls(
-    s.noiseProp(::centroidNoise),
-    s.noiseProp(::dotNoise),
-    ControlGroup(
-      s.booleanProp(::drawDots),
-      s.booleanProp(::boundDotsToCircle),
+  override fun BaseSketch.bind() = section(
+    noiseProp(::centroidNoise),
+    noiseProp(::dotNoise),
+    group(
+      booleanProp(::drawDots),
+      booleanProp(::boundDotsToCircle),
     ),
-    ControlGroup(
-      s.intProp(::numDots, 0..100_000),
-      s.intProp(::numCentroids, 1..10_000),
+    group(
+      intProp(::numDots, 0..100_000),
+      intProp(::numCentroids, 1..10_000),
     ),
-    s.intProp(::iterations, 1..32),
-    s.booleanProp(::equalCardinality),
-    s.doubleProp(::circleSize, 50.0..800.0),
-    s.doublePairProp(::circleOffset, -s.sizeX.toDouble()..s.sizeX.toDouble() to -s.sizeY.toDouble()..s.sizeY.toDouble()),
+    intProp(::iterations, 1..32),
+    booleanProp(::equalCardinality),
+    doubleProp(::circleSize, 50.0..800.0),
+    doublePairProp(::circleOffset, NegativeOneToOne * sizeX to NegativeOneToOne * sizeY),
   )
 }
 

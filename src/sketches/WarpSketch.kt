@@ -3,8 +3,9 @@ package sketches
 import BaseSketch
 import LayerConfig
 import controls.Control.Button
-import controls.ControlGroup
+import controls.ControlGroup.Companion.group
 import controls.ControlGroupable
+import controls.controls
 import coordinate.BoundRect
 import coordinate.Point
 import fastnoise.FastNoise.NoiseType
@@ -48,31 +49,29 @@ open class WarpSketch(
   private var seed: Int = 1000
   private var noiseType: NoiseType = PerlinFractal
 
-  override fun getControls(): List<ControlGroupable> = listOf(
-    ControlGroup(
-      Button("clear") {
-        points.clear()
-        markDirty()
-      }
-    ),
-    ControlGroup(
-      propertySlider(::xMidpointVal)
-    ),
-    ControlGroup(propertyEnumDropdown(::noiseType), heightRatio = 5),
-    ControlGroup(
+  override fun getControls(): List<ControlGroupable> = controls(
+    Button("clear") {
+      points.clear()
+      markDirty()
+    },
+    propertySlider(::xMidpointVal),
+    group(propertyEnumDropdown(::noiseType), heightRatio = 5),
+    group(
       propertyToggle(::withVerticalLines),
       propertyToggle(::withHorizontalLines)
     ),
-    ControlGroup(propertySlider(::quality)),
-    ControlGroup(
+    propertySlider(::quality),
+    group(
       propertySlider(::numLines, r = 1..100),
       propertySlider(::lineSpacing, r = 0.001..200.0)
     ),
-    ControlGroup(propertySlider(::noiseScale, r = 1..100)),
-    ControlGroup(propertySlider(::moveAmountX, r = 0..2000),
-      propertySlider(::moveAmountY, r = 0..2000)),
-    ControlGroup(propertySlider(::seed, r = 0..2000)),
-    ControlGroup(property2DSlider(::noiseOffset, Point.One..Point(1000, 1000)), heightRatio = 5)
+    propertySlider(::noiseScale, r = 1..100),
+    group(
+      propertySlider(::moveAmountX, r = 0..2000),
+      propertySlider(::moveAmountY, r = 0..2000)
+    ),
+    propertySlider(::seed, r = 0..2000),
+    group(property2DSlider(::noiseOffset, Point.One..Point(1000, 1000)), heightRatio = 5)
   )
 
   override fun mousePressed(p: Point) {

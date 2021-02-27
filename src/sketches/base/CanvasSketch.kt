@@ -2,7 +2,7 @@ package sketches.base
 
 import BaseSketch
 import LayerConfig
-import controls.ControlGroup
+import controls.ControlGroup.Companion.group
 import controls.ControlGroupable
 import controls.booleanProp
 import controls.controls
@@ -48,10 +48,10 @@ abstract class CanvasSketch(
   override fun getFilenameSuffix(): String = paper.name
 
   override fun getControls(): List<ControlGroupable> = controls(
-    ControlGroup(enumProp(::paper) { markCanvasDirty() }, heightRatio = 2.0),
-    ControlGroup(enumProp(::orientation) { markCanvasDirty() }, heightRatio = 1.0),
-    ControlGroup(booleanProp(::drawBoundRect), heightRatio = 0.5),
-    ControlGroup(booleanProp(::isDebugMode), heightRatio = 0.5),
+    group(enumProp(::paper) { markCanvasDirty() }, heightRatio = 2.0),
+    group(enumProp(::orientation) { markCanvasDirty() }, heightRatio = 1.0),
+    group(booleanProp(::drawBoundRect), heightRatio = 0.5),
+    group(booleanProp(::isDebugMode), heightRatio = 0.5),
     doublePairProp(::boundBoxCenter),
     doublePairProp(::boundBoxScale),
   )

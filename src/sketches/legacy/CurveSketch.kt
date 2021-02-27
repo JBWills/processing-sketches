@@ -1,4 +1,4 @@
-package sketches
+package sketches.legacy
 
 import BaseSketch
 import LayerConfig

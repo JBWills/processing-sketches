@@ -7,23 +7,25 @@ import util.mapArray
 /**
  * Props for a sketch.
  */
-abstract class Props<TabValues : Bindable, GlobalValues : Bindable>(
+class Props<TabValues : Bindable, GlobalValues : Bindable>(
   private val sketch: BaseSketch,
   maxLayers: Int,
   var defaultGlobal: GlobalValues,
   layerToDefaultTab: (Int) -> TabValues,
 ) {
   private val defaultTabs: List<TabValues> = (0 until maxLayers).map(layerToDefaultTab)
-  fun globalControls(): ControlProp<GlobalValues> = sketch.prop(this::defaultGlobal) {
-    it.bind(sketch)
-  }
+  private fun globalControls(): ControlProp<GlobalValues> =
+    sketch.prop(::defaultGlobal) {
+      it.bindSketch(this)
+    }
 
-  fun tabControls(tabIndex: Int): ControlProp<TabValues> = sketch.prop(defaultTabs.toMutableList(), tabIndex) {
-    it.bind(sketch)
-  }
+  private fun tabControls(tabIndex: Int): ControlProp<TabValues> =
+    sketch.prop(defaultTabs.toMutableList(), tabIndex) {
+      it.bindSketch(sketch)
+    }
 
-  val global: ControlProp<GlobalValues> by lazy { globalControls() }
-  val tabs: List<ControlProp<TabValues>> by lazy {
+  private val global: ControlProp<GlobalValues> by lazy { globalControls() }
+  private val tabs: List<ControlProp<TabValues>> by lazy {
     (0 until maxLayers).map { tabControls(it) }
   }
 

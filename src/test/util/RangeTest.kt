@@ -1,3 +1,5 @@
+@file:Suppress("EmptyRange")
+
 package test.util
 
 import coordinate.Point
@@ -27,11 +29,22 @@ internal class RangeTest {
   }
 
   @Test
-  fun testPercentAlong() {
+  fun testDoublePercentAlong() {
     assertEquals(0.5, (0.0..1.0).percentAlong(0.5))
     assertEquals(0.0, (0.0..1.0).percentAlong(0.0))
     assertEquals(1.0, (0.0..1.0).percentAlong(1.0))
     assertEquals(0.75, (-1.0..1.0).percentAlong(0.5))
     assertEquals(0.0, (-1.0..1.0).percentAlong(-1.0))
+    assertEquals(-0.5, (0.0..-1.0).percentAlong(0.5))
+  }
+
+  @Test
+  fun testIntPercentAlong() {
+    assertEquals(0.5, (0..1).percentAlong(0.5))
+    assertEquals(0.0, (0..1).percentAlong(0))
+    assertEquals(1.0, (0..1).percentAlong(1))
+    assertEquals(0.75, (-1..1).percentAlong(0.5))
+    assertEquals(0.0, (-1..1).percentAlong(-1.0))
+    assertEquals(-0.5, (0..-1).percentAlong(0.5))
   }
 }

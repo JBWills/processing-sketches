@@ -6,25 +6,8 @@ import controlP5.Tab
 import coordinate.PaddingRect
 import coordinate.PixelPoint
 import coordinate.Point
-import geomerativefork.src.util.flatMapArray
-import geomerativefork.src.util.mapArray
 import processing.core.PApplet
 import java.awt.Color
-
-class ControlTab(val name: String, sections: List<ControlSectionable>) {
-  val controlSections: List<ControlGroup> = sections.flatMapArray { section ->
-    section.toControlGroups().mapArray { it.toControlGroup() }
-  }.toList()
-
-  constructor(name: String, vararg groupables: ControlGroupable) : this(
-    name,
-    groupables.map { it.toControlGroup() })
-
-  constructor(name: String, vararg sectionables: ControlSectionable) : this(
-    name,
-    *sectionables.flatMapArray { it.toControlGroups() }
-  )
-}
 
 class ControlFrame(
   private val w: Int,

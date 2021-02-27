@@ -1,8 +1,8 @@
 package sketches
 
 import BaseSketch
-import controls.ControlGroup
-import controls.controls
+import controls.ControlGroup.Companion.group
+import controls.ControlSection.Companion.section
 import controls.doubleProp
 import controls.intProp
 import controls.noiseProp
@@ -89,9 +89,9 @@ data class WaveTab(
   var distBetweenLines: Double = 10.0,
   var offset: Double = 0.0,
 ) : Bindable {
-  override fun bind(s: BaseSketch) = controls(
-    s.doubleProp(::distBetweenLines, 1.0..200.0),
-    s.doubleProp(::offset, -200.0..200.0)
+  override fun BaseSketch.bind() = section(
+    doubleProp(::distBetweenLines, 1.0..200.0),
+    doubleProp(::offset, -200.0..200.0)
   )
 }
 
@@ -110,15 +110,15 @@ data class WaveGlobal(
   var baseNumInternalCircles: Int = 1,
   var distBetweenNoisePerCircle: Double = 150.0,
 ) : Bindable {
-  override fun bind(s: BaseSketch) = controls(
-    s.intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
-    ControlGroup(
-      s.doubleProp(::maxHeight, 100.0..2000.0),
-      s.doubleProp(::minHeight, -400.0..400.0),
+  override fun BaseSketch.bind() = section(
+    intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
+    group(
+      doubleProp(::maxHeight, 100.0..2000.0),
+      doubleProp(::minHeight, -400.0..400.0),
     ),
-    s.intProp(::baseNumInternalCircles, 1..100),
-    s.doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
-    s.noiseProp(::noise),
+    intProp(::baseNumInternalCircles, 1..100),
+    doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
+    noiseProp(::noise),
   )
 }
 

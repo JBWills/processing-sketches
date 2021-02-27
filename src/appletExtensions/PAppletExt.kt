@@ -10,6 +10,7 @@ import coordinate.Point
 import coordinate.Segment
 import fastnoise.FastNoise
 import fastnoise.FastNoise.NoiseType
+import fastnoise.FastNoise.NoiseType.Perlin
 import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
 import processing.core.PApplet
@@ -17,16 +18,18 @@ import util.addNotNull
 import util.mapWithNext
 import util.toRadians
 
+/**
+ * Todo: Why is this not just a bunch of top level extension functions?
+ */
 open class PAppletExt : PApplet() {
 
-  val NOISE = getNoise(NoiseType.Perlin)
+  val NOISE = getNoise(Perlin)
 
-  fun getNoise(type: NoiseType): FastNoise {
+  fun getNoise(type: NoiseType = Perlin): FastNoise {
     val noise = FastNoise()
-    noise.SetNoiseType(NoiseType.Perlin)
+    noise.SetNoiseType(type)
     return noise
   }
-
 
   fun line(l: Segment) = line(l.p1, l.p2)
   fun line(l: Line, length: Number, centered: Boolean = true) {
@@ -88,7 +91,8 @@ open class PAppletExt : PApplet() {
       startDeg.rad.toFloat(), endDegValue.toRadians().toFloat())
   }
 
-  fun Iterable<Point>.drawPoints(radius: Int = 2) = forEach { circle(Circ(it, radius)) }
+  fun Point.drawPoint(radius: Int = 2) = circle(Circ(this, radius))
+  fun Iterable<Point>.drawPoints(radius: Int = 2) = forEach { it.drawPoint(radius) }
 
   fun arcs(arcs: Iterable<Arc>) = arcs.forEach { a -> arc(a) }
 
@@ -142,4 +146,9 @@ open class PAppletExt : PApplet() {
   fun List<Point>.draw(bound: BoundRect, boundInside: Boolean = true) {
     shape(this, bound, boundInside)
   }
+
+  fun List<Point>.draw() = shape(this)
+  fun Circ.draw() = circle(this)
+  fun BoundRect.draw() = rect(this)
+  fun Arc.draw() = arc(this)
 }

@@ -2,7 +2,7 @@ package sketches
 
 import BaseSketch
 import LayerConfig
-import controls.ControlGroup
+import controls.ControlGroup.Companion.group
 import controls.ControlGroupable
 import controls.noiseControls
 import coordinate.BoundRect
@@ -54,14 +54,14 @@ open class CircleWarpSketch(
   )
 
   override fun getControls(): List<ControlGroupable> = listOf(
-    ControlGroup(
+    group(
       propertySlider(::numCircles, r = 1..1000),
       propertySlider(::circleSpacing, r = 0.001..50.0)
     ),
-    ControlGroup(propertySlider(::moveAmountX, r = 0..2000),
+    group(propertySlider(::moveAmountX, r = 0..2000),
       propertySlider(::moveAmountY, r = 0..2000)),
     *noiseControls(::noise),
-    ControlGroup(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)
+    group(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)
   )
 
   override fun mousePressed(p: Point) {

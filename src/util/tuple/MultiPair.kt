@@ -1,4 +1,4 @@
-package util
+package util.tuple
 
 data class Pair3<A, B, C>(val a: A, val b: B, val c: C)
 data class Pair4<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)

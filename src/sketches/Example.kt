@@ -1,7 +1,7 @@
 package sketches
 
 import BaseSketch
-import controls.controls
+import controls.ControlSection.Companion.section
 import controls.intProp
 import interfaces.Bindable
 import sketches.base.LayeredCanvasSketch
@@ -29,16 +29,16 @@ class Example : LayeredCanvasSketch<ExampleTabValues, ExampleGlobalValues>(
 data class ExampleTabValues(
   var exampleTabField: Int = 1
 ) : Bindable {
-  override fun bind(s: BaseSketch) = controls(
-    s.intProp(::exampleTabField, 0..10)
+  override fun BaseSketch.bind() = section(
+    intProp(::exampleTabField, 0..10)
   )
 }
 
 data class ExampleGlobalValues(
   var exampleGlobalField: Int = 1,
 ) : Bindable {
-  override fun bind(s: BaseSketch) = controls(
-    s.intProp(::exampleGlobalField, 0..10)
+  override fun BaseSketch.bind() = section(
+    intProp(::exampleGlobalField, 0..10)
   )
 }
 

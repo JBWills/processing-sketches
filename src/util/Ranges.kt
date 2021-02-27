@@ -73,3 +73,4 @@ fun DoubleRange.atAmountAlong(amountAlong: Double = 0.0) =
   start + ((endInclusive - start) * amountAlong)
 
 fun DoubleRange.percentAlong(num: Number) = (num.toDouble() - start) / (endInclusive - start)
+fun IntRange.percentAlong(num: Number) = (num.toDouble() - start) / (endInclusive - start)

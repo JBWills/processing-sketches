@@ -2,6 +2,8 @@ package sketches
 
 import BaseSketch
 import controls.*
+import controls.ControlGroup.Companion.group
+import controls.ControlSection.Companion.section
 import coordinate.Circ
 import coordinate.Point
 import fastnoise.FastNoise.NoiseType.Perlin
@@ -84,8 +86,8 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomTab, GeomValues>("GeomerativeS
 }
 
 data class GeomTab(var numInternalCircles: Int = 1) : Bindable {
-  override fun bind(s: BaseSketch) = controls(
-    s.intProp(::numInternalCircles, 1..20)
+  override fun BaseSketch.bind() = section(
+    intProp(::numInternalCircles, 1..20)
   )
 }
 
@@ -104,15 +106,15 @@ data class GeomValues(
     strength = Point(0, 0)
   )
 ) : Bindable {
-  override fun bind(s: BaseSketch) = controls(
-    s.intProp(::numCircles, 1..40),
-    ControlGroup(
-      s.doubleProp(::maxRad, 100.0..2000.0),
-      s.doubleProp(::minRad, 0.0..400.0),
+  override fun BaseSketch.bind() = section(
+    intProp(::numCircles, 1..40),
+    group(
+      doubleProp(::maxRad, 100.0..2000.0),
+      doubleProp(::minRad, 0.0..400.0),
     ),
-    s.doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
-    s.intProp(::numExtraStrokesToDraw, 0..100),
-    s.noiseProp(::noise),
+    doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
+    intProp(::numExtraStrokesToDraw, 0..100),
+    noiseProp(::noise),
   )
 }
 

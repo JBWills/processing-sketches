@@ -2,10 +2,6 @@ package controls
 
 import geomerativefork.src.util.flatMapArray
 
-interface ControlSectionable {
-  fun toControlGroups(): Array<ControlGroupable>
-}
-
 interface ControlGroupable : ControlSectionable {
   fun toControlGroup(): ControlGroup
   override fun toControlGroups(): Array<ControlGroupable> = arrayOf(toControlGroup())
@@ -34,6 +30,11 @@ class ControlGroup(vararg val controls: Control, val heightRatio: Number = 1) : 
   )
 
   constructor(
+    vararg controls: ControlGroupable,
+    heightRatio: Number = 1,
+  ) : this(controls.toList(), heightRatio = heightRatio)
+
+  constructor(
     controls: List<ControlGroupable>,
     heightRatio: Number = 1,
   ) : this(
@@ -42,6 +43,12 @@ class ControlGroup(vararg val controls: Control, val heightRatio: Number = 1) : 
   )
 
   override fun toControlGroup() = this
+
+  companion object {
+    fun group(vararg controls: ControlProp<*>, heightRatio: Number = 1) = ControlGroup(*controls, heightRatio = heightRatio)
+    fun group(vararg controls: ControlGroupable, heightRatio: Number = 1) = ControlGroup(*controls, heightRatio = heightRatio)
+
+  }
 }
 
 fun List<ControlGroup>.totalRatio() = sumByDouble { it.heightRatio.toDouble() }

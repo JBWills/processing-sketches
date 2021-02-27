@@ -31,7 +31,11 @@ abstract class BaseSketch(
   var sizeY: Int = 1000,
 ) : PAppletExt() {
 
-  var isDebugMode: Boolean = true
+  val sizeXD get() = sizeX.toDouble()
+  val sizeYD get() = sizeX.toDouble()
+  val sketchSize get() = Point(sizeX, sizeY)
+
+  var isDebugMode: Boolean = false
 
   private val controlFrame: Lazy<ControlFrame> = lazy {
     ControlFrame(400, 800, getAllControls())

@@ -13,11 +13,10 @@ import util.print.Pen
 import util.times
 import java.awt.Color
 
-
 abstract class LayeredCanvasSketch<TabValues : Bindable, GlobalValues : Bindable>(
   svgBaseFilename: String,
-  val defaultGlobal: GlobalValues,
-  val layerToDefaultTab: (Int) -> TabValues,
+  defaultGlobal: GlobalValues,
+  layerToDefaultTab: (Int) -> TabValues,
   canvas: Paper = Paper.SquareBlack,
   orientation: Orientation = Orientation.Landscape,
   val maxLayers: Int = MAX_LAYERS,
@@ -27,7 +26,14 @@ abstract class LayeredCanvasSketch<TabValues : Bindable, GlobalValues : Bindable
   orientation,
 ) {
 
-  private val props: Props<TabValues, GlobalValues> = object : Props<TabValues, GlobalValues>(this, maxLayers, defaultGlobal, layerToDefaultTab) {}
+  private val props: Props<TabValues, GlobalValues> by lazy {
+    Props(
+      this,
+      maxLayers,
+      defaultGlobal,
+      layerToDefaultTab
+    )
+  }
 
   private var frozenValues: DrawInfo? = null
 

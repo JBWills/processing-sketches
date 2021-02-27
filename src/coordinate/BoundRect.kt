@@ -1,6 +1,7 @@
 package coordinate
 
 import interfaces.shape.Walkable
+import util.atAmountAlong
 import util.mapWithNextCyclical
 import kotlin.math.abs
 import kotlin.math.min
@@ -13,8 +14,7 @@ data class BoundRect(
   constructor(topLeft: Point, height: Number, width: Number) : this(topLeft, height.toDouble(),
     width.toDouble())
 
-  fun centeredRect(center: Point, height: Number, width: Number) =
-    BoundRect(center - Point(width.toDouble() / 2.0, height.toDouble() / 2.0), height, width)
+  constructor(topLeft: Point, size: Point) : this(topLeft, size.x, size.y)
 
   init {
     if (height < 0) {
@@ -60,6 +60,10 @@ data class BoundRect(
 
   fun scale(scaleFactor: Point, newCenter: Point = center) =
     centeredRect(newCenter, height * scaleFactor.y, width * scaleFactor.x)
+
+  fun atXAmount(percent: Double) = (left..right).atAmountAlong(percent)
+  fun atYAmount(percent: Double) = (top..bottom).atAmountAlong(percent)
+  fun pointAt(percentX: Double, percentY: Double) = Point(atXAmount(percentX), atYAmount(percentY))
 
   fun getBoundSegment(line: Line): Segment? {
     if (isTop(line)) return topSegment
@@ -117,5 +121,10 @@ data class BoundRect(
 
   companion object {
     fun Point.mappedOnto(r: BoundRect) = Point(r.left + (x * r.width), r.top + (y * r.height))
+
+    fun centeredRect(center: Point, height: Number, width: Number) =
+      BoundRect(center - Point(width.toDouble() / 2.0, height.toDouble() / 2.0), height, width)
+
+    fun centeredRect(center: Point, size: Point) = centeredRect(center, size.x, size.y)
   }
 }

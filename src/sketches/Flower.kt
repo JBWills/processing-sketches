@@ -1,9 +1,9 @@
 package sketches
 
 import BaseSketch
-import controls.ControlGroup
+import controls.ControlGroup.Companion.group
+import controls.ControlSection.Companion.section
 import controls.booleanProp
-import controls.controls
 import controls.doubleProp
 import controls.intProp
 import controls.noiseProp
@@ -117,9 +117,9 @@ data class FlowerTab(
   var distBetweenInternalCircles: Double = 10.0,
   var numInternalCircles: Int = 1,
 ) : Bindable {
-  override fun bind(s: BaseSketch) = controls(
-    s.doubleProp(::distBetweenInternalCircles, 1.0..200.0),
-    s.intProp(::numInternalCircles, 0..200),
+  override fun BaseSketch.bind() = section(
+    doubleProp(::distBetweenInternalCircles, 1.0..200.0),
+    intProp(::numInternalCircles, 0..200),
   )
 }
 
@@ -139,16 +139,16 @@ data class GlobalTab(
   var baseNumInternalCircles: Int = 1,
   var distBetweenNoisePerCircle: Double = 150.0,
 ) : Bindable {
-  override fun bind(s: BaseSketch) = controls(
-    s.booleanProp(::clipToBounds),
-    s.intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
-    ControlGroup(
-      s.doubleProp(::maxRad, 100.0..2000.0),
-      s.doubleProp(::minRad, 0.0..400.0)
+  override fun BaseSketch.bind() = section(
+    booleanProp(::clipToBounds),
+    intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
+    group(
+      doubleProp(::maxRad, 100.0..2000.0),
+      doubleProp(::minRad, 0.0..400.0)
     ),
-    s.intProp(::baseNumInternalCircles, 1..100),
-    s.doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
-    s.noiseProp(::noise),
+    intProp(::baseNumInternalCircles, 1..100),
+    doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
+    noiseProp(::noise),
   )
 }
 
