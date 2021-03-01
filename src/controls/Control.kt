@@ -133,7 +133,26 @@ sealed class Control(
     ) : this(text, range.xRange, range.yRange, defaultValue, handleChange)
   }
 
-  class Dropdown<E : Enum<E>>(
+  class Dropdown(
+    text: String,
+    options: List<String>,
+    defaultValue: String,
+    handleChange: (String) -> Unit = {},
+  ) : Control(
+    dropdownWith(text.splitCamelCase()) {
+      setType(DropdownList.LIST)
+      setItems(options)
+
+      value = options.indexOf(defaultValue).toFloat()
+
+      onChange {
+        val selectedOption = options[value.toInt()]
+        handleChange(selectedOption)
+      }
+    }
+  )
+
+  class EnumDropdown<E : Enum<E>>(
     text: String,
     defaultValue: E,
     handleChange: (E) -> Unit = {},

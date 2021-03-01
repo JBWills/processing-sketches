@@ -38,6 +38,8 @@ enum class Paper(
   SquareBlack(7.87, 7.87, Color.BLACK, Color.WHITE),
   ColoredPaper(12.5, 9.5, Color.RED.lightened(1f), Color.WHITE);
 
+  val defaultStyle: Style = Style(color = defaultStrokeColor)
+
   private fun sidePx(sideInches: Double, dpi: DPI = DPI.InkScape) = dpi.toPixels(sideInches)
 
   fun horizontalPx(orientation: Orientation, dpi: DPI = DPI.InkScape) =

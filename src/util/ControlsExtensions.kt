@@ -44,7 +44,7 @@ fun <E : Enum<E>> BaseSketch.propertyEnumDropdown(
   prop: KMutableProperty0<E>,
   onChange: () -> Unit = { },
   name: String? = null,
-) = Control.Dropdown(prop, text = name) { onChange(); markDirty() }
+) = Control.EnumDropdown(prop, text = name) { onChange(); markDirty() }
 
 fun BaseSketch.propertySlider(
   prop: KMutableProperty0<Int>,

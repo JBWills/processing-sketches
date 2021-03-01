@@ -1,7 +1,7 @@
 package controls
 
 import BaseSketch
-import controls.Control.Dropdown
+import controls.Control.EnumDropdown
 import controls.Control.Slider
 import controls.Control.Slider2d
 import coordinate.Point
@@ -18,12 +18,12 @@ fun BaseSketch.noiseControls(
 
   return arrayOf(
     ControlGroup(
-      Dropdown("${noiseProp.name} quality", noiseProp.get().quality) {
+      EnumDropdown("${noiseProp.name} quality", noiseProp.get().quality) {
         setNoiseFieldAndMarkDirty {
           with(quality = it)
         }
       },
-      Dropdown("${noiseProp.name} Noise Type", noiseProp.get().noiseType,
+      EnumDropdown("${noiseProp.name} Noise Type", noiseProp.get().noiseType,
         { setNoiseFieldAndMarkDirty { with(noiseType = it) } }),
       heightRatio = 4
     ),

@@ -2,7 +2,7 @@ package sketches
 
 import BaseSketch
 import controls.ControlGroup.Companion.group
-import controls.ControlSection.Companion.section
+import controls.ControlTab.Companion.tab
 import controls.booleanProp
 import controls.doubleProp
 import controls.intProp
@@ -15,14 +15,19 @@ import fastnoise.NoiseQuality.High
 import geomerativefork.src.RPath
 import geomerativefork.src.RShape
 import geomerativefork.src.util.flatMapArray
-import interfaces.Bindable
+import interfaces.Copyable
+import interfaces.TabBindable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.geomutil.toRShape
 import util.times
 
 
-class Flower : LayeredCanvasSketch<FlowerTab, GlobalTab>("Flower", GlobalTab(), { FlowerTab() }) {
+class Flower : LayeredCanvasSketch<FlowerLayerData, FlowerData>(
+  "Flower",
+  FlowerData(),
+  { FlowerLayerData() }
+) {
   init {
     numLayers = MAX_LAYERS
   }
@@ -113,17 +118,26 @@ class Flower : LayeredCanvasSketch<FlowerTab, GlobalTab>("Flower", GlobalTab(), 
   }
 }
 
-data class FlowerTab(
+/**
+ * Data class for single flower layer
+ */
+data class FlowerLayerData(
   var distBetweenInternalCircles: Double = 10.0,
   var numInternalCircles: Int = 1,
-) : Bindable {
-  override fun BaseSketch.bind() = section(
+) : TabBindable, Copyable<FlowerLayerData> {
+  override fun BaseSketch.bindTab() = tab(
+    "L",
     doubleProp(::distBetweenInternalCircles, 1.0..200.0),
     intProp(::numInternalCircles, 0..200),
   )
+
+  override fun clone() = copy()
 }
 
-data class GlobalTab(
+/**
+ * Data class for global flower data
+ */
+data class FlowerData(
   var clipToBounds: Boolean = false,
   var noise: Noise = Noise(
     seed = 100,
@@ -138,8 +152,9 @@ data class GlobalTab(
   var minRad: Double = 30.0,
   var baseNumInternalCircles: Int = 1,
   var distBetweenNoisePerCircle: Double = 150.0,
-) : Bindable {
-  override fun BaseSketch.bind() = section(
+) : TabBindable, Copyable<FlowerData> {
+  override fun BaseSketch.bindTab() = tab(
+    "Flower",
     booleanProp(::clipToBounds),
     intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
     group(
@@ -150,6 +165,8 @@ data class GlobalTab(
     doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
     noiseProp(::noise),
   )
+
+  override fun clone() = copy()
 }
 
-fun main() = Example().run()
+fun main() = Flower().run()

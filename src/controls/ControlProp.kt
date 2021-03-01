@@ -12,6 +12,9 @@ import util.propertyToggle
 import util.tuple.and
 import kotlin.reflect.KMutableProperty0
 
+/**
+ * A control prop is a connection from a field to a single control or group of controls
+ */
 interface ControlProp<T> : ControlSectionable {
   val sketch: BaseSketch
   val name: String
@@ -59,13 +62,13 @@ fun <T> BaseSketch.prop(ref: MutableList<T>, listIndex: Int, controlsGetter: Bas
   )
 
 fun BaseSketch.booleanProp(ref: KMutableProperty0<Boolean>) =
-  prop(ref) { ControlGroup(propertyToggle(ref, name = ref.name)) }
+  prop(ref) { propertyToggle(ref, name = ref.name) }
 
 fun BaseSketch.intProp(ref: KMutableProperty0<Int>, range: IntRange) =
-  prop(ref) { ControlGroup(propertySlider(ref, range, name = ref.name)) }
+  prop(ref) { propertySlider(ref, range, name = ref.name) }
 
 fun BaseSketch.doubleProp(ref: KMutableProperty0<Double>, range: DoubleRange) =
-  prop(ref) { ControlGroup(propertySlider(ref, range, name = ref.name)) }
+  prop(ref) { propertySlider(ref, range, name = ref.name) }
 
 fun BaseSketch.doublePairProp(
   ref: KMutableProperty0<Point>,
@@ -86,5 +89,26 @@ fun BaseSketch.noiseProp(
 fun <E : Enum<E>> BaseSketch.enumProp(
   ref: KMutableProperty0<E>,
   onChange: () -> Unit = {},
-) = prop(ref) { ControlGroup(propertyEnumDropdown(ref, name = ref.name, onChange = { onChange() })) }
+) = prop(ref) { propertyEnumDropdown(ref, name = ref.name, onChange = { onChange() }) }
+
+fun <E : Enum<E>> BaseSketch.nullableEnumProp(
+  ref: KMutableProperty0<E?>,
+  values: Array<E>,
+  onChange: () -> Unit = {},
+) = prop(ref) {
+  val noneOption = "None"
+  Control.Dropdown(
+    text = ref.name,
+    options = listOf(noneOption) + values.map { it.name },
+    defaultValue = ref.get()?.name ?: noneOption
+  ) { selectedOption ->
+    val newValue =
+      if (selectedOption == noneOption) null
+      else values.find { it.name == selectedOption }
+
+    ref.set(newValue)
+    markDirty()
+    onChange()
+  }
+}
 

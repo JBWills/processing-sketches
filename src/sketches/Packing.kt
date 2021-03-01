@@ -3,7 +3,7 @@ package sketches
 import BaseSketch
 import appletExtensions.withStroke
 import controls.ControlGroup.Companion.group
-import controls.ControlSection.Companion.section
+import controls.ControlTab.Companion.tab
 import controls.booleanProp
 import controls.doublePairProp
 import controls.doubleProp
@@ -14,7 +14,8 @@ import coordinate.Point
 import fastnoise.FastNoise.NoiseType.Cubic
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
-import interfaces.Bindable
+import interfaces.Copyable
+import interfaces.TabBindable
 import sketches.base.LayeredCanvasSketch
 import util.NegativeOneToOne
 import util.algorithms.kMeans
@@ -26,7 +27,7 @@ import util.randomPoint
 import util.times
 import java.awt.Color
 
-class Packing : LayeredCanvasSketch<Tab, Global>("Packing", Global(), { Tab() }) {
+class Packing : LayeredCanvasSketch<PackingLayerData, PackingData>("Packing", PackingData(), { PackingLayerData() }) {
   init {
     numLayers = 1
   }
@@ -74,15 +75,18 @@ class Packing : LayeredCanvasSketch<Tab, Global>("Packing", Global(), { Tab() })
   }
 }
 
-data class Tab(
+data class PackingLayerData(
   var PackingField: Int = 1
-) : Bindable {
-  override fun BaseSketch.bind() = section(
+) : TabBindable, Copyable<PackingLayerData> {
+  override fun BaseSketch.bindTab() = tab(
+    "L",
     intProp(::PackingField, 1..100)
   )
+
+  override fun clone(): PackingLayerData = copy()
 }
 
-data class Global(
+data class PackingData(
   var centroidNoise: Noise = Noise(
     seed = 100,
     noiseType = Cubic,
@@ -107,9 +111,9 @@ data class Global(
   var equalCardinality: Boolean = false,
   var circleSize: Double = 300.0,
   var circleOffset: Point = Point.Zero,
-) : Bindable {
-
-  override fun BaseSketch.bind() = section(
+) : TabBindable, Copyable<PackingData> {
+  override fun BaseSketch.bindTab() = tab(
+    "Packing",
     noiseProp(::centroidNoise),
     noiseProp(::dotNoise),
     group(
@@ -125,6 +129,8 @@ data class Global(
     doubleProp(::circleSize, 50.0..800.0),
     doublePairProp(::circleOffset, NegativeOneToOne * sizeX to NegativeOneToOne * sizeY),
   )
+
+  override fun clone(): PackingData = copy()
 }
 
 fun main() = Packing().run()

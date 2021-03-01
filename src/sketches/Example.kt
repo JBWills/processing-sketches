@@ -2,8 +2,11 @@ package sketches
 
 import BaseSketch
 import controls.ControlSection.Companion.section
+import controls.ControlTab.Companion.tab
 import controls.intProp
 import interfaces.Bindable
+import interfaces.Copyable
+import interfaces.TabBindable
 import sketches.base.LayeredCanvasSketch
 
 /**
@@ -16,8 +19,7 @@ class Example : LayeredCanvasSketch<ExampleTabValues, ExampleGlobalValues>(
   ExampleGlobalValues(),
   { ExampleTabValues() }
 ) {
-  override fun drawSetup(layerInfo: DrawInfo) {
-  }
+  override fun drawSetup(layerInfo: DrawInfo) {}
 
   override fun drawOnce(values: LayerInfo) {
     val (exampleGlobalField) = values.globalValues
@@ -28,18 +30,27 @@ class Example : LayeredCanvasSketch<ExampleTabValues, ExampleGlobalValues>(
 
 data class ExampleTabValues(
   var exampleTabField: Int = 1
-) : Bindable {
-  override fun BaseSketch.bind() = section(
+) : TabBindable, Copyable<ExampleTabValues> {
+  override fun BaseSketch.bindTab() = tab(
+    "L",
     intProp(::exampleTabField, 0..10)
   )
+
+  override fun clone() = copy()
 }
 
 data class ExampleGlobalValues(
   var exampleGlobalField: Int = 1,
-) : Bindable {
-  override fun BaseSketch.bind() = section(
-    intProp(::exampleGlobalField, 0..10)
+) : Bindable, Copyable<ExampleGlobalValues> {
+  override fun BaseSketch.bind() = listOf(
+    tab("Global",
+      section(
+        intProp(::exampleGlobalField, 0..10)
+      )
+    )
   )
+
+  override fun clone() = copy()
 }
 
 fun main() = Example().run()

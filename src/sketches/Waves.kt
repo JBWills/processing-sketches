@@ -2,7 +2,8 @@ package sketches
 
 import BaseSketch
 import controls.ControlGroup.Companion.group
-import controls.ControlSection.Companion.section
+import controls.ControlTab
+import controls.ControlTab.Companion
 import controls.doubleProp
 import controls.intProp
 import controls.noiseProp
@@ -14,7 +15,8 @@ import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
 import geomerativefork.src.RPath
 import geomerativefork.src.RShape
-import interfaces.Bindable
+import interfaces.Copyable
+import interfaces.TabBindable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.geomutil.toRPath
@@ -88,11 +90,14 @@ class Waves : LayeredCanvasSketch<WaveTab, WaveGlobal>("Waves", WaveGlobal(), { 
 data class WaveTab(
   var distBetweenLines: Double = 10.0,
   var offset: Double = 0.0,
-) : Bindable {
-  override fun BaseSketch.bind() = section(
+) : TabBindable, Copyable<WaveTab> {
+  override fun BaseSketch.bindTab() = Companion.tab(
+    "L",
     doubleProp(::distBetweenLines, 1.0..200.0),
     doubleProp(::offset, -200.0..200.0)
   )
+
+  override fun clone() = copy()
 }
 
 data class WaveGlobal(
@@ -109,8 +114,9 @@ data class WaveGlobal(
   var minHeight: Double = 0.0,
   var baseNumInternalCircles: Int = 1,
   var distBetweenNoisePerCircle: Double = 150.0,
-) : Bindable {
-  override fun BaseSketch.bind() = section(
+) : TabBindable, Copyable<WaveGlobal> {
+  override fun BaseSketch.bindTab() = ControlTab.tab(
+    "Waves",
     intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
     group(
       doubleProp(::maxHeight, 100.0..2000.0),
@@ -120,6 +126,8 @@ data class WaveGlobal(
     doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
     noiseProp(::noise),
   )
+
+  override fun clone(): WaveGlobal = copy()
 }
 
 fun main() = Waves().run()

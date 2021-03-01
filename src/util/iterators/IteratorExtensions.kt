@@ -1,10 +1,6 @@
 package util
 
 
-inline fun <T, reified R> List<T>.mapArray(block: (T) -> R): Array<R> {
-  return Array(this.size) { block(this[it]) }
-}
-
 fun <T, K> List<List<T>>.map2DIndexed(block: (T, Int, Int) -> K) = mapIndexed { xIndex, list ->
   list.mapIndexed { yIndex, elem ->
     block(elem, xIndex, yIndex)
@@ -54,6 +50,10 @@ fun <T, R> List<T>.mapIf(
 
 fun <T> List<T>.addIf(predicate: () -> Boolean, item: () -> T) =
   if (predicate()) this + item() else this.copy()
+
+
+fun <T> List<T>.prependIf(condition: Boolean, item: () -> T): List<T> =
+  if (condition) listOf(item()) + this else this
 
 fun <T> List<T>.addIf(condition: Boolean, item: () -> T) = this.addIf({ condition }, item)
 fun <T> List<T>.addNotNull(item: T?) = item?.let { this + it } ?: this.copy()

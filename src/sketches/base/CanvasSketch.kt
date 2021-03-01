@@ -2,6 +2,7 @@ package sketches.base
 
 import BaseSketch
 import LayerConfig
+import appletExtensions.withStyle
 import controls.ControlGroup.Companion.group
 import controls.ControlGroupable
 import controls.booleanProp
@@ -10,9 +11,10 @@ import controls.doublePairProp
 import controls.enumProp
 import coordinate.Point
 import util.darkened
-import util.print.DPI
 import util.print.Orientation
 import util.print.Paper
+import util.print.StrokeWeight.Thick
+import util.print.Style
 import java.awt.Color
 
 abstract class CanvasSketch(
@@ -62,17 +64,24 @@ abstract class CanvasSketch(
     noFill()
 
     val needsDarkStroke: Boolean = isRecording || paper.defaultBackgroundColor != Color.black
-    stroke(
-      if (needsDarkStroke) layerConfig.pen.color.darkened(0.5f).rgb else layerConfig.pen.color.rgb)
-    strokeWeight(DPI.InkScape.toPixelsFromMm(layerConfig.pen.mm))
-    if (layer == getLayers().size - 1) {
-      boundRect = calcBoundRect()
+    val style = paper.defaultStyle
+      .applyOverrides(layerConfig.style)
+      .applyOverrides(Style(
+        weight = if (isRecording) Thick else null,
+        color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5f) else null
+      ))
 
-      if (drawBoundRect) rect(boundRect)
-    } else {
-      drawOnce(layer)
+    withStyle(style) {
+      if (layer == getLayers().size - 1) {
+        boundRect = calcBoundRect()
+
+        if (drawBoundRect) rect(boundRect)
+      } else {
+        drawOnce(layer)
+      }
     }
   }
+
 
   private fun calcBoundRect() = paper
     .toBoundRect(orientation)

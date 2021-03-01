@@ -2,14 +2,15 @@ package sketches
 
 import BaseSketch
 import controls.ControlGroup.Companion.group
-import controls.ControlSection.Companion.section
+import controls.ControlTab
 import controls.doubleProp
 import controls.intProp
 import coordinate.Arc
 import coordinate.Circ
 import coordinate.Deg
 import geomerativefork.src.util.bound
-import interfaces.Bindable
+import interfaces.Copyable
+import interfaces.TabBindable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.mapIf
@@ -18,10 +19,10 @@ import util.zeroTo
 
 const val MAX_CIRCLES = 8
 
-class ConcentricLayersSketch : LayeredCanvasSketch<TabValues, GlobalValues>(
+class ConcentricLayersSketch : LayeredCanvasSketch<CircleLayerData, CircleGlobalData>(
   "ConcentricLayersSketch",
-  GlobalValues(),
-  { TabValues() },
+  CircleGlobalData(),
+  { CircleLayerData() },
   maxLayers = MAX_CIRCLES
 ) {
   val trueNumLayers get() = arcsPerLayer.size
@@ -36,13 +37,13 @@ class ConcentricLayersSketch : LayeredCanvasSketch<TabValues, GlobalValues>(
   private fun getArcsAtIndex(circleIndex: Int, startLayer: Int): List<Arc> =
     (startLayer until trueNumLayers).map { layer -> arcsPerLayer[layer][circleIndex] }
 
-  private fun getCircle(circleIndex: Int, globalValues: GlobalValues): Circ {
-    val (startRad, endRad) = globalValues.startRad to globalValues.endRad
+  private fun getCircle(circleIndex: Int, circleGlobalData: CircleGlobalData): Circ {
+    val (startRad, endRad) = circleGlobalData.startRad to circleGlobalData.endRad
     val rad = (startRad..endRad).atAmountAlong(circleIndex / trueNumCircles.toDouble())
     return Circ(center, rad)
   }
 
-  private fun getArcsForLayer(index: Int, c: TabValues, g: GlobalValues): List<Arc> {
+  private fun getArcsForLayer(index: Int, c: CircleLayerData, g: CircleGlobalData): List<Arc> {
     if (index == 0) return listOf()
 
     return (0 until g.numCircles).map { circleIndex ->
@@ -84,15 +85,16 @@ class ConcentricLayersSketch : LayeredCanvasSketch<TabValues, GlobalValues>(
     }
 }
 
-data class TabValues(
+data class CircleLayerData(
   var startAngleDelta: Double = 5.0,
   var angleLengthDelta: Double = 0.0,
   var startAngle: Double = 0.0,
   var startLength: Double = 0.0,
   var startCircle: Int = 0,
   var endCircle: Int = 0,
-) : Bindable {
-  override fun BaseSketch.bind() = section(
+) : TabBindable, Copyable<CircleLayerData> {
+  override fun BaseSketch.bindTab() = ControlTab.tab(
+    "L",
     doubleProp(::startAngleDelta, negToPos(180)),
     doubleProp(::angleLengthDelta, negToPos(16)),
     doubleProp(::startAngle, negToPos(360)),
@@ -100,15 +102,18 @@ data class TabValues(
     intProp(::startCircle, 0..100),
     intProp(::endCircle, 0..100),
   )
+
+  override fun clone() = copy()
 }
 
-data class GlobalValues(
+data class CircleGlobalData(
   var numCircles: Int = 50,
   var startRad: Double = 5.0,
   var endRad: Double = 500.0,
   var spacing: Double = 5.0,
-) : Bindable {
-  override fun BaseSketch.bind() = section(
+) : TabBindable, Copyable<CircleGlobalData> {
+  override fun BaseSketch.bindTab() = ControlTab.tab(
+    "Global",
     intProp(::numCircles, 1..100),
     group(
       doubleProp(::startRad, zeroTo(500)),
@@ -116,6 +121,8 @@ data class GlobalValues(
     ),
     doubleProp(::spacing, zeroTo(360)),
   )
+
+  override fun clone() = copy()
 }
 
 fun main() = ConcentricLayersSketch().run()

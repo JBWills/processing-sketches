@@ -13,10 +13,11 @@ import geomerativefork.src.RG
 import processing.core.PConstants
 import processing.event.MouseEvent
 import util.combineDrawLayersIntoSVG
-import util.print.Pen
+import util.print.StrokeWeight.Thick
+import util.print.Style
 import java.awt.Color
 
-class LayerConfig(val pen: Pen)
+class LayerConfig(val style: Style)
 
 enum class RecordMode {
   NoRecord,
@@ -69,7 +70,7 @@ abstract class BaseSketch(
     runSketch()
   }
 
-  open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Pen(1.0, strokeColor)))
+  open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(Thick, strokeColor)))
 
   abstract fun drawOnce(layer: Int, layerConfig: LayerConfig)
 
@@ -97,6 +98,8 @@ abstract class BaseSketch(
         combineDrawLayersIntoSVG(svgBaseFileName, getFilenameSuffix(), layers.size) { layerIndex ->
           drawOnce(layerIndex, layers[layerIndex])
         }
+
+        recordMode = NoRecord
       } else {
         layers.forEachIndexed { index, layer ->
           drawOnce(index, layer)

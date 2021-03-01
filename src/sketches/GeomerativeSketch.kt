@@ -3,7 +3,7 @@ package sketches
 import BaseSketch
 import controls.*
 import controls.ControlGroup.Companion.group
-import controls.ControlSection.Companion.section
+import controls.ControlTab.Companion
 import coordinate.Circ
 import coordinate.Point
 import fastnoise.FastNoise.NoiseType.Perlin
@@ -14,14 +14,15 @@ import geomerativefork.src.RPath
 import geomerativefork.src.RShape
 import geomerativefork.src.util.bound
 import geomerativefork.src.util.flatMapArray
-import interfaces.Bindable
+import interfaces.Copyable
+import interfaces.TabBindable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.geomutil.toRShape
 import java.awt.Color
 import kotlin.math.max
 
-class GeomerativeSketch : LayeredCanvasSketch<GeomTab, GeomValues>("GeomerativeSketch", GeomValues(), { GeomTab() }) {
+class GeomerativeSketch : LayeredCanvasSketch<GeomLayerData, GeomData>("GeomerativeSketch", GeomData(), { GeomLayerData() }) {
   init {
     numLayers = 1
   }
@@ -85,13 +86,16 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomTab, GeomValues>("GeomerativeS
   }
 }
 
-data class GeomTab(var numInternalCircles: Int = 1) : Bindable {
-  override fun BaseSketch.bind() = section(
+data class GeomLayerData(var numInternalCircles: Int = 1) : TabBindable, Copyable<GeomLayerData> {
+  override fun BaseSketch.bindTab() = ControlTab.tab(
+    "L",
     intProp(::numInternalCircles, 1..20)
   )
+
+  override fun clone() = copy()
 }
 
-data class GeomValues(
+data class GeomData(
   var numCircles: Int = 4,
   var maxRad: Double = 400.0,
   var minRad: Double = 10.0,
@@ -105,8 +109,9 @@ data class GeomValues(
     offset = Point.Zero,
     strength = Point(0, 0)
   )
-) : Bindable {
-  override fun BaseSketch.bind() = section(
+) : TabBindable, Copyable<GeomData> {
+  override fun BaseSketch.bindTab() = Companion.tab(
+    "Geom",
     intProp(::numCircles, 1..40),
     group(
       doubleProp(::maxRad, 100.0..2000.0),
@@ -116,6 +121,8 @@ data class GeomValues(
     intProp(::numExtraStrokesToDraw, 0..100),
     noiseProp(::noise),
   )
+
+  override fun clone() = copy()
 }
 
 fun main() = GeomerativeSketch().run()

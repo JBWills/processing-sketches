@@ -1,13 +1,11 @@
 package util.print
 
+import util.print.StrokeWeight.Thick
+import util.print.StrokeWeight.Thin
 import java.awt.Color
 
-class Pen(val mm: Double, val color: Color) {
-  constructor(color: Color) : this(1.0, color)
-
-  companion object {
-    val WhiteGellyThick = Pen(1.0, Color.WHITE)
-    val WhiteGellyThin = Pen(0.5, Color.WHITE)
-    val BlackGellyThick = Pen(1.0, Color.BLACK)
-  }
+enum class Pen(val style: Style) {
+  ThickGellyWhite(Style(weight = Thick, color = Color.WHITE)),
+  ThinGellyWhite(Style(weight = Thin, color = Color.WHITE)),
+  ThickGellyBlack(Style(weight = Thick, color = Color.BLACK)),
 }

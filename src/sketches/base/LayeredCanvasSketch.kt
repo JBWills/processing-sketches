@@ -4,16 +4,33 @@ import LayerConfig
 import controls.ControlTab
 import controls.Props
 import controls.intProp
+import controls.nullableEnumProp
+import geomerativefork.src.util.mapArray
 import interfaces.Bindable
+import interfaces.Copyable
+import util.iterators.flattenArray
+import util.iterators.timesArray
 import util.letWith
 import util.limit
 import util.print.Orientation
 import util.print.Paper
 import util.print.Pen
-import util.times
+import util.print.StrokeWeight
+import util.print.StrokeWeight.Thick
+import util.print.Style
 import java.awt.Color
+import java.awt.Color.BLUE
+import java.awt.Color.CYAN
+import java.awt.Color.DARK_GRAY
+import java.awt.Color.GREEN
+import java.awt.Color.LIGHT_GRAY
+import java.awt.Color.MAGENTA
+import java.awt.Color.ORANGE
+import java.awt.Color.RED
+import java.awt.Color.YELLOW
 
-abstract class LayeredCanvasSketch<TabValues : Bindable, GlobalValues : Bindable>(
+
+abstract class LayeredCanvasSketch<TabValues, GlobalValues>(
   svgBaseFilename: String,
   defaultGlobal: GlobalValues,
   layerToDefaultTab: (Int) -> TabValues,
@@ -24,7 +41,9 @@ abstract class LayeredCanvasSketch<TabValues : Bindable, GlobalValues : Bindable
   svgBaseFilename,
   canvas,
   orientation,
-) {
+) where
+TabValues : Bindable, TabValues : Copyable<TabValues>,
+GlobalValues : Bindable, GlobalValues : Copyable<GlobalValues> {
 
   private val props: Props<TabValues, GlobalValues> by lazy {
     Props(
@@ -35,33 +54,47 @@ abstract class LayeredCanvasSketch<TabValues : Bindable, GlobalValues : Bindable
     )
   }
 
+  private var weightOverride: StrokeWeight? = null
+
   private var frozenValues: DrawInfo? = null
 
   var numLayers: Int = maxLayers
 
+  private fun coloredLayer(c: Color) = LayerConfig(Style(Thick, c))
+
   override fun getLayers(): List<LayerConfig> = listOf(
-    LayerConfig(Pen(Color.BLUE)),
-    LayerConfig(Pen(Color.RED)),
-    LayerConfig(Pen(Color.GREEN)),
-    LayerConfig(Pen(Color.LIGHT_GRAY)),
-    LayerConfig(Pen(Color.DARK_GRAY)),
-    LayerConfig(Pen(Color.ORANGE)),
-    LayerConfig(Pen(Color.YELLOW)),
-    LayerConfig(Pen(Color.CYAN)),
-    LayerConfig(Pen(Color.GRAY)),
-    LayerConfig(Pen(Color.MAGENTA)),
-  ).limit(numLayers) + LayerConfig(Pen.WhiteGellyThick)
+    coloredLayer(BLUE),
+    coloredLayer(RED),
+    coloredLayer(GREEN),
+    coloredLayer(LIGHT_GRAY),
+    coloredLayer(DARK_GRAY),
+    coloredLayer(ORANGE),
+    coloredLayer(YELLOW),
+    coloredLayer(CYAN),
+    coloredLayer(Color(GRAY)),
+    coloredLayer(MAGENTA),
+  )
+    .limit(numLayers)
+    .map { LayerConfig(it.style.applyOverrides(Style(weightOverride))) }
+    .plus(LayerConfig(Pen.ThickGellyWhite.style))
 
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
     ControlTab(
       CANVAS_TAB_NAME,
       *super.getControls().toTypedArray(),
       intProp(::numLayers, range = 0..maxLayers),
+      nullableEnumProp(::weightOverride, StrokeWeight.values()),
     ),
-    ControlTab(GLOBAL_CONFIG_TAB_NAME, *props.globalControls),
-    *times(maxLayers) { index ->
-      ControlTab("L-${index + 1}", *props.tabControls[index])
-    }.toTypedArray(),
+    *props.globalControlTabs,
+    *timesArray(maxLayers) { index ->
+      props.layerControlTabs[index]
+        .mapArray { tab ->
+          ControlTab(
+            name = "${tab.name}-${index + 1}",
+            tab.controlSections
+          )
+        }
+    }.flattenArray(),
   )
 
   abstract fun drawOnce(values: LayerInfo)
@@ -71,7 +104,7 @@ abstract class LayeredCanvasSketch<TabValues : Bindable, GlobalValues : Bindable
   final override fun drawSetup() {
     super.drawSetup()
 
-    val (global, tab) = props.letWith { globalValues to tabValues }
+    val (global, tab) = props.letWith { globalValues.clone() to tabValues.map { it.clone() } }
     frozenValues = DrawInfo(global, tab).also { drawSetup(it) }
   }
 

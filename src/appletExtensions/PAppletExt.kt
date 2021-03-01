@@ -147,6 +147,11 @@ open class PAppletExt : PApplet() {
     shape(this, bound, boundInside)
   }
 
+  @JvmName("drawLines")
+  fun List<List<Point>>.draw(bound: BoundRect, boundInside: Boolean = true) = forEach {
+    shape(it, bound, boundInside)
+  }
+
   fun List<Point>.draw() = shape(this)
   fun Circ.draw() = circle(this)
   fun BoundRect.draw() = rect(this)

@@ -2,7 +2,9 @@ package sketches
 
 import BaseSketch
 import appletExtensions.withStroke
-import controls.ControlSection.Companion.section
+import controls.ControlGroup
+import controls.ControlTab.Companion.tab
+import controls.booleanProp
 import controls.doublePairProp
 import controls.intProp
 import controls.noiseProp
@@ -10,13 +12,15 @@ import coordinate.Point
 import fastnoise.FastNoise.NoiseType.Cubic
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
-import interfaces.Bindable
+import interfaces.Copyable
+import interfaces.TabBindable
 import sketches.base.LayeredCanvasSketch
 import util.ZeroToOne
-import util.atAmountAlong
 import util.map
 import util.percentAlong
 import util.plus
+import util.print.Paper.A4Black
+import util.tuple.map
 import util.zeroTo
 import java.awt.Color
 
@@ -25,10 +29,11 @@ import java.awt.Color
  *
  * Copy and paste this to create a new sketch.
  */
-class Mesh : LayeredCanvasSketch<MeshTabValues, MeshGlobalValues>(
+class Mesh : LayeredCanvasSketch<MeshLayerData, MeshData>(
   "Mesh",
-  MeshGlobalValues(),
-  { MeshTabValues() }
+  MeshData(),
+  { MeshLayerData() },
+  canvas = A4Black
 ) {
   init {
     numLayers = 1
@@ -38,20 +43,28 @@ class Mesh : LayeredCanvasSketch<MeshTabValues, MeshGlobalValues>(
   }
 
   override fun drawOnce(values: LayerInfo) {
-    val (noise, numDots, size, dotRectCenter) = values.globalValues
+    val (
+      noise,
+      numDots,
+      size,
+      dotRectCenter,
+      showDiagonalsDown,
+      showDiagonalsUp,
+      showVerticals,
+      showHorizontals
+    ) = values.globalValues
+    val (numDotsX, numDotsY) = (numDots.x to numDots.y).map { it.toInt() }
     val (MeshTabField) = values.tabValues
 
     val dotBound = boundRect.scale(size, boundRect.pointAt(dotRectCenter.x, dotRectCenter.y))
 
-    val pointRows = numDots.x.toInt().map { xIndex ->
-      val amountAlongX = (0 until numDots.x.toInt()).percentAlong(xIndex)
-      return@map numDots.y.toInt().map { yIndex ->
-        val amountAlongY = (0 until numDots.y.toInt()).percentAlong(yIndex)
+    val pointRows = numDotsX.map { xIndex ->
+      val amountAlongX = (0 until numDotsX).percentAlong(xIndex)
 
-        Point(
-          (dotBound.left..dotBound.right).atAmountAlong(amountAlongX),
-          (dotBound.top..dotBound.bottom).atAmountAlong(amountAlongY),
-        )
+      return@map numDotsY.map { yIndex ->
+        val amountAlongY = (0 until numDotsY).percentAlong(yIndex)
+
+        dotBound.pointAt(amountAlongX, amountAlongY)
       }
     }
 
@@ -61,44 +74,63 @@ class Mesh : LayeredCanvasSketch<MeshTabValues, MeshGlobalValues>(
 
     if (isDebugMode) withStroke(Color.GREEN) { pointRows.forEach { it.drawPoints() } }
 
-    warpedPoints.forEach { row ->
-      row.draw(boundRect)
+
+    if (showVerticals) {
+      warpedPoints.forEach { row ->
+        row.draw(boundRect)
+      }
     }
 
-    val flippedArray = warpedPoints[0].size.map { warpedPoints.map { row -> row[it] } }
+    if (showHorizontals) {
+      val flippedArray = numDotsY.map { warpedPoints.map { row -> row[it] } }
 
-    flippedArray.forEach { it.draw(boundRect) }
+      flippedArray.forEach { it.draw(boundRect) }
+    }
 
-//    warpedPoints.forEachWithNext { currRow, nextRow ->
-//      currRow.forEachWithNextIndexed { point, nextPoint, index ->
-//        if (nextPoint != null) {
-//          line(Segment(point, nextPoint))
-//        }
-//
-//        if (nextRow != null) {
-//          val downPoint = nextRow[index]
-//          line(Segment(point, downPoint))
-//        }
-//
-//        if (nextRow != null && nextPoint != null) {
-//          val diagonalPoint = nextRow[index + 1]
-//          line(Segment(point, diagonalPoint))
-//        }
-//      }
-//    }
+    if (showDiagonalsDown) {
+      fun getDiagonal(startX: Int, startY: Int): List<Point> =
+        min(numDotsX - startX, numDotsY - startY)
+          .map {
+            warpedPoints[startX + it][startY + it]
+          }
+
+      val diagonals =
+        numDotsX.map { startXIndex -> getDiagonal(startXIndex, 0) } +
+          (1 until numDotsY).map { startYIndex -> getDiagonal(0, startYIndex) }
+
+      diagonals.draw(boundRect)
+    }
+
+    if (showDiagonalsUp) {
+      fun getDiagonal(startX: Int, startY: Int): List<Point> =
+        min(numDotsX - startX, numDotsY - startY)
+          .map {
+            warpedPoints[startX + it][(numDotsY - 1) - (startY + it)]
+          }
+
+      val diagonals =
+        numDotsX.map { startXIndex ->
+          getDiagonal(startXIndex, 0)
+        } +
+          (1 until numDotsY).map { startYIndex -> getDiagonal(0, startYIndex) }
+
+      diagonals.draw(boundRect)
+    }
   }
 }
 
-
-data class MeshTabValues(
+data class MeshLayerData(
   var MeshTabField: Int = 1
-) : Bindable {
-  override fun BaseSketch.bind() = section(
+) : TabBindable, Copyable<MeshLayerData> {
+  override fun BaseSketch.bindTab() = tab(
+    "T",
     intProp(::MeshTabField, 0..10)
   )
+
+  override fun clone() = copy()
 }
 
-data class MeshGlobalValues(
+data class MeshData(
   var noise: Noise = Noise(
     seed = 100,
     noiseType = Cubic,
@@ -109,13 +141,31 @@ data class MeshGlobalValues(
   ),
   var numDots: Point = Point(10, 10),
   var size: Point = Point(0.5, 0.5),
-  var dotRectCenter: Point = Point(0.5, 0.5)
-) : Bindable {
-  override fun BaseSketch.bind() = section(
+  var dotRectCenter: Point = Point(0.5, 0.5),
+  var showDiagonalsDown: Boolean = true,
+  var showDiagonalsUp: Boolean = true,
+  var showVerticals: Boolean = true,
+  var showHorizontals: Boolean = true,
+) : TabBindable, Copyable<MeshData> {
+  override fun BaseSketch.bindTab() = tab(
+    "Global",
     noiseProp(::noise),
-    doublePairProp(::numDots, zeroTo(100) + 2),
-    doublePairProp(::size, zeroTo(1)),
+    ControlGroup(
+      booleanProp(::showDiagonalsDown),
+      booleanProp(::showDiagonalsUp),
+      booleanProp(::showVerticals),
+      booleanProp(::showHorizontals)
+    ),
+    doublePairProp(::numDots, zeroTo(1000) + 2),
+    doublePairProp(::size, zeroTo(1.5)),
     doublePairProp(::dotRectCenter, ZeroToOne),
+  )
+
+  override fun clone() = copy(
+    numDots = numDots.copy(),
+    noise = noise.copy(),
+    size = size.copy(),
+    dotRectCenter = dotRectCenter.copy()
   )
 }
 
