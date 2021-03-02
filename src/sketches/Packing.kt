@@ -11,7 +11,9 @@ import coordinate.Point
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import interfaces.Copyable
+import interfaces.KSerializable
 import interfaces.TabBindable
+import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.*
 import util.algorithms.kMeans
@@ -70,17 +72,20 @@ class Packing : LayeredCanvasSketch<PackingLayerData, PackingData>(
   }
 }
 
+@Serializable
 data class PackingLayerData(
   var PackingField: Int = 1
-) : TabBindable, Copyable<PackingLayerData> {
+) : TabBindable, Copyable<PackingLayerData>, KSerializable<PackingLayerData> {
   override fun BaseSketch.bindTab() = tab(
     "L",
     intProp(::PackingField, 1..100)
   )
 
   override fun clone(): PackingLayerData = copy()
+  override fun toSerializer() = serializer()
 }
 
+@Serializable
 data class PackingData(
   var centroidNoise: Noise = Noise(
     seed = 100,
@@ -106,7 +111,7 @@ data class PackingData(
   var equalCardinality: Boolean = false,
   var circleSize: Double = 300.0,
   var circleOffset: Point = Point.Zero,
-) : TabBindable, Copyable<PackingData> {
+) : TabBindable, Copyable<PackingData>, KSerializable<PackingData> {
   override fun BaseSketch.bindTab() = tab(
     "Packing",
     noiseProp(::centroidNoise),
@@ -126,6 +131,7 @@ data class PackingData(
   )
 
   override fun clone(): PackingData = copy()
+  override fun toSerializer() = serializer()
 }
 
 fun main() = Packing().run()

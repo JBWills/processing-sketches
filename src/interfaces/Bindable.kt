@@ -2,6 +2,11 @@ package interfaces
 
 import BaseSketch
 import controls.ControlTab
+import kotlinx.serialization.KSerializer
+
+interface KSerializable<T> {
+  fun toSerializer(): KSerializer<T>
+}
 
 interface Copyable<T> {
   fun clone(): T

@@ -45,6 +45,11 @@ fun BaseSketch.propertySlider(
   name: String? = null,
 ) = Control.Slider(prop, r, text = name) { markDirty() }
 
+fun button(
+  text: String,
+  onClick: () -> Unit
+) = Control.Button(text, onClick)
+
 fun BaseSketch.property2DSlider(
   prop: KMutableProperty0<Point>,
   rx: DoubleRange = DEFAULT_RANGE,

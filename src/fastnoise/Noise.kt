@@ -8,8 +8,11 @@ import coordinate.Point
 import coordinate.Segment
 import fastnoise.NoiseQuality.High
 import interfaces.shape.Walkable
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import util.remap
 
+@Suppress("unused")
 enum class NoiseQuality(val step: Double) {
   Extreme(step = 0.25),
   High(step = 1.0),
@@ -21,6 +24,7 @@ enum class NoiseQuality(val step: Double) {
 fun Point.mapNoiseToPositiveValues() = this + Point(0.5, 0.5)
 fun Double.mapNoiseToPositiveValues() = this.remap(-0.5..0.5, 0.0..1.0)
 
+@Serializable
 data class Noise(
   val seed: Int,
   val noiseType: NoiseType,
@@ -30,6 +34,7 @@ data class Noise(
   val strength: Point,
 ) {
 
+  @Transient
   val fastNoise: FastNoiseLite = createFastNoise(seed, noiseType)
 
   constructor(

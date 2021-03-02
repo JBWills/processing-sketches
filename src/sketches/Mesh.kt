@@ -9,7 +9,9 @@ import coordinate.Point
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import interfaces.Copyable
+import interfaces.KSerializable
 import interfaces.TabBindable
+import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.*
 import util.print.Paper.A4Black
@@ -45,6 +47,7 @@ class Mesh : LayeredCanvasSketch<MeshLayerData, MeshData>(
       showVerticals,
       showHorizontals,
     ) = values.globalValues
+
     val (numDotsX, numDotsY) = (numDots.x to numDots.y).map { it.toInt() }
     val (MeshTabField) = values.tabValues
 
@@ -111,17 +114,21 @@ class Mesh : LayeredCanvasSketch<MeshLayerData, MeshData>(
   }
 }
 
+@Serializable
 data class MeshLayerData(
   var MeshTabField: Int = 1,
-) : TabBindable, Copyable<MeshLayerData> {
+) : TabBindable, Copyable<MeshLayerData>, KSerializable<MeshLayerData> {
   override fun BaseSketch.bindTab() = tab(
     "T",
     intProp(::MeshTabField, 0..10)
   )
 
   override fun clone() = copy()
+
+  override fun toSerializer() = serializer()
 }
 
+@Serializable
 data class MeshData(
   var noise: Noise = Noise(
     seed = 100,
@@ -138,7 +145,7 @@ data class MeshData(
   var showDiagonalsUp: Boolean = true,
   var showVerticals: Boolean = true,
   var showHorizontals: Boolean = true,
-) : TabBindable, Copyable<MeshData> {
+) : TabBindable, Copyable<MeshData>, KSerializable<MeshData> {
   override fun BaseSketch.bindTab() = tab(
     "Global",
     noiseProp(::noise),
@@ -159,6 +166,8 @@ data class MeshData(
     size = size.copy(),
     dotRectCenter = dotRectCenter.copy()
   )
+
+  override fun toSerializer() = serializer()
 }
 
 fun main() = Mesh().run()

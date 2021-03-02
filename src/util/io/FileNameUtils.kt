@@ -4,13 +4,21 @@ import java.io.File
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
+import java.util.*
 
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyMMdd--hh-mm-ss")
   .withLocale(Locale.US)
   .withZone(ZoneId.systemDefault())
 
 private fun getDateString(time: Instant = Instant.now()): String = dateTimeFormatter.format(time)
+
+fun getPresetPath(baseSketchName: String, presetName: String): String {
+  val root = System.getProperty("user.dir")
+  val theDir = File("$root/presets/$baseSketchName")
+  if (!theDir.exists()) theDir.mkdirs()
+
+  return "$theDir/$presetName.json"
+}
 
 private fun getOutputPath(baseSketchName: String, subDir: String = ""): String {
   val root = System.getProperty("user.dir")

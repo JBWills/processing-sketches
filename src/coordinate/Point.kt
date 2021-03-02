@@ -1,7 +1,10 @@
+@file:Suppress("unused")
+
 package coordinate
 
 import geomerativefork.src.RPoint
 import interfaces.math.Mathable
+import kotlinx.serialization.Serializable
 import util.equalsDelta
 import util.roundedString
 import util.squared
@@ -66,6 +69,7 @@ class PointProgression(
   fun expand(amt: Number) = PointProgression(segment.expand(amt), step)
 }
 
+@Serializable
 data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Point> {
   init {
     if (x.isNaN() || y.isNaN()) throw Exception("Can't create a point with nan values. x=$x, y=$y")

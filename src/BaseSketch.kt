@@ -23,7 +23,7 @@ enum class RecordMode {
 abstract class BaseSketch(
   protected var backgroundColor: Color = Color.white,
   protected var strokeColor: Color = Color.BLACK,
-  private val svgBaseFileName: String = "output",
+  val svgBaseFileName: String = "output",
   var sizeX: Int = 1000,
   var sizeY: Int = 1000,
 ) : PAppletExt() {

@@ -6,7 +6,9 @@ import controls.ControlTab.Companion.tab
 import controls.intProp
 import interfaces.Bindable
 import interfaces.Copyable
+import interfaces.KSerializable
 import interfaces.TabBindable
+import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 
 /**
@@ -27,21 +29,23 @@ class Example : LayeredCanvasSketch<ExampleTabValues, ExampleGlobalValues>(
   }
 }
 
-
+@Serializable
 data class ExampleTabValues(
   var exampleTabField: Int = 1
-) : TabBindable, Copyable<ExampleTabValues> {
+) : TabBindable, Copyable<ExampleTabValues>, KSerializable<ExampleTabValues> {
   override fun BaseSketch.bindTab() = tab(
     "L",
     intProp(::exampleTabField, 0..10)
   )
 
   override fun clone() = copy()
+  override fun toSerializer() = serializer()
 }
 
+@Serializable
 data class ExampleGlobalValues(
   var exampleGlobalField: Int = 1,
-) : Bindable, Copyable<ExampleGlobalValues> {
+) : Bindable, Copyable<ExampleGlobalValues>, KSerializable<ExampleGlobalValues> {
   override fun BaseSketch.bind() = listOf(
     tab("Global",
       section(
@@ -51,6 +55,8 @@ data class ExampleGlobalValues(
   )
 
   override fun clone() = copy()
+
+  override fun toSerializer() = serializer()
 }
 
 fun main() = Example().run()

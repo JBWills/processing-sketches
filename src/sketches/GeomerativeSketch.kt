@@ -4,7 +4,7 @@ import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import controls.*
 import controls.ControlGroup.Companion.group
-import controls.ControlTab.Companion
+import controls.ControlTab.Companion.tab
 import coordinate.Circ
 import coordinate.Point
 import fastnoise.Noise
@@ -15,7 +15,9 @@ import geomerativefork.src.RShape
 import geomerativefork.src.util.bound
 import geomerativefork.src.util.flatMapArray
 import interfaces.Copyable
+import interfaces.KSerializable
 import interfaces.TabBindable
+import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.geomutil.toRShape
@@ -95,15 +97,21 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomLayerData, GeomData>(
   }
 }
 
-data class GeomLayerData(var numInternalCircles: Int = 1) : TabBindable, Copyable<GeomLayerData> {
-  override fun BaseSketch.bindTab() = ControlTab.tab(
+@Serializable
+data class GeomLayerData(
+  var numInternalCircles: Int = 1
+) : TabBindable, Copyable<GeomLayerData>, KSerializable<GeomLayerData> {
+  override fun BaseSketch.bindTab() = tab(
     "L",
     intProp(::numInternalCircles, 1..20)
   )
 
   override fun clone() = copy()
+
+  override fun toSerializer() = serializer()
 }
 
+@Serializable
 data class GeomData(
   var numCircles: Int = 4,
   var maxRad: Double = 400.0,
@@ -118,8 +126,8 @@ data class GeomData(
     offset = Point.Zero,
     strength = Point(0, 0)
   )
-) : TabBindable, Copyable<GeomData> {
-  override fun BaseSketch.bindTab() = Companion.tab(
+) : TabBindable, Copyable<GeomData>, KSerializable<GeomData> {
+  override fun BaseSketch.bindTab() = tab(
     "Geom",
     intProp(::numCircles, 1..40),
     group(
@@ -132,6 +140,7 @@ data class GeomData(
   )
 
   override fun clone() = copy()
+  override fun toSerializer() = serializer()
 }
 
 fun main() = GeomerativeSketch().run()

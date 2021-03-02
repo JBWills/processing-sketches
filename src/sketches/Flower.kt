@@ -16,7 +16,9 @@ import geomerativefork.src.RPath
 import geomerativefork.src.RShape
 import geomerativefork.src.util.flatMapArray
 import interfaces.Copyable
+import interfaces.KSerializable
 import interfaces.TabBindable
+import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.geomutil.toRShape
@@ -121,10 +123,11 @@ class Flower : LayeredCanvasSketch<FlowerLayerData, FlowerData>(
 /**
  * Data class for single flower layer
  */
+@Serializable
 data class FlowerLayerData(
   var distBetweenInternalCircles: Double = 10.0,
   var numInternalCircles: Int = 1,
-) : TabBindable, Copyable<FlowerLayerData> {
+) : TabBindable, Copyable<FlowerLayerData>, KSerializable<FlowerLayerData> {
   override fun BaseSketch.bindTab() = tab(
     "L",
     doubleProp(::distBetweenInternalCircles, 1.0..200.0),
@@ -132,11 +135,14 @@ data class FlowerLayerData(
   )
 
   override fun clone() = copy()
+
+  override fun toSerializer() = serializer()
 }
 
 /**
  * Data class for global flower data
  */
+@Serializable
 data class FlowerData(
   var clipToBounds: Boolean = false,
   var noise: Noise = Noise(
@@ -152,7 +158,7 @@ data class FlowerData(
   var minRad: Double = 30.0,
   var baseNumInternalCircles: Int = 1,
   var distBetweenNoisePerCircle: Double = 150.0,
-) : TabBindable, Copyable<FlowerData> {
+) : TabBindable, Copyable<FlowerData>, KSerializable<FlowerData> {
   override fun BaseSketch.bindTab() = tab(
     "Flower",
     booleanProp(::clipToBounds),
@@ -167,6 +173,7 @@ data class FlowerData(
   )
 
   override fun clone() = copy()
+  override fun toSerializer() = serializer()
 }
 
 fun main() = Flower().run()

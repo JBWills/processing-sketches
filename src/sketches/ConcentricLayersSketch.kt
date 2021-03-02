@@ -10,7 +10,9 @@ import coordinate.Circ
 import coordinate.Deg
 import geomerativefork.src.util.bound
 import interfaces.Copyable
+import interfaces.KSerializable
 import interfaces.TabBindable
+import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.mapIf
@@ -85,6 +87,7 @@ class ConcentricLayersSketch : LayeredCanvasSketch<CircleLayerData, CircleGlobal
     }
 }
 
+@Serializable
 data class CircleLayerData(
   var startAngleDelta: Double = 5.0,
   var angleLengthDelta: Double = 0.0,
@@ -92,7 +95,7 @@ data class CircleLayerData(
   var startLength: Double = 0.0,
   var startCircle: Int = 0,
   var endCircle: Int = 0,
-) : TabBindable, Copyable<CircleLayerData> {
+) : TabBindable, Copyable<CircleLayerData>, KSerializable<CircleLayerData> {
   override fun BaseSketch.bindTab() = ControlTab.tab(
     "L",
     doubleProp(::startAngleDelta, negToPos(180)),
@@ -104,14 +107,16 @@ data class CircleLayerData(
   )
 
   override fun clone() = copy()
+  override fun toSerializer() = serializer()
 }
 
+@Serializable
 data class CircleGlobalData(
   var numCircles: Int = 50,
   var startRad: Double = 5.0,
   var endRad: Double = 500.0,
   var spacing: Double = 5.0,
-) : TabBindable, Copyable<CircleGlobalData> {
+) : TabBindable, Copyable<CircleGlobalData>, KSerializable<CircleGlobalData> {
   override fun BaseSketch.bindTab() = ControlTab.tab(
     "Global",
     intProp(::numCircles, 1..100),
@@ -123,6 +128,8 @@ data class CircleGlobalData(
   )
 
   override fun clone() = copy()
+
+  override fun toSerializer() = serializer()
 }
 
 fun main() = ConcentricLayersSketch().run()
