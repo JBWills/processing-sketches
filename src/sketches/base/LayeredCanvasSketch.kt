@@ -12,22 +12,10 @@ import util.iterators.flattenArray
 import util.iterators.timesArray
 import util.letWith
 import util.limit
-import util.print.Orientation
-import util.print.Paper
-import util.print.Pen
-import util.print.StrokeWeight
+import util.print.*
 import util.print.StrokeWeight.Thick
-import util.print.Style
 import java.awt.Color
-import java.awt.Color.BLUE
-import java.awt.Color.CYAN
-import java.awt.Color.DARK_GRAY
-import java.awt.Color.GREEN
-import java.awt.Color.LIGHT_GRAY
-import java.awt.Color.MAGENTA
-import java.awt.Color.ORANGE
-import java.awt.Color.RED
-import java.awt.Color.YELLOW
+import java.awt.Color.*
 
 
 abstract class LayeredCanvasSketch<TabValues, GlobalValues>(
@@ -81,7 +69,7 @@ GlobalValues : Bindable, GlobalValues : Copyable<GlobalValues> {
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
     ControlTab(
       CANVAS_TAB_NAME,
-      *super.getControls().toTypedArray(),
+      *super.getControls(),
       intProp(::numLayers, range = 0..maxLayers),
       nullableEnumProp(::weightOverride, StrokeWeight.values()),
     ),

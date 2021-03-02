@@ -1,12 +1,12 @@
 package sketches
 
 import BaseSketch
+import FastNoiseLite.NoiseType.Perlin
 import controls.*
 import controls.ControlGroup.Companion.group
 import controls.ControlTab.Companion
 import coordinate.Circ
 import coordinate.Point
-import fastnoise.FastNoise.NoiseType.Perlin
 import fastnoise.Noise
 import fastnoise.Noise.Companion.warpedRadially
 import fastnoise.NoiseQuality.High
@@ -22,7 +22,10 @@ import util.geomutil.toRShape
 import java.awt.Color
 import kotlin.math.max
 
-class GeomerativeSketch : LayeredCanvasSketch<GeomLayerData, GeomData>("GeomerativeSketch", GeomData(), { GeomLayerData() }) {
+class GeomerativeSketch : LayeredCanvasSketch<GeomLayerData, GeomData>(
+  "GeomerativeSketch",
+  GeomData(),
+  { GeomLayerData() }) {
   init {
     numLayers = 1
   }
@@ -34,7 +37,8 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomLayerData, GeomData>("Geomerat
     (0 until values.numCircles).forEach { idx ->
       val circleNoise = Noise(
         values.noise,
-        offset = values.noise.offset + (values.distBetweenNoisePerCircle * idx))
+        offset = values.noise.offset + (values.distBetweenNoisePerCircle * idx)
+      )
 
       val firstIndex = if (idx == 0) 0 else -values.numExtraStrokesToDraw
 
@@ -45,15 +49,20 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomLayerData, GeomData>("Geomerat
         stroke(Color((amountAlongInnerCircle.bound(0.0, 1.0) * 255.0).toInt(), 50, 50).rgb)
 
         val radius =
-          max(0.0, (values.minRad..values.maxRad).atAmountAlong(
-            (idx + amountAlongInnerCircle) / (values.numCircles + 1)))
+          max(
+            0.0, (values.minRad..values.maxRad).atAmountAlong(
+            (idx + amountAlongInnerCircle) / (values.numCircles + 1)
+          )
+          )
 
         if (radius < values.minRad) return@map
 
         val warpedCircle = Circ(center, radius)
           .warpedRadially(circleNoise) { noiseVal ->
-            (noiseVal) * values.noise.strength.magnitude * max(0.5,
-              amountAlongInnerCircle) * (idx.toDouble())
+            (noiseVal) * values.noise.strength.magnitude * max(
+              0.5,
+              amountAlongInnerCircle
+            ) * (idx.toDouble())
           }
 
         val s = warpedCircle

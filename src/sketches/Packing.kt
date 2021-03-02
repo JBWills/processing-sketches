@@ -1,33 +1,28 @@
 package sketches
 
 import BaseSketch
+import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
+import controls.*
 import controls.ControlGroup.Companion.group
 import controls.ControlTab.Companion.tab
-import controls.booleanProp
-import controls.doublePairProp
-import controls.doubleProp
-import controls.intProp
-import controls.noiseProp
 import coordinate.Circ
 import coordinate.Point
-import fastnoise.FastNoise.NoiseType.Cubic
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import interfaces.Copyable
 import interfaces.TabBindable
 import sketches.base.LayeredCanvasSketch
-import util.NegativeOneToOne
+import util.*
 import util.algorithms.kMeans
 import util.algorithms.makeHull
 import util.geomutil.toRPath
-import util.letWith
-import util.map
-import util.randomPoint
-import util.times
 import java.awt.Color
 
-class Packing : LayeredCanvasSketch<PackingLayerData, PackingData>("Packing", PackingData(), { PackingLayerData() }) {
+class Packing : LayeredCanvasSketch<PackingLayerData, PackingData>(
+  "Packing",
+  PackingData(),
+  { PackingLayerData() }) {
   init {
     numLayers = 1
   }
@@ -89,7 +84,7 @@ data class PackingLayerData(
 data class PackingData(
   var centroidNoise: Noise = Noise(
     seed = 100,
-    noiseType = Cubic,
+    noiseType = ValueCubic,
     quality = High,
     scale = 1.0,
     offset = Point.Zero,
@@ -97,7 +92,7 @@ data class PackingData(
   ),
   var dotNoise: Noise = Noise(
     seed = 100,
-    noiseType = Cubic,
+    noiseType = ValueCubic,
     quality = High,
     scale = 1.0,
     offset = Point.Zero,

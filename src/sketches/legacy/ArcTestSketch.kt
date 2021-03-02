@@ -3,10 +3,9 @@ package sketches.legacy
 import BaseSketch
 import LayerConfig
 import appletExtensions.intersection
-import controls.Control
 import controls.Control.Slider
 import controls.ControlGroupable
-import controls.toControlGroups
+import controls.controls
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
@@ -36,7 +35,7 @@ open class ArcTestSketch(
     sizeX - 2 * outerPaddingX
   )
 
-  override fun getControls(): List<ControlGroupable> = listOf<Control>(
+  override fun getControls(): Array<ControlGroupable> = controls(
     Slider("Start angle", 0.0..360.0, startAngle) {
       startAngle = it
       markDirty()
@@ -57,7 +56,7 @@ open class ArcTestSketch(
       size = it
       markDirty()
     },
-  ).toControlGroups()
+  )
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()

@@ -4,11 +4,7 @@ import BaseSketch
 import controls.ControlSection.Companion.toControlSection
 import coordinate.Point
 import fastnoise.Noise
-import util.DoubleRange
-import util.propertyEnumDropdown
-import util.propertySlider
-import util.propertySliderPair
-import util.propertyToggle
+import util.*
 import util.tuple.and
 import kotlin.reflect.KMutableProperty0
 
@@ -47,13 +43,20 @@ open class ListReferenceField<T>(
     list[listIndex] = newVal
   }
 
-  override fun toControlGroups(): Array<ControlGroupable> = sketch.controlsGetter(get()).toControlGroups()
+  override fun toControlGroups(): Array<ControlGroupable> =
+    sketch.controlsGetter(get()).toControlGroups()
 }
 
-fun <T> BaseSketch.prop(ref: KMutableProperty0<T>, controlsGetter: BaseSketch.(backingField: T) -> ControlSectionable) =
-  GenericReferenceField(this, ref, controlsGetter = controlsGetter)
+fun <T> BaseSketch.prop(
+  ref: KMutableProperty0<T>,
+  controlsGetter: BaseSketch.(backingField: T) -> ControlSectionable
+) = GenericReferenceField(this, ref, controlsGetter = controlsGetter)
 
-fun <T> BaseSketch.prop(ref: MutableList<T>, listIndex: Int, controlsGetter: BaseSketch.(backingField: T) -> ControlSectionable) =
+fun <T> BaseSketch.prop(
+  ref: MutableList<T>,
+  listIndex: Int,
+  controlsGetter: BaseSketch.(backingField: T) -> ControlSectionable
+) =
   ListReferenceField(this,
     ref,
     listIndex,

@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="ekmeans-2.0.0">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/third-party/ekmeans-2.0.0.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

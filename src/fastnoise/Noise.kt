@@ -1,10 +1,11 @@
 package fastnoise
 
+import FastNoiseLite
+import FastNoiseLite.NoiseType
 import coordinate.Arc
 import coordinate.Circ
 import coordinate.Point
 import coordinate.Segment
-import fastnoise.FastNoise.NoiseType
 import fastnoise.NoiseQuality.High
 import interfaces.shape.Walkable
 import util.remap
@@ -29,7 +30,7 @@ data class Noise(
   val strength: Point,
 ) {
 
-  val fastNoise: FastNoise = createFastNoise(seed, noiseType)
+  val fastNoise: FastNoiseLite = createFastNoise(seed, noiseType)
 
   constructor(
     noise: Noise,

@@ -3,12 +3,8 @@ package sketches.base
 import BaseSketch
 import LayerConfig
 import appletExtensions.withStyle
+import controls.*
 import controls.ControlGroup.Companion.group
-import controls.ControlGroupable
-import controls.booleanProp
-import controls.controls
-import controls.doublePairProp
-import controls.enumProp
 import coordinate.Point
 import util.darkened
 import util.print.Orientation
@@ -49,7 +45,7 @@ abstract class CanvasSketch(
 
   override fun getFilenameSuffix(): String = paper.name
 
-  override fun getControls(): List<ControlGroupable> = controls(
+  override fun getControls(): Array<ControlGroupable> = controls(
     group(enumProp(::paper) { markCanvasDirty() }, heightRatio = 2.0),
     group(enumProp(::orientation) { markCanvasDirty() }, heightRatio = 1.0),
     group(booleanProp(::drawBoundRect), heightRatio = 0.5),

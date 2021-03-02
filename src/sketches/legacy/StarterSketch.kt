@@ -2,9 +2,8 @@ package sketches.legacy
 
 import BaseSketch
 import LayerConfig
-import controls.Control
 import controls.ControlGroupable
-import controls.toControlGroups
+import controls.controls
 import coordinate.BoundRect
 import coordinate.Point
 import java.awt.Color
@@ -28,7 +27,7 @@ open class StarterSketch(
     sizeX - 2 * outerPaddingX
   )
 
-  override fun getControls(): List<ControlGroupable> = listOf<Control>().toControlGroups()
+  override fun getControls(): Array<ControlGroupable> = controls()
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()

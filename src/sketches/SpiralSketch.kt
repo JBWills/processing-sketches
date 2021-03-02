@@ -1,17 +1,14 @@
 package sketches
 
 import BaseSketch
+import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import controls.ControlGroup.Companion.group
 import controls.ControlGroupable
+import controls.controls
 import controls.noiseControls
-import coordinate.BoundRect
+import coordinate.*
 import coordinate.BoundRect.Companion.mappedOnto
-import coordinate.Circ
-import coordinate.Deg
-import coordinate.Point
-import coordinate.Spiral
-import fastnoise.FastNoise.NoiseType.Perlin
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import util.property2DSlider
@@ -59,17 +56,23 @@ open class SpiralSketch(
     strength = Point(0, 0)
   )
 
-  override fun getControls(): List<ControlGroupable> = listOf(
+  override fun getControls(): Array<ControlGroupable> = controls(
     group(
       propertySlider(::numCircles, r = 1..1000),
       propertySlider(::circleSpacing, r = 0.001..50.0)
     ),
-    group(propertySlider(::moveAmountX, r = 0.0..5.0),
-      propertySlider(::moveAmountY, r = 0.0..2000.0)),
-    group(propertySlider(::spiralRotations, r = 0.0..10.0),
-      propertySlider(::spiralSpacing, r = 0.0..50.0)),
-    group(propertySlider(::spiralStartAngle, r = 0.0..2.0),
-      propertySlider(::interiorSpiralStartAngle, r = 0.0..2.0)),
+    group(
+      propertySlider(::moveAmountX, r = 0.0..5.0),
+      propertySlider(::moveAmountY, r = 0.0..2000.0)
+    ),
+    group(
+      propertySlider(::spiralRotations, r = 0.0..10.0),
+      propertySlider(::spiralSpacing, r = 0.0..50.0)
+    ),
+    group(
+      propertySlider(::spiralStartAngle, r = 0.0..2.0),
+      propertySlider(::interiorSpiralStartAngle, r = 0.0..2.0)
+    ),
     *noiseControls(::noise),
     group(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)
   )

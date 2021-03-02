@@ -11,8 +11,8 @@ fun List<ControlGroupable>.toControlGroups() = map { it.toControlGroup() }
 fun List<ControlSectionable>.flatten(): List<ControlGroupable> =
   flatMap { it.toControlGroups().toList() }
 
-fun controls(vararg sections: ControlSectionable): List<ControlGroupable> =
-  sections.flatMap { it.toControlGroups().toList() }
+fun controls(vararg sections: ControlSectionable): Array<ControlGroupable> =
+  sections.flatMapArray { it.toControlGroups() }
 
 class ControlGroup(vararg val controls: Control, val heightRatio: Number = 1) : ControlGroupable {
   val size get() = controls.size

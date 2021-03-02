@@ -1,6 +1,8 @@
 package sketches
 
 import BaseSketch
+import FastNoiseLite.NoiseType
+import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import controls.Control.Button
 import controls.ControlGroup.Companion.group
@@ -8,8 +10,6 @@ import controls.ControlGroupable
 import controls.controls
 import coordinate.BoundRect
 import coordinate.Point
-import fastnoise.FastNoise.NoiseType
-import fastnoise.FastNoise.NoiseType.PerlinFractal
 import util.property2DSlider
 import util.propertyEnumDropdown
 import util.propertySlider
@@ -47,9 +47,9 @@ open class WarpSketch(
   private var noiseOffset: Point = Point(0, 0)
   private var quality: Double = 0.5
   private var seed: Int = 1000
-  private var noiseType: NoiseType = PerlinFractal
+  private var noiseType: NoiseType = Perlin
 
-  override fun getControls(): List<ControlGroupable> = controls(
+  override fun getControls(): Array<ControlGroupable> = controls(
     Button("clear") {
       points.clear()
       markDirty()

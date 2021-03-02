@@ -4,7 +4,7 @@ import BaseSketch
 import LayerConfig
 import controls.Control
 import controls.ControlGroupable
-import controls.toControlGroups
+import controls.controls
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
@@ -26,7 +26,7 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
     sizeX - 2 * outerPaddingX
   )
 
-  override fun getControls(): List<ControlGroupable> = listOf(
+  override fun getControls(): Array<ControlGroupable> = controls(
     Control.Slider(
       text = "Line angle (degrees)",
       range = 0.0..360.0,
@@ -36,7 +36,7 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
         markDirty()
       }
     )
-  ).toControlGroups()
+  )
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     fun getPointsLinesShouldCrossThrough(

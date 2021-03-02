@@ -1,15 +1,16 @@
 package sketches
 
 import BaseSketch
+import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import controls.ControlGroup.Companion.group
 import controls.ControlGroupable
+import controls.controls
 import controls.noiseControls
 import coordinate.BoundRect
 import coordinate.BoundRect.Companion.mappedOnto
 import coordinate.Circ
 import coordinate.Point
-import fastnoise.FastNoise.NoiseType.Perlin
 import fastnoise.Noise
 import fastnoise.Noise.Companion.warpedRadially
 import fastnoise.NoiseQuality.High
@@ -53,13 +54,15 @@ open class CircleWarpSketch(
     strength = Point(0, 0)
   )
 
-  override fun getControls(): List<ControlGroupable> = listOf(
+  override fun getControls(): Array<ControlGroupable> = controls(
     group(
       propertySlider(::numCircles, r = 1..1000),
       propertySlider(::circleSpacing, r = 0.001..50.0)
     ),
-    group(propertySlider(::moveAmountX, r = 0..2000),
-      propertySlider(::moveAmountY, r = 0..2000)),
+    group(
+      propertySlider(::moveAmountX, r = 0..2000),
+      propertySlider(::moveAmountY, r = 0..2000)
+    ),
     *noiseControls(::noise),
     group(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)
   )

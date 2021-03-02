@@ -1,13 +1,14 @@
 package sketches.legacy
 
 import BaseSketch
+import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import controls.ControlGroup.Companion.group
 import controls.ControlGroupable
+import controls.controls
 import controls.noiseControls
 import coordinate.BoundRect
 import coordinate.Point
-import fastnoise.FastNoise.NoiseType.Perlin
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import util.print.DPI
@@ -55,7 +56,7 @@ open class DebugMeasureSketch(
     strength = Point(0, 0)
   )
 
-  override fun getControls(): List<ControlGroupable> = listOf(
+  override fun getControls(): Array<ControlGroupable> = controls(
     group(
       propertySlider(::numCircles, r = 1..1000),
       propertySlider(::circleSpacing, r = 0.001..50.0)

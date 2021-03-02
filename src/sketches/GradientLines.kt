@@ -3,9 +3,9 @@ package sketches
 import BaseSketch
 import LayerConfig
 import appletExtensions.drawParallelLinesInBound
-import controls.Control
+import controls.Control.Slider
 import controls.ControlGroupable
-import controls.toControlGroups
+import controls.controls
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Point
@@ -31,17 +31,16 @@ open class GradientLinesSketch(
     sizeX - 2 * outerPaddingX
   )
 
-  override fun getControls(): List<ControlGroupable> = listOf(
-    Control.Slider(
+  override fun getControls(): Array<ControlGroupable> = controls(
+    Slider(
       text = "Line angle (degrees)",
       range = 0.0..360.0,
-      handleChange =
-      {
+      handleChange = {
         lineDegrees = it
         markDirty()
       }
     )
-  ).toControlGroups()
+  )
 
   fun bounds(segmentHeight: Double, segIndexFromTop: Int, numSegs: Int = 1) = BoundRect(
     drawBound.topLeft + Point(0f, segIndexFromTop * segmentHeight),

@@ -1,9 +1,7 @@
 package fastnoise
 
-import fastnoise.FastNoise.NoiseType
+import FastNoiseLite
+import FastNoiseLite.NoiseType
 
-fun createFastNoise(seed: Int, type: NoiseType): FastNoise {
-  val fn = FastNoise(seed)
-  fn.SetNoiseType(type)
-  return fn
-}
+fun createFastNoise(seed: Int, type: NoiseType): FastNoiseLite =
+  FastNoiseLite(seed).also { it.SetNoiseType(type) }

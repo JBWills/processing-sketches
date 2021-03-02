@@ -1,6 +1,7 @@
 package sketches
 
 import BaseSketch
+import FastNoiseLite.NoiseType.ValueCubic
 import controls.ControlGroup.Companion.group
 import controls.ControlTab.Companion.tab
 import controls.booleanProp
@@ -9,7 +10,6 @@ import controls.intProp
 import controls.noiseProp
 import coordinate.Circ
 import coordinate.Point
-import fastnoise.FastNoise.NoiseType.Cubic
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import geomerativefork.src.RPath
@@ -141,7 +141,7 @@ data class FlowerData(
   var clipToBounds: Boolean = false,
   var noise: Noise = Noise(
     seed = 100,
-    noiseType = Cubic,
+    noiseType = ValueCubic,
     quality = High,
     scale = 1.0,
     offset = Point.Zero,

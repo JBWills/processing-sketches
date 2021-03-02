@@ -42,20 +42,26 @@ abstract class RGeomElem {
   /**
    * Shape document width.
    */
-  @JvmField var elemWidth = 0f
+  @JvmField
+  var elemWidth = 0f
 
   /**
    * Shape document height.
    */
-  @JvmField var elemHeight = 0f
-  @JvmField var elemOrigWidth = 0f
-  @JvmField var elemOrigHeight = 0f
+  @JvmField
+  var elemHeight = 0f
+
+  @JvmField
+  var elemOrigWidth = 0f
+
+  @JvmField
+  var elemOrigHeight = 0f
 
   // Functions dependent of the type of element
   // They must be overrided
   abstract fun draw(g: PGraphics)
   abstract fun draw(g: PApplet)
-  fun draw() = draw(RG.parent())
+  fun draw() = draw((RG.parent())!!)
 
   open fun getPoint(t: Float): RPoint? = null
   open fun getTangent(t: Float): RPoint? = null
@@ -194,113 +200,79 @@ abstract class RGeomElem {
   //public abstract RPolygon toPolygon();
   abstract fun toShape(): RShape
   open fun print() {}
-  @JvmField protected var lenCurves: FloatArray = floatArrayOf()
-  @JvmField protected var lenCurve = -1f
-  @JvmField var elemName = ""
-  @JvmField var style = RStyle()
+
+  @JvmField
+  protected var lenCurves: FloatArray = floatArrayOf()
+
+  @JvmField
+  protected var lenCurve = -1f
+
+  @JvmField
+  var elemName = ""
+
+  @JvmField
+  var style = RStyle()
   fun setFill(_fill: Boolean) {
-    style.setFill(_fill)
+    style.fill = _fill
   }
 
-  fun setFill(_fillColor: Int) {
-    style.setFill(_fillColor)
+  fun setFill(fillColor: Int) = style.setFill(fillColor)
+
+  fun setFill(str: String) = style.setFill(str)
+
+  fun setStroke(stroke: Boolean) {
+    style.stroke = stroke
   }
 
-  fun setFill(str: String?) {
-    style.setFill(str)
-  }
+  fun setStroke(_strokeColor: Int) = style.setStroke(_strokeColor)
 
-  fun setStroke(_stroke: Boolean) {
-    style.setStroke(_stroke)
-  }
-
-  fun setStroke(_strokeColor: Int) {
-    style.setStroke(_strokeColor)
-  }
-
-  fun setStroke(str: String?) {
-    style.setStroke(str)
-  }
+  fun setStroke(str: String) = style.setStroke(str)
 
   fun setStrokeWeight(value: Float) {
-    style.setStrokeWeight(value)
+    style.strokeWeight = value
   }
 
-  fun setStrokeWeight(str: String?) {
-    style.setStrokeWeight(str)
-  }
+  fun setStrokeWeight(str: String) = style.setStrokeWeight(str)
 
-  fun setStrokeCap(str: String?) {
-    style.setStrokeCap(str)
-  }
+  fun setStrokeCap(str: String) = style.setStrokeCap(str)
 
-  fun setStrokeJoin(str: String?) {
-    style.setStrokeJoin(str)
-  }
+  fun setStrokeJoin(str: String) = style.setStrokeJoin(str)
 
   fun setStrokeAlpha(opacity: Int) {
-    style.setStrokeAlpha(opacity)
+    style.strokeAlpha = opacity
   }
 
-  fun setStrokeAlpha(str: String?) {
-    style.setStrokeAlpha(str)
-  }
+  fun setStrokeAlpha(str: String) = style.setStrokeAlpha(str)
 
   fun setFillAlpha(opacity: Int) {
-    style.setFillAlpha(opacity)
+    style.fillAlpha = opacity
   }
 
-  fun setFillAlpha(str: String?) {
-    style.setFillAlpha(str)
-  }
+  fun setFillAlpha(str: String) = style.setFillAlpha(str)
 
-  fun setAlpha(opacity: Float) {
-    style.setAlpha(opacity)
-  }
+  fun setAlpha(opacity: Float) = style.setAlpha(opacity)
 
-  fun setAlpha(opacity: Int) {
-    style.setAlpha(opacity)
-  }
+  fun setAlpha(opacity: Int) = style.setAlpha(opacity)
 
-  fun setAlpha(str: String?) {
-    style.setAlpha(str)
-  }
+  fun setAlpha(str: String) = style.setAlpha(str)
 
-  protected fun saveContext(g: PGraphics?) {
-    style.saveContext(g)
-  }
+  protected fun saveContext(g: PGraphics) = style.saveContext(g)
 
-  protected fun saveContext(p: PApplet?) {
-    style.saveContext(p)
-  }
+  protected fun saveContext(p: PApplet) = style.saveContext(p)
 
-  protected fun saveContext() {
-    style.saveContext()
-  }
+  protected fun saveContext() = style.saveContext()
 
-  protected fun restoreContext(g: PGraphics?) {
-    style.restoreContext(g)
-  }
+  protected fun restoreContext(g: PGraphics) = style.restoreContext(g)
 
-  protected fun restoreContext(p: PApplet?) {
-    style.restoreContext(p)
-  }
+  protected fun restoreContext(p: PApplet) = style.restoreContext(p)
 
-  protected fun restoreContext() {
-    style.restoreContext()
-  }
+  protected fun restoreContext() = style.restoreContext()
 
-  protected fun setContext(g: PGraphics?) {
-    style.setContext(g)
-  }
+  protected fun setContext(g: PGraphics) = style.setContext(g)
 
-  protected fun setContext(p: PApplet?) {
-    style.setContext(p)
-  }
+  protected fun setContext(p: PApplet) = style.setContext(p)
 
-  protected fun setContext() {
-    style.setContext()
-  }
+  protected fun setContext() = style.setContext()
 
   fun setStyle(p: RGeomElem) {
     elemName = p.elemName
@@ -311,9 +283,7 @@ abstract class RGeomElem {
     style = RStyle(p.style)
   }
 
-  fun setStyle(styleString: String?) {
-    style.setStyle(styleString)
-  }
+  fun setStyle(styleString: String) = style.setStyle(styleString)
 
   fun setName(str: String) {
     elemName = str

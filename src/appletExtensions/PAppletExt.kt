@@ -1,16 +1,9 @@
 package appletExtensions
 
-import coordinate.Arc
-import coordinate.BoundRect
-import coordinate.Circ
-import coordinate.ContinuousMaskedShape
-import coordinate.Deg
-import coordinate.Line
-import coordinate.Point
-import coordinate.Segment
-import fastnoise.FastNoise
-import fastnoise.FastNoise.NoiseType
-import fastnoise.FastNoise.NoiseType.Perlin
+import FastNoiseLite
+import FastNoiseLite.NoiseType
+import FastNoiseLite.NoiseType.Perlin
+import coordinate.*
 import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
 import processing.core.PApplet
@@ -25,11 +18,8 @@ open class PAppletExt : PApplet() {
 
   val NOISE = getNoise(Perlin)
 
-  fun getNoise(type: NoiseType = Perlin): FastNoise {
-    val noise = FastNoise()
-    noise.SetNoiseType(type)
-    return noise
-  }
+  fun getNoise(type: NoiseType = Perlin): FastNoiseLite =
+    FastNoiseLite().also { it.SetNoiseType(type) }
 
   fun line(l: Segment) = line(l.p1, l.p2)
   fun line(l: Line, length: Number, centered: Boolean = true) {
@@ -44,7 +34,7 @@ open class PAppletExt : PApplet() {
 
   fun strokeWeight(weight: Number) = strokeWeight(weight.toFloat())
 
-  fun circle(x: Number, y: Number, r: Number) = circle(x.toFloat(), y.toFloat(), r.toFloat())
+  fun circle(x: Number, y: Number, r: Number) = ellipse(x.toFloat(), y.toFloat(), r.toFloat(), r.toFloat())
 
   fun point(p: Point) = point(p.x, p.y)
   fun point(x: Number, y: Number) = point(x.toFloat(), y.toFloat())

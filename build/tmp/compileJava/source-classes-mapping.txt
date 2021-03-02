@@ -1,0 +1,12 @@
+FastNoiseLite.java
+ FastNoiseLite
+ FastNoiseLite$1
+ FastNoiseLite$CellularDistanceFunction
+ FastNoiseLite$CellularReturnType
+ FastNoiseLite$DomainWarpType
+ FastNoiseLite$FractalType
+ FastNoiseLite$NoiseType
+ FastNoiseLite$RotationType3D
+ FastNoiseLite$TransformType3D
+ FastNoiseLite$Vector2
+ FastNoiseLite$Vector3

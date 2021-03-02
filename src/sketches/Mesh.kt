@@ -1,27 +1,19 @@
 package sketches
 
 import BaseSketch
+import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
-import controls.ControlGroup
+import controls.*
 import controls.ControlTab.Companion.tab
-import controls.booleanProp
-import controls.doublePairProp
-import controls.intProp
-import controls.noiseProp
 import coordinate.Point
-import fastnoise.FastNoise.NoiseType.Cubic
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import interfaces.Copyable
 import interfaces.TabBindable
 import sketches.base.LayeredCanvasSketch
-import util.ZeroToOne
-import util.map
-import util.percentAlong
-import util.plus
+import util.*
 import util.print.Paper.A4Black
 import util.tuple.map
-import util.zeroTo
 import java.awt.Color
 
 /**
@@ -51,7 +43,7 @@ class Mesh : LayeredCanvasSketch<MeshLayerData, MeshData>(
       showDiagonalsDown,
       showDiagonalsUp,
       showVerticals,
-      showHorizontals
+      showHorizontals,
     ) = values.globalValues
     val (numDotsX, numDotsY) = (numDots.x to numDots.y).map { it.toInt() }
     val (MeshTabField) = values.tabValues
@@ -120,7 +112,7 @@ class Mesh : LayeredCanvasSketch<MeshLayerData, MeshData>(
 }
 
 data class MeshLayerData(
-  var MeshTabField: Int = 1
+  var MeshTabField: Int = 1,
 ) : TabBindable, Copyable<MeshLayerData> {
   override fun BaseSketch.bindTab() = tab(
     "T",
@@ -133,7 +125,7 @@ data class MeshLayerData(
 data class MeshData(
   var noise: Noise = Noise(
     seed = 100,
-    noiseType = Cubic,
+    noiseType = ValueCubic,
     quality = High,
     scale = 1.0,
     offset = Point.Zero,

@@ -2,12 +2,9 @@ package sketches.legacy
 
 import BaseSketch
 import LayerConfig
-import controls.Control.Button
-import controls.Control.Slider
-import controls.Control.Slider2d
-import controls.Control.Toggle
+import controls.Control.*
 import controls.ControlGroupable
-import controls.toControlGroups
+import controls.controls
 import coordinate.BoundRect
 import coordinate.Point
 import java.awt.Color
@@ -41,7 +38,7 @@ open class CurveSketch(
   private var noiseOffset: Point = Point(0, 0)
   private var quality: Double = 0.5
 
-  override fun getControls(): List<ControlGroupable> = listOf(
+  override fun getControls(): Array<ControlGroupable> = controls(
     Button("clear") {
       points.clear()
       markDirty()
@@ -78,7 +75,7 @@ open class CurveSketch(
       noiseOffset = it
       markDirty()
     },
-  ).toControlGroups()
+  )
 
   override fun mousePressed(p: Point) {
     points.add(p)

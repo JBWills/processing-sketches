@@ -1,6 +1,7 @@
 package sketches
 
 import BaseSketch
+import FastNoiseLite.NoiseType.ValueCubic
 import controls.ControlGroup.Companion.group
 import controls.ControlTab
 import controls.ControlTab.Companion
@@ -9,7 +10,6 @@ import controls.intProp
 import controls.noiseProp
 import coordinate.Point
 import coordinate.Segment
-import fastnoise.FastNoise.NoiseType.Cubic
 import fastnoise.Noise
 import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
@@ -41,7 +41,8 @@ class Waves : LayeredCanvasSketch<WaveTab, WaveGlobal>("Waves", WaveGlobal(), { 
 
     val waveNoise = Noise(
       values.noise,
-      offset = values.noise.offset + (values.distBetweenNoisePerCircle * layer))
+      offset = values.noise.offset + (values.distBetweenNoisePerCircle * layer)
+    )
 
     fun waveAmountAlong(n: Int) = (n.toDouble() + 1) / values.numCircles
 
@@ -103,7 +104,7 @@ data class WaveTab(
 data class WaveGlobal(
   var noise: Noise = Noise(
     seed = 100,
-    noiseType = Cubic,
+    noiseType = ValueCubic,
     quality = High,
     scale = 1.0,
     offset = Point.Zero,

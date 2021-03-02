@@ -3,10 +3,9 @@ package sketches
 import BaseSketch
 import LayerConfig
 import appletExtensions.intersection
-import controls.Control
 import controls.Control.Slider
 import controls.ControlGroupable
-import controls.toControlGroups
+import controls.controls
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
@@ -40,7 +39,7 @@ open class ArcSketch(
     sizeX - 2 * outerPaddingX
   )
 
-  override fun getControls(): List<ControlGroupable> = listOf<Control>(
+  override fun getControls(): Array<ControlGroupable> = controls(
     Slider("Steps", 20.0..10560.0, steps) {
       steps = it
       markDirty()
@@ -73,7 +72,7 @@ open class ArcSketch(
       power2 = it
       markDirty()
     },
-  ).toControlGroups()
+  )
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()

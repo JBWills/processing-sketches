@@ -1,14 +1,7 @@
 package util
 
 import BaseSketch
-import controlP5.Button
-import controlP5.ControlP5
-import controlP5.Controller
-import controlP5.DropdownList
-import controlP5.Slider
-import controlP5.Slider2D
-import controlP5.Tab
-import controlP5.Toggle
+import controlP5.*
 import controls.Control
 import controls.DEFAULT_RANGE
 import coordinate.PixelPoint

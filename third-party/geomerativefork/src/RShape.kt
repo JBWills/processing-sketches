@@ -30,11 +30,7 @@ import geomerativefork.src.util.toArrayString
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PGraphics
-import kotlin.math.abs
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 /**
  * RShape is a reduced interface for creating, holding and drawing complex shapes. Shapes are groups of one or more paths (RPath).  Shapes can be selfintersecting and can contain holes.  This interface also allows you to transform shapes into polygons by segmenting the curves forming the shape.
@@ -57,9 +53,11 @@ open class RShape() : RGeomElem() {
    * @related countPaths ( )
    * @related addPath ( )
    */
-  @JvmField var paths: Array<RPath> = arrayOf()
+  @JvmField
+  var paths: Array<RPath> = arrayOf()
   protected var currentPath = 0
-  @JvmField var children: Array<RShape> = arrayOf()
+  @JvmField
+  var children: Array<RShape> = arrayOf()
   protected var currentChild = 0
   // ----------------------
   // --- Public Methods ---
