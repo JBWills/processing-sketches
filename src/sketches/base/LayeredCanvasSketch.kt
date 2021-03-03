@@ -3,6 +3,8 @@ package sketches.base
 import LayerConfig
 import controls.ControlTab
 import controls.Props
+import controls.Props.Companion.props
+import controls.dropdownList
 import controls.intProp
 import controls.nullableEnumProp
 import geomerativefork.src.util.mapArray
@@ -21,12 +23,23 @@ import util.iterators.flattenArray
 import util.iterators.timesArray
 import util.letWith
 import util.limit
-import util.print.*
+import util.print.Orientation
+import util.print.Paper
+import util.print.Pen
+import util.print.StrokeWeight
 import util.print.StrokeWeight.Thick
+import util.print.Style
 import java.awt.Color
-import java.awt.Color.*
+import java.awt.Color.BLUE
+import java.awt.Color.CYAN
+import java.awt.Color.DARK_GRAY
+import java.awt.Color.GREEN
+import java.awt.Color.LIGHT_GRAY
+import java.awt.Color.MAGENTA
+import java.awt.Color.ORANGE
+import java.awt.Color.RED
+import java.awt.Color.YELLOW
 import java.io.File
-
 
 abstract class LayeredCanvasSketch<TabValues, GlobalValues>(
   svgBaseFilename: String,
@@ -47,23 +60,34 @@ GlobalValues : Bindable,
 GlobalValues : Copyable<GlobalValues>,
 GlobalValues : KSerializable<GlobalValues> {
 
-  private val props: Props<TabValues, GlobalValues> by lazy {
-    val defaultPresetFile = File(getPresetPath(svgBaseFileName, "default"))
+  private val defaultProps = props(
+    maxLayers,
+    defaultGlobal,
+    layerToDefaultTab
+  )
+
+  private var currentPreset: String = DEFAULT_PRESET_NAME
+
+  private var props: Props<TabValues, GlobalValues> = defaultProps
+
+  private fun updatePropsFromPreset() {
+    val presetFile = File(getPresetPath(svgBaseFileName, currentPreset))
     var presetData: DrawInfo? = null
-    if (defaultPresetFile.exists()) {
-      println("Loading preset from: /presets/$svgBaseFilename/default.json")
-      presetData = deserializeDrawInfo(globalSerializer, layerSerializer, defaultPresetFile.readText())
+    if (presetFile.exists()) {
+      println("Loading preset from: /presets/$svgBaseFileName/$currentPreset.json")
+      presetData = deserializeDrawInfo(globalSerializer, layerSerializer, presetFile.readText())
     }
 
-    if (presetData == null)
-      println("No preset data found. Falling back to default.")
+    if (presetData == null) {
+      println("No preset data found. Not updating props.")
+      return
+    }
 
-    Props(
-      this,
+    props = props(
       maxLayers,
-      presetData?.globalValues ?: defaultGlobal,
+      presetData.globalValues,
       { i ->
-        presetData?.allTabValues?.getOrNull(i) ?: layerToDefaultTab(i)
+        presetData.allTabValues.getOrNull(i) ?: props.tabValues[i]
       }
     )
   }
@@ -97,11 +121,18 @@ GlobalValues : KSerializable<GlobalValues> {
 
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
     ControlTab(
+      PRESETS_TAB_NAME,
+      button("Save as $DEFAULT_PRESET_NAME") { savePreset() },
+      dropdownList("Load Preset", listOf(DEFAULT_PRESET_NAME), ::currentPreset) {
+        updatePropsFromPreset()
+        updateControls()
+      }
+    ),
+    ControlTab(
       CANVAS_TAB_NAME,
       *super.getControls(),
       intProp(::numLayers, range = 0..maxLayers),
       nullableEnumProp(::weightOverride, StrokeWeight.values()),
-      button("Save Preset") { savePreset() }
     ),
     *props.globalControlTabs,
     *timesArray(maxLayers) { index ->
@@ -125,14 +156,15 @@ GlobalValues : KSerializable<GlobalValues> {
     }
 
     try {
-      File(getPresetPath(baseSketchName = svgBaseFileName, "default"))
+      File(getPresetPath(baseSketchName = svgBaseFileName, DEFAULT_PRESET_NAME))
         .save(s)
     } catch (e: Exception) {
       println("Could not save preset. Error message: ${e.message}")
     }
   }
 
-  private fun getClonedProps() = props.letWith { globalValues.clone() to tabValues.map { it.clone() } }
+  private fun getClonedProps() =
+    props.letWith { globalValues.clone() to tabValues.map { it.clone() } }
 
   abstract fun drawOnce(values: LayerInfo)
 
@@ -153,7 +185,8 @@ GlobalValues : KSerializable<GlobalValues> {
   final override fun setup() {
     super.setup()
 
-    setActiveTab(GLOBAL_CONFIG_TAB_NAME)
+    updatePropsFromPreset()
+    setActiveTab(props.globalControlTabs.firstOrNull()?.name ?: CANVAS_TAB_NAME)
   }
 
   open inner class DrawInfo(
@@ -170,10 +203,15 @@ GlobalValues : KSerializable<GlobalValues> {
 
       Json.encodeToString(
         JsonObject.serializer(),
-        JsonObject(hashMapOf(
-          SERIAL_KEY_GLOBAL to Json.encodeToJsonElement(globalSerializer, globalValues),
-          SERIAL_KEY_LAYERS to Json.encodeToJsonElement(ListSerializer(layerSerializer), allTabValues),
-        ))
+        JsonObject(
+          hashMapOf(
+            SERIAL_KEY_GLOBAL to Json.encodeToJsonElement(globalSerializer, globalValues),
+            SERIAL_KEY_LAYERS to Json.encodeToJsonElement(
+              ListSerializer(layerSerializer),
+              allTabValues
+            ),
+          )
+        )
       )
     } catch (e: Exception) {
       println("Failed to serialize $this.\nError message: ${e.message}")
@@ -212,8 +250,9 @@ GlobalValues : KSerializable<GlobalValues> {
   companion object {
     private const val SERIAL_KEY_GLOBAL = "global"
     private const val SERIAL_KEY_LAYERS = "layers"
-    const val GLOBAL_CONFIG_TAB_NAME = "global config"
+    const val DEFAULT_PRESET_NAME = "default"
     const val CANVAS_TAB_NAME = "canvas"
-    const val MAX_LAYERS = 10
+    const val PRESETS_TAB_NAME = "presets"
+    const val MAX_LAYERS = 3
   }
 }

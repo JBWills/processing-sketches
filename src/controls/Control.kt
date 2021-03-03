@@ -4,20 +4,7 @@ import controlP5.ControlP5
 import controlP5.DropdownList
 import controlP5.Tab
 import coordinate.Point
-import util.DoubleRange
-import util.PointRange
-import util.Position
-import util.Size
-import util.buttonWith
-import util.dropdownWith
-import util.range
-import util.slider2dWith
-import util.sliderWith
-import util.splitCamelCase
-import util.toDoubleRange
-import util.toggleWith
-import util.xRange
-import util.yRange
+import util.*
 import kotlin.reflect.KMutableProperty0
 
 val DEFAULT_RANGE = 0.0..1.0
@@ -67,7 +54,6 @@ sealed class Control(
 
       this.value = defaultValue?.toFloat() ?: range.start.toFloat()
       onChange { handleChange(value.toDouble()) }
-      //valueLabel.align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE)
       captionLabel.align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE)
     }
   ) {

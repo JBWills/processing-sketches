@@ -26,4 +26,8 @@ class ControlTab(val name: String, sections: List<ControlSectionable>) {
       *sections
     )
   }
+
+  override fun toString(): String {
+    return "ControlTab(name='$name', controlSections=$controlSections)"
+  }
 }

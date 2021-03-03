@@ -31,26 +31,37 @@ class ControlFrame(
     right = 15,
   )
 
-  fun updateControls(newControls: List<ControlTab>, selectedIndex: Int = 0) {
-    setTabs(newControls)
+  fun getActiveTabAndIndex(): Pair<ControlTab, Int>? {
+    val currentTabName = cp5.controlWindow.currentTab.name
 
-    newControls.forEach(this::setupTab)
-
-    newControls.getOrNull(selectedIndex)?.let { setActiveTab(it.name) }
+    val tabIndex = tabs.indexOfFirst { it.name == currentTabName }
+    return if (tabIndex == -1) null else tabs[tabIndex] to tabIndex
   }
 
-  private fun setTabs(newTabs: List<ControlTab>) {
-    tabs = newTabs
-    cp5.setTabs(tabs, activeTab = tabs.firstOrNull())
+  /**
+   * Close the window. This is a little hacky because processing doesn't provide a way to
+   * exit a child process without exiting the parent as well, so we just shut it down and hide
+   * it.
+   */
+  fun close() {
+    noLoop()
+    surface.setVisible(false)
   }
+
+  fun indexOfTab(tabName: String): Int? {
+    val index = tabs.indexOfFirst { it.name == tabName }
+    return if (index == -1) null else index
+  }
+
+  fun numTabs() = tabs.size
+
+  fun setActiveTab(tabIndex: Int) = setActiveTab(tabs[tabIndex].name)
 
   fun setActiveTab(tabName: String) = cp5.controlWindow.tabs.get()
     .map { it as Tab }
     .forEach { tab -> tab.isActive = tab.name == tabName }
 
-  override fun settings() {
-    size(w, h)
-  }
+  override fun settings() = size(w, h)
 
   private fun setupTab(tab: ControlTab) {
     val controlGroups = tab.controlSections

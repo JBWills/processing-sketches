@@ -89,6 +89,18 @@ fun BaseSketch.noiseProp(
   ref: KMutableProperty0<Noise>
 ) = prop(ref) { noiseControls(ref).toControlSection() }
 
+fun BaseSketch.dropdownList(
+  name: String,
+  options: List<String>,
+  ref: KMutableProperty0<String>,
+  onChange: (String) -> Unit = {}
+) = Control.Dropdown(
+  text = name,
+  options = options,
+  defaultValue = ref.get(),
+  handleChange = onChange
+)
+
 fun <E : Enum<E>> BaseSketch.enumProp(
   ref: KMutableProperty0<E>,
   onChange: () -> Unit = {},

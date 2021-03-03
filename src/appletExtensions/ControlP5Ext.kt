@@ -1,10 +1,6 @@
 package appletExtensions
 
-import controlP5.ControlP5
-import controlP5.ControlWindow
-import controlP5.ControllerInterface
-import controlP5.ControllerList
-import controlP5.Tab
+import controlP5.*
 import controls.ControlTab
 import util.with
 

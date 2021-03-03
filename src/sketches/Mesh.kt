@@ -3,8 +3,12 @@ package sketches
 import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
-import controls.*
+import controls.ControlGroup
 import controls.ControlTab.Companion.tab
+import controls.booleanProp
+import controls.doublePairProp
+import controls.intProp
+import controls.noiseProp
 import coordinate.Point
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
@@ -13,9 +17,13 @@ import interfaces.KSerializable
 import interfaces.TabBindable
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.*
+import util.ZeroToOne
+import util.map
+import util.percentAlong
+import util.plus
 import util.print.Paper.A4Black
 import util.tuple.map
+import util.zeroTo
 import java.awt.Color
 
 /**

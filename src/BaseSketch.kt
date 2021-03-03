@@ -1,9 +1,13 @@
 import RecordMode.NoRecord
 import RecordMode.RecordSVG
 import appletExtensions.PAppletExt
-import controls.*
 import controls.Control.Button
+import controls.ControlFrame
+import controls.ControlGroup
+import controls.ControlGroupable
+import controls.ControlTab
 import controls.ControlTab.Companion.tab
+import controls.booleanProp
 import coordinate.Point
 import geomerativefork.src.RG
 import processing.core.PConstants
@@ -33,9 +37,11 @@ abstract class BaseSketch(
 
   var isDebugMode: Boolean = false
 
-  private val controlFrame: Lazy<ControlFrame> = lazy {
-    ControlFrame(400, 800, getAllControls())
+  private fun resetControlFrame() {
+    controlFrame = ControlFrame(400, 800, getAllControls())
   }
+
+  private var controlFrame: ControlFrame? = null
 
   fun updateSize(newSizeX: Int, newSizeY: Int) {
     sizeX = newSizeX
@@ -118,9 +124,24 @@ abstract class BaseSketch(
    */
   open fun getControls(): Array<ControlGroupable> = arrayOf()
 
-  fun updateControls() = controlFrame.value.updateControls(getAllControls())
+  fun updateControls() {
+    val lastControlFrame = controlFrame ?: return
+    val lastActiveTab = lastControlFrame.getActiveTabAndIndex()
+    println(lastActiveTab)
+    lastControlFrame.close()
 
-  fun setActiveTab(tabName: String) = controlFrame.value.setActiveTab(tabName)
+    resetControlFrame()
+
+    val controlFrame = controlFrame ?: return
+    val (tab, index) = lastActiveTab ?: return
+
+    var newTabIndex = controlFrame.indexOfTab(tab.name) ?: index
+    if (newTabIndex >= controlFrame.numTabs()) newTabIndex = 0
+
+    controlFrame.setActiveTab(newTabIndex)
+  }
+
+  fun setActiveTab(tabName: String) = controlFrame?.setActiveTab(tabName)
 
   private fun getAllControls() = listOf(
     tab(
@@ -136,7 +157,7 @@ abstract class BaseSketch(
     RG.setPolygonizer(RG.ADAPTATIVE)
 
     surface.setResizable(true)
-    controlFrame.value
+    resetControlFrame()
 
     randomSeed(0)
 

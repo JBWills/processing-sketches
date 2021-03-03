@@ -2,31 +2,42 @@ package controls
 
 import BaseSketch
 import interfaces.Bindable
+import interfaces.Copyable
+import interfaces.KSerializable
 import util.iterators.mapArray
 
 /**
  * Props for a sketch.
  */
-class Props<TabValues : Bindable, GlobalValues : Bindable>(
+class Props<TabValues, GlobalValues>(
   private val sketch: BaseSketch,
   maxLayers: Int,
-  var defaultGlobal: GlobalValues,
+  defaultGlobal: GlobalValues,
   layerToDefaultTab: (Int) -> TabValues,
-) {
-  private val defaultTabs: List<TabValues> = (0 until maxLayers).map(layerToDefaultTab)
-  private fun globalControls(): TabProp<GlobalValues> =
-    sketch.tabProp(::defaultGlobal) { currValues ->
+) where TabValues : Bindable,
+        TabValues : Copyable<TabValues>,
+        TabValues : KSerializable<TabValues>,
+        GlobalValues : Bindable,
+        GlobalValues : Copyable<GlobalValues>,
+        GlobalValues : KSerializable<GlobalValues> {
+  var globalBackingField = defaultGlobal.clone()
+
+  private val layersBackingField: MutableList<TabValues> = (0 until maxLayers)
+    .map { layerToDefaultTab(it).clone() }
+    .toMutableList()
+
+  private val global: TabProp<GlobalValues> by lazy {
+    sketch.tabProp(::globalBackingField) { currValues ->
       currValues.bindSketch(this)
     }
+  }
 
-  private fun tabControls(tabIndex: Int): TabProp<TabValues> =
-    sketch.tabProp(defaultTabs.toMutableList(), tabIndex) { currValues ->
-      currValues.bindSketch(sketch)
-    }
-
-  private val global: TabProp<GlobalValues> by lazy { globalControls() }
   private val tabs: List<TabProp<TabValues>> by lazy {
-    (0 until maxLayers).map { tabControls(it) }
+    (0 until maxLayers).map { tabIndex ->
+      sketch.tabProp(layersBackingField, tabIndex) { currValues ->
+        currValues.bindSketch(sketch)
+      }
+    }
   }
 
   val globalValues: GlobalValues
@@ -38,4 +49,17 @@ class Props<TabValues : Bindable, GlobalValues : Bindable>(
     get() = global.toTabs().toTypedArray()
   val layerControlTabs: Array<Array<ControlTab>>
     get() = tabs.mapArray { it.toTabs().toTypedArray() }
+
+  companion object {
+    fun <T, G> BaseSketch.props(
+      maxLayers: Int,
+      defaultGlobal: G,
+      layerToDefaultTab: (Int) -> T,
+    ) where T : Bindable,
+            T : Copyable<T>,
+            T : KSerializable<T>,
+            G : Bindable,
+            G : Copyable<G>,
+            G : KSerializable<G> = Props(this, maxLayers, defaultGlobal, layerToDefaultTab)
+  }
 }
