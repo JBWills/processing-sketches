@@ -1,44 +1,51 @@
 plugins {
-  id 'idea'
-  id 'java'
-  id 'org.jetbrains.kotlin.jvm' version '1.4.31'
-  id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.31'
+    id 'idea'
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.31'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.31'
 }
 
 group 'org.example'
 version '1.0-SNAPSHOT'
 
 repositories {
-  mavenCentral()
-  maven {
-    url 'https://jcenter.bintray.com/'
-  }
-  flatDir {
-    dirs 'third-party'
-  }
+    mavenCentral()
+    maven {
+        url 'https://jcenter.bintray.com/'
+    }
+    flatDir {
+        dirs 'third-party', 'third-party-java/svg-lib'
+    }
 }
 
 dependencies {
-  implementation "org.jetbrains.kotlin:kotlin-stdlib"
-  implementation "org.jetbrains.kotlin:kotlin-test-junit:1.4.31"
-  implementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-  implementation 'org.junit.jupiter:junit-jupiter-engine'
-  implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0"
-  implementation "org.processing:core:3.3.7"
-  implementation group: 'controlp5', name: 'controlp5', version: '2.2.4'
-  implementation group: 'ca.pjer', name: 'ekmeans', version: '2.0.0'
-  implementation group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.14'
-  implementation group: 'javax.vecmath', name: 'vecmath', version: '1.5.2'
-  // https://mvnrepository.com/artifact/com.google.code.gson/gson
-  implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.6'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlin:kotlin-test-junit:1.4.31"
+    implementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    implementation 'org.junit.jupiter:junit-jupiter-engine'
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0"
+    // https://mvnrepository.com/artifact/org.processing/core
+    implementation group: 'org.processing', name: 'core', version: '3.3.7'
+    implementation group: 'controlp5', name: 'controlp5', version: '2.2.4'
+    implementation group: 'ca.pjer', name: 'ekmeans', version: '2.0.0'
+    implementation group: 'javax.vecmath', name: 'vecmath', version: '1.5.2'
+    implementation files(
+            'third-party-java/svg-lib/svg.jar',
+            'third-party-java/svg-lib/batik-xml-1.8.jar',
+            'third-party-java/svg-lib/batik-util-1.8.jar',
+            'third-party-java/svg-lib/batik-svggen-1.8.jar',
+            'third-party-java/svg-lib/batik-ext-1.8.jar',
+            'third-party-java/svg-lib/batik-dom-1.8.jar',
+            'third-party-java/svg-lib/batik-awt-util-1.8.jar'
+    )
 }
 
 sourceSets {
-  main.java.srcDirs += 'third-party-java'
-  main.kotlin.srcDirs += 'src'
-  main.kotlin.srcDirs += 'third-party'
+    main.java.srcDirs += 'third-party-java'
+    main.kotlin.srcDirs += 'src'
+    main.kotlin.srcDirs += 'third-party'
 }
 
 test {
-  useJUnitPlatform()
+    useJUnitPlatform()
 }
