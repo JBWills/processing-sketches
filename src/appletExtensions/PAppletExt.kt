@@ -3,12 +3,19 @@ package appletExtensions
 import FastNoiseLite
 import FastNoiseLite.NoiseType
 import FastNoiseLite.NoiseType.Perlin
-import coordinate.*
+import coordinate.Arc
+import coordinate.BoundRect
+import coordinate.Circ
+import coordinate.ContinuousMaskedShape
+import coordinate.Deg
+import coordinate.Line
+import coordinate.Point
+import coordinate.Segment
 import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
 import processing.core.PApplet
-import util.addNotNull
-import util.mapWithNext
+import util.iterators.addNotNull
+import util.iterators.mapWithNext
 import util.toRadians
 
 /**
@@ -34,7 +41,8 @@ open class PAppletExt : PApplet() {
 
   fun strokeWeight(weight: Number) = strokeWeight(weight.toFloat())
 
-  fun circle(x: Number, y: Number, r: Number) = ellipse(x.toFloat(), y.toFloat(), r.toFloat(), r.toFloat())
+  fun circle(x: Number, y: Number, r: Number) =
+    ellipse(x.toFloat(), y.toFloat(), r.toFloat(), r.toFloat())
 
   fun point(p: Point) = point(p.x, p.y)
   fun point(x: Number, y: Number) = point(x.toFloat(), y.toFloat())
@@ -77,8 +85,10 @@ open class PAppletExt : PApplet() {
     } else endDeg.value
 
 
-    arc(c.origin.xf, c.origin.yf, c.diameter.toFloat(), c.diameter.toFloat(),
-      startDeg.rad.toFloat(), endDegValue.toRadians().toFloat())
+    arc(
+      c.origin.xf, c.origin.yf, c.diameter.toFloat(), c.diameter.toFloat(),
+      startDeg.rad.toFloat(), endDegValue.toRadians().toFloat()
+    )
   }
 
   fun Point.drawPoint(radius: Int = 2) = circle(Circ(this, radius))

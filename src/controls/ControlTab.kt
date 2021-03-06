@@ -20,6 +20,14 @@ class ControlTab(val name: String, sections: List<ControlSectionable>) {
     *sections.flatMapArray { it.toControlGroups() }
   )
 
+  constructor(tab: ControlTab, name: String) : this(
+    name,
+    *tab.controlSections.toTypedArray()
+  )
+
+  fun withName(newName: String) = ControlTab(this, newName)
+  fun withName(nameFunc: (String) -> String) = ControlTab(this, nameFunc(name))
+
   companion object {
     fun tab(name: String, vararg sections: ControlSectionable) = ControlTab(
       name,

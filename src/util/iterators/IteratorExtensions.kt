@@ -1,5 +1,10 @@
-package util
+package util.iterators
 
+fun <T> List<T>.extendCyclical(num: Int): List<T> {
+  if (isEmpty()) throw Exception("Can't call extendCyclical on empty list.")
+
+  return List(num) { this[it % size] }
+}
 
 fun <T, K> List<List<T>>.map2DIndexed(block: (T, Int, Int) -> K) = mapIndexed { xIndex, list ->
   list.mapIndexed { yIndex, elem ->
@@ -73,7 +78,7 @@ fun <T, R> List<T>.mapWithSurrounding(block: (T?, T, T?, Int) -> R) = mapIndexed
 }
 
 fun <T, R> List<T>.mapWithSurrounding(block: (T?, T, T?) -> R) =
-  mapWithSurrounding { prev, curr, next, index ->
+  mapWithSurrounding { prev, curr, next, _ ->
     block(prev, curr, next)
   }
 
@@ -85,7 +90,7 @@ fun <T, R> List<T>.mapWithSurroundingCyclical(block: (T, T, T, Int) -> R) =
   }
 
 fun <T, R> List<T>.mapWithSurroundingCyclical(block: (T, T, T) -> R) =
-  mapWithSurroundingCyclical { prev, curr, next, index ->
+  mapWithSurroundingCyclical { prev, curr, next, _ ->
     block(prev, curr, next)
   }
 

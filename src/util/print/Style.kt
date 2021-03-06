@@ -21,9 +21,7 @@ data class Style(
 ) {
   constructor(
     weight: StrokeWeight? = null,
-
-    colorInt
-    : Int,
+    colorInt: Int,
     dpi: DPI = DPI.InkScape,
   ) : this(weight, Color(colorInt), dpi)
 

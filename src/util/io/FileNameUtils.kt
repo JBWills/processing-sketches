@@ -4,7 +4,7 @@ import java.io.File
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Locale
 
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyMMdd--hh-mm-ss")
   .withLocale(Locale.US)
@@ -12,13 +12,16 @@ private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyMMdd--hh-mm-ss")
 
 private fun getDateString(time: Instant = Instant.now()): String = dateTimeFormatter.format(time)
 
-fun getPresetPath(baseSketchName: String, presetName: String): String {
+fun getPresetDir(baseSketchName: String): File {
   val root = System.getProperty("user.dir")
   val theDir = File("$root/presets/$baseSketchName")
   if (!theDir.exists()) theDir.mkdirs()
 
-  return "$theDir/$presetName.json"
+  return theDir
 }
+
+fun getPresetPath(baseSketchName: String, presetName: String): String =
+  "${getPresetDir(baseSketchName).path}/$presetName.json"
 
 private fun getOutputPath(baseSketchName: String, subDir: String = ""): String {
   val root = System.getProperty("user.dir")
@@ -41,5 +44,10 @@ private fun getTempFilename(fileSuffix: String = "", layerNum: Int, time: Instan
 fun getSVGNameAndPath(baseSketchName: String, fileSuffix: String, time: Instant = Instant.now()) =
   "${getSVGFilepath(baseSketchName)}/${getSVGFilename(fileSuffix, time)}"
 
-fun getTempFileNameAndPath(baseSketchName: String, fileSuffix: String, layerNum: Int, time: Instant = Instant.now()) =
+fun getTempFileNameAndPath(
+  baseSketchName: String,
+  fileSuffix: String,
+  layerNum: Int,
+  time: Instant = Instant.now()
+) =
   "${getTempFilepath(baseSketchName)}/${getTempFilename(fileSuffix, layerNum, time)}"

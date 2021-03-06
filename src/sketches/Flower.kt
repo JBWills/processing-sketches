@@ -8,6 +8,7 @@ import controls.booleanProp
 import controls.doubleProp
 import controls.intProp
 import controls.noiseProp
+import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
 import fastnoise.Noise
@@ -15,9 +16,6 @@ import fastnoise.NoiseQuality.High
 import geomerativefork.src.RPath
 import geomerativefork.src.RShape
 import geomerativefork.src.util.flatMapArray
-import interfaces.Copyable
-import interfaces.KSerializable
-import interfaces.TabBindable
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
@@ -25,7 +23,7 @@ import util.geomutil.toRShape
 import util.times
 
 
-class Flower : LayeredCanvasSketch<FlowerLayerData, FlowerData>(
+class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
   "Flower",
   FlowerData(),
   { FlowerLayerData() }
@@ -61,7 +59,8 @@ class Flower : LayeredCanvasSketch<FlowerLayerData, FlowerData>(
 
     val circleNoise = Noise(
       noise,
-      offset = noise.offset + (distBetweenNoisePerCircle * layerIndex))
+      offset = noise.offset + (distBetweenNoisePerCircle * layerIndex)
+    )
 
     val baseRadius = (minRad..maxRad)
       .atAmountAlong((layerIndex.toDouble() + 1) / numCircles)
@@ -127,11 +126,13 @@ class Flower : LayeredCanvasSketch<FlowerLayerData, FlowerData>(
 data class FlowerLayerData(
   var distBetweenInternalCircles: Double = 10.0,
   var numInternalCircles: Int = 1,
-) : TabBindable, Copyable<FlowerLayerData>, KSerializable<FlowerLayerData> {
-  override fun BaseSketch.bindTab() = tab(
-    "L",
-    doubleProp(::distBetweenInternalCircles, 1.0..200.0),
-    intProp(::numInternalCircles, 0..200),
+) : PropData<FlowerLayerData> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "L",
+      doubleProp(::distBetweenInternalCircles, 1.0..200.0),
+      intProp(::numInternalCircles, 0..200),
+    )
   )
 
   override fun clone() = copy()
@@ -158,18 +159,20 @@ data class FlowerData(
   var minRad: Double = 30.0,
   var baseNumInternalCircles: Int = 1,
   var distBetweenNoisePerCircle: Double = 150.0,
-) : TabBindable, Copyable<FlowerData>, KSerializable<FlowerData> {
-  override fun BaseSketch.bindTab() = tab(
-    "Flower",
-    booleanProp(::clipToBounds),
-    intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
-    group(
-      doubleProp(::maxRad, 100.0..2000.0),
-      doubleProp(::minRad, 0.0..400.0)
-    ),
-    intProp(::baseNumInternalCircles, 1..100),
-    doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
-    noiseProp(::noise),
+) : PropData<FlowerData> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "Flower",
+      booleanProp(::clipToBounds),
+      intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
+      group(
+        doubleProp(::maxRad, 100.0..2000.0),
+        doubleProp(::minRad, 0.0..400.0)
+      ),
+      intProp(::baseNumInternalCircles, 1..100),
+      doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
+      noiseProp(::noise),
+    )
   )
 
   override fun clone() = copy()

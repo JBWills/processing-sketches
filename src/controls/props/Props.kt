@@ -1,25 +1,27 @@
-package controls
+package controls.props
 
 import BaseSketch
+import controls.ControlTab
+import controls.TabProp
+import controls.tabProp
 import interfaces.Bindable
 import interfaces.Copyable
 import interfaces.KSerializable
+import util.iterators.flattenArray
 import util.iterators.mapArray
+import util.map
+
+interface PropData<T> : Bindable, Copyable<T>, KSerializable<T>
 
 /**
  * Props for a sketch.
  */
-class Props<TabValues, GlobalValues>(
+class Props<TabValues : PropData<TabValues>, GlobalValues : PropData<GlobalValues>>(
   private val sketch: BaseSketch,
   maxLayers: Int,
   defaultGlobal: GlobalValues,
   layerToDefaultTab: (Int) -> TabValues,
-) where TabValues : Bindable,
-        TabValues : Copyable<TabValues>,
-        TabValues : KSerializable<TabValues>,
-        GlobalValues : Bindable,
-        GlobalValues : Copyable<GlobalValues>,
-        GlobalValues : KSerializable<GlobalValues> {
+) {
   var globalBackingField = defaultGlobal.clone()
 
   private val layersBackingField: MutableList<TabValues> = (0 until maxLayers)
@@ -33,7 +35,7 @@ class Props<TabValues, GlobalValues>(
   }
 
   private val tabs: List<TabProp<TabValues>> by lazy {
-    (0 until maxLayers).map { tabIndex ->
+    maxLayers.map { tabIndex ->
       sketch.tabProp(layersBackingField, tabIndex) { currValues ->
         currValues.bindSketch(sketch)
       }
@@ -47,19 +49,20 @@ class Props<TabValues, GlobalValues>(
 
   val globalControlTabs: Array<ControlTab>
     get() = global.toTabs().toTypedArray()
-  val layerControlTabs: Array<Array<ControlTab>>
+  private val controlTabsByLayer: Array<Array<ControlTab>>
     get() = tabs.mapArray { it.toTabs().toTypedArray() }
 
+  val layerControlTabs: Array<ControlTab>
+    get() = controlTabsByLayer.flattenArray()
+
+  fun cloneValues(): Pair<GlobalValues, List<TabValues>> =
+    globalValues.clone() to tabValues.map { it.clone() }
+
   companion object {
-    fun <T, G> BaseSketch.props(
+    fun <TabValues : PropData<TabValues>, GlobalValues : PropData<GlobalValues>> BaseSketch.props(
       maxLayers: Int,
-      defaultGlobal: G,
-      layerToDefaultTab: (Int) -> T,
-    ) where T : Bindable,
-            T : Copyable<T>,
-            T : KSerializable<T>,
-            G : Bindable,
-            G : Copyable<G>,
-            G : KSerializable<G> = Props(this, maxLayers, defaultGlobal, layerToDefaultTab)
+      defaultGlobal: GlobalValues,
+      layerToDefaultTab: (Int) -> TabValues,
+    ) = Props(this, maxLayers, defaultGlobal, layerToDefaultTab)
   }
 }

@@ -1,23 +1,54 @@
 package controls
 
 import controlP5.ControlP5
+import controlP5.Controller
 import controlP5.DropdownList
 import controlP5.Tab
+import controlP5.Textfield
 import coordinate.Point
-import util.*
+import util.DoubleRange
+import util.PointRange
+import util.Position
+import util.Size
+import util.buttonWith
+import util.dropdownWith
+import util.range
+import util.slider2dWith
+import util.sliderWith
+import util.splitCamelCase
+import util.textInputWith
+import util.toDoubleRange
+import util.toggleWith
+import util.xRange
+import util.yRange
 import kotlin.reflect.KMutableProperty0
 
 val DEFAULT_RANGE = 0.0..1.0
 
-sealed class Control(
-  val applyToControl: (c: ControlP5, t: Tab, pos: Position, size: Size) -> Unit,
+sealed class Control<T : Controller<T>>(
+  val applyToControlInternal: (c: ControlP5, t: Tab, pos: Position, size: Size) -> T,
 ) : ControlGroupable {
   override fun toControlGroup() = ControlGroup(this)
+
+  var ref: T? = null
+
+  fun applyToControl(c: ControlP5, t: Tab, pos: Position, size: Size) {
+    ref = applyToControlInternal(c, t, pos, size)
+  }
+
+  class TextInput(
+    fieldName: String,
+    defaultValue: String = "",
+  ) : Control<Textfield>(
+    textInputWith(fieldName) {
+      setValue(defaultValue)
+    }
+  )
 
   class Button(
     text: String,
     handleClick: () -> Unit,
-  ) : Control(
+  ) : Control<controlP5.Button>(
     buttonWith(text) {
       onClick { handleClick() }
     }
@@ -27,7 +58,7 @@ sealed class Control(
     text: String,
     defaultValue: Boolean = false,
     handleToggled: (Boolean) -> Unit,
-  ) : Control(
+  ) : Control<controlP5.Toggle>(
     toggleWith(text) {
       setValue(defaultValue)
       onChange { handleToggled(booleanValue) }
@@ -48,7 +79,7 @@ sealed class Control(
     range: DoubleRange = DEFAULT_RANGE,
     defaultValue: Double? = null,
     handleChange: (Double) -> Unit,
-  ) : Control(
+  ) : Control<controlP5.Slider>(
     sliderWith(text) {
       range(range)
 
@@ -89,7 +120,7 @@ sealed class Control(
     rangeY: DoubleRange = DEFAULT_RANGE,
     defaultValue: Point? = null,
     handleChange: (Point) -> Unit,
-  ) : Control(
+  ) : Control<controlP5.Slider2D>(
     slider2dWith(text) {
       range(rangeX, rangeY)
       val defaultPoint = defaultValue ?: Point(rangeX.start, rangeY.start)
@@ -124,7 +155,7 @@ sealed class Control(
     options: List<String>,
     defaultValue: String,
     handleChange: (String) -> Unit = {},
-  ) : Control(
+  ) : Control<DropdownList>(
     dropdownWith(text.splitCamelCase()) {
       setType(DropdownList.LIST)
       setItems(options)
@@ -142,7 +173,7 @@ sealed class Control(
     text: String,
     defaultValue: E,
     handleChange: (E) -> Unit = {},
-  ) : Control(
+  ) : Control<DropdownList>(
     dropdownWith(text.splitCamelCase()) {
       setType(DropdownList.LIST)
       val options = defaultValue.declaringClass.enumConstants.sortedBy { it.name }

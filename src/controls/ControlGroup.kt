@@ -14,7 +14,8 @@ fun List<ControlSectionable>.flatten(): List<ControlGroupable> =
 fun controls(vararg sections: ControlSectionable): Array<ControlGroupable> =
   sections.flatMapArray { it.toControlGroups() }
 
-class ControlGroup(vararg val controls: Control, val heightRatio: Number = 1) : ControlGroupable {
+class ControlGroup(vararg val controls: Control<*>, val heightRatio: Number = 1) :
+  ControlGroupable {
   val size get() = controls.size
 
   val controlsList get() = controls.toList()
@@ -30,9 +31,9 @@ class ControlGroup(vararg val controls: Control, val heightRatio: Number = 1) : 
   )
 
   constructor(
-    vararg controls: ControlGroupable,
+    vararg controlGroups: ControlGroupable,
     heightRatio: Number = 1,
-  ) : this(controls.toList(), heightRatio = heightRatio)
+  ) : this(controlGroups.toList(), heightRatio = heightRatio)
 
   constructor(
     controls: List<ControlGroupable>,
@@ -45,8 +46,11 @@ class ControlGroup(vararg val controls: Control, val heightRatio: Number = 1) : 
   override fun toControlGroup() = this
 
   companion object {
-    fun group(vararg controls: ControlProp<*>, heightRatio: Number = 1) = ControlGroup(*controls, heightRatio = heightRatio)
-    fun group(vararg controls: ControlGroupable, heightRatio: Number = 1) = ControlGroup(*controls, heightRatio = heightRatio)
+    fun group(vararg controls: ControlProp<*>, heightRatio: Number = 1) =
+      ControlGroup(*controls, heightRatio = heightRatio)
+
+    fun group(vararg controls: ControlGroupable, heightRatio: Number = 1) =
+      ControlGroup(*controls, heightRatio = heightRatio)
 
   }
 }

@@ -2,7 +2,7 @@ package coordinate
 
 import interfaces.shape.Walkable
 import util.atAmountAlong
-import util.mapWithNextCyclical
+import util.iterators.mapWithNextCyclical
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -11,8 +11,10 @@ data class BoundRect(
   val height: Double,
   val width: Double,
 ) : Walkable {
-  constructor(topLeft: Point, height: Number, width: Number) : this(topLeft, height.toDouble(),
-    width.toDouble())
+  constructor(topLeft: Point, height: Number, width: Number) : this(
+    topLeft, height.toDouble(),
+    width.toDouble()
+  )
 
   constructor(topLeft: Point, size: Point) : this(topLeft, size.x, size.y)
 

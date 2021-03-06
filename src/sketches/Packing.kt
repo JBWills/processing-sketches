@@ -6,13 +6,11 @@ import appletExtensions.withStroke
 import controls.*
 import controls.ControlGroup.Companion.group
 import controls.ControlTab.Companion.tab
+import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
-import interfaces.Copyable
-import interfaces.KSerializable
-import interfaces.TabBindable
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.*
@@ -21,7 +19,7 @@ import util.algorithms.makeHull
 import util.geomutil.toRPath
 import java.awt.Color
 
-class Packing : LayeredCanvasSketch<PackingLayerData, PackingData>(
+class Packing : LayeredCanvasSketch<PackingData, PackingLayerData>(
   "Packing",
   PackingData(),
   { PackingLayerData() }) {
@@ -75,10 +73,12 @@ class Packing : LayeredCanvasSketch<PackingLayerData, PackingData>(
 @Serializable
 data class PackingLayerData(
   var PackingField: Int = 1
-) : TabBindable, Copyable<PackingLayerData>, KSerializable<PackingLayerData> {
-  override fun BaseSketch.bindTab() = tab(
-    "L",
-    intProp(::PackingField, 1..100)
+) : PropData<PackingLayerData> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "L",
+      intProp(::PackingField, 1..100)
+    )
   )
 
   override fun clone(): PackingLayerData = copy()
@@ -111,23 +111,25 @@ data class PackingData(
   var equalCardinality: Boolean = false,
   var circleSize: Double = 300.0,
   var circleOffset: Point = Point.Zero,
-) : TabBindable, Copyable<PackingData>, KSerializable<PackingData> {
-  override fun BaseSketch.bindTab() = tab(
-    "Packing",
-    noiseProp(::centroidNoise),
-    noiseProp(::dotNoise),
-    group(
-      booleanProp(::drawDots),
-      booleanProp(::boundDotsToCircle),
-    ),
-    group(
-      intProp(::numDots, 0..100_000),
-      intProp(::numCentroids, 1..10_000),
-    ),
-    intProp(::iterations, 1..32),
-    booleanProp(::equalCardinality),
-    doubleProp(::circleSize, 50.0..800.0),
-    doublePairProp(::circleOffset, NegativeOneToOne * sizeX to NegativeOneToOne * sizeY),
+) : PropData<PackingData> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "Packing",
+      noiseProp(::centroidNoise),
+      noiseProp(::dotNoise),
+      group(
+        booleanProp(::drawDots),
+        booleanProp(::boundDotsToCircle),
+      ),
+      group(
+        intProp(::numDots, 0..100_000),
+        intProp(::numCentroids, 1..10_000),
+      ),
+      intProp(::iterations, 1..32),
+      booleanProp(::equalCardinality),
+      doubleProp(::circleSize, 50.0..800.0),
+      doublePairProp(::circleOffset, NegativeOneToOne * sizeX to NegativeOneToOne * sizeY),
+    )
   )
 
   override fun clone(): PackingData = copy()

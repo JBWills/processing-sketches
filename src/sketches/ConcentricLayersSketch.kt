@@ -2,26 +2,24 @@ package sketches
 
 import BaseSketch
 import controls.ControlGroup.Companion.group
-import controls.ControlTab
+import controls.ControlTab.Companion.tab
 import controls.doubleProp
 import controls.intProp
+import controls.props.PropData
 import coordinate.Arc
 import coordinate.Circ
 import coordinate.Deg
 import geomerativefork.src.util.bound
-import interfaces.Copyable
-import interfaces.KSerializable
-import interfaces.TabBindable
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
-import util.mapIf
+import util.iterators.mapIf
 import util.negToPos
 import util.zeroTo
 
 const val MAX_CIRCLES = 8
 
-class ConcentricLayersSketch : LayeredCanvasSketch<CircleLayerData, CircleGlobalData>(
+class ConcentricLayersSketch : LayeredCanvasSketch<CircleGlobalData, CircleLayerData>(
   "ConcentricLayersSketch",
   CircleGlobalData(),
   { CircleLayerData() },
@@ -68,7 +66,8 @@ class ConcentricLayersSketch : LayeredCanvasSketch<CircleLayerData, CircleGlobal
         getArcsForLayer(
           it,
           layerInfo.allTabValues[it],
-          layerInfo.globalValues)
+          layerInfo.globalValues
+        )
       }
   }
 
@@ -95,15 +94,17 @@ data class CircleLayerData(
   var startLength: Double = 0.0,
   var startCircle: Int = 0,
   var endCircle: Int = 0,
-) : TabBindable, Copyable<CircleLayerData>, KSerializable<CircleLayerData> {
-  override fun BaseSketch.bindTab() = ControlTab.tab(
-    "L",
-    doubleProp(::startAngleDelta, negToPos(180)),
-    doubleProp(::angleLengthDelta, negToPos(16)),
-    doubleProp(::startAngle, negToPos(360)),
-    doubleProp(::startLength, zeroTo(360)),
-    intProp(::startCircle, 0..100),
-    intProp(::endCircle, 0..100),
+) : PropData<CircleLayerData> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "L",
+      doubleProp(::startAngleDelta, negToPos(180)),
+      doubleProp(::angleLengthDelta, negToPos(16)),
+      doubleProp(::startAngle, negToPos(360)),
+      doubleProp(::startLength, zeroTo(360)),
+      intProp(::startCircle, 0..100),
+      intProp(::endCircle, 0..100),
+    )
   )
 
   override fun clone() = copy()
@@ -116,15 +117,17 @@ data class CircleGlobalData(
   var startRad: Double = 5.0,
   var endRad: Double = 500.0,
   var spacing: Double = 5.0,
-) : TabBindable, Copyable<CircleGlobalData>, KSerializable<CircleGlobalData> {
-  override fun BaseSketch.bindTab() = ControlTab.tab(
-    "Global",
-    intProp(::numCircles, 1..100),
-    group(
-      doubleProp(::startRad, zeroTo(500)),
-      doubleProp(::endRad, zeroTo(1000)),
-    ),
-    doubleProp(::spacing, zeroTo(360)),
+) : PropData<CircleGlobalData> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "Global",
+      intProp(::numCircles, 1..100),
+      group(
+        doubleProp(::startRad, zeroTo(500)),
+        doubleProp(::endRad, zeroTo(1000)),
+      ),
+      doubleProp(::spacing, zeroTo(360)),
+    )
   )
 
   override fun clone() = copy()

@@ -4,7 +4,11 @@ import BaseSketch
 import controls.ControlSection.Companion.toControlSection
 import coordinate.Point
 import fastnoise.Noise
-import util.*
+import util.DoubleRange
+import util.propertyEnumDropdown
+import util.propertySlider
+import util.propertySliderPair
+import util.propertyToggle
 import util.tuple.and
 import kotlin.reflect.KMutableProperty0
 
@@ -28,7 +32,8 @@ open class GenericReferenceField<T>(
 ) : ControlProp<T> {
   override fun get(): T = ref.get()
   override fun set(newVal: T) = ref.set(newVal)
-  override fun toControlGroups(): Array<ControlGroupable> = sketch.controlsGetter(get()).toControlGroups()
+  override fun toControlGroups(): Array<ControlGroupable> =
+    sketch.controlsGetter(get()).toControlGroups()
 }
 
 open class ListReferenceField<T>(
@@ -57,7 +62,8 @@ fun <T> BaseSketch.prop(
   listIndex: Int,
   controlsGetter: BaseSketch.(backingField: T) -> ControlSectionable
 ) =
-  ListReferenceField(this,
+  ListReferenceField(
+    this,
     ref,
     listIndex,
     name = "List Reference: $listIndex",
@@ -89,7 +95,7 @@ fun BaseSketch.noiseProp(
   ref: KMutableProperty0<Noise>
 ) = prop(ref) { noiseControls(ref).toControlSection() }
 
-fun BaseSketch.dropdownList(
+fun dropdownList(
   name: String,
   options: List<String>,
   ref: KMutableProperty0<String>,
@@ -97,9 +103,11 @@ fun BaseSketch.dropdownList(
 ) = Control.Dropdown(
   text = name,
   options = options,
-  defaultValue = ref.get(),
-  handleChange = onChange
-)
+  defaultValue = ref.get()
+) {
+  ref.set(it)
+  onChange(it)
+}
 
 fun <E : Enum<E>> BaseSketch.enumProp(
   ref: KMutableProperty0<E>,

@@ -7,8 +7,8 @@ import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Deg
-import coordinate.Segment
 import coordinate.Point
+import coordinate.Segment
 import coordinate.isInCircle
 import util.circleintersection.CircleCircleIntersection
 import util.circleintersection.CircleCircleIntersection.Type.COINCIDENT
@@ -18,8 +18,8 @@ import util.circleintersection.CircleCircleIntersection.Type.INTERNALLY_TANGENT
 import util.circleintersection.CircleCircleIntersection.Type.OVERLAPPING
 import util.circleintersection.LCircle
 import util.circleintersection.LVector2
+import util.iterators.zipWithSiblingsCyclical
 import util.squared
-import util.zipWithSiblingsCyclical
 import kotlin.math.sqrt
 
 sealed class IntersectionData {
@@ -37,24 +37,30 @@ fun LCircle.intersection(other: LCircle): IntersectionData {
   val intersection = CircleCircleIntersection(this, other)
 
   return when (intersection.type) {
-    OVERLAPPING -> Overlapping(Pair(intersection.intersectionPoint1.toPoint(), intersection.intersectionPoint2.toPoint()))
+    OVERLAPPING -> Overlapping(
+      Pair(
+        intersection.intersectionPoint1.toPoint(),
+        intersection.intersectionPoint2.toPoint()
+      )
+    )
     COINCIDENT -> Coincident
     CONCENTRIC_CONTAINED, ECCENTRIC_CONTAINED, INTERNALLY_TANGENT -> if (r > other.r) IntersectionData.Container else IntersectionData.Contained
     else -> SeparateOrExternallyTangent
   }
 }
 
-fun Circ.intersection(other: Circ): Arc = when (val intersection = toLCircle().intersection(other.toLCircle())) {
-  is Overlapping -> {
-    val (angle1, angle2) = intersection.points
+fun Circ.intersection(other: Circ): Arc =
+  when (val intersection = toLCircle().intersection(other.toLCircle())) {
+    is Overlapping -> {
+      val (angle1, angle2) = intersection.points
 
-    listOf(Arc(angle1, angle2, this), Arc(angle2, angle1, this))
-      .find { arc -> !arc.pointAtBisector.isInCircle(other) }
-      ?: throw Exception("Arc could not be found of intersection between $this, $other")
+      listOf(Arc(angle1, angle2, this), Arc(angle2, angle1, this))
+        .find { arc -> !arc.pointAtBisector.isInCircle(other) }
+        ?: throw Exception("Arc could not be found of intersection between $this, $other")
+    }
+    Coincident, IntersectionData.Contained -> Arc(Deg(0), 0.0, this)
+    IntersectionData.Container, SeparateOrExternallyTangent -> Arc(this)
   }
-  Coincident, IntersectionData.Contained -> Arc(Deg(0), 0.0, this)
-  IntersectionData.Container, SeparateOrExternallyTangent -> Arc(this)
-}
 
 // From S.O.: https://stackoverflow.com/a/13055116
 fun getCircleLineIntersectionPoint(
@@ -86,7 +92,11 @@ fun getCircleLineIntersectionPoint(
   return listOf(p1, p2)
 }
 
-private fun isTangentIntersection(intersectionAndSurroundingPoints: Triple<Point, Point, Point>, c: Circ, r: BoundRect): Boolean {
+private fun isTangentIntersection(
+  intersectionAndSurroundingPoints: Triple<Point, Point, Point>,
+  c: Circ,
+  r: BoundRect
+): Boolean {
   val a1 = Arc(intersectionAndSurroundingPoints.first, intersectionAndSurroundingPoints.second, c)
   val a2 = Arc(intersectionAndSurroundingPoints.second, intersectionAndSurroundingPoints.third, c)
 

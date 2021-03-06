@@ -5,6 +5,7 @@ import FastNoiseLite.NoiseType.Perlin
 import controls.*
 import controls.ControlGroup.Companion.group
 import controls.ControlTab.Companion.tab
+import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
 import fastnoise.Noise
@@ -14,9 +15,6 @@ import geomerativefork.src.RPath
 import geomerativefork.src.RShape
 import geomerativefork.src.util.bound
 import geomerativefork.src.util.flatMapArray
-import interfaces.Copyable
-import interfaces.KSerializable
-import interfaces.TabBindable
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
@@ -24,7 +22,7 @@ import util.geomutil.toRShape
 import java.awt.Color
 import kotlin.math.max
 
-class GeomerativeSketch : LayeredCanvasSketch<GeomLayerData, GeomData>(
+class GeomerativeSketch : LayeredCanvasSketch<GeomData, GeomLayerData>(
   "GeomerativeSketch",
   GeomData(),
   { GeomLayerData() }) {
@@ -53,8 +51,8 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomLayerData, GeomData>(
         val radius =
           max(
             0.0, (values.minRad..values.maxRad).atAmountAlong(
-            (idx + amountAlongInnerCircle) / (values.numCircles + 1)
-          )
+              (idx + amountAlongInnerCircle) / (values.numCircles + 1)
+            )
           )
 
         if (radius < values.minRad) return@map
@@ -100,10 +98,12 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomLayerData, GeomData>(
 @Serializable
 data class GeomLayerData(
   var numInternalCircles: Int = 1
-) : TabBindable, Copyable<GeomLayerData>, KSerializable<GeomLayerData> {
-  override fun BaseSketch.bindTab() = tab(
-    "L",
-    intProp(::numInternalCircles, 1..20)
+) : PropData<GeomLayerData> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "L",
+      intProp(::numInternalCircles, 1..20)
+    )
   )
 
   override fun clone() = copy()
@@ -126,17 +126,19 @@ data class GeomData(
     offset = Point.Zero,
     strength = Point(0, 0)
   )
-) : TabBindable, Copyable<GeomData>, KSerializable<GeomData> {
-  override fun BaseSketch.bindTab() = tab(
-    "Geom",
-    intProp(::numCircles, 1..40),
-    group(
-      doubleProp(::maxRad, 100.0..2000.0),
-      doubleProp(::minRad, 0.0..400.0),
-    ),
-    doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
-    intProp(::numExtraStrokesToDraw, 0..100),
-    noiseProp(::noise),
+) : PropData<GeomData> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "Geom",
+      intProp(::numCircles, 1..40),
+      group(
+        doubleProp(::maxRad, 100.0..2000.0),
+        doubleProp(::minRad, 0.0..400.0),
+      ),
+      doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
+      intProp(::numExtraStrokesToDraw, 0..100),
+      noiseProp(::noise),
+    )
   )
 
   override fun clone() = copy()

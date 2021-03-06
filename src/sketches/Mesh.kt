@@ -9,12 +9,10 @@ import controls.booleanProp
 import controls.doublePairProp
 import controls.intProp
 import controls.noiseProp
+import controls.props.PropData
 import coordinate.Point
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
-import interfaces.Copyable
-import interfaces.KSerializable
-import interfaces.TabBindable
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.ZeroToOne
@@ -31,7 +29,7 @@ import java.awt.Color
  *
  * Copy and paste this to create a new sketch.
  */
-class Mesh : LayeredCanvasSketch<MeshLayerData, MeshData>(
+class Mesh : LayeredCanvasSketch<MeshData, MeshLayerData>(
   "Mesh",
   MeshData(),
   { MeshLayerData() },
@@ -125,10 +123,12 @@ class Mesh : LayeredCanvasSketch<MeshLayerData, MeshData>(
 @Serializable
 data class MeshLayerData(
   var MeshTabField: Int = 1,
-) : TabBindable, Copyable<MeshLayerData>, KSerializable<MeshLayerData> {
-  override fun BaseSketch.bindTab() = tab(
-    "T",
-    intProp(::MeshTabField, 0..10)
+) : PropData<MeshLayerData> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "T",
+      intProp(::MeshTabField, 0..10)
+    )
   )
 
   override fun clone() = copy()
@@ -153,19 +153,21 @@ data class MeshData(
   var showDiagonalsUp: Boolean = true,
   var showVerticals: Boolean = true,
   var showHorizontals: Boolean = true,
-) : TabBindable, Copyable<MeshData>, KSerializable<MeshData> {
-  override fun BaseSketch.bindTab() = tab(
-    "Global",
-    noiseProp(::noise),
-    ControlGroup(
-      booleanProp(::showDiagonalsDown),
-      booleanProp(::showDiagonalsUp),
-      booleanProp(::showVerticals),
-      booleanProp(::showHorizontals)
-    ),
-    doublePairProp(::numDots, zeroTo(1000) + 2),
-    doublePairProp(::size, zeroTo(1.5)),
-    doublePairProp(::dotRectCenter, ZeroToOne),
+) : PropData<MeshData> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "Global",
+      noiseProp(::noise),
+      ControlGroup(
+        booleanProp(::showDiagonalsDown),
+        booleanProp(::showDiagonalsUp),
+        booleanProp(::showVerticals),
+        booleanProp(::showHorizontals)
+      ),
+      doublePairProp(::numDots, zeroTo(1000) + 2),
+      doublePairProp(::size, zeroTo(1.5)),
+      doublePairProp(::dotRectCenter, ZeroToOne),
+    )
   )
 
   override fun clone() = copy(

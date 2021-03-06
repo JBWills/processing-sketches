@@ -4,10 +4,7 @@ import BaseSketch
 import controls.ControlSection.Companion.section
 import controls.ControlTab.Companion.tab
 import controls.intProp
-import interfaces.Bindable
-import interfaces.Copyable
-import interfaces.KSerializable
-import interfaces.TabBindable
+import controls.props.PropData
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 
@@ -16,7 +13,7 @@ import sketches.base.LayeredCanvasSketch
  *
  * Copy and paste this to create a new sketch.
  */
-class Example : LayeredCanvasSketch<ExampleTabValues, ExampleGlobalValues>(
+class Example : LayeredCanvasSketch<ExampleGlobalValues, ExampleTabValues>(
   "Example",
   ExampleGlobalValues(),
   { ExampleTabValues() }
@@ -32,10 +29,12 @@ class Example : LayeredCanvasSketch<ExampleTabValues, ExampleGlobalValues>(
 @Serializable
 data class ExampleTabValues(
   var exampleTabField: Int = 1
-) : TabBindable, Copyable<ExampleTabValues>, KSerializable<ExampleTabValues> {
-  override fun BaseSketch.bindTab() = tab(
-    "L",
-    intProp(::exampleTabField, 0..10)
+) : PropData<ExampleTabValues> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "L",
+      intProp(::exampleTabField, 0..10)
+    )
   )
 
   override fun clone() = copy()
@@ -45,9 +44,10 @@ data class ExampleTabValues(
 @Serializable
 data class ExampleGlobalValues(
   var exampleGlobalField: Int = 1,
-) : Bindable, Copyable<ExampleGlobalValues>, KSerializable<ExampleGlobalValues> {
+) : PropData<ExampleGlobalValues> {
   override fun BaseSketch.bind() = listOf(
-    tab("Global",
+    tab(
+      "Global",
       section(
         intProp(::exampleGlobalField, 0..10)
       )

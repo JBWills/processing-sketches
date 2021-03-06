@@ -7,6 +7,7 @@ import controls.ControlTab.Companion.tab
 import controls.doubleProp
 import controls.intProp
 import controls.noiseProp
+import controls.props.PropData
 import coordinate.Point
 import coordinate.Segment
 import fastnoise.Noise
@@ -14,15 +15,12 @@ import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
 import geomerativefork.src.RPath
 import geomerativefork.src.RShape
-import interfaces.Copyable
-import interfaces.KSerializable
-import interfaces.TabBindable
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.geomutil.toRPath
 
-class Waves : LayeredCanvasSketch<WaveTab, WaveGlobal>("Waves", WaveGlobal(), { WaveTab() }) {
+class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { WaveTab() }) {
   init {
     numLayers = MAX_LAYERS
   }
@@ -93,15 +91,21 @@ class Waves : LayeredCanvasSketch<WaveTab, WaveGlobal>("Waves", WaveGlobal(), { 
 data class WaveTab(
   var distBetweenLines: Double = 10.0,
   var offset: Double = 0.0,
-) : TabBindable, Copyable<WaveTab>, KSerializable<WaveTab> {
-  override fun BaseSketch.bindTab() = tab(
-    "L",
-    doubleProp(::distBetweenLines, 1.0..200.0),
-    doubleProp(::offset, -200.0..200.0)
+) : PropData<WaveTab> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "L",
+      doubleProp(
+        ::distBetweenLines,
+        1.0..200.0
+      ),
+      doubleProp(::offset, -200.0..200.0)
+    )
   )
 
   override fun clone() = copy()
-  override fun toSerializer() = serializer()
+  override fun toSerializer() =
+    serializer()
 }
 
 @Serializable
@@ -119,21 +123,41 @@ data class WaveGlobal(
   var minHeight: Double = 0.0,
   var baseNumInternalCircles: Int = 1,
   var distBetweenNoisePerCircle: Double = 150.0,
-) : TabBindable, Copyable<WaveGlobal>, KSerializable<WaveGlobal> {
-  override fun BaseSketch.bindTab() = tab(
-    "Waves",
-    intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
-    group(
-      doubleProp(::maxHeight, 100.0..2000.0),
-      doubleProp(::minHeight, -400.0..400.0),
-    ),
-    intProp(::baseNumInternalCircles, 1..100),
-    doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
-    noiseProp(::noise),
+) : PropData<WaveGlobal> {
+  override fun BaseSketch.bind() = listOf(
+    tab(
+      "Waves",
+      intProp(
+        ::numCircles,
+        1..LayeredCanvasSketch.MAX_LAYERS
+      ),
+      group(
+        doubleProp(
+          ::maxHeight,
+          100.0..2000.0
+        ),
+        doubleProp(
+          ::minHeight,
+          -400.0..400.0
+        ),
+      ),
+      intProp(
+        ::baseNumInternalCircles,
+        1..100
+      ),
+      doubleProp(
+        ::distBetweenNoisePerCircle,
+        0.0..150.0
+      ),
+      noiseProp(::noise),
+    )
   )
 
-  override fun clone(): WaveGlobal = copy()
-  override fun toSerializer() = serializer()
+  override fun clone(): WaveGlobal =
+    copy()
+
+  override fun toSerializer() =
+    serializer()
 }
 
 fun main() = Waves().run()

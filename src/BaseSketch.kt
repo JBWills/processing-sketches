@@ -127,7 +127,6 @@ abstract class BaseSketch(
   fun updateControls() {
     val lastControlFrame = controlFrame ?: return
     val lastActiveTab = lastControlFrame.getActiveTabAndIndex()
-    println(lastActiveTab)
     lastControlFrame.close()
 
     resetControlFrame()

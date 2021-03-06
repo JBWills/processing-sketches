@@ -2,8 +2,8 @@ package coordinate
 
 import coordinate.ContinuousPoints.Companion.splitInBounds
 import coordinate.Point.Companion.addIf
-import util.forEachWithSurrounding
-import util.forEachWithSurroundingCyclical
+import util.iterators.forEachWithSurrounding
+import util.iterators.forEachWithSurroundingCyclical
 
 fun List<Point>.isCyclical() = size > 2 && first() == last()
 
@@ -12,7 +12,8 @@ data class ContinuousPoints(val isInBound: Boolean, val points: MutableList<Poin
   val last get() = points.last()
   val size get() = points.size
 
-  fun combineWith(o: ContinuousPoints) = ContinuousPoints(isInBound, (points + o.points).toMutableList())
+  fun combineWith(o: ContinuousPoints) =
+    ContinuousPoints(isInBound, (points + o.points).toMutableList())
 
   companion object {
     val List<ContinuousPoints>.firstPoint get() = first().first
