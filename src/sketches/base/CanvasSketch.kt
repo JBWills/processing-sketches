@@ -3,8 +3,12 @@ package sketches.base
 import BaseSketch
 import LayerConfig
 import appletExtensions.withStyle
-import controls.*
 import controls.ControlGroup.Companion.group
+import controls.ControlGroupable
+import controls.booleanProp
+import controls.controls
+import controls.doublePairProp
+import controls.enumProp
 import coordinate.Point
 import util.darkened
 import util.print.Orientation
@@ -62,10 +66,12 @@ abstract class CanvasSketch(
     val needsDarkStroke: Boolean = isRecording || paper.defaultBackgroundColor != Color.black
     val style = paper.defaultStyle
       .applyOverrides(layerConfig.style)
-      .applyOverrides(Style(
-        weight = if (isRecording) Thick else null,
-        color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5f) else null
-      ))
+      .applyOverrides(
+        Style(
+          weight = if (isRecording) Thick else null,
+          color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5f) else null
+        )
+      )
 
     withStyle(style) {
       if (layer == getLayers().size - 1) {
@@ -77,7 +83,6 @@ abstract class CanvasSketch(
       }
     }
   }
-
 
   private fun calcBoundRect() = paper
     .toBoundRect(orientation)

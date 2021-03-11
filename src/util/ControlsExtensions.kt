@@ -21,6 +21,8 @@ import kotlin.reflect.KMutableProperty0
 typealias Size = PixelPoint
 typealias Position = Point
 
+private fun getId(text: String, tab: Tab) = (text + tab.name).replace(" ", "")
+
 fun textInputWithSubmit(
   textFieldLabel: String,
   submitButtonLabel: String,
@@ -104,64 +106,57 @@ fun <T> Controller<T>.positionAndSize(p: Position?, s: Size?): Controller<T> {
   return this
 }
 
-fun <T : Controller<T>> applyWithPosAndSize(
-  t: T, pos: Position, size: Size, block: T.() -> Unit = {}, tab: Tab, label: String,
-) = t.also {
-  it.label = label
-  it.moveTo(tab)
-  it.positionAndSize(pos, size)
-  it.block()
+fun <T : Controller<T>> T.applyWithPosAndSize(
+  pos: Position,
+  size: Size,
+  block: T.() -> Unit = {},
+  tab: Tab,
+  text: String,
+) = apply {
+  label = text
+  moveTo(tab)
+  positionAndSize(pos, size)
+  block()
 }
 
 fun textInputWith(text: String, block: Textfield.() -> Unit = {})
   : (ControlP5, Tab, pos: Position, size: Size) -> Textfield =
   { c, tab, pos, size ->
-    applyWithPosAndSize(c.addTextfield(text + tab.name), pos, size, block, tab, text)
+    c.addTextfield(getId(text, tab))
+      .applyWithPosAndSize(pos, size, block, tab, text)
   }
 
 fun buttonWith(text: String, block: Button.() -> Unit = {})
   : (ControlP5, Tab, pos: Position, size: Size) -> Button =
   { c, tab, pos, size ->
-    applyWithPosAndSize(c.addButton(text + tab.name), pos, size, block, tab, text)
+    c.addButton(getId(text, tab))
+      .applyWithPosAndSize(pos, size, block, tab, text)
   }
 
 fun toggleWith(text: String, block: Toggle.() -> Unit = {})
   : (ControlP5, Tab, pos: Position, size: Size) -> Toggle =
   { c, tab, pos, size ->
-    applyWithPosAndSize(c.addToggle(text + tab.name), pos, size, block, tab, text)
-  }
-
-fun doubleToggleWith(
-  text1: String, text2: String, block: Toggle.() -> Unit = {}, block2: Toggle.() -> Unit = {},
-): (ControlP5, Tab, pos: Position, size: Size) -> List<Toggle> =
-  { c, tab, pos, size ->
-    val midPoint = Point(pos.x + (size.x / 2), pos.y)
-    val halfWidth = (size.toPoint() / Point(2, 1)).toPixelPoint()
-
-    listOf(
-      applyWithPosAndSize(
-        c.addToggle(text1 + tab.name), pos, halfWidth, block, tab, text1
-      ),
-      applyWithPosAndSize(
-        c.addToggle(text2 + tab.name), midPoint, halfWidth, block2, tab, text2
-      )
-    )
+    c.addToggle(getId(text, tab))
+      .applyWithPosAndSize(pos, size, block, tab, text)
   }
 
 fun sliderWith(text: String, block: Slider.() -> Unit = {})
   : (ControlP5, Tab, pos: Position, size: Size) -> Slider =
   { c, tab, pos, size ->
-    applyWithPosAndSize(c.addSlider(text + tab.name), pos, size, block, tab, text)
+    c.addSlider(getId(text, tab))
+      .applyWithPosAndSize(pos, size, block, tab, text)
   }
 
 fun slider2dWith(text: String, block: Slider2D.() -> Unit = {})
   : (ControlP5, Tab, pos: Position, size: Size) -> Slider2D =
   { c, tab, pos, size ->
-    applyWithPosAndSize(c.addSlider2D(text + tab.name), pos, size, block, tab, text)
+    c.addSlider2D(getId(text, tab))
+      .applyWithPosAndSize(pos, size, block, tab, text)
   }
 
 fun dropdownWith(text: String, block: DropdownList.() -> Unit = {})
   : (ControlP5, Tab, pos: Position, size: Size) -> DropdownList =
   { c, tab, pos, size ->
-    applyWithPosAndSize(c.addDropdownList(text + tab.name), pos, size, block, tab, text)
+    c.addDropdownList(getId(text, tab))
+      .applyWithPosAndSize(pos, size, block, tab, text)
   }

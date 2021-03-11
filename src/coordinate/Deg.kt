@@ -2,6 +2,7 @@ package coordinate
 
 import coordinate.RotationDirection.Clockwise
 import coordinate.RotationDirection.EitherDirection
+import kotlinx.serialization.Serializable
 import util.cos
 import util.equalsDelta
 import util.sin
@@ -9,6 +10,7 @@ import util.toRadians
 import kotlin.math.abs
 import kotlin.math.min
 
+@Suppress("unused")
 enum class RotationDirection {
   Clockwise,
   CounterClockwise,
@@ -22,15 +24,18 @@ fun lockValueTo360(v: Double) = (360 + (v % 360)) % 360
  *
  * On a 2d grid, assume 0 equals pointing right.
  */
-class Deg(var value: Double) {
+@Serializable
+data class Deg(var value: Double) {
+
+  @Suppress("unused")
   companion object {
-    val Whole = 360.0
-    val Half = 180.0
-    val Quarter = 90.0
+    const val Whole = 360.0
+    const val Half = 180.0
+    const val Quarter = 90.0
     val HORIZONTAL = Deg(0)
     val UP_45 = Deg(45)
     val DOWN_45 = Deg(135)
-    val VERTICAL = Deg(90)
+    val VERTICAL = Deg(Quarter)
   }
 
   constructor(v: Number) : this(v.toDouble())
@@ -74,22 +79,16 @@ class Deg(var value: Double) {
   fun isHorizontal() = isParallelWith(180)
   fun isVertical() = isParallelWith(90)
 
-  override fun toString(): String {
-    return "Deg(value=$value)"
-  }
+  override fun toString(): String = "Deg(value=$value)"
 
-  fun isParallelWith(other: Deg, relaxed: Boolean = true) = if (relaxed) {
-    equalsRelaxed(other) || equalsRelaxed(other + Deg(180))
-  } else {
-    equals(other) || equals(other + Deg(180))
-  }
+  fun isParallelWith(other: Deg, relaxed: Boolean = true) =
+    if (relaxed) equalsRelaxed(other) || equalsRelaxed(other + Deg(180))
+    else equals(other) || equals(other + Deg(180))
 
   fun isParallelWith(other: Number, relaxed: Boolean = true) = isParallelWith(Deg(other), relaxed)
   fun isParallelWith(other: Line, relaxed: Boolean = true) = isParallelWith(other.slope, relaxed)
 
-  fun equalsRelaxed(other: Deg): Boolean {
-    return value.equalsDelta(other.value, 0.1)
-  }
+  fun equalsRelaxed(other: Deg): Boolean = value.equalsDelta(other.value, 0.1)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

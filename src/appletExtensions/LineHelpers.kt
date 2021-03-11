@@ -5,6 +5,7 @@ import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
 import coordinate.Point
+import coordinate.Segment
 import java.awt.Color
 
 typealias Sketch = BaseSketch
@@ -33,6 +34,70 @@ fun Sketch.drawLineSegment(bound: BoundRect, line: Line): Boolean {
   return false
 }
 
+private fun getNormal(cornerBisector: Line, linesToDrawSlope: Deg): Line {
+  val tangentLine = Line(cornerBisector.origin, linesToDrawSlope)
+  val tangentNormalClockwise = tangentLine.normal(true)
+  val tangentNormalCounterClockwise = tangentLine.normal(false)
+
+  return if (cornerBisector.angleBetween(tangentNormalClockwise) <
+    cornerBisector.angleBetween(tangentNormalCounterClockwise)
+  ) {
+    tangentNormalClockwise
+  } else {
+    tangentNormalCounterClockwise
+  }
+}
+
+private fun isMovingAwayFromAllCorners(
+  bound: BoundRect, lastPosition: Point, currentPosition: Point,
+): Boolean {
+  fun movingAwayFromCorner(corner: Point) =
+    corner.dist(lastPosition) <= corner.dist(currentPosition)
+  return movingAwayFromCorner(bound.topLeft) &&
+    movingAwayFromCorner(bound.topRight) &&
+    movingAwayFromCorner(bound.bottomLeft) &&
+    movingAwayFromCorner(bound.bottomRight)
+}
+
+fun getParallelLinesInBound(
+  bound: BoundRect,
+  deg: Deg,
+  distanceBetween: Number,
+  offset: Number = 0.0,
+): List<Segment> {
+  val cornerAndDirection = getTangentCornerBisector(bound, deg)
+  val walkDirection = getNormal(cornerAndDirection, deg)
+  var currDist = offset.toDouble()
+  val segments = mutableListOf<Segment>()
+  while (true) {
+    val newOrigin = walkDirection.getPointAtDist(currDist)
+
+    val nullableSegment = bound.getBoundSegment(Line(newOrigin, deg))
+    nullableSegment?.let { segment ->
+      segments.add(segment)
+    }
+    val wasInBound = nullableSegment != null
+
+    if (
+      !wasInBound &&
+      isMovingAwayFromAllCorners(
+        bound,
+        walkDirection.getPointAtDist(
+          currDist - distanceBetween.toDouble()
+        ),
+        newOrigin
+      )
+    ) {
+      // if you're not currently in bounds but you were before that means you've left
+      // the shape.
+      break
+    }
+
+    currDist += distanceBetween.toDouble()
+  }
+  return segments
+}
+
 fun Sketch.drawParallelLinesInBound(
   bound: BoundRect,
   deg: Deg,
@@ -40,31 +105,6 @@ fun Sketch.drawParallelLinesInBound(
   offset: Number = 0.0,
   strokeColor: Color = Color.BLACK,
 ) {
-  fun getNormal(cornerBisector: Line, linesToDrawSlope: Deg): Line {
-    val tangentLine = Line(cornerBisector.origin, linesToDrawSlope)
-    val tangentNormalClockwise = tangentLine.normal(true)
-    val tangentNormalCounterClockwise = tangentLine.normal(false)
-
-    return if (cornerBisector.angleBetween(tangentNormalClockwise) <
-      cornerBisector.angleBetween(tangentNormalCounterClockwise)
-    ) {
-      tangentNormalClockwise
-    } else {
-      tangentNormalCounterClockwise
-    }
-  }
-
-  fun isMovingAwayFromAllCorners(
-    bound: BoundRect, lastPosition: Point, currentPosition: Point,
-  ): Boolean {
-    fun movingAwayFromCorner(corner: Point) =
-      corner.dist(lastPosition) <= corner.dist(currentPosition)
-    return movingAwayFromCorner(bound.topLeft) &&
-      movingAwayFromCorner(bound.topRight) &&
-      movingAwayFromCorner(bound.bottomLeft) &&
-      movingAwayFromCorner(bound.bottomRight)
-  }
-
   val cornerAndDirection = getTangentCornerBisector(bound, deg)
   val walkDirection = getNormal(cornerAndDirection, deg)
 
@@ -86,8 +126,10 @@ fun Sketch.drawParallelLinesInBound(
       stroke(strokeColor.rgb)
     }
 
-    if (!wasInBound && isMovingAwayFromAllCorners(bound,
-        walkDirection.getPointAtDist(currDist - distanceBetween.toDouble()), newOrigin)
+    if (!wasInBound && isMovingAwayFromAllCorners(
+        bound,
+        walkDirection.getPointAtDist(currDist - distanceBetween.toDouble()), newOrigin
+      )
     ) {
       // if you're not currently in bounds but you were before that means you've left
       // the shape.

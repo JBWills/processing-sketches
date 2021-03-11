@@ -13,10 +13,10 @@ import sketches.base.LayeredCanvasSketch
  *
  * Copy and paste this to create a new sketch.
  */
-class Example : LayeredCanvasSketch<ExampleGlobalValues, ExampleTabValues>(
+class Example : LayeredCanvasSketch<ExampleData, ExampleLayerData>(
   "Example",
-  ExampleGlobalValues(),
-  { ExampleTabValues() }
+  ExampleData(),
+  { ExampleLayerData() }
 ) {
   override fun drawSetup(layerInfo: DrawInfo) {}
 
@@ -27,9 +27,9 @@ class Example : LayeredCanvasSketch<ExampleGlobalValues, ExampleTabValues>(
 }
 
 @Serializable
-data class ExampleTabValues(
+data class ExampleLayerData(
   var exampleTabField: Int = 1
-) : PropData<ExampleTabValues> {
+) : PropData<ExampleLayerData> {
   override fun BaseSketch.bind() = listOf(
     tab(
       "L",
@@ -42,9 +42,9 @@ data class ExampleTabValues(
 }
 
 @Serializable
-data class ExampleGlobalValues(
+data class ExampleData(
   var exampleGlobalField: Int = 1,
-) : PropData<ExampleGlobalValues> {
+) : PropData<ExampleData> {
   override fun BaseSketch.bind() = listOf(
     tab(
       "Global",

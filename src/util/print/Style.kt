@@ -11,7 +11,9 @@ typealias Inches = Number
 enum class StrokeWeight(val mm: MM) {
   VeryThin(0.1),
   Thin(0.5),
-  Thick(1.0)
+  Thick(1.0),
+  VeryThick(2.0),
+  Brush(3.0),
 }
 
 data class Style(

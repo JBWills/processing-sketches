@@ -1,9 +1,12 @@
 package coordinate
 
+import coordinate.BoundRect.Companion.centeredRect
+import geomerativefork.src.RShape
 import interfaces.shape.Walkable
 import util.atAmountAlong
 import util.circleintersection.LCircle
 import util.circleintersection.LVector2
+import util.circleintersection.getIntersectionPoints
 import util.equalsDelta
 import util.lessThanEqualToDelta
 import util.notEqualsZero
@@ -22,6 +25,7 @@ open class Circ(var origin: Point, var radius: Double) : Walkable {
   constructor(c: Circ) : this(c.origin, c.radius)
 
   val circumference: Double get() = 2 * PI * radius
+  val bounds: BoundRect get() = centeredRect(origin, diameter, diameter)
 
   init {
     if (radius < 0) {
@@ -42,6 +46,17 @@ open class Circ(var origin: Point, var radius: Double) : Walkable {
   fun isInCircle(p: Point) = radius.notEqualsZero() && origin.dist(p).lessThanEqualToDelta(radius)
 
   fun contains(p: Point) = origin.dist(p) <= radius
+
+  fun toRShape() = RShape.createCircle(origin.toRPoint(), diameter)
+
+  fun bound(s: Segment): Segment? {
+    if (contains(s.p1) && contains(s.p2)) return s
+    val intersections = getIntersectionPoints(s)
+
+    if (intersections.size < 2) return null
+
+    return Segment(intersections[0], intersections[1]).withReorientedDirection(s)
+  }
 
   override fun walk(step: Double): List<Point> = walk(step) { it }
 

@@ -11,6 +11,9 @@ data class BoundRect(
   val height: Double,
   val width: Double,
 ) : Walkable {
+  val size: Point
+    get() = Point(width, height)
+
   constructor(topLeft: Point, height: Number, width: Number) : this(
     topLeft, height.toDouble(),
     width.toDouble()
@@ -125,7 +128,11 @@ data class BoundRect(
     fun Point.mappedOnto(r: BoundRect) = Point(r.left + (x * r.width), r.top + (y * r.height))
 
     fun centeredRect(center: Point, height: Number, width: Number) =
-      BoundRect(center - Point(width.toDouble() / 2.0, height.toDouble() / 2.0), height, width)
+      BoundRect(
+        Point(center) - Point(width.toDouble() / 2.0, height.toDouble() / 2.0),
+        height,
+        width
+      )
 
     fun centeredRect(center: Point, size: Point) = centeredRect(center, size.x, size.y)
   }

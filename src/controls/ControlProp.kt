@@ -1,10 +1,13 @@
 package controls
 
 import BaseSketch
+import controls.ControlGroup.Companion.group
 import controls.ControlSection.Companion.toControlSection
+import coordinate.Deg
 import coordinate.Point
 import fastnoise.Noise
 import util.DoubleRange
+import util.property2DSlider
 import util.propertyEnumDropdown
 import util.propertySlider
 import util.propertySliderPair
@@ -88,8 +91,13 @@ fun BaseSketch.doublePairProp(
   ref: KMutableProperty0<Point>,
   ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0)
 ) = prop(ref) {
-  ControlGroup(*propertySliderPair(ref, ranges.first, ranges.second, ref.name))
+  group(*propertySliderPair(ref, ranges.first, ranges.second, name = ref.name))
 }
+
+fun BaseSketch.pointProp(
+  ref: KMutableProperty0<Point>,
+  ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0)
+) = prop(ref) { property2DSlider(ref, ranges.first, ranges.second, ref.name) }
 
 fun BaseSketch.noiseProp(
   ref: KMutableProperty0<Noise>
@@ -134,4 +142,12 @@ fun <E : Enum<E>> BaseSketch.nullableEnumProp(
     onChange()
   }
 }
+
+fun BaseSketch.degProp(ref: KMutableProperty0<Deg>, range: DoubleRange = 0.0..360.0) =
+  prop(ref) {
+    Control.Slider(ref.name, range, ref.get().value) {
+      ref.set(Deg(it))
+      markDirty()
+    }
+  }
 

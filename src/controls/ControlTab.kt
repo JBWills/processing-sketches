@@ -33,6 +33,10 @@ class ControlTab(val name: String, sections: List<ControlSectionable>) {
       name,
       *sections
     )
+
+    fun layerTab(vararg sections: ControlSectionable) = listOf(
+      tab("L", *sections)
+    )
   }
 
   override fun toString(): String {

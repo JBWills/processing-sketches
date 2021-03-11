@@ -106,6 +106,10 @@ data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Poi
 
   override operator fun unaryPlus() = Point(+x, +y)
 
+  fun squared() = Point(x.squared(), y.squared())
+
+  fun addXAndYTogether() = x + y
+
   fun addX(amt: Number) = Point(x + amt.toDouble(), y)
   fun addY(amt: Number) = Point(x, y + amt.toDouble())
 
@@ -147,15 +151,15 @@ data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Poi
 
     fun Point?.plusIf(other: List<Point>) = if (this != null) this + other else other
 
-    val Zero = Point(0, 0)
-    val NegativeToPositive = Point(-1, 1)
-    val Half = Point(0.5, 0.5)
-    val Up = Point(0, -1)
-    val Down = Point(0, 1)
-    val Left = Point(-1, 0)
-    val Right = Point(1, 0)
-    val One = Point(1, 1)
-    val Unit = Point(1, 0)
+    val Zero get() = Point(0, 0)
+    val NegativeToPositive get() = Point(-1, 1)
+    val Half get() = Point(0.5, 0.5)
+    val Up get() = Point(0, -1)
+    val Down get() = Point(0, 1)
+    val Left get() = Point(-1, 0)
+    val Right get() = Point(1, 0)
+    val One get() = Point(1, 1)
+    val Unit get() = Point(1, 0)
   }
 
   override fun toString(): String {

@@ -1,5 +1,6 @@
 package coordinate
 
+import geomerativefork.src.RShape
 import interfaces.shape.Walkable
 import util.equalsZero
 import util.greaterThanEqualToDelta
@@ -41,6 +42,8 @@ class Segment(
 
   fun getPointAtPercent(percent: Double) = origin + (slope.unitVector * (length * percent))
 
+  fun toRShape() = RShape.createLine(p1.xf, p1.yf, p2.xf, p2.yf)
+
   val points get() = arrayOf(p1, p2)
 
   val unitVector get() = slope.unitVector
@@ -56,7 +59,8 @@ class Segment(
 
     if (!slope.isParallelWith(d)) {
       throw Exception(
-        "Error, trying to reorient Segment with non-parallel direction!\nLine: $this\nNewdir: $d")
+        "Error, trying to reorient Segment with non-parallel direction!\nLine: $this\nNewdir: $d"
+      )
     }
 
     return if (slope.equalsRelaxed(d)) Segment(this) else flip()
