@@ -6,10 +6,12 @@ import util.equalsZero
 import util.lessThanEqualToDelta
 import util.toRadians
 
-class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) :
+class Arc(val startDeg: Deg, val lengthClockwise: Double, circle: Circ) :
   Circ(circle.origin, circle.radius) {
-  constructor(startDeg: Deg, lengthClockwise: Number, circle: Circ) : this(startDeg,
-    lengthClockwise.toDouble(), circle)
+  constructor(startDeg: Deg, lengthClockwise: Number, circle: Circ) : this(
+    startDeg,
+    lengthClockwise.toDouble(), circle
+  )
 
   constructor(circle: Circ) : this(Deg(0), 360, circle)
   constructor(arc: Arc) : this(arc.startDeg, arc.lengthClockwise, arc)
@@ -36,25 +38,24 @@ class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) :
     }
   }
 
-  val angleBisector get(): Deg = startDeg + (lengthClockwise / 2)
-  val pointAtBisector get(): Point = pointAtAngle(angleBisector)
-  val endDeg get(): Deg = startDeg + lengthClockwise
+  val angleBisector: Deg by lazy { startDeg + (lengthClockwise / 2) }
+  val pointAtBisector: Point by lazy { pointAtAngle(angleBisector) }
+  val endDeg: Deg by lazy { startDeg + lengthClockwise }
 
-  val startPoint = circle.pointAtAngle(startDeg)
-  val endPoint = circle.pointAtAngle(endDeg)
+  val startPoint by lazy { circle.pointAtAngle(startDeg) }
+  val endPoint by lazy { circle.pointAtAngle(endDeg) }
 
-  val arcLength get(): Double = (startDeg.rotation(endDeg, Clockwise) / 360.0) * circumference
+  val arcLength: Double = (startDeg.rotation(endDeg, Clockwise) / 360.0) * circumference
 
-  val endDegUnbound
-    get(): Double = startDeg.value + lengthClockwise
+  val endDegUnbound: Double by lazy { startDeg.value + lengthClockwise }
+
+  val crossesZero by lazy { endDegUnbound > 360.0 }
+
+  val isSizeZero by lazy { lengthClockwise == 0.0 }
 
   fun rotated(amt: Double) = Arc(startDeg + amt, lengthClockwise, Circ(origin, radius))
 
   fun flippedVertically() = Arc(-startDeg, -endDeg, Circ(origin, radius))
-
-  val crossesZero get() = endDegUnbound > 360.0
-
-  val isSizeZero get() = lengthClockwise == 0.0
 
   fun pxToDeg(px: Double) = px * Deg.Whole / circumference
   fun degToPx(deg: Deg) = (circumference / Deg.Whole) * deg.value
@@ -137,7 +138,8 @@ class Arc(var startDeg: Deg, var lengthClockwise: Double, circle: Circ) :
       second.contains(firstStart) && second.contains(firstEnd) -> {
         listOf(
           Arc(second.startDeg, first.endDeg, this),
-          Arc(first.startDeg, second.endDeg, this))
+          Arc(first.startDeg, second.endDeg, this)
+        )
           .sortedBy { it.startDeg.value }
           .filterNot { it.lengthClockwise == 0.0 }
       }

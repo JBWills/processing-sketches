@@ -1,13 +1,14 @@
 package coordinate
 
+import kotlinx.serialization.Serializable
 import util.equalsZero
 import java.awt.geom.Line2D
 
+@Serializable
 open class Line(
-  var origin: Point,
-  var slope: Deg,
+  val origin: Point,
+  val slope: Deg,
 ) {
-
   fun getPointAtDist(dist: Double) = origin + (slope.unitVector * dist)
 
   fun normal(clockWise: Boolean = true): Line {
@@ -17,7 +18,7 @@ open class Line(
 
   fun angleBetween(other: Line): Double = slope.rotation(other.slope)
 
-  fun intersect(other: Line): Point? {
+  fun intersection(other: Line): Point? {
     val this2d = toLine2d()
     val that2d = other.toLine2d()
     if (!this2d.intersectsLine(that2d)) return null
@@ -25,7 +26,7 @@ open class Line(
     return getIntersectPoint(this2d, that2d)
   }
 
-  open fun intersect(other: Segment): Point? {
+  open fun intersection(other: Segment): Point? {
     val this2d = toLine2d()
     val that2d = other.toLine2d()
     if (!this2d.intersectsLine(that2d)) return null
@@ -33,8 +34,8 @@ open class Line(
     return getIntersectPoint(this2d, that2d)
   }
 
-  fun intersectsY(y: Double): Point? = intersect(Line(Point(0, y), Deg(0)))
-  fun intersectsX(x: Double): Point? = intersect(Line(Point(x, 0), Deg(90)))
+  fun intersectsY(y: Double): Point? = intersection(Line(Point(0, y), Deg(0)))
+  fun intersectsX(x: Double): Point? = intersection(Line(Point(x, 0), Deg(90)))
 
   private fun toLine2d(): Line2D {
     val extender = slope.unitVector * 1_000_000

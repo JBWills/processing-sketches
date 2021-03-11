@@ -6,6 +6,8 @@ import LayerConfig
 import controls.ControlGroup.Companion.group
 import controls.ControlGroupable
 import controls.controls
+import controls.doubleProp
+import controls.intProp
 import controls.noiseControls
 import coordinate.BoundRect
 import coordinate.BoundRect.Companion.mappedOnto
@@ -16,7 +18,6 @@ import fastnoise.Noise.Companion.warpedRadially
 import fastnoise.NoiseQuality.High
 import fastnoise.mapNoiseToPositiveValues
 import util.property2DSlider
-import util.propertySlider
 import java.awt.Color
 
 open class CircleWarpSketch(
@@ -56,12 +57,12 @@ open class CircleWarpSketch(
 
   override fun getControls(): Array<ControlGroupable> = controls(
     group(
-      propertySlider(::numCircles, r = 1..1000),
-      propertySlider(::circleSpacing, r = 0.001..50.0)
+      intProp(::numCircles, range = 1..1000),
+      doubleProp(::circleSpacing, range = 0.001..50.0)
     ),
     group(
-      propertySlider(::moveAmountX, r = 0..2000),
-      propertySlider(::moveAmountY, r = 0..2000)
+      intProp(::moveAmountX, range = 0..2000),
+      intProp(::moveAmountY, range = 0..2000)
     ),
     *noiseControls(::noise),
     group(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)

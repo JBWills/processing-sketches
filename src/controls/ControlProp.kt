@@ -1,17 +1,19 @@
 package controls
 
 import BaseSketch
+import controls.Control.Dropdown
+import controls.Control.EnumDropdown
+import controls.Control.Slider2d
 import controls.ControlGroup.Companion.group
 import controls.ControlSection.Companion.toControlSection
 import coordinate.Deg
 import coordinate.Point
 import fastnoise.Noise
 import util.DoubleRange
-import util.property2DSlider
-import util.propertyEnumDropdown
+import util.ZeroToOne
 import util.propertySlider
-import util.propertySliderPair
 import util.propertyToggle
+import util.toDoubleRange
 import util.tuple.and
 import kotlin.reflect.KMutableProperty0
 
@@ -79,8 +81,11 @@ fun BaseSketch.booleanProp(ref: KMutableProperty0<Boolean>) =
 fun BaseSketch.intProp(ref: KMutableProperty0<Int>, range: IntRange) =
   prop(ref) { propertySlider(ref, range, name = ref.name) }
 
-fun BaseSketch.doubleProp(ref: KMutableProperty0<Double>, range: DoubleRange) =
+fun BaseSketch.doubleProp(ref: KMutableProperty0<Double>, range: DoubleRange = ZeroToOne) =
   prop(ref) { propertySlider(ref, range, name = ref.name) }
+
+fun BaseSketch.doubleProp(ref: KMutableProperty0<Double>, range: IntRange) =
+  doubleProp(ref, range.toDoubleRange())
 
 fun BaseSketch.doublePairProp(
   ref: KMutableProperty0<Point>,
@@ -91,13 +96,28 @@ fun BaseSketch.doublePairProp(
   ref: KMutableProperty0<Point>,
   ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0)
 ) = prop(ref) {
-  group(*propertySliderPair(ref, ranges.first, ranges.second, name = ref.name))
+  group(
+    Control.Slider(
+      "${ref.name} X",
+      range = ranges.first,
+      getter = { ref.get().x },
+      setter = { ref.set(Point(it, ref.get().y)) }
+    ) { markDirty() },
+    Control.Slider(
+      "${ref.name} Y",
+      range = ranges.second,
+      getter = { ref.get().y },
+      setter = { ref.set(Point(ref.get().x, it)) }
+    ) { markDirty() },
+  )
 }
 
 fun BaseSketch.pointProp(
   ref: KMutableProperty0<Point>,
   ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0)
-) = prop(ref) { property2DSlider(ref, ranges.first, ranges.second, ref.name) }
+) = prop(ref) {
+  Slider2d(ref, ranges.first, ranges.second, text = ref.name) { markDirty() }
+}
 
 fun BaseSketch.noiseProp(
   ref: KMutableProperty0<Noise>
@@ -108,7 +128,7 @@ fun dropdownList(
   options: List<String>,
   ref: KMutableProperty0<String>,
   onChange: (String) -> Unit = {}
-) = Control.Dropdown(
+) = Dropdown(
   text = name,
   options = options,
   defaultValue = ref.get()
@@ -120,7 +140,9 @@ fun dropdownList(
 fun <E : Enum<E>> BaseSketch.enumProp(
   ref: KMutableProperty0<E>,
   onChange: () -> Unit = {},
-) = prop(ref) { propertyEnumDropdown(ref, name = ref.name, onChange = { onChange() }) }
+) = prop(ref) {
+  EnumDropdown(ref, text = ref.name) { onChange(); markDirty() }
+}
 
 fun <E : Enum<E>> BaseSketch.nullableEnumProp(
   ref: KMutableProperty0<E?>,

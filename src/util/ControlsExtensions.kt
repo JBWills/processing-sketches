@@ -55,8 +55,18 @@ fun BaseSketch.propertySliderPair(
   ry: DoubleRange = DEFAULT_RANGE,
   name: String? = null,
 ) = arrayOf(
-  Control.Slider(prop.get().mutablePropX, rx, "${name ?: prop.name} X") { markDirty() },
-  Control.Slider(prop.get().mutablePropY, ry, "${name ?: prop.name} Y") { markDirty() }
+  Control.Slider(
+    "${name ?: prop.name} X",
+    range = rx,
+    getter = { prop.get().x },
+    setter = { prop.set(Point(it, prop.get().y)) }
+  ) { markDirty() },
+  Control.Slider(
+    "${name ?: prop.name} Y",
+    range = ry,
+    getter = { prop.get().y },
+    setter = { prop.set(Point(prop.get().x, it)) }
+  ) { markDirty() },
 )
 
 fun <E : Enum<E>> BaseSketch.propertyEnumDropdown(

@@ -7,13 +7,14 @@ import LayerConfig
 import controls.Control.Button
 import controls.ControlGroup.Companion.group
 import controls.ControlGroupable
+import controls.booleanProp
 import controls.controls
+import controls.doubleProp
+import controls.enumProp
+import controls.intProp
 import coordinate.BoundRect
 import coordinate.Point
 import util.property2DSlider
-import util.propertyEnumDropdown
-import util.propertySlider
-import util.propertyToggle
 import java.awt.Color
 
 open class WarpSketch(
@@ -54,23 +55,23 @@ open class WarpSketch(
       points.clear()
       markDirty()
     },
-    propertySlider(::xMidpointVal),
-    group(propertyEnumDropdown(::noiseType), heightRatio = 5),
+    doubleProp(::xMidpointVal),
+    group(enumProp(::noiseType), heightRatio = 5),
     group(
-      propertyToggle(::withVerticalLines),
-      propertyToggle(::withHorizontalLines)
+      booleanProp(::withVerticalLines),
+      booleanProp(::withHorizontalLines)
     ),
-    propertySlider(::quality),
+    doubleProp(::quality),
     group(
-      propertySlider(::numLines, r = 1..100),
-      propertySlider(::lineSpacing, r = 0.001..200.0)
+      intProp(::numLines, range = 1..100),
+      doubleProp(::lineSpacing, range = 0.001..200.0)
     ),
-    propertySlider(::noiseScale, r = 1..100),
+    intProp(::noiseScale, range = 1..100),
     group(
-      propertySlider(::moveAmountX, r = 0..2000),
-      propertySlider(::moveAmountY, r = 0..2000)
+      intProp(::moveAmountX, range = 0..2000),
+      intProp(::moveAmountY, range = 0..2000),
     ),
-    propertySlider(::seed, r = 0..2000),
+    intProp(::seed, range = 0..2000),
     group(property2DSlider(::noiseOffset, Point.One..Point(1000, 1000)), heightRatio = 5)
   )
 

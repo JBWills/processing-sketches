@@ -40,20 +40,25 @@ internal class LineTest {
   fun testConstructor() {
     assertEquals(
       S(Point.Zero, Point.Up),
-      S(Point.Zero, Deg(90), 1.0))
+      S(Point.Zero, Deg(90), 1.0)
+    )
 
     assertEquals(
       S(Point.Zero, Point.Down),
-      S(Point.Zero, Deg(-90), 1.0))
+      S(Point.Zero, Deg(-90), 1.0)
+    )
     assertEquals(
       S(Point.Zero, Point.Left),
-      S(Point.Zero, Deg(180), 1.0))
+      S(Point.Zero, Deg(180), 1.0)
+    )
     assertEquals(
       S(Point.Zero, Point.Right),
-      S(Point.Zero, Deg(0), 1.0))
+      S(Point.Zero, Deg(0), 1.0)
+    )
     assertEquals(
       S(Point.Zero, Point(sqrt(0.5), -sqrt(0.5))),
-      S(Point.Zero, Deg(45), 1.0))
+      S(Point.Zero, Deg(45), 1.0)
+    )
   }
 
   @Test
@@ -169,9 +174,9 @@ internal class LineTest {
   fun testIntersectWithLine() {
     val l = Line(Point.Zero, Deg(0))
 
-    assertEquals(Point(1, 0), l.intersect(Line(Point.One, Deg(90))))
-    assertEquals(Point(-1, 0), l.intersect(Line(-Point.One, Deg(90))))
-    assertEquals(Point(0, 0), l.intersect(Line(Point(1, -1), Deg(45))))
+    assertEquals(Point(1, 0), l.intersection(Line(Point.One, Deg(90))))
+    assertEquals(Point(-1, 0), l.intersection(Line(-Point.One, Deg(90))))
+    assertEquals(Point(0, 0), l.intersection(Line(Point(1, -1), Deg(45))))
   }
 
   @Test

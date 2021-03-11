@@ -19,7 +19,7 @@ fun Point.isInCircle(c: Circ) = c.isInCircle(this)
 
 fun Point.toLVector() = LVector2(x.toDouble(), y.toDouble())
 
-open class Circ(var origin: Point, var radius: Double) : Walkable {
+open class Circ(val origin: Point, val radius: Double) : Walkable {
   constructor(origin: Point, radius: Number) : this(origin, radius.toDouble())
   constructor(radius: Number) : this(Point.Zero, radius.toDouble())
   constructor(c: Circ) : this(c.origin, c.radius)

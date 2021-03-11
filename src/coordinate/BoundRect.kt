@@ -29,24 +29,24 @@ data class BoundRect(
     }
   }
 
-  val top: Double = topLeft.y
-  val left: Double = topLeft.x
-  val bottom: Double = topLeft.y + height
-  val right: Double = topLeft.x + width
-  val bottomRight = Point(right, bottom)
-  val topRight = Point(right, top)
-  val bottomLeft = Point(left, bottom)
+  val top: Double by lazy { topLeft.y }
+  val left: Double by lazy { topLeft.x }
+  val bottom: Double by lazy { topLeft.y + height }
+  val right: Double by lazy { topLeft.x + width }
+  val bottomRight by lazy { Point(right, bottom) }
+  val topRight by lazy { Point(right, top) }
+  val bottomLeft by lazy { Point(left, bottom) }
 
-  val topSegment get() = Segment(topLeft, Deg(0), width)
-  val bottomSegment get() = Segment(bottomLeft, Deg(0), width)
-  val leftSegment get() = Segment(topLeft, bottomLeft)
-  val rightSegment get() = Segment(topRight, bottomRight)
+  val topSegment by lazy { Segment(topLeft, Deg(0), width) }
+  val bottomSegment by lazy { Segment(bottomLeft, Deg(0), width) }
+  val leftSegment by lazy { Segment(topLeft, bottomLeft) }
+  val rightSegment by lazy { Segment(topRight, bottomRight) }
 
-  val center = Point(left + width / 2, top + height / 2)
+  val center by lazy { Point(left + width / 2, top + height / 2) }
 
-  val pointsClockwise get() = listOf(topLeft, topRight, bottomRight, bottomLeft)
+  val pointsClockwise by lazy { listOf(topLeft, topRight, bottomRight, bottomLeft) }
 
-  val segments get() = listOf(topSegment, bottomSegment, leftSegment, rightSegment)
+  val segments by lazy { listOf(topSegment, bottomSegment, leftSegment, rightSegment) }
 
   fun isTop(line: Line) = line.origin.y == top && line.slope.isHorizontal()
   fun isBottom(line: Line) = line.origin.y == bottom && line.slope.isHorizontal()
@@ -77,10 +77,10 @@ data class BoundRect(
     if (isRight(line)) return rightSegment
 
     val intersections = listOfNotNull(
-      line.intersect(topSegment),
-      line.intersect(bottomSegment),
-      line.intersect(leftSegment),
-      line.intersect(rightSegment)
+      line.intersection(topSegment),
+      line.intersection(bottomSegment),
+      line.intersection(leftSegment),
+      line.intersection(rightSegment)
     )
       .sortedBy { (x, y) -> y * 1000 + x }
 

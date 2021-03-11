@@ -89,14 +89,28 @@ sealed class Control<T : Controller<T>>(
     }
   ) {
     constructor(
+      text: String,
+      range: DoubleRange = DEFAULT_RANGE,
+      getter: () -> Double,
+      setter: (Double) -> Unit,
+      handleChange: (Double) -> Unit,
+    ) : this(text, range, getter(), {
+      setter(it)
+      handleChange(it)
+    })
+
+    constructor(
       valRef: KMutableProperty0<Double>,
       range: DoubleRange = DEFAULT_RANGE,
       text: String? = null,
       handleChange: (Double) -> Unit = {},
-    ) : this(text?.splitCamelCase() ?: valRef.name.splitCamelCase(), range, valRef.get(), {
-      valRef.set(it)
-      handleChange(it)
-    })
+    ) : this(
+      text?.splitCamelCase() ?: valRef.name.splitCamelCase(),
+      range,
+      valRef::get,
+      valRef::set,
+      handleChange
+    )
 
     constructor(
       valRef: KMutableProperty0<Int>,

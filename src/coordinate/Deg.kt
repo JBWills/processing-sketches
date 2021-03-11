@@ -25,7 +25,9 @@ fun lockValueTo360(v: Double) = (360 + (v % 360)) % 360
  * On a 2d grid, assume 0 equals pointing right.
  */
 @Serializable
-data class Deg(var value: Double) {
+data class Deg(private val inputValue: Double) {
+
+  val value = lockValueTo360(inputValue)
 
   @Suppress("unused")
   companion object {
@@ -39,10 +41,6 @@ data class Deg(var value: Double) {
   }
 
   constructor(v: Number) : this(v.toDouble())
-
-  init {
-    value = lockValueTo360(value)
-  }
 
   val rad get() = value.toRadians()
 

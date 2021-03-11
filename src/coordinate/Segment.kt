@@ -29,7 +29,7 @@ fun getSlope(p1: Point, p2: Point): Deg {
 class Segment(
   p1: Point,
   slope: Deg,
-  var length: Double,
+  val length: Double,
 ) : Line(p1, slope), Walkable {
   constructor(p1: Point, p2: Point) : this(p1, getSlope(p1, p2), p1.dist(p2))
   constructor(s: Segment) : this(s.p1, s.p2)
@@ -83,7 +83,7 @@ class Segment(
 
   override fun <T> walk(step: Double, block: (Point) -> T) = (p1..p2 step step).map(block)
 
-  fun contains(c: Point): Boolean {
+  operator fun contains(c: Point): Boolean {
     val crossProduct = (c.y - p1.y) * (p2.x - p1.x) - (c.x - p1.x) * (p2.y - p1.y)
 
     // compare versus epsilon for doubleing point values, or != 0 if using integers
@@ -104,7 +104,7 @@ class Segment(
     return true
   }
 
-  override fun intersect(other: Segment): Point? {
+  override fun intersection(other: Segment): Point? {
     val this2d = toLine2d()
     val that2d = other.toLine2d()
     if (!this2d.intersectsLine(that2d)) return null

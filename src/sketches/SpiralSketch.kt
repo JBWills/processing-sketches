@@ -6,13 +6,18 @@ import LayerConfig
 import controls.ControlGroup.Companion.group
 import controls.ControlGroupable
 import controls.controls
+import controls.doubleProp
+import controls.intProp
 import controls.noiseControls
-import coordinate.*
+import coordinate.BoundRect
 import coordinate.BoundRect.Companion.mappedOnto
+import coordinate.Circ
+import coordinate.Deg
+import coordinate.Point
+import coordinate.Spiral
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import util.property2DSlider
-import util.propertySlider
 import util.squared
 import java.awt.Color
 import kotlin.math.sin
@@ -58,20 +63,20 @@ open class SpiralSketch(
 
   override fun getControls(): Array<ControlGroupable> = controls(
     group(
-      propertySlider(::numCircles, r = 1..1000),
-      propertySlider(::circleSpacing, r = 0.001..50.0)
+      intProp(::numCircles, range = 1..1000),
+      doubleProp(::circleSpacing, range = 0.001..50.0)
     ),
     group(
-      propertySlider(::moveAmountX, r = 0.0..5.0),
-      propertySlider(::moveAmountY, r = 0.0..2000.0)
+      doubleProp(::moveAmountX, range = 0.0..5.0),
+      doubleProp(::moveAmountY, range = 0.0..2000.0)
     ),
     group(
-      propertySlider(::spiralRotations, r = 0.0..10.0),
-      propertySlider(::spiralSpacing, r = 0.0..50.0)
+      doubleProp(::spiralRotations, range = 0.0..10.0),
+      doubleProp(::spiralSpacing, range = 0.0..50.0)
     ),
     group(
-      propertySlider(::spiralStartAngle, r = 0.0..2.0),
-      propertySlider(::interiorSpiralStartAngle, r = 0.0..2.0)
+      doubleProp(::spiralStartAngle, range = 0.0..2.0),
+      doubleProp(::interiorSpiralStartAngle, range = 0.0..2.0)
     ),
     *noiseControls(::noise),
     group(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)

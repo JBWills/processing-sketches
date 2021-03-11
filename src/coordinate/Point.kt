@@ -70,7 +70,7 @@ class PointProgression(
 }
 
 @Serializable
-data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Point> {
+data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Point> {
   init {
     if (x.isNaN() || y.isNaN()) throw Exception("Can't create a point with nan values. x=$x, y=$y")
   }
@@ -78,13 +78,10 @@ data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Poi
   constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
   constructor(p: Point) : this(p.x, p.y)
 
-  val mutablePropX = ::x
-  val mutablePropY = ::y
-
   fun toPixelPoint() = PixelPoint(x.toInt(), y.toInt())
 
-  val xf get() = x.toFloat()
-  val yf get() = y.toFloat()
+  val xf = x.toFloat()
+  val yf = y.toFloat()
 
   val magnitude
     get() = sqrt(x.squared() + y.squared())
@@ -151,15 +148,15 @@ data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Poi
 
     fun Point?.plusIf(other: List<Point>) = if (this != null) this + other else other
 
-    val Zero get() = Point(0, 0)
-    val NegativeToPositive get() = Point(-1, 1)
-    val Half get() = Point(0.5, 0.5)
-    val Up get() = Point(0, -1)
-    val Down get() = Point(0, 1)
-    val Left get() = Point(-1, 0)
-    val Right get() = Point(1, 0)
-    val One get() = Point(1, 1)
-    val Unit get() = Point(1, 0)
+    val Zero = Point(0, 0)
+    val NegativeToPositive = Point(-1, 1)
+    val Half = Point(0.5, 0.5)
+    val Up = Point(0, -1)
+    val Down = Point(0, 1)
+    val Left = Point(-1, 0)
+    val Right = Point(1, 0)
+    val One = Point(1, 1)
+    val Unit = Point(1, 0)
   }
 
   override fun toString(): String {
@@ -187,7 +184,7 @@ data class Point(var x: Double, var y: Double) : Comparable<Point>, Mathable<Poi
   }
 }
 
-data class PixelPoint(var x: Int, var y: Int) {
+data class PixelPoint(val x: Int, val y: Int) {
   operator fun unaryMinus() = PixelPoint(-x, -y)
 
   operator fun unaryPlus() = PixelPoint(+x, +y)

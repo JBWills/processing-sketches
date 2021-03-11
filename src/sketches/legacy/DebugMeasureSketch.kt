@@ -6,6 +6,8 @@ import LayerConfig
 import controls.ControlGroup.Companion.group
 import controls.ControlGroupable
 import controls.controls
+import controls.doubleProp
+import controls.intProp
 import controls.noiseControls
 import coordinate.BoundRect
 import coordinate.Point
@@ -15,7 +17,6 @@ import util.print.DPI
 import util.print.Orientation.Landscape
 import util.print.Paper
 import util.property2DSlider
-import util.propertySlider
 import java.awt.Color
 
 open class DebugMeasureSketch(
@@ -58,15 +59,21 @@ open class DebugMeasureSketch(
 
   override fun getControls(): Array<ControlGroupable> = controls(
     group(
-      propertySlider(::numCircles, r = 1..1000),
-      propertySlider(::circleSpacing, r = 0.001..50.0)
+      intProp(::numCircles, range = 1..1000),
+      doubleProp(::circleSpacing, range = 0.001..50.0)
     ),
-    group(propertySlider(::moveAmountX, r = 0.0..5.0),
-      propertySlider(::moveAmountY, r = 0.0..2000.0)),
-    group(propertySlider(::spiralRotations, r = 0.0..10.0),
-      propertySlider(::spiralSpacing, r = 0.0..50.0)),
-    group(propertySlider(::spiralStartAngle, r = 0.0..2.0),
-      propertySlider(::interiorSpiralStartAngle, r = 0.0..2.0)),
+    group(
+      doubleProp(::moveAmountX, range = 0.0..5.0),
+      doubleProp(::moveAmountY, range = 0.0..2000.0)
+    ),
+    group(
+      doubleProp(::spiralRotations, range = 0.0..10.0),
+      doubleProp(::spiralSpacing, range = 0.0..50.0)
+    ),
+    group(
+      doubleProp(::spiralStartAngle, range = 0.0..2.0),
+      doubleProp(::interiorSpiralStartAngle, range = 0.0..2.0)
+    ),
     *noiseControls(::noise),
     group(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)
   )

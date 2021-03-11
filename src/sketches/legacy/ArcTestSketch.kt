@@ -3,9 +3,10 @@ package sketches.legacy
 import BaseSketch
 import LayerConfig
 import appletExtensions.intersection
-import controls.Control.Slider
 import controls.ControlGroupable
 import controls.controls
+import controls.doublePairProp
+import controls.doubleProp
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
@@ -36,26 +37,10 @@ open class ArcTestSketch(
   )
 
   override fun getControls(): Array<ControlGroupable> = controls(
-    Slider("Start angle", 0.0..360.0, startAngle) {
-      startAngle = it
-      markDirty()
-    },
-    Slider("length", 0.0..360.0, length) {
-      length = it
-      markDirty()
-    },
-    Slider("posX", 0.0..sizeX.toDouble(), position.x) {
-      position.x = it
-      markDirty()
-    },
-    Slider("posY", 0.0..sizeY.toDouble(), position.y) {
-      position.y = it
-      markDirty()
-    },
-    Slider("size", 0.0..150.0, size) {
-      size = it
-      markDirty()
-    },
+    doubleProp(::startAngle, 0..360),
+    doubleProp(::length, 0..360),
+    doublePairProp(::position, 0.0..sizeX.toDouble()),
+    doubleProp(::size, 0..150),
   )
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
