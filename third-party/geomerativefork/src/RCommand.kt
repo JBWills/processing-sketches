@@ -104,8 +104,10 @@ class RCommand(
    * @param c  the object of which to make the copy
    * @param sp  the start point of the command to be created
    */
-  constructor(c: RCommand, sp: RPoint? = null, ep: RPoint? = null) : this(sp ?: c.startPoint, ep
-    ?: c.endPoint, c.controlPoints.clone(), c.type)
+  constructor(c: RCommand, sp: RPoint? = null, ep: RPoint? = null) : this(
+    sp ?: c.startPoint, ep
+      ?: c.endPoint, c.controlPoints.clone(), c.type
+  )
 
   /**
    * Create a LINETO command object with specific start and end points.
@@ -511,7 +513,8 @@ class RCommand(
 
     return arrayOf(
       createBezier4(startPoint, triangleMatrix[1][0], triangleMatrix[2][0], triangleMatrix[3][0]),
-      createBezier4(triangleMatrix[3][0], triangleMatrix[2][1], triangleMatrix[1][2], endPoint))
+      createBezier4(triangleMatrix[3][0], triangleMatrix[2][1], triangleMatrix[1][2], endPoint)
+    )
   }
 
   private fun splitQuadBezier(t: Float): Array<RCommand> {
@@ -533,8 +536,10 @@ class RCommand(
       }
     }
 
-    return arrayOf(createBezier3(startPoint, triangleMatrix[1][0], triangleMatrix[2][0]),
-      createBezier3(triangleMatrix[2][0], triangleMatrix[1][1], endPoint))
+    return arrayOf(
+      createBezier3(startPoint, triangleMatrix[1][0], triangleMatrix[2][0]),
+      createBezier3(triangleMatrix[2][0], triangleMatrix[1][1], endPoint)
+    )
   }
 
   private fun splitLine(t: Float): Array<RCommand> {
@@ -555,8 +560,10 @@ class RCommand(
         triangleMatrix[i][j] = (1 - t) * last + t * next
       }
     }
-    return arrayOf(createLine(startPoint, triangleMatrix[1][0]),
-      createLine(triangleMatrix[1][0], endPoint))
+    return arrayOf(
+      createLine(startPoint, triangleMatrix[1][0]),
+      createLine(triangleMatrix[1][0], endPoint)
+    )
   }
 
   private fun quadBezierAdaptative() {
@@ -677,7 +684,8 @@ class RCommand(
       0 ->         // All collinear OR p1==p4
         //----------------------
         if (abs(x1 + x3 - x2 - x2) + abs(y1 + y3 - y2 - y2) + abs(x2 + x4 - x3 - x3) + abs(
-            y2 + y4 - y3 - y3) <= segmentDistTolMnhttn
+            y2 + y4 - y3 - y3
+          ) <= segmentDistTolMnhttn
         ) {
           addCurvePoint(RPoint(x1234, y1234))
           return
@@ -809,7 +817,8 @@ class RCommand(
       val dy3 = endPoint.y - controlPoints[1].y
       val len =
         sqrt((dx1 * dx1 + dy1 * dy1)) + sqrt((dx2 * dx2 + dy2 * dy2)) + sqrt(
-          (dx3 * dx3 + dy3 * dy3))
+          (dx3 * dx3 + dy3 * dy3)
+        )
       steps = (len * 0.25).toInt()
       if (steps < 4) {
         steps = 4
@@ -1259,17 +1268,15 @@ class RCommand(
     return result
   }
 
-  override fun toString(): String {
-    return "RCommand(startPoint=$startPoint, endPoint=$endPoint, type=${
-      typeString(type)
-    }"
-  }
-
   fun typeString(typeInt: Int) = when (typeInt) {
     LINETO -> "LINETO"
     QUADBEZIERTO -> "QUADBEZIERTO"
     CUBICBEZIERTO -> "CUBICBEZIERTO"
     else -> "UNKNOWN"
+  }
+
+  override fun toString(): String {
+    return "RCommand(startPoint=$startPoint, endPoint=$endPoint, controlPoints=${controlPoints.contentToString()}, type=$type, curvePoints=${curvePoints.contentToString()})"
   }
 
   companion object {
@@ -1298,8 +1305,12 @@ class RCommand(
 
     /* Parameters for UNIFORMLENGTH (dependent of the PGraphics on which drawing) */
     var commandSegmentLength = 4.0f
-    @JvmField var segmentOffset = 0.0f
-    @JvmField var segmentAccOffset = 0.0f
+
+    @JvmField
+    var segmentOffset = 0.0f
+
+    @JvmField
+    var segmentAccOffset = 0.0f
 
     /* Parameters for UNIFORMSTEP */
     var segmentSteps = 0
@@ -1323,8 +1334,10 @@ class RCommand(
       startx: Float, starty: Float, cp1x: Float, cp1y: Float, cp2x: Float, cp2y: Float, endx: Float,
       endy: Float,
     ): RCommand =
-      createBezier4(RPoint(startx, starty), RPoint(cp1x, cp1y), RPoint(cp2x, cp2y),
-        RPoint(endx, endy))
+      createBezier4(
+        RPoint(startx, starty), RPoint(cp1x, cp1y), RPoint(cp2x, cp2y),
+        RPoint(endx, endy)
+      )
 
     /**
      * Use this to set the segmentator type.  ADAPTATIVE segmentator minimizes the number of segments avoiding perceptual artifacts like angles or cusps.  Use this in order to have Polygons and Meshes with the fewest possible vertices.  This can be useful when using or drawing a lot the same Polygon or Mesh deriving from this Shape.  UNIFORMLENGTH segmentator is the slowest segmentator and it segments the curve on segments of equal length.  This can be useful for very specific applications when for example drawing incrementaly a shape with a uniform speed.  UNIFORMSTEP segmentator is the fastest segmentator and it segments the curve based on a constant value of the step of the curve parameter, or on the number of segments wanted.  This can be useful when segmpointsentating very often a Shape or when we know the amount of segments necessary for our specific application.
@@ -1527,4 +1540,6 @@ class RCommand(
       return RClosest()
     }
   }
+
+
 }

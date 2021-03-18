@@ -1,6 +1,7 @@
 package sketches
 
 import BaseSketch
+import FastNoiseLite.NoiseType.Perlin
 import appletExtensions.getParallelLinesInBound
 import controls.ControlTab.Companion.layerTab
 import controls.ControlTab.Companion.tab
@@ -8,15 +9,20 @@ import controls.degProp
 import controls.doublePairProp
 import controls.doubleProp
 import controls.enumProp
+import controls.noiseProp
 import controls.props.PropData
 import coordinate.Circ
 import coordinate.Deg
 import coordinate.Point
+import fastnoise.Noise
+import fastnoise.Noise.Companion.warped
+import fastnoise.NoiseQuality.High
 import kotlinx.serialization.Serializable
 import sketches.MoireShape.Circle
 import sketches.MoireShape.Rectangle
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
+import util.geomutil.intersection
 
 enum class MoireShape {
   Rectangle,
@@ -39,31 +45,37 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
 
   override fun drawOnce(values: LayerInfo) {
     val (baseData) = values.globalValues
-    val (shape, lineDensity, lineAngle, lineOffset, shapeSize, shapeCenter) = values.tabValues
+    val (
+      shape,
+      lineDensity,
+      lineAngle,
+      lineOffset,
+      shapeSize,
+      shapeCenter,
+      noise
+    ) = values.tabValues
 
-    val centerPoint = boundRect.size * shapeCenter
+    val centerPoint = boundRect.pointAt(shapeCenter.x, shapeCenter.y)
 
     val distanceBetweenLines = (50.0..0.5).atAmountAlong(lineDensity)
+
+    val baseLines = getParallelLinesInBound(
+      boundRect,
+      lineAngle,
+      distanceBetweenLines,
+      lineOffset * distanceBetweenLines
+    )
 
     when (shape) {
       Rectangle -> {
         val r = boundRect.scale(shapeSize, centerPoint)
 
-        getParallelLinesInBound(
-          r,
-          lineAngle,
-          distanceBetweenLines,
-          lineOffset * distanceBetweenLines
-        )
+        baseLines.flatMap { it.warped(noise).intersection(r) }
       }
       Circle -> {
-        val c = Circ(centerPoint, shapeSize.x)
-        getParallelLinesInBound(
-          c.bounds,
-          lineAngle,
-          distanceBetweenLines,
-          lineOffset * distanceBetweenLines
-        ).mapNotNull { c.bound(it) }
+        val c = Circ(centerPoint, shapeSize.x * boundRect.width)
+        c.draw()
+        baseLines.flatMap { it.warped(noise).intersection(c) }
       }
     }.draw(boundRect)
   }
@@ -76,15 +88,24 @@ data class MoireLinesLayerData(
   var lineAngle: Deg = Deg.VERTICAL,
   var lineOffset: Double = 0.0,
   var shapeSize: Point = Point.One,
-  var shapeCenter: Point = Point.Half,
+  var shapeCenter: Point = Point.Zero,
+  var noise: Noise = Noise(
+    seed = 100,
+    noiseType = Perlin,
+    quality = High,
+    scale = 0.15,
+    offset = Point.Zero,
+    strength = Point(0, 0)
+  ),
 ) : PropData<MoireLinesLayerData> {
   override fun BaseSketch.bind() = layerTab(
     enumProp(::shape),
     doubleProp(::lineDensity, 0.0..1.0),
     degProp(::lineAngle, 0.0..90.0),
     doubleProp(::lineOffset, 0.0..1.0),
-    doublePairProp(::shapeSize, -0.0..2.0),
-    doublePairProp(::shapeCenter, -2.0..2.0),
+    doublePairProp(::shapeSize, 0.0..2.0),
+    doublePairProp(::shapeCenter, -0.5..1.5),
+    noiseProp(::noise),
   )
 
   override fun clone() = copy()

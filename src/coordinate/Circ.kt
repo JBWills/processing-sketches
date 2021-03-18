@@ -17,15 +17,16 @@ import kotlin.math.sin
 fun Point.isOnCircle(c: Circ) = c.isOnCircle(this)
 fun Point.isInCircle(c: Circ) = c.isInCircle(this)
 
-fun Point.toLVector() = LVector2(x.toDouble(), y.toDouble())
+fun Point.toLVector() = LVector2(x, y)
 
 open class Circ(val origin: Point, val radius: Double) : Walkable {
   constructor(origin: Point, radius: Number) : this(origin, radius.toDouble())
   constructor(radius: Number) : this(Point.Zero, radius.toDouble())
   constructor(c: Circ) : this(c.origin, c.radius)
 
-  val circumference: Double get() = 2 * PI * radius
-  val bounds: BoundRect get() = centeredRect(origin, diameter, diameter)
+  val diameter = 2 * radius
+  val circumference: Double = 2 * PI * radius
+  val bounds: BoundRect = centeredRect(origin, diameter, diameter)
 
   init {
     if (radius < 0) {
@@ -55,8 +56,10 @@ open class Circ(val origin: Point, val radius: Double) : Walkable {
 
     if (intersections.size < 2) return null
 
-    return Segment(intersections[0], intersections[1]).withReorientedDirection(s)
+    return Segment(intersections[0], intersections[1])
   }
+
+  fun isEmpty() = radius == 0.0
 
   override fun walk(step: Double): List<Point> = walk(step) { it }
 
@@ -94,5 +97,5 @@ open class Circ(val origin: Point, val radius: Double) : Walkable {
     return "Circ(origin=$origin, radius=$radius)"
   }
 
-  val diameter get() = 2 * radius
+  fun toRPath() = toRShape().paths.first()
 }

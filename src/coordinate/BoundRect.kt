@@ -1,10 +1,14 @@
 package coordinate
 
+import geomerativefork.src.RPath
+import geomerativefork.src.RPoint
+import geomerativefork.src.RShape
 import interfaces.shape.Walkable
 import util.atAmountAlong
+import util.iterators.mapArray
 import util.iterators.mapWithNextCyclical
+import util.min
 import kotlin.math.abs
-import kotlin.math.min
 
 data class BoundRect(
   val topLeft: Point,
@@ -41,6 +45,9 @@ data class BoundRect(
   val bottomSegment by lazy { Segment(bottomLeft, Deg(0), width) }
   val leftSegment by lazy { Segment(topLeft, bottomLeft) }
   val rightSegment by lazy { Segment(topRight, bottomRight) }
+
+  val points: List<Point> by lazy { listOf(topLeft, topRight, bottomRight, bottomLeft, topLeft) }
+  val rPoints: Array<RPoint> by lazy { points.mapArray { it.toRPoint() } }
 
   val center by lazy { Point(left + width / 2, top + height / 2) }
 
@@ -99,15 +106,14 @@ data class BoundRect(
       .flatten()
 
   fun roughDistFromSides(point: Point): Double = min(
-    min(
-      abs(point.x - left),
-      abs(point.x - right)
-    ),
-    min(
-      abs(point.y - top),
-      abs(point.y - bottom)
-    ),
+    abs(point.x - left),
+    abs(point.x - right),
+    abs(point.y - top),
+    abs(point.y - bottom)
   )
+
+  fun toRShape(): RShape = RShape.createRectangle(center.toRPoint(), w = width, h = height)
+  fun toRPath(): RPath = RPath(rPoints).also { it.addClose() }
 
   fun getBoundSegment(line: Segment): Segment? {
     if (inRect(line.p1) && roughDistFromSides(line.p1) > line.length + 5) return Segment(line)

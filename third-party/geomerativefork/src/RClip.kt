@@ -139,11 +139,8 @@ internal object RClip {
    * @param p2 One of the polygons to perform the intersection with
    */
   @JvmStatic
-  fun intersection(p1: RPolygon, p2: RPolygon): RPolygon {
-    println("In RClip intersection: \n    $p1,\n    $p2")
-    println("result: ${clip(OperationType.GPC_INT, p1, p2, RPolygon::class.java)}")
-    return clip(OperationType.GPC_INT, p1, p2, RPolygon::class.java)
-  }
+  fun intersection(p1: RPolygon, p2: RPolygon): RPolygon =
+    clip(OperationType.GPC_INT, p1, p2, RPolygon::class.java)
 
   /**
    * Return the union of `p1` and `p2` where the
@@ -216,7 +213,7 @@ internal object RClip {
       return result
     }
 
-    /* Identify potentialy contributing contours */
+    /* Identify potentially contributing contours */
     if ((op === OperationType.GPC_INT || op === OperationType.GPC_DIFF) && !subj.isEmpty && !clip.isEmpty) {
       minimax_test(subj, clip, op)
     }
@@ -1349,7 +1346,8 @@ internal object RClip {
 
   private fun OPTIMAL(p: RPolygon, i: Int): Boolean {
     return p.getY(PREV_INDEX(i, p.numPoints)) != p.getY(i) || p.getY(
-      NEXT_INDEX(i, p.numPoints)) != p.getY(i)
+      NEXT_INDEX(i, p.numPoints)
+    ) != p.getY(i)
   }
 
   private fun VERTEX(e: EdgeNode?, p: Int, s: Int, x: Float, y: Float) {
@@ -1714,7 +1712,8 @@ internal object RClip {
               ei.prev = null
               ei.succ =
                 if (num_edges > 1 && i < num_edges - 1) edge_table.getNode(
-                  e_index + i + 1) else null
+                  e_index + i + 1
+                ) else null
               ei.pred = if (num_edges > 1 && i > 0) edge_table.getNode(e_index + i - 1) else null
               ei.next_bound = null
               ei.bside[CLIP] = if (op === OperationType.GPC_DIFF) RIGHT else LEFT
@@ -1765,7 +1764,8 @@ internal object RClip {
               ei.prev = null
               ei.succ =
                 if (num_edges > 1 && i < num_edges - 1) edge_table.getNode(
-                  e_index + i + 1) else null
+                  e_index + i + 1
+                ) else null
               ei.pred = if (num_edges > 1 && i > 0) edge_table.getNode(e_index + i - 1) else null
               ei.next_bound = null
               ei.bside[CLIP] = if (op === OperationType.GPC_DIFF) RIGHT else LEFT
@@ -1940,8 +1940,10 @@ internal object RClip {
 
     /* Horizontal edge state transitions within scanbeam boundary */
     val next_h_state =
-      arrayOf(intArrayOf(BH, TH, TH, BH, NH, NH), intArrayOf(NH, NH, NH, NH, TH, TH),
-        intArrayOf(NH, NH, NH, NH, BH, BH))
+      arrayOf(
+        intArrayOf(BH, TH, TH, BH, NH, NH), intArrayOf(NH, NH, NH, NH, TH, TH),
+        intArrayOf(NH, NH, NH, NH, BH, BH)
+      )
   }
 
   /**

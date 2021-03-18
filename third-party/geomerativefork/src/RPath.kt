@@ -24,11 +24,12 @@
 
 package geomerativefork.src
 
+import geomerativefork.src.Intersection.Companion.intersectionsWith
+import geomerativefork.src.IntersectionType.Entering
+import geomerativefork.src.IntersectionType.Exiting
 import geomerativefork.src.RCommand.Companion.createBezier3
 import geomerativefork.src.RCommand.Companion.createLine
 import geomerativefork.src.util.flatMapArray
-import geomerativefork.src.util.flatMapArrayIndexed
-import geomerativefork.src.util.mapArray
 import geomerativefork.src.util.toArrayString
 import processing.core.PApplet
 import processing.core.PConstants
@@ -56,7 +57,8 @@ class RPath() : RGeomElem() {
    * @related RCommand
    * @related commands.size ( )
    */
-  @JvmField var commands: Array<RCommand> = arrayOf()
+  @JvmField
+  var commands: Array<RCommand> = arrayOf()
 
   /**
    * Last point from where to add the next command.  Initialized to null.
@@ -66,7 +68,9 @@ class RPath() : RGeomElem() {
    * @invisible
    */
   var lastPoint: RPoint? = null
-  @JvmField var closed = false
+
+  @JvmField
+  var closed = false
 
   /**
    * Create a new path, given an array of points.
@@ -271,39 +275,8 @@ class RPath() : RGeomElem() {
     if (commands.isEmpty()) return arrayOf()
     if (other.commands.isEmpty()) return arrayOf(this)
 
-    class Intersection(
-      val command: RCommand,
-      val otherCommand: RCommand,
-      val commandIndex: Int,
-      val point: RPoint,
-      val type: Int,
-    )
-
-    val TYPE_ENTERING = 0
-    val TYPE_EXITING = 1
-    val TYPE_TANGENT_INSIDE = 2
-    val TYPE_TANGENT_OUTSIDE = 3
-
-    val intersections: List<Intersection> = other.commands.flatMapArray { otherCommand ->
-      commands.flatMapArrayIndexed { commandIndex, command ->
-        val pts = command.intersectionPoints(otherCommand)
-          .mapArray { intersectionPoint ->
-
-            val startIsInsideOther = other.contains(command.startPoint)
-            val endIsInsideOther = other.contains(command.endPoint)
-
-            val intersectionType = when {
-              startIsInsideOther && endIsInsideOther -> TYPE_TANGENT_INSIDE
-              !startIsInsideOther && endIsInsideOther -> TYPE_ENTERING
-              startIsInsideOther && !endIsInsideOther -> TYPE_EXITING
-              else -> TYPE_TANGENT_OUTSIDE
-            }
-
-            Intersection(command, otherCommand, commandIndex, intersectionPoint, intersectionType)
-          }
-        return@flatMapArrayIndexed pts
-      }
-    }.filterNot { it.type == TYPE_TANGENT_INSIDE || it.type == TYPE_TANGENT_OUTSIDE }
+    val intersections: List<Intersection> = intersectionsWith(other)
+      .filterNot { it.type.isTangent }
       .sortedBy { it.commandIndex }
 
     val splitPaths = mutableListOf<RPath>()
@@ -316,17 +289,61 @@ class RPath() : RGeomElem() {
     var lastIndex = if (closed) intersections.last().commandIndex else 0
     (intersections.indices).forEach { i ->
       val curr = intersections[i]
-      if (curr.type == TYPE_ENTERING) {
+      if (curr.type == Entering) {
         if (lastIndex > curr.commandIndex) {
-          splitPaths.add(RPath(
-            commands.sliceArray(lastIndex until commands.size) +
-              commands.sliceArray(0..curr.commandIndex)
-          ))
+          splitPaths.add(
+            RPath(
+              commands.sliceArray(lastIndex until commands.size) +
+                commands.sliceArray(0..curr.commandIndex)
+            )
+          )
         } else {
           splitPaths.add(RPath(commands.sliceArray(lastIndex..curr.commandIndex)))
         }
       } else if (i == intersections.size - 1 && !closed) {
         // If it's an open ened path that ends after "exiting" the diff shape, draw the tail
+        // end of the path.
+        splitPaths.add(RPath(commands.sliceArray(curr.commandIndex until commands.size)))
+      }
+      lastIndex = curr.commandIndex
+    }
+
+    return splitPaths.toTypedArray()
+  }
+
+  fun intersection(other: RPath): Array<RPath> {
+    if (commands.isEmpty()) return arrayOf()
+    if (other.commands.isEmpty()) return arrayOf()
+
+    val intersections: List<Intersection> = intersectionsWith(other)
+      .filterNot { it.type.isTangent }
+      .sortedBy { it.commandIndex }
+
+    val splitPaths = mutableListOf<RPath>()
+
+    if (intersections.isEmpty()) {
+      return if (other.contains(commands[0].startPoint)) arrayOf(this)
+      else arrayOf()
+    }
+
+    println(intersections.toList())
+
+    var lastIndex = if (closed) intersections.last().commandIndex else 0
+    (intersections.indices).forEach { i ->
+      val curr = intersections[i]
+      if (curr.type == Exiting) {
+        if (lastIndex > curr.commandIndex) {
+          splitPaths.add(
+            RPath(
+              commands.sliceArray(lastIndex until commands.size) +
+                commands.sliceArray(0..curr.commandIndex)
+            )
+          )
+        } else {
+          splitPaths.add(RPath(commands.sliceArray(lastIndex..curr.commandIndex)))
+        }
+      } else if (i == intersections.size - 1 && !closed) {
+        // If it's an open ened path that ends after "entering" the diff shape, draw the tail
         // end of the path.
         splitPaths.add(RPath(commands.sliceArray(curr.commandIndex until commands.size)))
       }
@@ -838,7 +855,8 @@ class RPath() : RGeomElem() {
 
     if (i > commands.size) {
       throw RuntimeException(
-        "Index out of the bounds.  You are trying to insert an element with an index higher than the number of commands in the group.")
+        "Index out of the bounds.  You are trying to insert an element with an index higher than the number of commands in the group."
+      )
     }
     commands += newcommand
   }
@@ -853,7 +871,8 @@ class RPath() : RGeomElem() {
     }
     if (i > commands.size - 1) {
       throw RuntimeException(
-        "Index out of the bounds of the group.  You are trying to erase an element with an index higher than the number of commands in the group.")
+        "Index out of the bounds of the group.  You are trying to erase an element with an index higher than the number of commands in the group."
+      )
     }
     commands = when {
       commands.size == 1 -> arrayOf()

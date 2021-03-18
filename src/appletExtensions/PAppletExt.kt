@@ -159,6 +159,8 @@ open class PAppletExt : PApplet() {
 
   fun List<Point>.draw() = shape(this)
   fun Circ.draw() = circle(this)
+  fun Segment.draw() = line(this)
+  fun Line.draw(bounds: BoundRect) = bounds.getBoundSegment(this)?.let { line(it) }
   fun BoundRect.draw() = rect(this)
   fun Arc.draw() = arc(this)
 }

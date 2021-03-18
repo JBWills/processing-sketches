@@ -33,7 +33,6 @@ data class Noise(
   val offset: Point,
   val strength: Point,
 ) {
-
   @Transient
   val fastNoise: FastNoiseLite = createFastNoise(seed, noiseType)
 
@@ -70,8 +69,10 @@ data class Noise(
     scale: Double? = null,
     offset: Point? = null,
     strength: Point? = null,
-  ) = Noise(this, seed = seed, noiseType = noiseType, quality = quality, scale = scale,
-    offset = offset, strength = strength)
+  ) = Noise(
+    this, seed = seed, noiseType = noiseType, quality = quality, scale = scale,
+    offset = offset, strength = strength
+  )
 
   private fun noiseAt2D(p: Point) = Point(
     fastNoise.GetNoise(p.xf, p.yf, 0f),
@@ -121,7 +122,7 @@ data class Noise(
   fun clone() = Noise(this)
 
   companion object {
-    fun Walkable.warped(noise: Noise, scaleFn: (Point) -> Point = { it }) =
+    fun Walkable.warped(noise: Noise, scaleFn: (Point) -> Point = { it }): List<Point> =
       noise.warp(this, scaleFn)
 
     fun Circ.warpedRadially(noise: Noise, scaleFn: (Double) -> Double = { it }) =

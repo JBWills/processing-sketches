@@ -15,6 +15,14 @@ fun Int.times(f: (Int) -> Unit) {
   for (i in 0 until this) f(i)
 }
 
+/**
+ * If number basically equals other (within threshold amount), just make it
+ * equal to the other number. Useful to avoid NaN issues with ever so slightly
+ * negative numbers that are basically 0.
+ */
+fun Double.coerceTo(other: Number, threshold: Double = EPSILON): Double =
+  if (equalsDelta(other, threshold)) other.toDouble() else this
+
 fun Number.remap(fromRange: DoubleRange, toRange: DoubleRange) =
   toRange.atAmountAlong(fromRange.percentAlong(this))
 
@@ -28,6 +36,9 @@ fun Number.notEqualsDelta(other: Number, threshold: Double = EPSILON) =
 
 fun Number.lessThanEqualToDelta(other: Number, threshold: Double = EPSILON) =
   this.toDouble() <= other.toDouble() + threshold
+
+fun Number.lessThan(other: Number, threshold: Double = EPSILON) =
+  notEqualsDelta(other, threshold) && lessThanEqualToDelta(other, threshold)
 
 fun Number.greaterThanEqualToDelta(other: Number, threshold: Double = EPSILON) =
   this.toDouble() >= other.toDouble() + threshold
@@ -47,3 +58,5 @@ fun Number.toRadians(): Double = toRadians(toDouble())
 fun Number.toDegrees(): Double = toDegrees(toDouble())
 
 fun Number.inchesToPx(): Int = (this.toDouble() * 72.0).toInt()
+
+fun min(vararg doubles: Double) = doubles.reduce { acc, item -> kotlin.math.min(acc, item) }

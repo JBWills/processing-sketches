@@ -78,6 +78,8 @@ class Segment(
   fun toLine() = Line(p1, slope)
 
   fun toProgression(step: Double = 1.0) = PointProgression(this, step)
+  
+  fun isEmpty() = length == 0.0
 
   override fun walk(step: Double) = (p1..p2 step step).toList()
 
