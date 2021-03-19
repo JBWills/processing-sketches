@@ -9,6 +9,7 @@ import util.circleintersection.LVector2
 import util.circleintersection.getIntersectionPoints
 import util.equalsDelta
 import util.lessThanEqualToDelta
+import util.map
 import util.notEqualsZero
 import kotlin.math.PI
 import kotlin.math.cos
@@ -68,7 +69,7 @@ open class Circ(val origin: Point, val radius: Double) : Walkable {
     val endRad = 2 * PI
     val numSteps = (circumference / step).toInt()
 
-    return (0 until numSteps).map { i ->
+    return numSteps.map { i ->
       val radians = (startRad..endRad).atAmountAlong(i / numSteps.toDouble())
 
       block(pointAtRad(radians))

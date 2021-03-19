@@ -105,8 +105,8 @@ class RCommand(
    * @param sp  the start point of the command to be created
    */
   constructor(c: RCommand, sp: RPoint? = null, ep: RPoint? = null) : this(
-    sp ?: c.startPoint, ep
-      ?: c.endPoint, c.controlPoints.clone(), c.type
+    sp ?: c.startPoint,
+    ep ?: c.endPoint, c.controlPoints.clone(), c.type
   )
 
   /**
@@ -171,7 +171,13 @@ class RCommand(
    * @param epy  the y coordinate of the end point of the command to be created
    */
   constructor(
-    spx: Float, spy: Float, cp1x: Float, cp1y: Float, cp2x: Float, cp2y: Float, epx: Float,
+    spx: Float,
+    spy: Float,
+    cp1x: Float,
+    cp1y: Float,
+    cp2x: Float,
+    cp2y: Float,
+    epx: Float,
     epy: Float,
   ) : this(RPoint(spx, spy), RPoint(cp1x, cp1y), RPoint(cp2x, cp2y), RPoint(epx, epy))
 
@@ -182,7 +188,7 @@ class RCommand(
     return RShape(RPath(this))
   }
 
-  protected fun saveSegmentatorContext() {
+  private fun saveSegmentatorContext() {
     oldSegmentType = segmentType
 
     /* Parameters for ADAPTATIVE (dependent of the PGraphics on which drawing) */
@@ -204,7 +210,7 @@ class RCommand(
     oldSegmentLines = segmentLines
   }
 
-  protected fun restoreSegmentatorContext() {
+  private fun restoreSegmentatorContext() {
     segmentType = oldSegmentType
 
     /* Parameters for ADAPTATIVE (dependent of the PGraphics on which drawing) */
@@ -240,6 +246,7 @@ class RCommand(
       segmentOffset = 0f
       segmentAccOffset = 0f
     }
+
     var result: Array<RPoint> = arrayOf()
     when (segmentType) {
       ADAPTATIVE -> when (type) {
@@ -294,9 +301,7 @@ class RCommand(
         }
       }
     }
-    if (resetSegmentator) {
-      restoreSegmentatorContext()
-    }
+    if (resetSegmentator) restoreSegmentatorContext()
     return result
   }
 
@@ -315,7 +320,7 @@ class RCommand(
     }
 
     return when (type) {
-      LINETO -> return startPoint + ((endPoint - startPoint) * boundT)
+      LINETO -> startPoint + ((endPoint - startPoint) * boundT)
       QUADBEZIERTO -> {
         /* calculate the polynomial coefficients */
         val coefficientB = controlPoints[0] - startPoint
@@ -466,9 +471,7 @@ class RCommand(
    * @return RPoint[], the vertices returned in an array.
    */
   override val handles: Array<RPoint>
-    get() {
-      return arrayOf(startPoint) + controlPoints + endPoint
-    }
+    get() = arrayOf(startPoint) + controlPoints + endPoint
 
   /**
    * Returns two commands resulting of splitting the command.
@@ -560,6 +563,7 @@ class RCommand(
         triangleMatrix[i][j] = (1 - t) * last + t * next
       }
     }
+
     return arrayOf(
       createLine(startPoint, triangleMatrix[1][0]),
       createLine(triangleMatrix[1][0], endPoint)
@@ -582,9 +586,7 @@ class RCommand(
   private fun quadBezierAdaptativeRecursive(
     x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, level: Int,
   ) {
-    if (level > segmentRecursionLimit) {
-      return
-    }
+    if (level > segmentRecursionLimit) return
 
     // Calculate all the mid-points of the line segments
     //----------------------
@@ -651,9 +653,7 @@ class RCommand(
     x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float,
     level: Int,
   ) {
-    if (level > segmentRecursionLimit) {
-      return
-    }
+    if (level > segmentRecursionLimit) return
 
     // Calculate all the mid-points of the line segments
     //----------------------
@@ -805,7 +805,6 @@ class RCommand(
   }
 
   private fun cubicBezierUniformStep() {
-
     // If the number of steps is equal to 0 then choose a number of steps adapted to the curve
     var steps = segmentSteps
     if (segmentSteps.toFloat() == 0.0f) {
@@ -1090,7 +1089,6 @@ class RCommand(
     fddy = fddPer2y + fddPer2y
     var loop = 0
     while (loop <= steps) {
-
       /* Add segment differential to segment length */
       fix = fdx + fddPer2x
       fiy = fdy + fddPer2y
@@ -1101,6 +1099,7 @@ class RCommand(
       fdy += fddy
       loop++
     }
+
     return totallen
   }
 
@@ -1540,6 +1539,4 @@ class RCommand(
       return RClosest()
     }
   }
-
-
 }

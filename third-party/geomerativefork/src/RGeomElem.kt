@@ -366,7 +366,8 @@ abstract class RGeomElem {
       val initialMaxPoint = RPoint(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY)
 
       val (minPoint, maxPoint) = handles.reduceTo(
-        initialMinPoint to initialMaxPoint) { (minP, maxP), p ->
+        initialMinPoint to initialMaxPoint
+      ) { (minP, maxP), p ->
         minXY(minP, p) to maxXY(maxP, p)
       }
 
@@ -799,11 +800,11 @@ abstract class RGeomElem {
    * @related translate ( )
    * @related rotate ( )
    */
-  fun scale(sx: Float, sy: Float, x: Float, y: Float) {
-    val transf = RMatrix()
-    transf.scale(sx, sy, x, y)
-    transform(transf)
-  }
+  fun scale(sx: Float, sy: Float, x: Float, y: Float) = RMatrix()
+    .also {
+      it.scale(sx, sy, x, y)
+      transform(it)
+    }
 
   /**
    * Apply a scale to the element, given scaling factors and optionally a scaling center.
@@ -816,17 +817,17 @@ abstract class RGeomElem {
    * @related translate ( )
    * @related rotate ( )
    */
-  fun scale(s: Float, p: RPoint) {
-    val transf = RMatrix()
-    transf.scale(s, p)
-    transform(transf)
-  }
+  fun scale(s: Float, p: RPoint) = RMatrix()
+    .also {
+      it.scale(s, p)
+      transform(it)
+    }
 
-  fun scale(s: Float) {
-    val transf = RMatrix()
-    transf.scale(s)
-    transform(transf)
-  }
+  fun scale(s: Float) = RMatrix()
+    .also {
+      it.scale(s)
+      transform(it)
+    }
 
   /**
    * Apply a scale to the element, given scaling factors and optionally a scaling center.
@@ -840,11 +841,11 @@ abstract class RGeomElem {
    * @related translate ( )
    * @related rotate ( )
    */
-  fun scale(s: Float, x: Float, y: Float) {
-    val transf = RMatrix()
-    transf.scale(s, x, y)
-    transform(transf)
-  }
+  fun scale(s: Float, x: Float, y: Float) = RMatrix()
+    .also {
+      it.scale(s, x, y)
+      transform(it)
+    }
 
   /**
    * Apply a horizontal skew to the element, given skewing angle
@@ -856,11 +857,11 @@ abstract class RGeomElem {
    * @related scale ( )
    * @related translate ( )
    */
-  fun skewX(angle: Float) {
-    val transf = RMatrix()
-    transf.skewY(angle)
-    transform(transf)
-  }
+  fun skewX(angle: Float) = RMatrix()
+    .also {
+      it.skewY(angle)
+      transform(it)
+    }
 
   /**
    * Apply a vertical skew to the element, given skewing angle
@@ -872,11 +873,11 @@ abstract class RGeomElem {
    * @related scale ( )
    * @related translate ( )
    */
-  fun skewY(angle: Float) {
-    val transf = RMatrix()
-    transf.skewY(angle)
-    transform(transf)
-  }
+  fun skewY(angle: Float) = RMatrix()
+    .also {
+      it.skewY(angle)
+      transform(it)
+    }
 
   /**
    * Apply a shear to the element, given shearing factors
@@ -889,11 +890,11 @@ abstract class RGeomElem {
    * @related scale ( )
    * @related translate ( )
    */
-  fun shear(shx: Float, shy: Float) {
-    val transf = RMatrix()
-    transf.shear(shx, shy)
-    transform(transf)
-  }
+  fun shear(shx: Float, shy: Float) = RMatrix()
+    .also {
+      it.shear(shx, shy)
+      transform(it)
+    }
 
   companion object {
     /**

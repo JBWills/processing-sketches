@@ -81,12 +81,12 @@ object RG : PConstants {
   var ADAPTATIVE = RCommand.ADAPTATIVE
 
   /**
-   * UNIFORMLENGTH segmentator is the slowest segmentator and it segments the curve on segments of equal length.  This can be useful for very specific applications when for example drawing incrementaly a shape with a uniform speed.
+   * UNIFORMLENGTH segmentator is the slowest segmentator and it segments the curve on segments of equal length.  This can be useful for very specific applications when for example drawing incrementally a shape with a uniform speed.
    */
   var UNIFORMLENGTH = RCommand.UNIFORMLENGTH
 
   /**
-   * UNIFORMSTEP segmentator is the fastest segmentator and it segments the curve based on a constant value of the step of the curve parameter, or on the number of segments wanted.  This can be useful when segmpointsentating very often a Shape or when we know the amount of segments necessary for our specific application.
+   * UNIFORMSTEP segmentator is the fastest segmentator and it segments the curve based on a constant value of the step of the curve parameter, or on the number of segments wanted.  This can be useful when segmentating very often a Shape or when we know the amount of segments necessary for our specific application.
    */
   var UNIFORMSTEP = RCommand.UNIFORMSTEP
 
@@ -136,7 +136,7 @@ object RG : PConstants {
    */
   fun loadFont(fontFile: String?): RFont {
     val newFntLoader = RFont(fontFile)
-    if (fntLoader == null) fntLoader = newFntLoader
+    fntLoader = fntLoader ?: newFntLoader
     return newFntLoader
   }
 
@@ -159,6 +159,7 @@ object RG : PConstants {
     font.size = size
     fntLoader = font
   }
+
   // Font methods
   /**
    * Get the shape corresponding to a text.  Use the textFont method to select the font and size.
@@ -223,10 +224,7 @@ object RG : PConstants {
    * @param filename the SVG file to be loaded.  Must be in the data directory
    * @eexample loadShape
    */
-  fun loadShape(filename: String): RShape {
-    val svgLoader = RSVG()
-    return svgLoader.toShape(filename)
-  }
+  fun loadShape(filename: String): RShape = RSVG().toShape(filename)
 
   /**
    * Save a shape object to a file.
@@ -235,13 +233,10 @@ object RG : PConstants {
    * @param shape    the shape to be saved.
    * @eexample saveShape
    */
-  fun saveShape(filename: String, shape: RShape) {
-    val svgSaver = RSVG()
-    parent().saveStrings(
-      filename,
-      svgSaver.fromShape(shape).split("\n").toTypedArray()
-    )
-  }
+  fun saveShape(filename: String, shape: RShape) = parent().saveStrings(
+    filename,
+    RSVG().fromShape(shape).split("\n").toTypedArray()
+  )
 
   /**
    * Begin to create a shape.
@@ -259,16 +254,14 @@ object RG : PConstants {
    * @eexample createShape
    */
   fun breakShape(endMode: Int) {
-    if (endMode == PConstants.CLOSE) {
-      shape!!.addClose()
-    }
-    shape!!.updateOrigParams()
+    val shape = shape!!
+    if (endMode == PConstants.CLOSE) shape.addClose()
+    shape.updateOrigParams()
     breakShape()
   }
 
-  fun breakShape() {
-    shape!!.addPath()
-  }
+  private fun breakShape() = shape?.addPath()
+
   // Methods to create shapes
   /**
    * Add a vertex to the shape.  Can only be called inside beginShape() and endShape().
@@ -298,10 +291,11 @@ object RG : PConstants {
    * @eexample createShape
    */
   fun bezierVertex(cx1: Float, cy1: Float, cx2: Float, cy2: Float, x: Float, y: Float) {
-    if (shape == null || shape!!.paths.isEmpty()) {
+    val shape = shape ?: throw NoPathInitializedException()
+    if (shape.paths.isEmpty()) {
       throw NoPathInitializedException()
     } else {
-      shape!!.addBezierTo(cx1, cy1, cx2, cy2, x, y)
+      shape.addBezierTo(cx1, cy1, cx2, cy2, x, y)
     }
   }
 
@@ -312,12 +306,12 @@ object RG : PConstants {
    * @eexample createShape
    */
   fun endShape(g: PGraphics) {
-    shape!!.draw(g)
+    shape?.draw(g)
     shape = null
   }
 
   fun endShape() {
-    shape!!.draw()
+    shape?.draw()
     shape = null
   }
 
@@ -449,9 +443,7 @@ object RG : PConstants {
   /**
    * @invisible
    */
-  fun initialized(): Boolean {
-    return initialized
-  }
+  fun initialized(): Boolean = initialized
 
   /**
    * @invisible
@@ -556,9 +548,7 @@ object RG : PConstants {
    * @related UNIFORMLENGTH
    * @related polygonize ( )
    */
-  fun setPolygonizerLength(length: Float) {
-    setSegmentLength(length)
-  }
+  fun setPolygonizerLength(length: Float) = setSegmentLength(length)
 
   /**
    * Use this to set the segmentator step for the UNIFORMSTEP segmentator and set the segmentator to UNIFORMSTEP.
@@ -568,9 +558,7 @@ object RG : PConstants {
    * @related UNIFORMSTEP
    * @related polygonize ( )
    */
-  fun setPolygonizerStep(step: Float) {
-    setSegmentStep(step)
-  }
+  fun setPolygonizerStep(step: Float) = setSegmentStep(step)
 
   /**
    * @invisible
@@ -592,6 +580,4 @@ object RG : PConstants {
   class NoPathInitializedException : NullPointerException() {
     private val serialVersionUID = -3710605630786298673L
   }
-
-
 }

@@ -74,7 +74,8 @@ class RPolygon : RGeomElem {
    * @related countContours ( )
    * @related addContour ( )
    */
-  @JvmField var contours: Array<RContour> = arrayOf()
+  @JvmField
+  var contours: Array<RContour> = arrayOf()
   var currentContour = 0
   // ----------------------
   // --- Public Methods ---
@@ -140,6 +141,8 @@ class RPolygon : RGeomElem {
       }
       return bestCentroid
     }
+
+  val innerPolys get() = (0 until numInnerPoly).mapArray { getInnerPoly(it) }
 
   /**
    * Add a new contour to the polygon.
@@ -234,9 +237,9 @@ class RPolygon : RGeomElem {
 
   override fun print() {
     println("polygon: ")
-    for (i in 0 until contours.size) {
-      println("---  contour $i ---")
-      contours[i].print()
+    contours.forEachIndexed { index, contour ->
+      println("---  contour $index ---")
+      contour.print()
       println("---------------")
     }
   }
@@ -261,12 +264,14 @@ class RPolygon : RGeomElem {
   /**
    * @invisible
    */
-  override fun toShape(): RShape = RShape(contours.mapArray { contour ->
-    RPath(contour.points).apply {
-      setStyle(contour)
-      if (contour.closed) addClose()
+  override fun toShape(): RShape = RShape(
+    contours.mapArray { contour ->
+      RPath(contour.points).apply {
+        setStyle(contour)
+        if (contour.closed) addClose()
+      }
     }
-  }).apply { setStyle(this) }
+  ).apply { setStyle(this) }
 
   /**
    * Use this to return the points of the polygon.  It returns the points in the way of an array of RPoint.
@@ -608,12 +613,14 @@ class RPolygon : RGeomElem {
   var isHole: Boolean
     get() {
       check(
-        !(contours.isEmpty() || contours.size > 1)) { "Cannot call on a poly made up of more than one poly." }
+        !(contours.isEmpty() || contours.size > 1)
+      ) { "Cannot call on a poly made up of more than one poly." }
       return contours[0].isHole
     }
     set(isHole) {
       check(
-        !(contours.isEmpty() || contours.size > 1)) { "Cannot call on a poly made up of more than one poly." }
+        !(contours.isEmpty() || contours.size > 1)
+      ) { "Cannot call on a poly made up of more than one poly." }
       contours[0].isHole = isHole
     }
 
@@ -710,8 +717,11 @@ class RPolygon : RGeomElem {
       val points = (0 until numPoints step 2).flatMap { i ->
         listOf(
           RPoint(radiusBig * cos(i * radiansPerStep) + x, radiusBig * sin(i * radiansPerStep) + y),
-          RPoint(radiusSmall * cos(i * radiansPerStep) + x,
-            radiusSmall * sin(i * radiansPerStep) + y))
+          RPoint(
+            radiusSmall * cos(i * radiansPerStep) + x,
+            radiusSmall * sin(i * radiansPerStep) + y
+          )
+        )
       }
       return RPolygon(points.toTypedArray())
     }
@@ -740,9 +750,12 @@ class RPolygon : RGeomElem {
       val radiansPerStep = 2 * Math.PI / detail
 
       val (inner, outer) = (0 until detail).map { i ->
-        RPoint(radiusSmall * cos(i * radiansPerStep) + x,
-          radiusSmall * sin(i * radiansPerStep) + y) to RPoint(
-          radiusBig * cos(i * radiansPerStep) + x, radiusBig * sin(i * radiansPerStep) + y)
+        RPoint(
+          radiusSmall * cos(i * radiansPerStep) + x,
+          radiusSmall * sin(i * radiansPerStep) + y
+        ) to RPoint(
+          radiusBig * cos(i * radiansPerStep) + x, radiusBig * sin(i * radiansPerStep) + y
+        )
       }.unzip()
 
       return RPolygon().apply {
