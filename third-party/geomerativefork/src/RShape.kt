@@ -56,6 +56,7 @@ open class RShape() : RGeomElem() {
   @JvmField
   var paths: Array<RPath> = arrayOf()
   protected var currentPath = 0
+
   @JvmField
   var children: Array<RShape> = arrayOf()
   protected var currentChild = 0
@@ -305,13 +306,13 @@ open class RShape() : RGeomElem() {
    */
   override fun toPolygon(): RPolygon =
     RPolygon(children.flatMapArray { it.toPolygon().contours } +
-      paths.flatMapArray { path ->
-        if (path.points.isEmpty()) return@flatMapArray arrayOf()
-        arrayOf(RContour(path.points).apply {
-          closed = path.closed
-          setStyle(path)
-        })
-      })
+               paths.flatMapArray { path ->
+                 if (path.points.isEmpty()) return@flatMapArray arrayOf()
+                 arrayOf(RContour(path.points).apply {
+                   closed = path.closed
+                   setStyle(path)
+                 })
+               })
 
   fun polygonize() {
     paths.forEach(RPath::polygonize)
@@ -351,7 +352,8 @@ open class RShape() : RGeomElem() {
     shapeTransform: RShape.(RShape) -> RShape,
   ): RShape =
     RShape(paths = polyTransform(toPolygon(), p.toPolygon()).toShape().paths,
-      children = children.mapArray { shapeTransform(it, p) }, style = this)
+           children = children.mapArray { shapeTransform(it, p) }, style = this
+    )
 
   /**
    * Use this to return the start, control and end points of the shape.  It returns the points as an array of RPoint.
@@ -467,15 +469,15 @@ open class RShape() : RGeomElem() {
    */
   override val pointsInPaths: Array<Array<RPoint>>
     get() = arrayOf(*paths.flatMapArray { it.pointsInPaths },
-      *children.flatMapArray { it.pointsInPaths })
+                    *children.flatMapArray { it.pointsInPaths })
 
   override val handlesInPaths: Array<Array<RPoint>>
     get() = arrayOf(*paths.flatMapArray { it.handlesInPaths },
-      *children.flatMapArray { it.handlesInPaths })
+                    *children.flatMapArray { it.handlesInPaths })
 
   override val tangentsInPaths: Array<Array<RPoint>>
     get() = arrayOf(*paths.flatMapArray { it.tangentsInPaths },
-      *children.flatMapArray { it.tangentsInPaths })
+                    *children.flatMapArray { it.tangentsInPaths })
 
   fun splitPaths(t: Float): Array<RShape> {
     val result = mutableListOf<RShape>()
@@ -794,7 +796,8 @@ open class RShape() : RGeomElem() {
         }
       }
       else -> throw RuntimeException(
-        "Unknown adaptor type : " + RG.adaptorType + ". The method RG.setAdaptor() only accepts RG.BYPOINT or RG.BYELEMENT as parameter values.")
+        "Unknown adaptor type : " + RG.adaptorType + ". The method RG.setAdaptor() only accepts RG.BYPOINT or RG.BYELEMENT as parameter values."
+      )
     }
   }
 
@@ -1097,10 +1100,14 @@ open class RShape() : RGeomElem() {
 
         when (command.type) {
           RCommand.LINETO -> g.vertex(pnts[1].x, pnts[1].y)
-          RCommand.QUADBEZIERTO -> g.bezierVertex(pnts[1].x, pnts[1].y, pnts[2].x, pnts[2].y,
-            pnts[2].x, pnts[2].y)
-          RCommand.CUBICBEZIERTO -> g.bezierVertex(pnts[1].x, pnts[1].y, pnts[2].x, pnts[2].y,
-            pnts[3].x, pnts[3].y)
+          RCommand.QUADBEZIERTO -> g.bezierVertex(
+            pnts[1].x, pnts[1].y, pnts[2].x, pnts[2].y,
+            pnts[2].x, pnts[2].y
+          )
+          RCommand.CUBICBEZIERTO -> g.bezierVertex(
+            pnts[1].x, pnts[1].y, pnts[2].x, pnts[2].y,
+            pnts[3].x, pnts[3].y
+          )
         }
       }
       if (useContours && i > 0) g.endContour()
@@ -1168,14 +1175,20 @@ open class RShape() : RGeomElem() {
       val radiusSmall = widthSmall / 2f
       val star = RShape()
       star.addMoveTo(x - radiusBig, y)
-      star.addLineTo(x - (radiusSmall * cos(Math.PI / spikes)).toFloat(),
-        y - (radiusSmall * sin(Math.PI / spikes)).toFloat())
+      star.addLineTo(
+        x - (radiusSmall * cos(Math.PI / spikes)).toFloat(),
+        y - (radiusSmall * sin(Math.PI / spikes)).toFloat()
+      )
       var i = 2
       while (i < 2 * spikes) {
-        star.addLineTo(x - (radiusBig * cos(Math.PI * i / spikes)).toFloat(),
-          y - (radiusBig * sin(Math.PI * i / spikes)).toFloat())
-        star.addLineTo(x - (radiusSmall * cos(Math.PI * (i + 1) / spikes)).toFloat(),
-          y - (radiusSmall * sin(Math.PI * (i + 1) / spikes)).toFloat())
+        star.addLineTo(
+          x - (radiusBig * cos(Math.PI * i / spikes)).toFloat(),
+          y - (radiusBig * sin(Math.PI * i / spikes)).toFloat()
+        )
+        star.addLineTo(
+          x - (radiusSmall * cos(Math.PI * (i + 1) / spikes)).toFloat(),
+          y - (radiusSmall * sin(Math.PI * (i + 1) / spikes)).toFloat()
+        )
         i += 2
       }
       star.addClose()
@@ -1193,12 +1206,14 @@ open class RShape() : RGeomElem() {
      * @eexample createRectangle
      */
     @JvmStatic
-    fun createRectangle(x: Float, y: Float, w: Float, h: Float): RShape = RShape(RPath(arrayOf(
-      RPoint(x, y),
-      RPoint(x + w, y),
-      RPoint(x + w, y + h),
-      RPoint(x, y + h),
-    )).also { it.addClose() })
+    fun createRectangle(x: Float, y: Float, w: Float, h: Float): RShape = RShape(RPath(
+      arrayOf(
+        RPoint(x, y),
+        RPoint(x + w, y),
+        RPoint(x + w, y + h),
+        RPoint(x, y + h),
+      )
+    ).also { it.addClose() })
 
     fun createRectangle(center: RPoint, w: Number, h: Number) =
       createRectangle(center.x, center.y, w.toFloat(), h.toFloat())
@@ -1247,6 +1262,9 @@ open class RShape() : RGeomElem() {
         addClose()
       }
     }
+
+    fun createEllipse(center: RPoint, size: RPoint): RShape =
+      createEllipse(center.x, center.y, size.x, size.y)
 
     fun createCircle(x: Number, y: Number, d: Number): RShape =
       createEllipse(x.toFloat(), y.toFloat(), d.toFloat(), d.toFloat())

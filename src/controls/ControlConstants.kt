@@ -23,8 +23,8 @@ fun BaseSketch.noiseControls(
           with(quality = it)
         }
       },
-      EnumDropdown("${noiseProp.name} Noise Type", noiseProp.get().noiseType,
-        { setNoiseFieldAndMarkDirty { with(noiseType = it) } }),
+      EnumDropdown("${noiseProp.name} Type", noiseProp.get().noiseType,
+                   { setNoiseFieldAndMarkDirty { with(noiseType = it) } }),
       heightRatio = 4
     ),
     ControlGroup(
@@ -38,16 +38,20 @@ fun BaseSketch.noiseControls(
         0.0..2000.0,
         noiseProp.get().strength.y
       ) { setNoiseFieldAndMarkDirty { with(strength = Point(noiseProp.get().strength.x, it)) } }),
-    ControlGroup(Slider("${noiseProp.name} Seed", 0.0..2000.0,
-      noiseProp.get().seed.toDouble()) { setNoiseFieldAndMarkDirty { with(seed = it.toInt()) } }),
-    ControlGroup(Slider("${noiseProp.name} noise scale", 0.0..2.0, noiseProp.get().scale) {
+    ControlGroup(Slider(
+      "${noiseProp.name} Seed", 0.0..2000.0,
+      noiseProp.get().seed.toDouble()
+    ) { setNoiseFieldAndMarkDirty { with(seed = it.toInt()) } }),
+    ControlGroup(Slider("${noiseProp.name} scale", 0.0..2.0, noiseProp.get().scale) {
       setNoiseFieldAndMarkDirty {
         with(scale = it)
       }
     }),
     ControlGroup(
-      Slider2d("${noiseProp.name} noise offset", Point.One..Point(1000, 1000),
-        noiseProp.get().offset) { setNoiseFieldAndMarkDirty { with(offset = it) } },
+      Slider2d(
+        "${noiseProp.name} offset", Point.One..Point(1000, 1000),
+        noiseProp.get().offset
+      ) { setNoiseFieldAndMarkDirty { with(offset = it) } },
       heightRatio = 5
     ),
   )

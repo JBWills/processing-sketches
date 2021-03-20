@@ -32,6 +32,12 @@ sealed class Control<T : Controller<T>>(
 
   var ref: T? = null
 
+  var refValue: Float?
+    get() = ref?.value
+    set(value) {
+      if (value != null && value != ref?.value) ref?.value = value
+    }
+
   fun applyToControl(c: ControlP5, t: Tab, pos: Position, size: Size) {
     ref = applyToControlInternal(c, t, pos, size)
   }
@@ -62,6 +68,8 @@ sealed class Control<T : Controller<T>>(
     toggleWith(text) {
       setValue(defaultValue)
       onChange { handleToggled(booleanValue) }
+      captionLabel.align(ControlP5.CENTER, ControlP5.CENTER)
+      captionLabel.setSize(13)
     }
   ) {
     constructor(
@@ -85,7 +93,10 @@ sealed class Control<T : Controller<T>>(
 
       this.value = defaultValue?.toFloat() ?: range.start.toFloat()
       onChange { handleChange(value.toDouble()) }
-      captionLabel.align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE)
+      captionLabel.align(ControlP5.RIGHT, ControlP5.BOTTOM)
+      captionLabel.setSize(13)
+      valueLabel.align(ControlP5.LEFT, ControlP5.BOTTOM)
+      valueLabel.setSize(13)
     }
   ) {
     constructor(
@@ -143,6 +154,10 @@ sealed class Control<T : Controller<T>>(
       cursorY = defaultPoint.y.toFloat()
 
       onChange { handleChange(Point(arrayValue[0], arrayValue[1])) }
+      captionLabel.align(ControlP5.RIGHT, ControlP5.BOTTOM)
+      captionLabel.setSize(13)
+      valueLabel.align(ControlP5.LEFT, ControlP5.BOTTOM)
+      valueLabel.setSize(13)
     }
   ) {
     constructor(

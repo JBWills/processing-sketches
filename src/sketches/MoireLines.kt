@@ -3,6 +3,7 @@ package sketches
 import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import appletExtensions.getParallelLinesInBound
+import controls.ControlGroup.Companion.group
 import controls.ControlTab.Companion.layerTab
 import controls.ControlTab.Companion.tab
 import controls.degProp
@@ -11,12 +12,12 @@ import controls.doubleProp
 import controls.enumProp
 import controls.noiseProp
 import controls.props.PropData
-import coordinate.Circ
 import coordinate.Deg
 import coordinate.Point
 import fastnoise.Noise
 import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
+import geomerativefork.src.RShape.Companion.createEllipse
 import kotlinx.serialization.Serializable
 import sketches.MoireShape.Circle
 import sketches.MoireShape.Rectangle
@@ -52,6 +53,7 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
       lineOffset,
       shapeSize,
       shapeCenter,
+      shapeRotation,
       noise
     ) = values.tabValues
 
@@ -73,8 +75,13 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
         baseLines.flatMap { it.warped(noise).intersection(r) }
       }
       Circle -> {
-        val c = Circ(centerPoint, shapeSize.x * boundRect.width)
-        val cPath = c.toRPath().also { it.polygonize() }
+        val cPath = createEllipse(
+          centerPoint.toRPoint(),
+          (shapeSize * (boundRect.bottomRight - boundRect.topLeft)).toRPoint()
+        ).also {
+          it.rotate(shapeRotation.value.toFloat(), centerPoint.toRPoint())
+          it.polygonize()
+        }.paths.first()
         baseLines.flatMap { it.warped(noise).intersection(cPath) }
       }
     }.draw(boundRect)
@@ -89,6 +96,7 @@ data class MoireLinesLayerData(
   var lineOffset: Double = 0.0,
   var shapeSize: Point = Point.One,
   var shapeCenter: Point = Point.Half,
+  var shapeRotation: Deg = Deg(0),
   var noise: Noise = Noise(
     seed = 100,
     noiseType = Perlin,
@@ -99,12 +107,15 @@ data class MoireLinesLayerData(
   ),
 ) : PropData<MoireLinesLayerData> {
   override fun BaseSketch.bind() = layerTab(
-    enumProp(::shape),
-    doubleProp(::lineDensity, 0.0..1.0),
-    degProp(::lineAngle, 0.0..90.0),
+    group(enumProp(::shape), heightRatio = 2),
+    group(
+      doubleProp(::lineDensity, 0.5..1.0),
+      degProp(::lineAngle, 0.0..90.0),
+    ),
     doubleProp(::lineOffset, 0.0..1.0),
-    doublePairProp(::shapeSize, 0.0..2.0),
+    doublePairProp(::shapeSize, 0.0..2.0, withLockToggle = true, defaultLocked = true),
     doublePairProp(::shapeCenter, -0.5..1.5),
+    degProp(::shapeRotation, 0.0..90.0),
     noiseProp(::noise),
   )
 

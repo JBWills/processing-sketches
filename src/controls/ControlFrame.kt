@@ -26,9 +26,9 @@ class ControlFrame(
   )
 
   private val elementPadding = PaddingRect(
-    vertical = 15,
-    left = 15,
-    right = 15,
+    vertical = 5,
+    left = 5,
+    right = 5,
   )
 
   fun getActiveTabAndIndex(): Pair<ControlTab, Int>? {

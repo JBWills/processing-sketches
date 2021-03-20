@@ -21,37 +21,36 @@ class ControlGroup(vararg val controls: Control<*>, val heightRatio: Number = 1)
   val controlsList get() = controls.toList()
 
   constructor(
-    vararg controlFields: ControlProp<*>,
+    vararg controlFields: ControlProp<*>?,
     heightRatio: Number = 1,
   ) : this(
-    *controlFields.flatMapArray { field ->
+    *controlFields.filterNotNull().flatMapArray { field ->
       field.toControlGroups().flatMapArray { it.toControlGroup().controlsList.toTypedArray() }
     },
     heightRatio = heightRatio
   )
 
   constructor(
-    vararg controlGroups: ControlGroupable,
+    vararg controlGroups: ControlGroupable?,
     heightRatio: Number = 1,
   ) : this(controlGroups.toList(), heightRatio = heightRatio)
 
   constructor(
-    controls: List<ControlGroupable>,
+    controls: List<ControlGroupable?>,
     heightRatio: Number = 1,
   ) : this(
-    *controls.flatMap { it.toControlGroup().controlsList }.toTypedArray(),
+    *controls.filterNotNull().flatMap { it.toControlGroup().controlsList }.toTypedArray(),
     heightRatio = heightRatio
   )
 
   override fun toControlGroup() = this
 
   companion object {
-    fun group(vararg controls: ControlProp<*>, heightRatio: Number = 1) =
+    fun group(vararg controls: ControlProp<*>?, heightRatio: Number = 1) =
       ControlGroup(*controls, heightRatio = heightRatio)
 
-    fun group(vararg controls: ControlGroupable, heightRatio: Number = 1) =
+    fun group(vararg controls: ControlGroupable?, heightRatio: Number = 1) =
       ControlGroup(*controls, heightRatio = heightRatio)
-
   }
 }
 

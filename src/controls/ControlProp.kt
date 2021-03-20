@@ -89,26 +89,51 @@ fun BaseSketch.doubleProp(ref: KMutableProperty0<Double>, range: IntRange) =
 
 fun BaseSketch.doublePairProp(
   ref: KMutableProperty0<Point>,
-  range: DoubleRange
-) = doublePairProp(ref, range to range)
+  range: DoubleRange,
+  withLockToggle: Boolean = false,
+  defaultLocked: Boolean = false,
+) = doublePairProp(ref, range to range, withLockToggle, defaultLocked)
 
 fun BaseSketch.doublePairProp(
   ref: KMutableProperty0<Point>,
-  ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0)
+  ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0),
+  withLockToggle: Boolean = false,
+  defaultLocked: Boolean = false,
 ) = prop(ref) {
+  var locked: Boolean = defaultLocked && ref.get().x == ref.get().y
+  var ctrlY: Control.Slider? = null
+  val ctrlX: Control.Slider = Control.Slider(
+    "${ref.name} X",
+    range = ranges.first,
+    getter = { ref.get().x },
+    setter = {
+      ref.set(Point(it, ref.get().y))
+      if (locked) ctrlY?.refValue = it.toFloat()
+    }
+  ) { markDirty() }
+
+  ctrlY = Control.Slider(
+    "${ref.name} Y",
+    range = ranges.second,
+    getter = { ref.get().y },
+    setter = {
+      ref.set(Point(ref.get().x, it))
+      if (locked) ctrlX.refValue = it.toFloat()
+    }
+  ) { markDirty() }
+
+  val ctrlToggle: Control.Toggle = Control.Toggle(
+    text = "Lock ${ref.name}",
+    defaultValue = locked,
+  ) {
+    locked = it
+    markDirty()
+  }
+
   group(
-    Control.Slider(
-      "${ref.name} X",
-      range = ranges.first,
-      getter = { ref.get().x },
-      setter = { ref.set(Point(it, ref.get().y)) }
-    ) { markDirty() },
-    Control.Slider(
-      "${ref.name} Y",
-      range = ranges.second,
-      getter = { ref.get().y },
-      setter = { ref.set(Point(ref.get().x, it)) }
-    ) { markDirty() },
+    ctrlX,
+    ctrlY,
+    if (withLockToggle) ctrlToggle else null
   )
 }
 
