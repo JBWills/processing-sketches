@@ -25,6 +25,7 @@
 package geomerativefork.src
 
 import geomerativefork.src.RPoint.Companion.times
+import geomerativefork.src.util.Pair3
 import geomerativefork.src.util.bound
 import processing.core.PApplet
 import processing.core.PGraphics
@@ -305,6 +306,21 @@ class RCommand(
     return result
   }
 
+  fun getQuadCoefficients(): Pair<RPoint, RPoint> {
+    /* calculate the polynomial coefficients */
+    val coefficientB = controlPoints[0] - startPoint
+    val coefficientA = endPoint - controlPoints[0] - coefficientB
+    return coefficientA to coefficientB
+  }
+
+  fun getCubicCoefficients(): Pair3<RPoint, RPoint, RPoint> {
+    /* calculate the polynomial coefficients */
+    val c = (3f * controlPoints[0]) - startPoint
+    val b = (3f * (controlPoints[1] - controlPoints[0])) - c
+    val a = endPoint - startPoint - c - b
+    return Pair3(a, b, c)
+  }
+
   /**
    * Use this to return a specific point on the curve.  It returns the RPoint for a given advancement parameter t on the curve.
    * @eexample getPoint
@@ -323,19 +339,16 @@ class RCommand(
       LINETO -> startPoint + ((endPoint - startPoint) * boundT)
       QUADBEZIERTO -> {
         /* calculate the polynomial coefficients */
-        val coefficientB = controlPoints[0] - startPoint
-        val coefficientA = endPoint - controlPoints[0] - coefficientB
+        val (a, b) = getQuadCoefficients()
 
         /* calculate the curve point at parameter value t */
         val tSquared = boundT * boundT
         val tDoubled = 2f * boundT
-        startPoint + (coefficientA * tSquared) + (coefficientB * tDoubled)
+        startPoint + (a * tSquared) + (b * tDoubled)
       }
       CUBICBEZIERTO -> {
         /* calculate the polynomial coefficients */
-        val c = (3f * controlPoints[0]) - startPoint
-        val b = (3f * (controlPoints[1] - controlPoints[0])) - c
-        val a = endPoint - startPoint - c - b
+        val (a, b, c) = getCubicCoefficients()
 
         /* calculate the curve point at parameter value t */
         val tSquared = boundT * boundT
@@ -1441,23 +1454,23 @@ class RCommand(
     }
 
     fun lineQuadIntersection(c1: RCommand?, c2: RCommand?): Array<RPoint> {
-      return arrayOf()
+      throw Exception("lineCubicIntersection isn't implemented yet.")
     }
 
     fun lineCubicIntersection(c1: RCommand?, c2: RCommand?): Array<RPoint> {
-      return arrayOf()
+      throw Exception("lineCubicIntersection isn't implemented yet.")
     }
 
     fun quadQuadIntersection(c1: RCommand?, c2: RCommand?): Array<RPoint> {
-      return arrayOf()
+      throw Exception("lineCubicIntersection isn't implemented yet.")
     }
 
     fun quadCubicIntersection(c1: RCommand?, c2: RCommand?): Array<RPoint> {
-      return arrayOf()
+      throw Exception("lineCubicIntersection isn't implemented yet.")
     }
 
     fun cubicCubicIntersection(c1: RCommand?, c2: RCommand?): Array<RPoint> {
-      return arrayOf()
+      throw Exception("lineCubicIntersection isn't implemented yet.")
     }
 
     fun closestAdvFrom(c: RCommand, p: RPoint): Float {

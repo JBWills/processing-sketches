@@ -24,10 +24,11 @@
 
 package geomerativefork.src
 
+import geomerativefork.src.util.mapArray
+import geomerativefork.src.util.maxAll
+import geomerativefork.src.util.minAll
 import kotlin.math.acos
 import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -386,8 +387,15 @@ data class RPoint(var x: Float, var y: Float) {
   }
 
   companion object {
-    fun minXY(p1: RPoint, p2: RPoint) = RPoint(min(p1.x, p2.x), min(p1.y, p2.y))
-    fun maxXY(p1: RPoint, p2: RPoint) = RPoint(max(p1.x, p2.x), max(p1.y, p2.y))
+    fun maxXY(vararg points: RPoint) = RPoint(
+      maxAll(*points.mapArray { it.x }.toFloatArray()),
+      maxAll(*points.mapArray { it.y }.toFloatArray())
+    )
+
+    fun minXY(vararg points: RPoint) = RPoint(
+      minAll(*points.mapArray { it.x }.toFloatArray()),
+      minAll(*points.mapArray { it.y }.toFloatArray())
+    )
 
     operator fun Number.times(p: RPoint) = p * this
     operator fun Number.plus(p: RPoint) = p + this

@@ -60,7 +60,7 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
     val distanceBetweenLines = (50.0..0.5).atAmountAlong(lineDensity)
 
     val baseLines = getParallelLinesInBound(
-      boundRect,
+      boundRect.expand(noise.strength.x, noise.strength.y),
       lineAngle,
       distanceBetweenLines,
       lineOffset * distanceBetweenLines
@@ -74,8 +74,8 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
       }
       Circle -> {
         val c = Circ(centerPoint, shapeSize.x * boundRect.width)
-        c.draw()
-        baseLines.flatMap { it.warped(noise).intersection(c) }
+        val cPath = c.toRPath().also { it.polygonize() }
+        baseLines.flatMap { it.warped(noise).intersection(cPath) }
       }
     }.draw(boundRect)
   }
@@ -88,7 +88,7 @@ data class MoireLinesLayerData(
   var lineAngle: Deg = Deg.VERTICAL,
   var lineOffset: Double = 0.0,
   var shapeSize: Point = Point.One,
-  var shapeCenter: Point = Point.Zero,
+  var shapeCenter: Point = Point.Half,
   var noise: Noise = Noise(
     seed = 100,
     noiseType = Perlin,

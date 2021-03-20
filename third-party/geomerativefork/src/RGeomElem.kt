@@ -26,11 +26,12 @@ package geomerativefork.src
 
 import geomerativefork.src.RPoint.Companion.maxXY
 import geomerativefork.src.RPoint.Companion.minXY
+import geomerativefork.src.util.containsWorldPointsInScreen
 import geomerativefork.src.util.reduceTo
+import geomerativefork.src.util.with
 import processing.core.PApplet
 import processing.core.PGraphics
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -61,7 +62,7 @@ abstract class RGeomElem {
   // They must be overrided
   abstract fun draw(g: PGraphics)
   abstract fun draw(g: PApplet)
-  fun draw() = draw((RG.parent())!!)
+  fun draw() = draw((RG.parent()))
 
   open fun getPoint(t: Float): RPoint? = null
   open fun getTangent(t: Float): RPoint? = null
@@ -81,9 +82,7 @@ abstract class RGeomElem {
    * @related containsBounds ( )
    * @related containsHandles ( )
    */
-  operator fun contains(shp: RGeomElem): Boolean {
-    return contains(shp.points)
-  }
+  operator fun contains(shp: RGeomElem): Boolean = contains(shp.points)
 
   /**
    * Use this method to test if the shape contains the bounding box of another shape.
@@ -93,13 +92,7 @@ abstract class RGeomElem {
    * @related contains ( )
    * @related containsHandles ( )
    */
-  fun containsBounds(shp: RGeomElem): Boolean {
-    val tl = shp.topLeft
-    val tr = shp.topRight
-    val bl = shp.bottomRight
-    val br = shp.bottomLeft
-    return (this.contains(tl) && this.contains(tr) && this.contains(bl) && this.contains(br))
-  }
+  fun containsBounds(shp: RGeomElem): Boolean = shp.bounds.points.all { contains(it) }
 
   /**
    * Use this method to test if the shape contains the handles of another shape. This method is faster than contains(), but the results might not be perfect.
@@ -109,9 +102,7 @@ abstract class RGeomElem {
    * @related containsBounds ( )
    * @related contains ( )
    */
-  fun containsHandles(shp: RGeomElem): Boolean {
-    return contains(shp.handles)
-  }
+  fun containsHandles(shp: RGeomElem): Boolean = contains(shp.handles)
 
   /**
    * Use this method to test if the shape contains an array of points.
@@ -122,18 +113,7 @@ abstract class RGeomElem {
    * @related containsBounds ( )
    * @related containsHandles ( )
    */
-  operator fun contains(pts: Array<RPoint>): Boolean {
-    if (pts.isEmpty()) return false
-
-    var inside = true
-    for (pt in pts) {
-      if (!contains(pt)) {
-        inside = false
-        break
-      }
-    }
-    return inside
-  }
+  operator fun contains(pts: Array<RPoint>): Boolean = pts.all { contains(it) }
 
   /**
    * Use this method to test if the shape intersects another shape.
@@ -143,9 +123,7 @@ abstract class RGeomElem {
    * @related intersectsBounds ( )
    * @related intersectsHandles ( )
    */
-  fun intersects(shp: RGeomElem): Boolean {
-    return intersects(shp.points)
-  }
+  fun intersects(shp: RGeomElem): Boolean = intersects(shp.points)
 
   /**
    * Use this method to test if the shape intersects the bounding box of another shape.
@@ -155,13 +133,7 @@ abstract class RGeomElem {
    * @related intersects ( )
    * @related intersectsHandles ( )
    */
-  fun intersectsBounds(shp: RGeomElem): Boolean {
-    val tl = shp.topLeft
-    val tr = shp.topRight
-    val bl = shp.bottomRight
-    val br = shp.bottomLeft
-    return (this.contains(tl) || this.contains(tr) || this.contains(bl) || this.contains(br))
-  }
+  fun intersectsBounds(shp: RGeomElem): Boolean = shp.bounds.points.any { contains(it) }
 
   /**
    * Use this method to test if the shape intersects the handles of another shape. This method is faster than intersects(), but the results might not be perfect.
@@ -171,9 +143,7 @@ abstract class RGeomElem {
    * @related intersectsBounds ( )
    * @related intersects ( )
    */
-  fun intersectsHandles(shp: RGeomElem): Boolean {
-    return intersects(shp.handles)
-  }
+  fun intersectsHandles(shp: RGeomElem): Boolean = intersects(shp.handles)
 
   /**
    * Use this method to test if the shape intersects an array of points.
@@ -184,15 +154,7 @@ abstract class RGeomElem {
    * @related intersectsBounds ( )
    * @related intersectsHandles ( )
    */
-  fun intersects(ps: Array<RPoint>?): Boolean {
-    var intersects = false
-    if (ps != null) {
-      for (i in ps.indices) {
-        intersects = intersects or this.contains(ps[i])
-      }
-    }
-    return intersects
-  }
+  fun intersects(points: Array<RPoint>): Boolean = points.any { contains(it) }
 
   abstract val type: Int
 
@@ -210,6 +172,30 @@ abstract class RGeomElem {
   @JvmField
   var elemName = ""
 
+  var strokeWeight: Float
+    get() = style.strokeWeight
+    set(value) {
+      style.strokeWeight = value
+    }
+
+  var stroke: Boolean
+    get() = style.stroke
+    set(value) {
+      style.stroke = value
+    }
+
+  var strokeAlpha: Int
+    get() = style.strokeAlpha
+    set(value) {
+      style.strokeAlpha = value
+    }
+
+  var fillAlpha: Int
+    get() = style.fillAlpha
+    set(value) {
+      style.fillAlpha = value
+    }
+
   @JvmField
   var style = RStyle()
   fun setFill(_fill: Boolean) {
@@ -220,17 +206,9 @@ abstract class RGeomElem {
 
   fun setFill(str: String) = style.setFill(str)
 
-  fun setStroke(stroke: Boolean) {
-    style.stroke = stroke
-  }
-
   fun setStroke(_strokeColor: Int) = style.setStroke(_strokeColor)
 
   fun setStroke(str: String) = style.setStroke(str)
-
-  fun setStrokeWeight(value: Float) {
-    style.strokeWeight = value
-  }
 
   fun setStrokeWeight(str: String) = style.setStrokeWeight(str)
 
@@ -238,15 +216,7 @@ abstract class RGeomElem {
 
   fun setStrokeJoin(str: String) = style.setStrokeJoin(str)
 
-  fun setStrokeAlpha(opacity: Int) {
-    style.strokeAlpha = opacity
-  }
-
   fun setStrokeAlpha(str: String) = style.setStrokeAlpha(str)
-
-  fun setFillAlpha(opacity: Int) {
-    style.fillAlpha = opacity
-  }
 
   fun setFillAlpha(str: String) = style.setFillAlpha(str)
 
@@ -285,13 +255,10 @@ abstract class RGeomElem {
 
   fun setStyle(styleString: String) = style.setStyle(styleString)
 
-  fun setName(str: String) {
-    elemName = str
-  }
-
+  /* If the cache with the commands lengths is empty, we fill it up */
   protected open fun calculateCurveLengths() {
     PApplet.println("Feature not yet implemented for this class.")
-  }/* If the cache with the commands lengths is empty, we fill it up */
+  }
 
   /**
    * Use this to return arclengths of each command on the curve.
@@ -315,9 +282,7 @@ abstract class RGeomElem {
   open val curveLength: Float
     get() {
       /* If the cache with the commands lengths is empty, we fill it up */
-      if (lenCurve == -1f) {
-        calculateCurveLengths()
-      }
+      if (lenCurve == -1f) calculateCurveLengths()
       return lenCurve
     }
 
@@ -365,11 +330,10 @@ abstract class RGeomElem {
       val initialMinPoint = RPoint(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
       val initialMaxPoint = RPoint(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY)
 
-      val (minPoint, maxPoint) = handles.reduceTo(
-        initialMinPoint to initialMaxPoint
-      ) { (minP, maxP), p ->
-        minXY(minP, p) to maxXY(maxP, p)
-      }
+      val (minPoint, maxPoint) =
+        handles.reduceTo(initialMinPoint to initialMaxPoint) { (minP, maxP), p ->
+          minXY(minP, p) to maxXY(maxP, p)
+        }
 
       return RRectangle(minPoint, maxPoint)
     }
@@ -381,8 +345,7 @@ abstract class RGeomElem {
    * @eexample getBounds
    * @related getCenter ( )
    */
-  val boundsPoints: Array<RPoint>
-    get() = bounds.points
+  val boundsPoints: Array<RPoint> get() = bounds.points
 
   /**
    * Use this method to get the top left position of the element.
@@ -395,11 +358,7 @@ abstract class RGeomElem {
    * @related getHeight ( )
    * @related getCenter ( )
    */
-  val topLeft: RPoint
-    get() {
-      val orig = bounds
-      return RPoint(orig.minX, orig.minY)
-    }
+  val topLeft: RPoint get() = bounds.topLeft
 
   /**
    * Use this method to get the top right position of the element.
@@ -412,11 +371,7 @@ abstract class RGeomElem {
    * @related getHeight ( )
    * @related getCenter ( )
    */
-  val topRight: RPoint
-    get() {
-      val orig = bounds
-      return RPoint(orig.maxX, orig.minY)
-    }
+  val topRight: RPoint get() = bounds.topRight
 
   /**
    * Use this method to get the bottom left position of the element.
@@ -429,11 +384,7 @@ abstract class RGeomElem {
    * @related getHeight ( )
    * @related getCenter ( )
    */
-  val bottomLeft: RPoint
-    get() {
-      val orig = bounds
-      return RPoint(orig.minX, orig.maxY)
-    }
+  val bottomLeft: RPoint get() = bounds.bottomLeft
 
   /**
    * Use this method to get the bottom right position of the element.
@@ -446,11 +397,8 @@ abstract class RGeomElem {
    * @related getHeight ( )
    * @related getCenter ( )
    */
-  val bottomRight: RPoint
-    get() {
-      val orig = bounds
-      return RPoint(orig.maxX, orig.maxY)
-    }
+  val bottomRight: RPoint get() = bounds.bottomRight
+
 
   /**
    * Use this method to get the x (left side) position of the element.
@@ -462,11 +410,8 @@ abstract class RGeomElem {
    * @related getHeight ( )
    * @related getCenter ( )
    */
-  val x: Float
-    get() {
-      val orig = bounds
-      return orig.minX
-    }
+  val x: Float get() = bounds.minX
+
 
   /**
    * Use this method to get the y position of the element.
@@ -478,11 +423,7 @@ abstract class RGeomElem {
    * @related getHeight ( )
    * @related getCenter ( )
    */
-  val y: Float
-    get() {
-      val orig = bounds
-      return orig.minY
-    }
+  val y: Float get() = bounds.minY
 
   /**
    * Use this method to get the original height of the element.
@@ -491,9 +432,7 @@ abstract class RGeomElem {
    * @eexample getOrigHeight
    * @related getCenter ( )
    */
-  fun getOrigHeight(): Float {
-    return if (elemOrigHeight.toDouble() != 0.0) elemOrigHeight else getHeight()
-  }
+  fun getOrigHeight(): Float = if (elemOrigHeight != 0f) elemOrigHeight else getHeight()
 
   /**
    * Use this method to get the original width of the element.
@@ -502,9 +441,7 @@ abstract class RGeomElem {
    * @eexample getOrigWidth
    * @related getCenter ( )
    */
-  fun getOrigWidth(): Float {
-    return if (elemOrigWidth.toDouble() != 0.0) elemOrigWidth else getWidth()
-  }
+  fun getOrigWidth(): Float = if (elemOrigWidth != 0f) elemOrigWidth else getWidth()
 
   fun updateOrigParams() {
     elemOrigWidth = getWidth()
@@ -518,10 +455,7 @@ abstract class RGeomElem {
    * @eexample getWidth
    * @related getCenter ( )
    */
-  fun getWidth(): Float {
-    val orig = bounds
-    return orig.maxX - orig.minX
-  }
+  fun getWidth(): Float = bounds.let { it.maxX - it.maxY }
 
   /**
    * Use this method to get the height of the element.
@@ -530,10 +464,7 @@ abstract class RGeomElem {
    * @eexample getHeight
    * @related getCenter ( )
    */
-  fun getHeight(): Float {
-    val orig = bounds
-    return orig.maxY - orig.minY
-  }
+  fun getHeight(): Float = bounds.let { it.maxY - it.minY }
 
   /**
    * Use this method to get the center point of the element.
@@ -543,10 +474,7 @@ abstract class RGeomElem {
    * @related getBounds ( )
    */
   val center: RPoint
-    get() {
-      val c = bounds
-      return RPoint((c.maxX + c.minX) / 2, (c.maxY + c.minY) / 2)
-    }
+    get() = bounds.let { RPoint((it.maxX + it.minX) / 2, (it.maxY + it.minY) / 2) }
 
   /**
    * Use this method to get the centroid of the element.
@@ -599,43 +527,9 @@ abstract class RGeomElem {
    * @eexample RShape_isIn
    * @usage Geometry
    */
-  fun isIn(g: PGraphics): Boolean {
-    val c = bounds
-    val x0 = g.screenX(c.topLeft.x, c.topLeft.y)
-    val y0 = g.screenY(c.topLeft.x, c.topLeft.y)
-    val x1 = g.screenX(c.bottomRight.x, c.topLeft.y)
-    val y1 = g.screenY(c.bottomRight.x, c.topLeft.y)
-    val x2 = g.screenX(c.bottomRight.x, c.bottomRight.y)
-    val y2 = g.screenY(c.bottomRight.x, c.bottomRight.y)
-    val x3 = g.screenX(c.topLeft.x, c.bottomRight.y)
-    val y3 = g.screenY(c.topLeft.x, c.bottomRight.y)
-    val xmax = max(max(x0, x1), max(x2, x3))
-    val ymax = max(max(y0, y1), max(y2, y3))
-    val xmin = min(min(x0, x1), min(x2, x3))
-    val ymin = min(min(y0, y1), min(y2, y3))
-    return !((xmax < 0 || xmin > g.width) && (ymax < 0 || ymin > g.height))
-  }
+  fun isIn(g: PGraphics): Boolean = g.containsWorldPointsInScreen(*bounds.points)
 
-  fun isIn(g: PApplet): Boolean {
-    val c = bounds
-    val x0 = g.screenX(c.topLeft.x, c.topLeft.y)
-    val y0 = g.screenY(c.topLeft.x, c.topLeft.y)
-
-    val x1 = g.screenX(c.bottomRight.x, c.topLeft.y)
-    val y1 = g.screenY(c.bottomRight.x, c.topLeft.y)
-
-    val x2 = g.screenX(c.bottomRight.x, c.bottomRight.y)
-    val y2 = g.screenY(c.bottomRight.x, c.bottomRight.y)
-
-    val x3 = g.screenX(c.topLeft.x, c.bottomRight.y)
-    val y3 = g.screenY(c.topLeft.x, c.bottomRight.y)
-
-    val xmax = max(max(x0, x1), max(x2, x3))
-    val ymax = max(max(y0, y1), max(y2, y3))
-    val xmin = min(min(x0, x1), min(x2, x3))
-    val ymin = min(min(y0, y1), min(y2, y3))
-    return !((xmax < 0 || xmin > g.width) && (ymax < 0 || ymin > g.height))
-  }
+  fun isIn(g: PApplet): Boolean = g.containsWorldPointsInScreen(*bounds.points)
 
   /**
    * Use this method to get the transformation matrix in order to fit and center the element on the canvas. Scaling and translation damping parameters are available, in order to create animations.
@@ -650,7 +544,10 @@ abstract class RGeomElem {
    */
   @Throws(RuntimeException::class)
   fun getCenteringTransf(
-    g: PGraphics, margin: Float, sclDamping: Float, trnsDamping: Float,
+    g: PGraphics,
+    margin: Float,
+    sclDamping: Float,
+    trnsDamping: Float,
   ): RMatrix {
     val mrgn = margin * 2
     val c = bounds
@@ -660,6 +557,7 @@ abstract class RGeomElem {
     if (sclDamping != 0f) {
       transf.scale(1 + (scl - 1) * sclDamping)
     }
+
     if (trnsDamping != 0f) {
       transf.translate(-trns.x * trnsDamping, -trns.y * trnsDamping)
     }
@@ -667,27 +565,21 @@ abstract class RGeomElem {
   }
 
   @Throws(RuntimeException::class)
-  fun getCenteringTransf(g: PGraphics): RMatrix {
-    return getCenteringTransf(g, 0f, 1f, 1f)
-  }
+  fun getCenteringTransf(g: PGraphics): RMatrix =
+    getCenteringTransf(g, 0f, 1f, 1f)
 
   @Throws(RuntimeException::class)
-  fun getCenteringTransf(g: PGraphics, margin: Float): RMatrix {
-    return getCenteringTransf(g, margin, 1f, 1f)
-  }
+  fun getCenteringTransf(g: PGraphics, margin: Float): RMatrix =
+    getCenteringTransf(g, margin, 1f, 1f)
 
-  fun centerIn(g: PGraphics) {
-    transform(getCenteringTransf(g))
-  }
+  fun centerIn(g: PGraphics) = transform(getCenteringTransf(g))
 
-  fun centerIn(g: PGraphics, margin: Float) {
+  fun centerIn(g: PGraphics, margin: Float) =
     transform(getCenteringTransf(g, margin, 1f, 1f))
-  }
 
   @Throws(RuntimeException::class)
-  fun centerIn(g: PGraphics, margin: Float, sclDamping: Float, trnsDamping: Float) {
+  fun centerIn(g: PGraphics, margin: Float, sclDamping: Float, trnsDamping: Float) =
     transform(getCenteringTransf(g, margin, sclDamping, trnsDamping))
-  }
 
   /**
    * Apply a translation to the element, given translation coordinates.
@@ -700,11 +592,7 @@ abstract class RGeomElem {
    * @related rotate ( )
    * @related scale ( )
    */
-  fun translate(tx: Float, ty: Float) {
-    val transf = RMatrix()
-    transf.translate(tx, ty)
-    transform(transf)
-  }
+  fun translate(tx: Float, ty: Float) = applyTransform { translate(tx, ty) }
 
   /**
    * Apply a translation to the element, given a point.
@@ -716,11 +604,7 @@ abstract class RGeomElem {
    * @related rotate ( )
    * @related scale ( )
    */
-  fun translate(t: RPoint) {
-    val transf = RMatrix()
-    transf.translate(t)
-    transform(transf)
-  }
+  fun translate(t: RPoint) = applyTransform { translate(t) }
 
   /**
    * Apply a rotation to the element, given an angle and optionally a rotation center.
@@ -734,17 +618,9 @@ abstract class RGeomElem {
    * @related translate ( )
    * @related scale ( )
    */
-  fun rotate(angle: Float, vx: Float, vy: Float) {
-    val transf = RMatrix()
-    transf.rotate(angle, vx, vy)
-    transform(transf)
-  }
+  fun rotate(angle: Float, vx: Float, vy: Float) = applyTransform { rotate(angle, vx, vy) }
 
-  fun rotate(angle: Float) {
-    val transf = RMatrix()
-    transf.rotate(angle)
-    transform(transf)
-  }
+  fun rotate(angle: Float) = applyTransform { rotate(angle) }
 
   /**
    * Apply a rotation to the element, given an angle and optionally a rotation center.
@@ -757,11 +633,7 @@ abstract class RGeomElem {
    * @related translate ( )
    * @related scale ( )
    */
-  fun rotate(angle: Float, v: RPoint) {
-    val transf = RMatrix()
-    transf.rotate(angle, v)
-    transform(transf)
-  }
+  fun rotate(angle: Float, v: RPoint) = applyTransform { rotate(angle, v) }
 
   /**
    * Apply a scale to the element, given scaling factors and optionally a scaling center.
@@ -775,17 +647,9 @@ abstract class RGeomElem {
    * @related translate ( )
    * @related rotate ( )
    */
-  fun scale(sx: Float, sy: Float, p: RPoint) {
-    val transf = RMatrix()
-    transf.scale(sx, sy, p)
-    transform(transf)
-  }
+  fun scale(sx: Float, sy: Float, p: RPoint) = applyTransform { scale(sx, sy, p) }
 
-  fun scale(sx: Float, sy: Float) {
-    val transf = RMatrix()
-    transf.scale(sx, sy)
-    transform(transf)
-  }
+  fun scale(sx: Float, sy: Float) = applyTransform { scale(sx, sy) }
 
   /**
    * Apply a scale to the element, given scaling factors and optionally a scaling center.
@@ -800,11 +664,7 @@ abstract class RGeomElem {
    * @related translate ( )
    * @related rotate ( )
    */
-  fun scale(sx: Float, sy: Float, x: Float, y: Float) = RMatrix()
-    .also {
-      it.scale(sx, sy, x, y)
-      transform(it)
-    }
+  fun scale(sx: Float, sy: Float, x: Float, y: Float) = applyTransform { scale(sx, sy, x, y) }
 
   /**
    * Apply a scale to the element, given scaling factors and optionally a scaling center.
@@ -817,17 +677,9 @@ abstract class RGeomElem {
    * @related translate ( )
    * @related rotate ( )
    */
-  fun scale(s: Float, p: RPoint) = RMatrix()
-    .also {
-      it.scale(s, p)
-      transform(it)
-    }
+  fun scale(s: Float, p: RPoint) = applyTransform { scale(s, p) }
 
-  fun scale(s: Float) = RMatrix()
-    .also {
-      it.scale(s)
-      transform(it)
-    }
+  fun scale(s: Float) = applyTransform { scale(s) }
 
   /**
    * Apply a scale to the element, given scaling factors and optionally a scaling center.
@@ -841,11 +693,7 @@ abstract class RGeomElem {
    * @related translate ( )
    * @related rotate ( )
    */
-  fun scale(s: Float, x: Float, y: Float) = RMatrix()
-    .also {
-      it.scale(s, x, y)
-      transform(it)
-    }
+  fun scale(s: Float, x: Float, y: Float) = applyTransform { scale(s, x, y) }
 
   /**
    * Apply a horizontal skew to the element, given skewing angle
@@ -857,11 +705,7 @@ abstract class RGeomElem {
    * @related scale ( )
    * @related translate ( )
    */
-  fun skewX(angle: Float) = RMatrix()
-    .also {
-      it.skewY(angle)
-      transform(it)
-    }
+  fun skewX(angle: Float) = applyTransform { skewX(angle) }
 
   /**
    * Apply a vertical skew to the element, given skewing angle
@@ -873,11 +717,7 @@ abstract class RGeomElem {
    * @related scale ( )
    * @related translate ( )
    */
-  fun skewY(angle: Float) = RMatrix()
-    .also {
-      it.skewY(angle)
-      transform(it)
-    }
+  fun skewY(angle: Float) = applyTransform { skewY(angle) }
 
   /**
    * Apply a shear to the element, given shearing factors
@@ -890,11 +730,12 @@ abstract class RGeomElem {
    * @related scale ( )
    * @related translate ( )
    */
-  fun shear(shx: Float, shy: Float) = RMatrix()
-    .also {
-      it.shear(shx, shy)
-      transform(it)
-    }
+  fun shear(shx: Float, shy: Float) = applyTransform { shear(shx, shy) }
+
+  private fun applyTransform(block: RMatrix.() -> Unit) = RMatrix().with {
+    block()
+    transform(this)
+  }
 
   companion object {
     /**

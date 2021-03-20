@@ -255,13 +255,12 @@ class RSVG {
     // Set the defaults SVG styles for the root
     if (elem.name.equals("svg", ignoreCase = true)) {
       grp.setFill(0) // By default in SVG it's black
-      grp.setFillAlpha(255) // By default in SVG it's 1
-      grp.setStroke(false) // By default in SVG it's none
-      grp.setStrokeWeight(1f) // By default in SVG it's none
+      grp.fillAlpha = 255 // By default in SVG it's 1
+      grp.stroke = false // By default in SVG it's none
+      grp.strokeWeight = 1f // By default in SVG it's none
       grp.setStrokeCap("butt") // By default in SVG it's 'butt'
       grp.setStrokeJoin("miter") // By default in SVG it's 'miter'
-      grp.setStrokeAlpha(255) // By default in SVG it's 1
-      grp.setAlpha(255) // By default in SVG it's 1F
+      grp.strokeAlpha = 255 // By default in SVG it's 1
     }
     val elems = elem.children
     for (i in elems.indices) {
@@ -371,12 +370,12 @@ class RSVG {
     // Set the defaults SVG styles for the root
     if (elem.name.equals("svg", ignoreCase = true)) {
       shp.setFill(0) // By default in SVG it's black
-      shp.setFillAlpha(255) // By default in SVG it's 1
-      shp.setStroke(false) // By default in SVG it's none
-      shp.setStrokeWeight(1f) // By default in SVG it's none
+      shp.fillAlpha = 255 // By default in SVG it's 1
+      shp.stroke = false // By default in SVG it's none
+      shp.strokeWeight = 1f // By default in SVG it's none
       shp.setStrokeCap("butt") // By default in SVG it's 'butt'
       shp.setStrokeJoin("miter") // By default in SVG it's 'miter'
-      shp.setStrokeAlpha(255) // By default in SVG it's 1
+      shp.strokeAlpha = 255 // By default in SVG it's 1
       shp.setAlpha(255) // By default in SVG it's 1F
     }
     val elems = elem.children

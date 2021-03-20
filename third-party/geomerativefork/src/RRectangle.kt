@@ -36,6 +36,9 @@ class RRectangle(var topLeft: RPoint, var bottomRight: RPoint) {
   val minY: Float
     get() = topLeft.y
 
+  val topRight: RPoint get() = RPoint(maxX, minY)
+  val bottomLeft: RPoint get() = RPoint(minX, maxY)
+
   constructor(
     x: Float, y: Float, w: Float, h: Float,
   ) : this(topLeft = RPoint(x, y), bottomRight = RPoint(x + w, y + h))
@@ -43,9 +46,9 @@ class RRectangle(var topLeft: RPoint, var bottomRight: RPoint) {
   val points: Array<RPoint>
     get() = arrayOf(
       RPoint(topLeft),
-      RPoint(bottomRight.x, topLeft.y),
+      RPoint(topRight),
       RPoint(bottomRight),
-      RPoint(topLeft.x, bottomRight.y),
+      RPoint(bottomLeft),
     )
 
   fun contains(p: RPoint): Boolean = p.x in minX..maxX && p.y in minY..maxY

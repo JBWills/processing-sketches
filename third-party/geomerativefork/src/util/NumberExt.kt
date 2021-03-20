@@ -3,6 +3,11 @@ package geomerativefork.src.util
 import kotlin.math.max
 import kotlin.math.min
 
+
+fun minAll(vararg floats: Float) = floats.reduce { acc, item -> kotlin.math.min(acc, item) }
+
+fun maxAll(vararg floats: Float) = floats.reduce { acc, item -> kotlin.math.max(acc, item) }
+
 fun Float.boundInt(start: Int = 0, end: Int = 1): Int = when {
   this < start -> start
   this > end -> end

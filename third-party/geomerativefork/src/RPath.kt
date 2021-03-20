@@ -326,8 +326,6 @@ class RPath() : RGeomElem() {
       else arrayOf()
     }
 
-    println(intersections.toList())
-
     var lastIndex = if (closed) intersections.last().commandIndex else 0
     (intersections.indices).forEach { i ->
       val curr = intersections[i]

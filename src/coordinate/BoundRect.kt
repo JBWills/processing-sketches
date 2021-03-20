@@ -60,8 +60,9 @@ data class BoundRect(
   fun isLeft(line: Line) = line.origin.x == left && line.slope.isVertical()
   fun isRight(line: Line) = line.origin.x == right && line.slope.isVertical()
 
-  fun expand(amount: Double) =
-    BoundRect(topLeft - amount, height + 2 * amount, width + 2 * amount)
+  fun expand(amount: Double) = expand(amount, amount)
+  fun expand(amountX: Double, amountY: Double) =
+    BoundRect(topLeft - Point(amountX, amountY), height + 2 * amountY, width + 2 * amountX)
 
   fun recentered(newCenter: Point) =
     BoundRect(topLeft - (newCenter - center), height, width)

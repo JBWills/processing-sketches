@@ -17,7 +17,8 @@ fun List<Point>.intersection(path: RPath): List<List<Point>> =
 
 fun List<Point>.intersection(r: BoundRect): List<List<Point>> = intersection(r.toRPath())
 
-fun List<Point>.intersection(c: Circ): List<List<Point>> = intersection(c.toRPath())
+fun List<Point>.intersection(c: Circ): List<List<Point>> =
+  intersection(c.toRPath().also { it.polygonize() })
 
 fun List<Point>.diff(r: BoundRect): List<List<Point>> = diff(r.toRPath())
 
