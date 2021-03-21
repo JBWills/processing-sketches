@@ -41,7 +41,7 @@ fun PApplet.combineDrawLayersIntoSVG(
     recordSvg(tempFileName) { drawLayer(layerIndex) }
     xml.addChild(XML("g").also { layerGroup ->
       layerGroup.setString("inkscape:groupmode", "layer")
-      layerGroup.setString("inkscape:label", resultFile)
+      layerGroup.setString("inkscape:label", layerIndex.toString())
       layerGroup.setString("id", resultFile)
       XML(File(tempFileName))
         .children
