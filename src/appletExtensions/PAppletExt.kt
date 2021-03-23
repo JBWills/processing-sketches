@@ -11,12 +11,16 @@ import coordinate.Deg
 import coordinate.Line
 import coordinate.Point
 import coordinate.Segment
+import fastnoise.Noise
 import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
 import processing.core.PApplet
+import util.atAmountAlong
 import util.iterators.addNotNull
+import util.iterators.forEach2D
 import util.iterators.mapWithNext
 import util.toRadians
+import java.awt.Color
 
 /**
  * Todo: Why is this not just a bunch of top level extension functions?
@@ -36,6 +40,16 @@ open class PAppletExt : PApplet() {
       line(l.getPointAtDist(-lineExtender), l.getPointAtDist(lineExtender))
     } else {
       line(l.origin, l.getPointAtDist(lineExtender * 2))
+    }
+  }
+
+  fun Noise.color(
+    bound: BoundRect,
+    startColor: Color = Color.WHITE,
+    endColor: Color = Color.BLACK
+  ) = toValueMatrix(bound).forEach2D { rowIndex, colIndex, item ->
+    withStroke(Color((startColor.rgb..endColor.rgb).atAmountAlong(item).toInt())) {
+      point(rowIndex + bound.left.toFloat(), colIndex + bound.right.toFloat())
     }
   }
 

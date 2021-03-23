@@ -41,6 +41,9 @@ data class BoundRect(
   val topRight by lazy { Point(right, top) }
   val bottomLeft by lazy { Point(left, bottom) }
 
+  val xPixels: Iterable<Int> by lazy { left.toInt()..right.toInt() }
+  val yPixels: Iterable<Int> by lazy { top.toInt()..bottom.toInt() }
+
   val topSegment by lazy { Segment(topLeft, Deg(0), width) }
   val bottomSegment by lazy { Segment(bottomLeft, Deg(0), width) }
   val leftSegment by lazy { Segment(topLeft, bottomLeft) }

@@ -78,8 +78,13 @@ class Segment(
   fun toLine() = Line(p1, slope)
 
   fun toProgression(step: Double = 1.0) = PointProgression(this, step)
-  
+
   fun isEmpty() = length == 0.0
+
+  operator fun plus(other: Point) = Segment(p1 + other, p2 + other)
+  operator fun minus(other: Point) = Segment(p1 - other, p2 - other)
+  operator fun unaryPlus() = Segment(+p1, +p2)
+  operator fun unaryMinus() = Segment(-p1, -p2)
 
   override fun walk(step: Double) = (p1..p2 step step).toList()
 
@@ -166,5 +171,9 @@ class Segment(
 
   override fun toString(): String {
     return "LineSegment(p1=$p1, p2=$p2, slope=$slope)"
+  }
+
+  companion object {
+    fun List<Segment>.move(amount: Point) = map { it + amount }
   }
 }

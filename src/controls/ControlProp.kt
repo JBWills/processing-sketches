@@ -145,8 +145,9 @@ fun BaseSketch.pointProp(
 }
 
 fun BaseSketch.noiseProp(
-  ref: KMutableProperty0<Noise>
-) = prop(ref) { noiseControls(ref).toControlSection() }
+  ref: KMutableProperty0<Noise>,
+  showStrengthSliders: Boolean = true,
+) = prop(ref) { noiseControls(ref, showStrengthSliders).toControlSection() }
 
 fun dropdownList(
   name: String,

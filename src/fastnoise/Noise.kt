@@ -2,7 +2,9 @@ package fastnoise
 
 import FastNoiseLite
 import FastNoiseLite.NoiseType
+import FastNoiseLite.NoiseType.Perlin
 import coordinate.Arc
+import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
 import coordinate.Segment
@@ -62,6 +64,16 @@ data class Noise(
     n.strength
   )
 
+  /**
+   * Get a 2D matrix of noise samples at the pixel level (one sample per pixel)
+   */
+  fun toValueMatrix(bounds: BoundRect): List<List<Double>> =
+    bounds.xPixels.map { x ->
+      bounds.yPixels.map { y ->
+        get(x, y) + 0.5
+      }
+    }
+
   fun with(
     seed: Int? = null,
     noiseType: NoiseType? = null,
@@ -79,9 +91,11 @@ data class Noise(
     fastNoise.GetNoise(p.xf, p.yf, 100f)
   ) * strength
 
-  fun noiseAt(p: Point) = fastNoise.GetNoise(p.xf, p.yf, 0f).toDouble()
+  private fun noiseAt(p: Point) = fastNoise.GetNoise(p.xf, p.yf, 0f).toDouble()
 
-  fun getPointOnNoisePlane(pointInDrawSpace: Point) = (pointInDrawSpace + offset) * scale
+  private fun getPointOnNoisePlane(pointInDrawSpace: Point) = (pointInDrawSpace + offset) * scale
+
+  fun get(x: Number, y: Number) = noiseAt(getPointOnNoisePlane(Point(x, y)))
 
   private fun move(p: Point, scaleFn: (Point) -> Point = { it }): Point {
     val noisePoint = noiseAt2D(getPointOnNoisePlane(p))
@@ -134,6 +148,14 @@ data class Noise(
     fun Walkable.warpedRadially(
       noise: Noise, aroundPoint: Point, scaleFn: (Double) -> Double = { it },
     ) = noise.warpRadially(this, aroundPoint, scaleFn)
-  }
 
+    val DEFAULT = Noise(
+      seed = 100,
+      noiseType = Perlin,
+      quality = High,
+      scale = 0.15,
+      offset = Point.Zero,
+      strength = Point(0, 0)
+    )
+  }
 }

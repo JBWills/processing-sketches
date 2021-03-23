@@ -72,5 +72,8 @@ infix fun DoubleRange.step(s: Double) = DoubleProgression(start, endInclusive) s
 fun DoubleRange.atAmountAlong(amountAlong: Double = 0.0) =
   start + ((endInclusive - start) * amountAlong)
 
+fun IntRange.atAmountAlong(amountAlong: Double = 0.0) =
+  start + ((endInclusive - start) * amountAlong)
+
 fun DoubleRange.percentAlong(num: Number) = (num.toDouble() - start) / (endInclusive - start)
 fun IntRange.percentAlong(num: Number) = (num.toDouble() - start) / (endInclusive - start)

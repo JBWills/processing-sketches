@@ -139,6 +139,7 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
     operator fun Number.plus(p: Point) = p + toDouble()
     operator fun Number.div(p: Point) = p / toDouble()
 
+    fun List<Point>.move(amount: Point): List<Point> = map { it + amount }
     fun List<Point>.plusIf(p: Point?): List<Point> = if (p != null) this.plusElement(p) else this
     fun MutableList<Point>.addIf(p: Point?): List<Point> {
       if (p != null) this.add(p)
