@@ -3,6 +3,7 @@ plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.4.31'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.31'
+    id 'org.unbroken-dome.test-sets' version '2.1.1'
 }
 
 group 'org.example'
@@ -38,6 +39,11 @@ dependencies {
             'third-party-java/svg-lib/batik-dom-1.8.jar',
             'third-party-java/svg-lib/batik-awt-util-1.8.jar'
     )
+    testImplementation(
+            'org.assertj:assertj-core:3.12.2',
+            'org.junit.jupiter:junit-jupiter-api:5.4.2'
+    )
+    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.4.2')
 }
 
 sourceSets {

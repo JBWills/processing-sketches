@@ -3,8 +3,10 @@
 package coordinate
 
 import geomerativefork.src.RPoint
+import geomerativefork.src.util.bound
 import interfaces.math.Mathable
 import kotlinx.serialization.Serializable
+import util.DoubleRange
 import util.equalsDelta
 import util.roundedString
 import util.squared
@@ -97,6 +99,8 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
   fun flipX() = Point(-x, y)
   fun flipY() = Point(x, -y)
 
+  fun swapXY() = Point(y, x)
+
   fun angle(): Deg = Deg(atan2(y, x).toDegrees())
 
   override operator fun unaryMinus() = Point(-x, -y)
@@ -106,6 +110,11 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
   fun squared() = Point(x.squared(), y.squared())
 
   fun addXAndYTogether() = x + y
+
+  fun boundX(range: DoubleRange) = Point(x.bound(range), y)
+  fun boundY(range: DoubleRange) = Point(x, y.bound(range))
+
+  fun bound(xRange: DoubleRange, yRange: DoubleRange) = boundX(xRange).boundY(yRange)
 
   fun addX(amt: Number) = Point(x + amt.toDouble(), y)
   fun addY(amt: Number) = Point(x, y + amt.toDouble())

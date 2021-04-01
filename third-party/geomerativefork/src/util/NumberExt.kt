@@ -1,5 +1,6 @@
 package geomerativefork.src.util
 
+import util.DoubleRange
 import kotlin.math.max
 import kotlin.math.min
 
@@ -7,6 +8,12 @@ import kotlin.math.min
 fun minAll(vararg floats: Float) = floats.reduce { acc, item -> kotlin.math.min(acc, item) }
 
 fun maxAll(vararg floats: Float) = floats.reduce { acc, item -> kotlin.math.max(acc, item) }
+
+fun Double.bound(range: DoubleRange): Double = when {
+  this < range.start -> range.start
+  this > range.endInclusive -> range.endInclusive
+  else -> this
+}
 
 fun Float.boundInt(start: Int = 0, end: Int = 1): Int = when {
   this < start -> start

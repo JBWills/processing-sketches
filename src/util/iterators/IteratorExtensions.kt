@@ -1,8 +1,53 @@
 package util.iterators
 
+import coordinate.Point
+
 fun <K, V> MutableMap<K, V>.replaceKey(oldKey: K, newKey: K) {
   val value = get(oldKey) ?: return
   put(newKey, value)
+}
+
+fun Iterable<Point>.sumPointsIndexed(block: (Int, Point) -> Point): Point {
+  var sum = Point.Zero
+  forEachIndexed { index, item -> sum += block(index, item) }
+  return sum
+}
+
+fun <T> Iterable<T>.sumByDoubleIndexed(block: (Int, T) -> Double): Double {
+  var sum = 0.0
+  forEachIndexed { index, item -> sum += block(index, item) }
+  return sum
+}
+
+fun <T> Iterable<T>.sumByIndexed(block: (Int, T) -> Int): Int {
+  var sum = 0
+  forEachIndexed { index, item -> sum += block(index, item) }
+  return sum
+}
+
+/**
+ * Modified from https://stackoverflow.com/a/62597698
+ */
+fun <T> List<T>.forEachPair(block: (index1: Int, index2: Int, item1: T, item2: T) -> Unit) {
+  forEachIndexed { index1, item1 ->
+    for (index2 in index1 + 1 until size) {
+      block(index1, index2, item1, get(index2))
+    }
+  }
+}
+
+/**
+ * Modified from https://stackoverflow.com/a/62597698
+ */
+fun <T, R> List<T>.mapEachPairNonNull(block: (index1: Int, index2: Int, item1: T, item2: T) -> R?): List<R> {
+  val res = mutableListOf<R>()
+  forEachIndexed { index1, item1 ->
+    for (index2 in index1 + 1 until size) {
+      block(index1, index2, item1, get(index2))?.let { res.add(it) }
+    }
+  }
+
+  return res
 }
 
 fun <T> List<List<T>>.forEach2D(block: (rowIndex: Int, colIndex: Int, item: T) -> Unit) =

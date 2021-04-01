@@ -1,5 +1,7 @@
 package util
 
+import kotlin.math.abs
+
 typealias DoubleRange = ClosedRange<Double>
 
 operator fun DoubleRange.times(other: Number) =
@@ -22,9 +24,7 @@ class DoubleProgression(
   override val start: Double = startNumber.toDouble()
   override val endInclusive: Double = endInclusiveNumber.toDouble()
 
-  override fun iterator(): Iterator<Double> =
-    if (step > 0) DoubleIterator(start, endInclusive, step)
-    else DoubleIterator(endInclusive, start, -step)
+  override fun iterator(): Iterator<Double> = DoubleIterator(start, endInclusive, step)
 
   infix fun step(moveAmount: Double) = DoubleProgression(start, endInclusive, moveAmount)
 }
@@ -32,7 +32,7 @@ class DoubleProgression(
 class DoubleIterator(
   private val start: Double,
   private val endInclusive: Double,
-  val stepVal: Double,
+  private val stepVal: Double,
 ) : Iterator<Double> {
 
   private var curr: Double? = null
@@ -50,9 +50,9 @@ class DoubleIterator(
 
   private fun getNext(): Double = getNext(curr)
 
-  private fun isPastEnd(p: Double) = start - endInclusive < start - p
+  private fun isPastEnd(p: Double) = abs(start - endInclusive) < abs(start - p)
 
-  override fun hasNext() = curr == null || start - endInclusive > start - curr!!
+  override fun hasNext() = curr?.let { it != endInclusive && !isPastEnd(it) } ?: true
 
   override fun next(): Double {
     val next = getNext()
@@ -68,6 +68,7 @@ fun zeroTo(max: Number) = 0.0..max.toDouble()
 fun negToPos(minMax: Number) = -minMax.toDouble()..minMax.toDouble()
 
 infix fun DoubleRange.step(s: Double) = DoubleProgression(start, endInclusive) step s
+infix fun Double.until(s: Double) = DoubleProgression(this, s - 1)
 
 fun DoubleRange.atAmountAlong(amountAlong: Double = 0.0) =
   start + ((endInclusive - start) * amountAlong)

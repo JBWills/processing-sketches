@@ -1,5 +1,6 @@
 package util
 
+import coordinate.Point
 import java.lang.Math.toDegrees
 import java.lang.Math.toRadians
 import kotlin.math.abs
@@ -8,6 +9,13 @@ import kotlin.math.pow
 import kotlin.math.sin
 
 val EPSILON = 0.00001
+
+fun forEachPoint(w: Double, h: Double, step: Double, block: (p: Point) -> Unit) =
+  (0.0..h step step).forEach { y ->
+    (0.0..w step step).forEach { x ->
+      block(Point(x, y))
+    }
+  }
 
 fun <R> Int.map(f: (Int) -> R) = (0 until this).map(f)
 

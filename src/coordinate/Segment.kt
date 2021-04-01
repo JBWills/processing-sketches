@@ -48,6 +48,8 @@ class Segment(
 
   val unitVector get() = slope.unitVector
 
+  val midPoint get() = p1 + unitVector * (length / 2)
+
   /**
    * Sometimes segments can get flipped, this flips them back to their correct direction.
    *
@@ -175,5 +177,6 @@ class Segment(
 
   companion object {
     fun List<Segment>.move(amount: Point) = map { it + amount }
+    fun Pair<Point, Point>.toSegment() = Segment(first, second)
   }
 }
