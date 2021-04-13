@@ -1,7 +1,11 @@
 package appletExtensions
 
-import controlP5.*
-import controls.ControlTab
+import controlP5.ControlP5
+import controlP5.ControlWindow
+import controlP5.ControllerInterface
+import controlP5.ControllerList
+import controlP5.Tab
+import controls.panels.ControlTab
 import util.with
 
 fun <R> ControllerList.map(block: (ControllerInterface<*>) -> R): List<R> =
@@ -15,7 +19,7 @@ fun ControlP5.addTabs(tabs: List<ControlTab>) = tabs.forEach {
 
 fun ControlP5.setTabs(
   tabs: List<ControlTab>,
-  activeTab: ControlTab? = tabs.firstOrNull()
+  activeTab: ControlTab? = tabs.firstOrNull(),
 ) {
   // Can't delete the first tab because of annoying controlP5
   // currentPointer bug

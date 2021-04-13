@@ -1,9 +1,11 @@
 package util
 
 import coordinate.Point
+import java.lang.Math.floor
 import java.lang.Math.toDegrees
 import java.lang.Math.toRadians
 import kotlin.math.abs
+import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
@@ -22,6 +24,9 @@ fun <R> Int.map(f: (Int) -> R) = (0 until this).map(f)
 fun Int.times(f: (Int) -> Unit) {
   for (i in 0 until this) f(i)
 }
+
+fun Double.floorInt(): Int = floor(this).toInt()
+fun Double.ceilInt(): Int = ceil(this).toInt()
 
 /**
  * If number basically equals other (within threshold amount), just make it

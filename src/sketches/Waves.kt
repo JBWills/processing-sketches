@@ -2,11 +2,11 @@ package sketches
 
 import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
-import controls.ControlGroup.Companion.group
-import controls.ControlTab.Companion.tab
 import controls.doubleProp
 import controls.intProp
 import controls.noiseProp
+import controls.panels.ControlList.Companion.row
+import controls.panels.ControlTab.Companion.tab
 import controls.props.PropData
 import coordinate.Point
 import coordinate.Segment
@@ -127,28 +127,13 @@ data class WaveGlobal(
   override fun BaseSketch.bind() = listOf(
     tab(
       "Waves",
-      intProp(
-        ::numCircles,
-        1..LayeredCanvasSketch.MAX_LAYERS
+      intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
+      row(
+        doubleProp(::maxHeight, 100.0..2000.0),
+        doubleProp(::minHeight, -400.0..400.0),
       ),
-      group(
-        doubleProp(
-          ::maxHeight,
-          100.0..2000.0
-        ),
-        doubleProp(
-          ::minHeight,
-          -400.0..400.0
-        ),
-      ),
-      intProp(
-        ::baseNumInternalCircles,
-        1..100
-      ),
-      doubleProp(
-        ::distBetweenNoisePerCircle,
-        0.0..150.0
-      ),
+      intProp(::baseNumInternalCircles, 1..100),
+      doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
       noiseProp(::noise),
     )
   )

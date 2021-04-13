@@ -5,11 +5,14 @@ import controlP5.Controller
 import controlP5.DropdownList
 import controlP5.Tab
 import controlP5.Textfield
+import controls.panels.ControlItem
+import controls.panels.ControlPanel
+import controls.panels.Panelable
+import coordinate.BoundRect
 import coordinate.Point
+import util.BindFunc
 import util.DoubleRange
 import util.PointRange
-import util.Position
-import util.Size
 import util.buttonWith
 import util.dropdownWith
 import util.range
@@ -26,9 +29,10 @@ import kotlin.reflect.KMutableProperty0
 val DEFAULT_RANGE = 0.0..1.0
 
 sealed class Control<T : Controller<T>>(
-  val applyToControlInternal: (c: ControlP5, t: Tab, pos: Position, size: Size) -> T,
-) : ControlGroupable {
-  override fun toControlGroup() = ControlGroup(this)
+  var name: String,
+  val applyToControlInternal: BindFunc<T>,
+) : Panelable {
+  override fun toControlPanel(): ControlPanel = ControlItem(name = name, control = this)
 
   var ref: T? = null
 
@@ -38,48 +42,61 @@ sealed class Control<T : Controller<T>>(
       if (value != null && value != ref?.value) ref?.value = value
     }
 
-  fun applyToControl(c: ControlP5, t: Tab, pos: Position, size: Size) {
-    ref = applyToControlInternal(c, t, pos, size)
+  fun applyToControl(controlP5: ControlP5, tab: Tab, panel: ControlPanel, bound: BoundRect) {
+    ref = applyToControlInternal(controlP5, tab, panel, bound)
   }
 
   class TextInput(
     fieldName: String,
     defaultValue: String = "",
   ) : Control<Textfield>(
+    fieldName,
     textInputWith(fieldName) {
       setValue(defaultValue)
-    }
+    },
   )
 
   class Button(
     text: String,
     handleClick: () -> Unit,
   ) : Control<controlP5.Button>(
+    text,
     buttonWith(text) {
       onClick { handleClick() }
+    },
+  ) {
+    companion object {
+      fun button(
+        text: String,
+        onClick: () -> Unit
+      ) = Button(text, onClick)
     }
-  )
+  }
 
   class Toggle(
     text: String,
     defaultValue: Boolean = false,
     handleToggled: (Boolean) -> Unit,
   ) : Control<controlP5.Toggle>(
+    text,
     toggleWith(text) {
       setValue(defaultValue)
       onChange { handleToggled(booleanValue) }
       captionLabel.align(ControlP5.CENTER, ControlP5.CENTER)
       captionLabel.setSize(13)
-    }
+    },
   ) {
     constructor(
       valRef: KMutableProperty0<Boolean>,
       text: String? = null,
       handleChange: (Boolean) -> Unit = {},
-    ) : this(text?.splitCamelCase() ?: valRef.name.splitCamelCase(), valRef.get(), {
-      valRef.set(it)
-      handleChange(it)
-    })
+    ) : this(
+      text?.splitCamelCase() ?: valRef.name.splitCamelCase(), valRef.get(),
+      {
+        valRef.set(it)
+        handleChange(it)
+      },
+    )
   }
 
   class Slider(
@@ -88,6 +105,7 @@ sealed class Control<T : Controller<T>>(
     defaultValue: Double? = null,
     handleChange: (Double) -> Unit,
   ) : Control<controlP5.Slider>(
+    text,
     sliderWith(text) {
       range(range)
 
@@ -97,7 +115,7 @@ sealed class Control<T : Controller<T>>(
       captionLabel.setSize(13)
       valueLabel.align(ControlP5.LEFT, ControlP5.BOTTOM)
       valueLabel.setSize(13)
-    }
+    },
   ) {
     constructor(
       text: String,
@@ -105,10 +123,13 @@ sealed class Control<T : Controller<T>>(
       getter: () -> Double,
       setter: (Double) -> Unit,
       handleChange: (Double) -> Unit,
-    ) : this(text, range, getter(), {
-      setter(it)
-      handleChange(it)
-    })
+    ) : this(
+      text, range, getter(),
+      {
+        setter(it)
+        handleChange(it)
+      },
+    )
 
     constructor(
       valRef: KMutableProperty0<Double>,
@@ -120,7 +141,7 @@ sealed class Control<T : Controller<T>>(
       range,
       valRef::get,
       valRef::set,
-      handleChange
+      handleChange,
     )
 
     constructor(
@@ -136,7 +157,8 @@ sealed class Control<T : Controller<T>>(
       {
         valRef.set(it.toInt())
         handleChange(it.toInt())
-      })
+      },
+    )
   }
 
   class Slider2d(
@@ -146,6 +168,7 @@ sealed class Control<T : Controller<T>>(
     defaultValue: Point? = null,
     handleChange: (Point) -> Unit,
   ) : Control<controlP5.Slider2D>(
+    text,
     slider2dWith(text) {
       range(rangeX, rangeY)
       val defaultPoint = defaultValue ?: Point(rangeX.start, rangeY.start)
@@ -158,7 +181,7 @@ sealed class Control<T : Controller<T>>(
       captionLabel.setSize(13)
       valueLabel.align(ControlP5.LEFT, ControlP5.BOTTOM)
       valueLabel.setSize(13)
-    }
+    },
   ) {
     constructor(
       valRef: KMutableProperty0<Point>,
@@ -166,10 +189,13 @@ sealed class Control<T : Controller<T>>(
       rangeY: DoubleRange = DEFAULT_RANGE,
       text: String? = null,
       handleChange: (Point) -> Unit = {},
-    ) : this(text?.splitCamelCase() ?: valRef.name.splitCamelCase(), rangeX, rangeY, valRef.get(), {
-      valRef.set(it)
-      handleChange(it)
-    })
+    ) : this(
+      text?.splitCamelCase() ?: valRef.name.splitCamelCase(), rangeX, rangeY, valRef.get(),
+      {
+        valRef.set(it)
+        handleChange(it)
+      },
+    )
 
     constructor(
       text: String,
@@ -185,6 +211,7 @@ sealed class Control<T : Controller<T>>(
     defaultValue: String,
     handleChange: (String) -> Unit = {},
   ) : Control<DropdownList>(
+    text,
     dropdownWith(text.splitCamelCase()) {
       setType(DropdownList.LIST)
       setItems(options)
@@ -195,7 +222,7 @@ sealed class Control<T : Controller<T>>(
         val selectedOption = options[value.toInt()]
         handleChange(selectedOption)
       }
-    }
+    },
   )
 
   class EnumDropdown<E : Enum<E>>(
@@ -203,6 +230,7 @@ sealed class Control<T : Controller<T>>(
     defaultValue: E,
     handleChange: (E) -> Unit = {},
   ) : Control<DropdownList>(
+    text,
     dropdownWith(text.splitCamelCase()) {
       setType(DropdownList.LIST)
       val options = defaultValue.declaringClass.enumConstants.sortedBy { it.name }
@@ -214,15 +242,18 @@ sealed class Control<T : Controller<T>>(
         val selectedOption = options[value.toInt()]
         handleChange(selectedOption)
       }
-    }
+    },
   ) {
     constructor(
       enumRef: KMutableProperty0<E>,
       text: String? = null,
       handleChange: (E) -> Unit = {},
-    ) : this(text?.splitCamelCase() ?: enumRef.get().declaringClass.simpleName, enumRef.get(), {
-      enumRef.set(it)
-      handleChange(it)
-    })
+    ) : this(
+      text?.splitCamelCase() ?: enumRef.get().declaringClass.simpleName, enumRef.get(),
+      {
+        enumRef.set(it)
+        handleChange(it)
+      },
+    )
   }
 }

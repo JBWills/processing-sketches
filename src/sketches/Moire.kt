@@ -2,12 +2,12 @@ package sketches
 
 import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
-import controls.ControlGroup.Companion.group
-import controls.ControlTab.Companion.layerTab
-import controls.ControlTab.Companion.tab
 import controls.doublePairProp
 import controls.doubleProp
 import controls.noiseProp
+import controls.panels.ControlList.Companion.row
+import controls.panels.ControlTab.Companion.layerTab
+import controls.panels.ControlTab.Companion.tab
 import controls.prop
 import controls.props.PropData
 import coordinate.Point
@@ -26,7 +26,7 @@ import util.atAmountAlong
 class Moire : LayeredCanvasSketch<MoireData, MoireLayerData>(
   "Moire",
   MoireData(),
-  { MoireLayerData() }
+  { MoireLayerData() },
 ) {
   init {
     numLayers = 3
@@ -53,7 +53,7 @@ class Moire : LayeredCanvasSketch<MoireData, MoireLayerData>(
       lengthFunc = { _, percentAlong, _ ->
         ((startRad + baseData.startRad)..(endRad + baseData.endRad)).atAmountAlong(percentAlong)
       },
-      rotationsRange = 0.0..(baseData.numRotations)
+      rotationsRange = 0.0..(baseData.numRotations),
     )
       .walk(noise.quality.step / 40) {
         noise.moveRadially(it, spiralPoint) { i -> i * noise.strength.magnitude }
@@ -81,7 +81,7 @@ data class MoireLayerData(
     noiseProp(::noise),
     doubleProp(::numRotations, 1.0..1000.0),
     doublePairProp(::centerPoint, -1.0..1.0),
-    group(
+    row(
       doubleProp(::startRad, 0.0..200.0),
       doubleProp(::endRad, 0.0..2000.0),
     ),
@@ -95,14 +95,14 @@ data class MoireLayerData(
 data class MoireData(
   var baseData: MoireLayerData = MoireLayerData(
     centerPoint = Point.Half,
-    numRotations = 100.0
+    numRotations = 100.0,
   ),
 ) : PropData<MoireData> {
   override fun BaseSketch.bind() = listOf(
     tab(
       "Global",
-      prop(::baseData) { baseData.asControlSection(this) }
-    )
+      prop(::baseData),
+    ),
   )
 
   override fun clone() = copy()

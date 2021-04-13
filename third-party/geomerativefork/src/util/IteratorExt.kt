@@ -18,16 +18,6 @@ fun <T, K> Iterator<K>.reduceTo(initialAcc: T, reducer: (T, K) -> T): T {
   return acc
 }
 
-inline fun <reified T> Array<T?>.filterArrayNotNull(): Array<T> {
-  val x = mutableListOf<T>()
-
-  forEach {
-    if (it != null) x.add(it)
-  }
-
-  return x.toTypedArray()
-}
-
 inline fun <T, reified R> Array<T>.mapArrayWithNext(block: (T, T) -> R): Array<R> {
 
   val nullableArr: Array<R?> = arrayOfNulls(max(size - 1, 0))

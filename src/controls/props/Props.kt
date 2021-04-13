@@ -1,12 +1,11 @@
 package controls.props
 
 import BaseSketch
-import controls.ControlSection
-import controls.ControlSection.Companion.section
-import controls.ControlTab
 import controls.TabProp
+import controls.panels.ControlList.Companion.col
+import controls.panels.ControlPanel
+import controls.panels.ControlTab
 import controls.tabProp
-import geomerativefork.src.util.flatMapArray
 import interfaces.Bindable
 import interfaces.Copyable
 import interfaces.KSerializable
@@ -15,8 +14,8 @@ import util.iterators.mapArray
 import util.map
 
 interface PropData<T> : Bindable, Copyable<T>, KSerializable<T> {
-  fun asControlSection(sketch: BaseSketch): ControlSection = section(
-    *bindSketch(sketch).flatMapArray { it.controlSections.toTypedArray() }
+  fun asControlPanel(sketch: BaseSketch): ControlPanel = col(
+    *bindSketch(sketch).mapArray { it.panel },
   )
 }
 

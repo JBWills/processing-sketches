@@ -5,16 +5,16 @@ import FastNoiseLite.NoiseType
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import controls.Control.Button
-import controls.ControlGroup.Companion.group
-import controls.ControlGroupable
 import controls.booleanProp
-import controls.controls
 import controls.doubleProp
 import controls.enumProp
 import controls.intProp
+import controls.panels.ControlList.Companion.col
+import controls.panels.ControlList.Companion.row
+import controls.panels.Panelable
+import controls.pointProp
 import coordinate.BoundRect
 import coordinate.Point
-import util.property2DSlider
 import java.awt.Color
 
 open class WarpSketch(
@@ -32,8 +32,8 @@ open class WarpSketch(
   private val outerPaddingY: Double = sizeY * 0.02
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
+    sizeX - 2 * outerPaddingX,
     sizeY - 2 * outerPaddingY,
-    sizeX - 2 * outerPaddingX
   )
 
   private val points: MutableList<Point> = mutableListOf()
@@ -50,29 +50,29 @@ open class WarpSketch(
   private var seed: Int = 1000
   private var noiseType: NoiseType = Perlin
 
-  override fun getControls(): Array<ControlGroupable> = controls(
+  override fun getControls(): Panelable = col(
     Button("clear") {
       points.clear()
       markDirty()
     },
     doubleProp(::xMidpointVal),
-    group(enumProp(::noiseType), heightRatio = 5),
-    group(
+    enumProp(::noiseType),
+    row(
       booleanProp(::withVerticalLines),
-      booleanProp(::withHorizontalLines)
+      booleanProp(::withHorizontalLines),
     ),
     doubleProp(::quality),
-    group(
+    row(
       intProp(::numLines, range = 1..100),
-      doubleProp(::lineSpacing, range = 0.001..200.0)
+      doubleProp(::lineSpacing, range = 0.001..200.0),
     ),
     intProp(::noiseScale, range = 1..100),
-    group(
+    row(
       intProp(::moveAmountX, range = 0..2000),
       intProp(::moveAmountY, range = 0..2000),
     ),
     intProp(::seed, range = 0..2000),
-    group(property2DSlider(::noiseOffset, Point.One..Point(1000, 1000)), heightRatio = 5)
+    row(pointProp(::noiseOffset, Point.One..Point(1000, 1000))),
   )
 
   override fun mousePressed(p: Point) {

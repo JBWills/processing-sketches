@@ -3,8 +3,12 @@ package controls
 import appletExtensions.setTabs
 import controlP5.ControlP5
 import controlP5.Tab
+import controls.panels.ControlItem
+import controls.panels.ControlList
+import controls.panels.ControlPanel
+import controls.panels.ControlTab
+import coordinate.BoundRect
 import coordinate.PaddingRect
-import coordinate.PixelPoint
 import coordinate.Point
 import processing.core.PApplet
 import java.awt.Color
@@ -14,22 +18,13 @@ class ControlFrame(
   private val h: Int,
   private var tabs: List<ControlTab>,
 ) : PApplet() {
-
   private val cp5: ControlP5 by lazy {
     ControlP5(this).apply {
       setTabs(tabs, activeTab = tabs.firstOrNull())
     }
   }
 
-  private val padding = PaddingRect(
-    vertical = 20,
-  )
-
-  private val elementPadding = PaddingRect(
-    vertical = 5,
-    left = 5,
-    right = 5,
-  )
+  private val tabBound: BoundRect get() = BoundRect(Point.Zero, w, h)
 
   fun getActiveTabAndIndex(): Pair<ControlTab, Int>? {
     val currentTabName = cp5.controlWindow.currentTab.name
@@ -63,41 +58,27 @@ class ControlFrame(
 
   override fun settings() = size(w, h)
 
-  private fun setupTab(tab: ControlTab) {
-    val controlGroups = tab.controlSections
+  private fun setupTab(tab: ControlTab) = drawPanel(
+    tab,
+    tab.panel,
+    tabBound.minusPadding(FRAME_PADDING),
+  )
 
-    surface.setLocation(10, 10)
-    val usableHeight = h - padding.totalVertical()
-
-    var currentY = padding.top
-
-    val totalElementPaddingHeight = controlGroups.size * elementPadding.totalVertical()
-
-    // height for an element with a ratio of 1.
-    val elementBaseHeight = (usableHeight - totalElementPaddingHeight) / controlGroups.totalRatio()
-
-    controlGroups.forEach { controlGroup ->
-      currentY += elementPadding.top
-      val rowWidth = w - padding.totalHorizontal()
-      val elementWidth = (rowWidth / controlGroup.size) - elementPadding.totalHorizontal()
-
-      val elementHeight = elementBaseHeight * controlGroup.heightRatio.toDouble()
-
-      var currentX = padding.left
-      controlGroup.controls.forEach { control ->
-        currentX += elementPadding.left
-        control.applyToControl(
-          cp5,
-          cp5.getTab(tab.name),
-          Point(currentX, currentY),
-          PixelPoint(elementWidth.toInt(), elementHeight.toInt())
-        )
-        currentX += elementWidth + elementPadding.right
-      }
-
-      currentY += elementHeight + elementPadding.bottom
+  private fun drawPanel(tab: ControlTab, panel: ControlPanel, bound: BoundRect): Unit =
+    when (panel) {
+      is ControlTab -> drawPanel(tab, panel.panel, bound)
+      is ControlItem -> drawPanelItem(tab, panel, bound)
+      is ControlList -> panel.childBounds(bound)
+        .forEach { (child, childBound) -> drawPanel(tab, child, childBound) }
     }
-  }
+
+  private fun drawPanelItem(controlTab: ControlTab, panelItem: ControlItem, bound: BoundRect) =
+    panelItem.control.applyToControl(
+      controlP5 = cp5,
+      tab = cp5.getTab(controlTab.name),
+      panel = panelItem,
+      bound = bound,
+    )
 
   override fun setup() {
     tabs.forEach { setupTab(it) }
@@ -109,5 +90,12 @@ class ControlFrame(
 
   init {
     runSketch(arrayOf(this.javaClass.name), this)
+  }
+
+  companion object {
+    val FRAME_PADDING = PaddingRect(
+      base = 15,
+      top = 30,
+    )
   }
 }

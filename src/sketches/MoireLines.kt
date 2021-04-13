@@ -3,14 +3,14 @@ package sketches
 import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import appletExtensions.getParallelLinesInBound
-import controls.ControlGroup.Companion.group
-import controls.ControlTab.Companion.layerTab
-import controls.ControlTab.Companion.tab
 import controls.degProp
 import controls.doublePairProp
 import controls.doubleProp
 import controls.enumProp
 import controls.noiseProp
+import controls.panels.ControlList.Companion.row
+import controls.panels.ControlTab.Companion.layerTab
+import controls.panels.ControlTab.Companion.tab
 import controls.props.PropData
 import coordinate.Deg
 import coordinate.Point
@@ -36,7 +36,7 @@ enum class MoireShape {
 class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
   "MoireLines",
   MoireLinesData(),
-  { MoireLinesLayerData() }
+  { MoireLinesLayerData() },
 ) {
   init {
     numLayers = 2
@@ -65,7 +65,7 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
       boundRect.expand(noise.strength.x, noise.strength.y),
       lineAngle,
       distanceBetweenLines,
-      lineOffset * distanceBetweenLines
+      lineOffset * distanceBetweenLines,
     )
 
     when (shape) {
@@ -77,7 +77,7 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
       Circle -> {
         val cPath = createEllipse(
           centerPoint.toRPoint(),
-          (shapeSize * (boundRect.bottomRight - boundRect.topLeft)).toRPoint()
+          (shapeSize * (boundRect.bottomRight - boundRect.topLeft)).toRPoint(),
         ).also {
           it.rotate(shapeRotation.value.toFloat(), centerPoint.toRPoint())
           it.polygonize()
@@ -103,12 +103,12 @@ data class MoireLinesLayerData(
     quality = High,
     scale = 0.15,
     offset = Point.Zero,
-    strength = Point(0, 0)
+    strength = Point(0, 0),
   ),
 ) : PropData<MoireLinesLayerData> {
   override fun BaseSketch.bind() = layerTab(
-    group(enumProp(::shape), heightRatio = 2),
-    group(
+    enumProp(::shape),
+    row(
       doubleProp(::lineDensity, 0.5..1.0),
       degProp(::lineAngle, 0.0..90.0),
     ),
@@ -130,7 +130,7 @@ data class MoireLinesData(
   override fun BaseSketch.bind() = listOf(
     tab(
       "Global",
-    )
+    ),
   )
 
   override fun clone() = copy()

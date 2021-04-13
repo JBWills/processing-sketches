@@ -4,23 +4,26 @@ import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
 import geomerativefork.src.RShape
 import interfaces.shape.Walkable
+import kotlinx.serialization.Serializable
 import util.atAmountAlong
 import util.iterators.mapArray
 import util.iterators.mapWithNextCyclical
 import util.min
 import kotlin.math.abs
 
+@Serializable
 data class BoundRect(
   val topLeft: Point,
-  val height: Double,
   val width: Double,
+  val height: Double,
 ) : Walkable {
   val size: Point
     get() = Point(width, height)
 
-  constructor(topLeft: Point, height: Number, width: Number) : this(
-    topLeft, height.toDouble(),
-    width.toDouble()
+  constructor(topLeft: Point, width: Number, height: Number) : this(
+    topLeft,
+    width.toDouble(),
+    height.toDouble()
   )
 
   constructor(topLeft: Point, size: Point) : this(topLeft, size.x, size.y)
@@ -65,17 +68,38 @@ data class BoundRect(
 
   fun expand(amount: Double) = expand(amount, amount)
   fun expand(amountX: Double, amountY: Double) =
-    BoundRect(topLeft - Point(amountX, amountY), height + 2 * amountY, width + 2 * amountX)
+    BoundRect(topLeft - Point(amountX, amountY), width + 2 * amountX, height + 2 * amountY)
+
+  fun shrink(amountX: Double, amountY: Double) =
+    BoundRect(topLeft + Point(amountX, amountY), width - 2 * amountX, height - 2 * amountY)
+
+  fun minusPadding(paddingRect: PaddingRect) = BoundRect(
+    topLeft + Point(paddingRect.left, paddingRect.top),
+    width - paddingRect.totalHorizontal(),
+    height - paddingRect.totalVertical()
+  )
+
+  fun minusPaddingHorizontal(paddingRect: PaddingRect) = BoundRect(
+    topLeft + Point(paddingRect.left, 0),
+    width - paddingRect.totalHorizontal(),
+    height
+  )
+
+  fun minusPaddingVertical(paddingRect: PaddingRect) = BoundRect(
+    topLeft + Point(0, paddingRect.top),
+    width,
+    height - paddingRect.totalVertical()
+  )
 
   fun recentered(newCenter: Point) =
-    BoundRect(topLeft - (newCenter - center), height, width)
+    BoundRect(topLeft - (newCenter - center), width, height)
 
-  fun scaleX(scaleFactor: Double) = centeredRect(center, height, width * scaleFactor)
+  fun scaleX(scaleFactor: Double) = centeredRect(center, width * scaleFactor, height)
 
-  fun scaleY(scaleFactor: Double) = centeredRect(center, height * scaleFactor, width)
+  fun scaleY(scaleFactor: Double) = centeredRect(center, width, height * scaleFactor)
 
   fun scale(scaleFactor: Point, newCenter: Point = center) =
-    centeredRect(newCenter, height * scaleFactor.y, width * scaleFactor.x)
+    centeredRect(newCenter, width * scaleFactor.x, height * scaleFactor.y)
 
   fun atXAmount(percent: Double) = (left..right).atAmountAlong(percent)
   fun atYAmount(percent: Double) = (top..bottom).atAmountAlong(percent)
@@ -137,11 +161,11 @@ data class BoundRect(
   companion object {
     fun Point.mappedOnto(r: BoundRect) = Point(r.left + (x * r.width), r.top + (y * r.height))
 
-    fun centeredRect(center: Point, height: Number, width: Number) =
+    fun centeredRect(center: Point, width: Number, height: Number) =
       BoundRect(
         Point(center) - Point(width.toDouble() / 2.0, height.toDouble() / 2.0),
-        height,
-        width
+        width,
+        height
       )
 
     fun centeredRect(center: Point, size: Point) = centeredRect(center, size.x, size.y)

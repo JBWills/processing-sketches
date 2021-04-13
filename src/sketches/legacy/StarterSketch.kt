@@ -2,8 +2,8 @@ package sketches.legacy
 
 import BaseSketch
 import LayerConfig
-import controls.ControlGroupable
-import controls.controls
+import controls.panels.ControlList.Companion.col
+import controls.panels.Panelable
 import coordinate.BoundRect
 import coordinate.Point
 import java.awt.Color
@@ -23,11 +23,11 @@ open class StarterSketch(
   private val outerPaddingY: Double = sizeY * 0.05
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
-    sizeY - 2 * outerPaddingY,
-    sizeX - 2 * outerPaddingX
+    sizeX - 2 * outerPaddingX,
+    sizeY - 2 * outerPaddingY
   )
 
-  override fun getControls(): Array<ControlGroupable> = controls()
+  override fun getControls(): Panelable = col()
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()

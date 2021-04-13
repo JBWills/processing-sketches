@@ -1,12 +1,13 @@
 package sketches.base
 
 import LayerConfig
-import controls.ControlGroup.Companion.group
-import controls.ControlTab
-import controls.ControlTab.Companion.tab
+import controls.Control.Button.Companion.button
 import controls.dropdownList
 import controls.intProp
 import controls.nullableEnumProp
+import controls.panels.ControlList.Companion.row
+import controls.panels.ControlTab
+import controls.panels.ControlTab.Companion.tab
 import controls.props.PropData
 import controls.props.Props
 import controls.props.Props.Companion.props
@@ -14,17 +15,16 @@ import controls.props.deletePresetFile
 import controls.props.loadPresets
 import controls.props.savePresetToFile
 import kotlinx.serialization.KSerializer
-import util.button
 import util.constants.getLayerColors
+import util.iterators.controlIf
 import util.iterators.mapArrayIndexed
-import util.iterators.varargIf
 import util.print.Orientation
 import util.print.Paper
 import util.print.Pen
 import util.print.StrokeWeight
 import util.print.StrokeWeight.Thick
 import util.print.Style
-import util.textInputWithSubmit
+import util.textInput
 import java.awt.Color
 
 abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>>(
@@ -73,35 +73,31 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
     tab(
       PRESETS_TAB_NAME,
-      group(
+      row(
         button("Override $DEFAULT_PRESET_NAME preset") { savePreset(DEFAULT_PRESET_NAME) },
-        *varargIf(
+        controlIf(
           currentPreset != DEFAULT_PRESET_NAME,
-          button("Override $currentPreset preset") { savePreset(currentPreset) }
+          button("Override $currentPreset preset") { savePreset(currentPreset) },
         ),
-        *varargIf(
+        controlIf(
           currentPreset != DEFAULT_PRESET_NAME,
-          button("Delete $currentPreset preset") { deletePreset(currentPreset) }
+          button("Delete $currentPreset preset") { deletePreset(currentPreset) },
         ),
-        heightRatio = 0.5,
       ),
-      group(
-        textInputWithSubmit(
-          textFieldLabel = "New Preset Name",
-          submitButtonLabel = "Save new preset"
-        ) { savePreset(it) },
-        heightRatio = 0.25,
-      ),
+      textInput(
+        textFieldLabel = "New Preset Name",
+        submitButtonLabel = "Save new preset",
+      ) { savePreset(it) },
       dropdownList("Load Preset", presets.keys.sorted(), ::currentPreset) {
         val newPreset = presets[it] ?: return@dropdownList
         props = newPreset
         updateControls()
         markDirty()
-      }
+      },
     ),
     tab(
       CANVAS_TAB_NAME,
-      *super.getControls(),
+      super.getControls(),
       intProp(::numLayers, range = 0..maxLayers),
       nullableEnumProp(::weightOverride, StrokeWeight.values()),
     ),

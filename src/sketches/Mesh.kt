@@ -3,12 +3,12 @@ package sketches
 import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
-import controls.ControlGroup
-import controls.ControlTab.Companion.tab
 import controls.booleanProp
 import controls.doublePairProp
 import controls.intProp
 import controls.noiseProp
+import controls.panels.ControlList.Companion.row
+import controls.panels.ControlTab.Companion.tab
 import controls.props.PropData
 import coordinate.Point
 import fastnoise.Noise
@@ -97,7 +97,7 @@ class Mesh : LayeredCanvasSketch<MeshData, MeshLayerData>(
 
       val diagonals =
         numDotsX.map { startXIndex -> getDiagonal(startXIndex, 0) } +
-          (1 until numDotsY).map { startYIndex -> getDiagonal(0, startYIndex) }
+        (1 until numDotsY).map { startYIndex -> getDiagonal(0, startYIndex) }
 
       diagonals.draw(boundRect)
     }
@@ -113,7 +113,7 @@ class Mesh : LayeredCanvasSketch<MeshData, MeshLayerData>(
         numDotsX.map { startXIndex ->
           getDiagonal(startXIndex, 0)
         } +
-          (1 until numDotsY).map { startYIndex -> getDiagonal(0, startYIndex) }
+        (1 until numDotsY).map { startYIndex -> getDiagonal(0, startYIndex) }
 
       diagonals.draw(boundRect)
     }
@@ -158,7 +158,7 @@ data class MeshData(
     tab(
       "Global",
       noiseProp(::noise),
-      ControlGroup(
+      row(
         booleanProp(::showDiagonalsDown),
         booleanProp(::showDiagonalsUp),
         booleanProp(::showVerticals),

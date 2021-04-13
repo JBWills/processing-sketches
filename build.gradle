@@ -18,7 +18,7 @@ repositories {
         dirs 'third-party', 'third-party-java/svg-lib'
     }
 }
-
+def arrow_version = "0.13.1"
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation "org.jetbrains.kotlin:kotlin-test-junit:1.4.31"
@@ -30,6 +30,7 @@ dependencies {
     implementation group: 'controlp5', name: 'controlp5', version: '2.2.4'
     implementation group: 'ca.pjer', name: 'ekmeans', version: '2.0.0'
     implementation group: 'javax.vecmath', name: 'vecmath', version: '1.5.2'
+    implementation "io.arrow-kt:arrow-core:$arrow_version"
     implementation files(
             'third-party-java/svg-lib/svg.jar',
             'third-party-java/svg-lib/batik-xml-1.8.jar',

@@ -2,9 +2,12 @@ package sketches.legacy
 
 import BaseSketch
 import LayerConfig
-import controls.Control.*
-import controls.ControlGroupable
-import controls.controls
+import controls.Control.Button
+import controls.Control.Slider
+import controls.Control.Slider2d
+import controls.Control.Toggle
+import controls.panels.ControlList.Companion.col
+import controls.panels.Panelable
 import coordinate.BoundRect
 import coordinate.Point
 import java.awt.Color
@@ -24,8 +27,8 @@ open class CurveSketch(
   private val outerPaddingY: Double = sizeY * 0.02
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
-    sizeY - 2 * outerPaddingY,
-    sizeX - 2 * outerPaddingX
+    sizeX - 2 * outerPaddingX,
+    sizeY - 2 * outerPaddingY
   )
 
   private val points: MutableList<Point> = mutableListOf()
@@ -38,7 +41,7 @@ open class CurveSketch(
   private var noiseOffset: Point = Point(0, 0)
   private var quality: Double = 0.5
 
-  override fun getControls(): Array<ControlGroupable> = controls(
+  override fun getControls(): Panelable = col(
     Button("clear") {
       points.clear()
       markDirty()

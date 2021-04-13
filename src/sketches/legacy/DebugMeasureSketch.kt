@@ -3,12 +3,13 @@ package sketches.legacy
 import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
-import controls.ControlGroup.Companion.group
-import controls.ControlGroupable
-import controls.controls
 import controls.doubleProp
 import controls.intProp
 import controls.noiseControls
+import controls.panels.ControlList.Companion.col
+import controls.panels.ControlList.Companion.row
+import controls.panels.Panelable
+import controls.pointProp
 import coordinate.BoundRect
 import coordinate.Point
 import fastnoise.Noise
@@ -16,7 +17,6 @@ import fastnoise.NoiseQuality.High
 import util.print.DPI
 import util.print.Orientation.Landscape
 import util.print.Paper
-import util.property2DSlider
 import java.awt.Color
 
 open class DebugMeasureSketch(
@@ -34,8 +34,8 @@ open class DebugMeasureSketch(
   private val outerPaddingY: Double = sizeY * 0.02
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
+    sizeX - 2 * outerPaddingX,
     sizeY - 2 * outerPaddingY,
-    sizeX - 2 * outerPaddingX
   )
 
   private var numCircles: Int = 12
@@ -54,28 +54,28 @@ open class DebugMeasureSketch(
     quality = High,
     scale = 0.15,
     offset = Point.Zero,
-    strength = Point(0, 0)
+    strength = Point(0, 0),
   )
 
-  override fun getControls(): Array<ControlGroupable> = controls(
-    group(
+  override fun getControls(): Panelable = col(
+    row(
       intProp(::numCircles, range = 1..1000),
-      doubleProp(::circleSpacing, range = 0.001..50.0)
+      doubleProp(::circleSpacing, range = 0.001..50.0),
     ),
-    group(
+    row(
       doubleProp(::moveAmountX, range = 0.0..5.0),
-      doubleProp(::moveAmountY, range = 0.0..2000.0)
+      doubleProp(::moveAmountY, range = 0.0..2000.0),
     ),
-    group(
+    row(
       doubleProp(::spiralRotations, range = 0.0..10.0),
-      doubleProp(::spiralSpacing, range = 0.0..50.0)
+      doubleProp(::spiralSpacing, range = 0.0..50.0),
     ),
-    group(
+    row(
       doubleProp(::spiralStartAngle, range = 0.0..2.0),
-      doubleProp(::interiorSpiralStartAngle, range = 0.0..2.0)
+      doubleProp(::interiorSpiralStartAngle, range = 0.0..2.0),
     ),
-    *noiseControls(::noise),
-    group(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)
+    noiseControls(::noise),
+    row(pointProp(::centerOrigin, Point.Zero..Point.One)),
   )
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {

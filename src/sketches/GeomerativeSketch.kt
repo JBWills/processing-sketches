@@ -3,8 +3,8 @@ package sketches
 import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import controls.*
-import controls.ControlGroup.Companion.group
-import controls.ControlTab.Companion.tab
+import controls.panels.ControlList.Companion.row
+import controls.panels.ControlTab.Companion.tab
 import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
@@ -97,7 +97,7 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomData, GeomLayerData>(
 
 @Serializable
 data class GeomLayerData(
-  var numInternalCircles: Int = 1
+  var numInternalCircles: Int = 1,
 ) : PropData<GeomLayerData> {
   override fun BaseSketch.bind() = listOf(
     tab(
@@ -125,13 +125,13 @@ data class GeomData(
     scale = 0.15,
     offset = Point.Zero,
     strength = Point(0, 0)
-  )
+  ),
 ) : PropData<GeomData> {
   override fun BaseSketch.bind() = listOf(
     tab(
       "Geom",
       intProp(::numCircles, 1..40),
-      group(
+      row(
         doubleProp(::maxRad, 100.0..2000.0),
         doubleProp(::minRad, 0.0..400.0),
       ),

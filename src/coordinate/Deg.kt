@@ -14,7 +14,7 @@ import kotlin.math.min
 enum class RotationDirection {
   Clockwise,
   CounterClockwise,
-  EitherDirection
+  EitherDirection,
 }
 
 fun lockValueTo360(v: Double) = (360 + (v % 360)) % 360

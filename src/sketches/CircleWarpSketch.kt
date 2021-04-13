@@ -3,12 +3,13 @@ package sketches
 import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
-import controls.ControlGroup.Companion.group
-import controls.ControlGroupable
-import controls.controls
 import controls.doubleProp
 import controls.intProp
 import controls.noiseControls
+import controls.panels.ControlList.Companion.col
+import controls.panels.ControlList.Companion.row
+import controls.panels.Panelable
+import controls.pointProp
 import coordinate.BoundRect
 import coordinate.BoundRect.Companion.mappedOnto
 import coordinate.Circ
@@ -17,7 +18,6 @@ import fastnoise.Noise
 import fastnoise.Noise.Companion.warpedRadially
 import fastnoise.NoiseQuality.High
 import fastnoise.mapNoiseToPositiveValues
-import util.property2DSlider
 import java.awt.Color
 
 open class CircleWarpSketch(
@@ -35,8 +35,8 @@ open class CircleWarpSketch(
   private val outerPaddingY: Double = sizeY * 0.02
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
+    sizeX - 2 * outerPaddingX,
     sizeY - 2 * outerPaddingY,
-    sizeX - 2 * outerPaddingX
   )
 
   private val points: MutableList<Point> = mutableListOf()
@@ -52,20 +52,20 @@ open class CircleWarpSketch(
     quality = High,
     scale = 0.15,
     offset = Point.Zero,
-    strength = Point(0, 0)
+    strength = Point(0, 0),
   )
 
-  override fun getControls(): Array<ControlGroupable> = controls(
-    group(
+  override fun getControls(): Panelable = col(
+    row(
       intProp(::numCircles, range = 1..1000),
-      doubleProp(::circleSpacing, range = 0.001..50.0)
+      doubleProp(::circleSpacing, range = 0.001..50.0),
     ),
-    group(
+    row(
       intProp(::moveAmountX, range = 0..2000),
-      intProp(::moveAmountY, range = 0..2000)
+      intProp(::moveAmountY, range = 0..2000),
     ),
-    *noiseControls(::noise),
-    group(property2DSlider(::centerOrigin, Point.Zero..Point(1, 1)), heightRatio = 5)
+    noiseControls(::noise),
+    row(pointProp(::centerOrigin, Point.Zero..Point.One)),
   )
 
   override fun mousePressed(p: Point) {

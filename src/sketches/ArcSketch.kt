@@ -4,8 +4,8 @@ import BaseSketch
 import LayerConfig
 import appletExtensions.intersection
 import controls.Control.Slider
-import controls.ControlGroupable
-import controls.controls
+import controls.panels.ControlList.Companion.col
+import controls.panels.Panelable
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
@@ -35,11 +35,11 @@ open class ArcSketch(
   private val outerPaddingY: Double = sizeY * 0.02
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
-    sizeY - 2 * outerPaddingY,
-    sizeX - 2 * outerPaddingX
+    sizeX - 2 * outerPaddingX,
+    sizeY - 2 * outerPaddingY
   )
 
-  override fun getControls(): Array<ControlGroupable> = controls(
+  override fun getControls(): Panelable = col(
     Slider("Steps", 20.0..10560.0, steps) {
       steps = it
       markDirty()

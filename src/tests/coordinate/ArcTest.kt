@@ -192,8 +192,10 @@ internal class ArcTest {
     assertEquals(listOf(a(0, 10)), a(0, 180).getOverlap(a(180, 190)))
     assertEquals(listOf(a(0, 10), a(170, 10)), a(0, 180).getOverlap(a(170, 200)))
     assertEquals(listOf(a(0, 10), a(170, 10)), a(170, 200).getOverlap(a(0, 180)))
-    assertEquals(listOf(a(170, 190)),
-      a(170, 190).getOverlap(Arc(Deg(0), 360.0, Circ(Point.Zero, 1.0))))
+    assertEquals(
+      listOf(a(170, 190)),
+      a(170, 190).getOverlap(Arc(Deg(0), 360.0, Circ(Point.Zero, 1.0)))
+    )
 
     assertEquals(listOf(a(4, 6), a(15, 9)), a(4, 20).getOverlap(a(15, 355)))
     assertEquals(listOf(a(4, 6), a(15, 9)), a(15, 355).getOverlap(a(4, 20)))
@@ -252,26 +254,34 @@ internal class ArcTest {
 
   @Test
   fun testSplitIntoArcsWhereIntersects() {
-    assertEquals(2,
-      Circ(5).splitIntoArcsWhereIntersects(BoundRect(Point(-100, -100), 200.0, 103.0)).size)
+    assertEquals(
+      2,
+      Circ(5).splitIntoArcsWhereIntersects(BoundRect(Point(-100, -100), 103.0, 200.0)).size
+    )
     assertEquals(1, Circ(5).splitIntoArcsWhereIntersects(BoundRect(Point(-5, -5), 10.0, 10.0)).size)
     assertEquals(8, Circ(6).splitIntoArcsWhereIntersects(BoundRect(Point(-5, -5), 10.0, 10.0)).size)
-    assertEquals(listOf(Arc(Deg(0), Deg(90), Circ(1)), Arc(Deg(90), Deg(0), Circ(1))),
-      Circ(1).splitIntoArcsWhereIntersects(BoundRect(Point.Zero, 10.0, 10.0)))
+    assertEquals(
+      listOf(Arc(Deg(0), Deg(90), Circ(1)), Arc(Deg(90), Deg(0), Circ(1))),
+      Circ(1).splitIntoArcsWhereIntersects(BoundRect(Point.Zero, 10.0, 10.0))
+    )
   }
 
   @Test
   fun testClipCircInsideRect() {
     assertEquals(1, Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10.0, 10.0)).size)
-    assertEquals(listOf(Arc(Deg(0), Deg(90), Circ(1))),
-      Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10.0, 10.0)))
+    assertEquals(
+      listOf(Arc(Deg(0), Deg(90), Circ(1))),
+      Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10.0, 10.0))
+    )
   }
 
   @Test
   fun testClipCircOutsideRect() {
     assertEquals(1, Circ(1).clipCircInsideRect(BoundRect(Point.Zero, 10.0, 10.0)).size)
-    assertEquals(listOf(Arc(Deg(90), Deg(0), Circ(1))),
-      Circ(1).clipCircOutsideRect(BoundRect(Point.Zero, 10.0, 10.0)))
+    assertEquals(
+      listOf(Arc(Deg(90), Deg(0), Circ(1))),
+      Circ(1).clipCircOutsideRect(BoundRect(Point.Zero, 10.0, 10.0))
+    )
   }
 
   @Test
@@ -320,11 +330,13 @@ internal class ArcTest {
         a(50, 30),
         a(180, 200)
       ),
-      a(10, 360).minusAll(listOf(
-        a(20, 10),
-        a(40, 10),
-        a(80, 100)
-      ))
+      a(10, 360).minusAll(
+        listOf(
+          a(20, 10),
+          a(40, 10),
+          a(80, 100)
+        )
+      )
     )
 
   }

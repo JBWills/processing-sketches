@@ -2,9 +2,9 @@ package sketches.legacy
 
 import BaseSketch
 import LayerConfig
-import controls.Control
-import controls.ControlGroupable
-import controls.controls
+import controls.Control.Slider
+import controls.panels.ControlList.Companion.col
+import controls.panels.Panelable
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
@@ -22,12 +22,12 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
   val outerPaddingY: Double = sizeY * 0.2
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
-    sizeY - 2 * outerPaddingY,
-    sizeX - 2 * outerPaddingX
+    sizeX - 2 * outerPaddingX,
+    sizeY - 2 * outerPaddingY
   )
 
-  override fun getControls(): Array<ControlGroupable> = controls(
-    Control.Slider(
+  override fun getControls(): Panelable = col(
+    Slider(
       text = "Line angle (degrees)",
       range = 0.0..360.0,
       handleChange =
@@ -66,8 +66,8 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
 
     fun bounds(segIndexFromTop: Int, numSegs: Int = 1) = BoundRect(
       drawBound.topLeft + Point(0f, segIndexFromTop * segmentHeight),
-      segmentHeight * numSegs,
-      drawBound.width
+      drawBound.width,
+      segmentHeight * numSegs
     )
 
     rect(drawBound)

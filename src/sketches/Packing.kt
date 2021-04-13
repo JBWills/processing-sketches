@@ -4,8 +4,8 @@ import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
 import controls.*
-import controls.ControlGroup.Companion.group
-import controls.ControlTab.Companion.tab
+import controls.panels.ControlList.Companion.row
+import controls.panels.ControlTab.Companion.tab
 import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
@@ -72,7 +72,7 @@ class Packing : LayeredCanvasSketch<PackingData, PackingLayerData>(
 
 @Serializable
 data class PackingLayerData(
-  var PackingField: Int = 1
+  var PackingField: Int = 1,
 ) : PropData<PackingLayerData> {
   override fun BaseSketch.bind() = listOf(
     tab(
@@ -117,11 +117,11 @@ data class PackingData(
       "Packing",
       noiseProp(::centroidNoise),
       noiseProp(::dotNoise),
-      group(
+      row(
         booleanProp(::drawDots),
         booleanProp(::boundDotsToCircle),
       ),
-      group(
+      row(
         intProp(::numDots, 0..100_000),
         intProp(::numCentroids, 1..10_000),
       ),

@@ -118,6 +118,10 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
 
   fun addX(amt: Number) = Point(x + amt.toDouble(), y)
   fun addY(amt: Number) = Point(x, y + amt.toDouble())
+  fun withX(amt: Number) = Point(amt, y)
+  fun withY(amt: Number) = Point(x, amt)
+  fun zeroX() = Point(0, y)
+  fun zeroY() = Point(x, 0)
 
   operator fun plus(other: Point) = Point(x + other.x, y + other.y)
   operator fun plus(other: List<Point>) = listOf(this) + other
@@ -138,6 +142,8 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
 
   fun lerp(to: Point, steps: Int) = this..to step (dist(to) / steps)
 
+  fun map(block: (Double) -> Number) = Point(block(x), block(y))
+
   companion object {
     fun add(p1: Point, p2: Point) = p1 + p2
     fun subtract(p1: Point, p2: Point) = p1 - p2
@@ -155,6 +161,9 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
 
       return this
     }
+
+    fun zip(p1: Point, p2: Point, block: (Double, Double) -> Number) =
+      Point(block(p1.x, p2.x), block(p1.y, p2.y))
 
     fun Point?.plusIf(other: List<Point>) = if (this != null) this + other else other
 

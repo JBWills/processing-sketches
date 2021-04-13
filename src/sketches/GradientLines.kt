@@ -4,8 +4,8 @@ import BaseSketch
 import LayerConfig
 import appletExtensions.drawParallelLinesInBound
 import controls.Control.Slider
-import controls.ControlGroupable
-import controls.controls
+import controls.panels.ControlList.Companion.col
+import controls.panels.Panelable
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Point
@@ -27,11 +27,11 @@ open class GradientLinesSketch(
   private val outerPaddingY: Double = sizeY * 0.05
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
-    sizeY - 2 * outerPaddingY,
-    sizeX - 2 * outerPaddingX
+    sizeX - 2 * outerPaddingX,
+    sizeY - 2 * outerPaddingY
   )
 
-  override fun getControls(): Array<ControlGroupable> = controls(
+  override fun getControls(): Panelable = col(
     Slider(
       text = "Line angle (degrees)",
       range = 0.0..360.0,
@@ -44,8 +44,8 @@ open class GradientLinesSketch(
 
   fun bounds(segmentHeight: Double, segIndexFromTop: Int, numSegs: Int = 1) = BoundRect(
     drawBound.topLeft + Point(0f, segIndexFromTop * segmentHeight),
-    segmentHeight * numSegs,
-    drawBound.width
+    drawBound.width,
+    segmentHeight * numSegs
   )
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {

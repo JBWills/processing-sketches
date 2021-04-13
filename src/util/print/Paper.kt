@@ -56,7 +56,7 @@ enum class Paper(
     sidePx(if (orientation == Landscape) shortSideInches else longSideInches, dpi)
 
   fun toBoundRect(orientation: Orientation) =
-    BoundRect(Point.Zero, verticalPx(orientation), horizontalPx(orientation))
+    BoundRect(Point.Zero, horizontalPx(orientation), verticalPx(orientation))
 
   constructor(
     longSideInches: Number,

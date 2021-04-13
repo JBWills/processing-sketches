@@ -1,11 +1,9 @@
 package controls
 
 import BaseSketch
+import controls.panels.ControlTab
 import kotlin.reflect.KMutableProperty0
 
-/**
- * A TabProp is a connection from a field to a single tab or a group of tabs
- */
 interface TabProp<T> {
   val sketch: BaseSketch
   val name: String
@@ -41,14 +39,19 @@ open class ListTabProp<T>(
   override fun toTabs() = sketch.controlsGetter(get())
 }
 
-fun <T> BaseSketch.tabProp(ref: KMutableProperty0<T>, controlsGetter: BaseSketch.(backingField: T) -> List<ControlTab>) =
-  GenericTabProp(this, ref, controlsGetter = controlsGetter)
+fun <T> BaseSketch.tabProp(
+  ref: KMutableProperty0<T>,
+  controlsGetter: BaseSketch.(backingField: T) -> List<ControlTab>
+) = GenericTabProp(this, ref, controlsGetter = controlsGetter)
 
-fun <T> BaseSketch.tabProp(ref: MutableList<T>, listIndex: Int, controlsGetter: BaseSketch.(backingField: T) -> List<ControlTab>) =
-  ListTabProp(
-    this,
-    ref,
-    listIndex,
-    name = "List Reference: $listIndex",
-    controlsGetter = controlsGetter,
-  )
+fun <T> BaseSketch.tabProp(
+  ref: MutableList<T>,
+  listIndex: Int,
+  controlsGetter: BaseSketch.(backingField: T) -> List<ControlTab>
+) = ListTabProp(
+  this,
+  ref,
+  listIndex,
+  name = "List Reference: $listIndex",
+  controlsGetter = controlsGetter,
+)

@@ -1,6 +1,38 @@
 package util.iterators
 
 import coordinate.Point
+import geomerativefork.src.util.bound
+import util.atAmountAlong
+import util.ceilInt
+import util.floorInt
+
+fun <T> List<T>.endPointPair() = Pair(first(), last())
+
+fun <T, R> Pair<List<T>, List<T>>.zip(block: (T, T) -> R): List<R> {
+  if (first.size != second.size) throw Exception("Can't call zip with lists of different sizes!")
+
+  return first.mapIndexed { index, firstItem ->
+    block(firstItem, second[index])
+  }
+}
+
+fun <T> List<T>.mapPercentToIndex(lerpAmt: Double): Double {
+  val boundAmt = lerpAmt.bound(0.0, 1.0)
+  return indices.atAmountAlong(boundAmt)
+}
+
+fun <T> List<T>.getLerpIndices(lerpAmt: Double): List<Int> {
+  if (isEmpty()) return listOf()
+
+  val mappedToIndex = mapPercentToIndex(lerpAmt)
+  val lowerIndex = mappedToIndex.floorInt()
+  val upperIndex = mappedToIndex.ceilInt()
+
+  return listOf(
+    lowerIndex,
+    upperIndex
+  )
+}
 
 fun <K, V> MutableMap<K, V>.replaceKey(oldKey: K, newKey: K) {
   val value = get(oldKey) ?: return

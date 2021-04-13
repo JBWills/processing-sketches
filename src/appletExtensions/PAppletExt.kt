@@ -14,11 +14,14 @@ import coordinate.Segment
 import fastnoise.Noise
 import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
+import geomerativefork.src.util.boundMin
 import processing.core.PApplet
 import util.atAmountAlong
 import util.iterators.addNotNull
 import util.iterators.forEach2D
 import util.iterators.mapWithNext
+import util.lerp
+import util.pointsAndLines.forEachSegment
 import util.toRadians
 import java.awt.Color
 
@@ -116,7 +119,15 @@ open class PAppletExt : PApplet() {
 
   fun shape(vertices: List<Point>) {
     beginShape()
-    vertices.forEach { vertex(it) }
+    vertices.forEach { vertex ->
+      vertex(vertex)
+    }
+    endShape()
+  }
+
+  private fun shapes(lines: List<List<Point>>) = lines.forEach { vertices ->
+    beginShape()
+    vertices.forEach { vertex -> vertex(vertex) }
     endShape()
   }
 
@@ -171,7 +182,34 @@ open class PAppletExt : PApplet() {
     shape(it, bound, boundInside)
   }
 
+  /**
+   * Note that this will break your SVG output into a million separate lines, only do it during
+   * testing!
+   */
+  fun List<List<Point>>.drawDebug() {
+    val totalSize = sumBy { (it.size - 1).boundMin(0) }
+    var currIndex = 0
+
+    val colors = listOf(Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN, Color.BLUE)
+
+    forEach { line ->
+      beginShape()
+      line.forEachSegment { segment ->
+        withStroke(colors.lerp(currIndex.toDouble() / (totalSize - 1))) {
+          segment.draw()
+        }
+        currIndex += 1
+      }
+      endShape()
+    }
+  }
+
+  @JvmName("drawSegments")
+  fun List<Segment>.draw() = map { it.draw() }
   fun List<Point>.draw() = shape(this)
+
+  @JvmName("drawPolyLines")
+  fun List<List<Point>>.draw() = shapes(this)
   fun Circ.draw() = circle(this)
   fun Segment.draw() = line(this)
   fun Line.draw(bounds: BoundRect) = bounds.getBoundSegment(this)?.let { line(it) }

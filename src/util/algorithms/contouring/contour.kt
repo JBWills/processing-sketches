@@ -1,5 +1,6 @@
 package util.algorithms.contouring
 
+import arrow.core.memoize
 import coordinate.BoundRect
 import coordinate.Point
 import coordinate.Segment
@@ -40,6 +41,72 @@ fun getJaggedContour(
   return points
 }
 
+private fun bools(
+  all: Boolean? = null,
+  top: Boolean? = null,
+  bottom: Boolean? = null,
+  left: Boolean? = null,
+  right: Boolean? = null,
+  topLeft: Boolean? = null,
+  bottomLeft: Boolean? = null,
+  topRight: Boolean? = null,
+  bottomRight: Boolean? = null,
+): List<Boolean> = listOf(
+  topLeft ?: top ?: left ?: all ?: false,
+  topRight ?: top ?: right ?: all ?: false,
+  bottomRight ?: bottom ?: right ?: all ?: false,
+  bottomLeft ?: bottom ?: left ?: all ?: false,
+)
+
+val LOOKUP_TABLE: Map<List<Boolean>, (leftMidPoint: Point, rightMidpoint: Point, topMidpoint: Point, bottomMidpoint: Point) -> List<Segment>> =
+  mapOf(
+    bools(all = false) to { _, _, _, _ -> listOf() },
+    bools(all = true) to { _, _, _, _ -> listOf() },
+    bools(bottomLeft = true) to { l, _, _, b -> listOf(Segment(l, b)) },
+    bools(all = true, bottomLeft = false) to { l, _, _, b ->
+      listOf(Segment(l, b))
+    },
+    bools(bottomRight = true) to { _, r, _, b ->
+      listOf(Segment(r, b))
+    },
+    bools(
+      all = true,
+      bottomRight = false
+    ) to { _, r, _, b ->
+      listOf(Segment(r, b))
+    },
+    bools(topRight = true) to { _, r, t, _ -> listOf(Segment(t, r)) },
+    bools(all = true, topRight = false) to { _, r, t, _ ->
+      listOf(Segment(t, r))
+    },
+    bools(topLeft = true) to { l, _, t, _ -> listOf(Segment(t, l)) },
+    bools(all = true, topLeft = false) to { l, _, t, _ ->
+      listOf(Segment(t, l))
+    },
+    bools(top = true) to { l, r, _, _ -> listOf(Segment(l, r)) },
+    bools(bottom = true) to { l, r, _, _ -> listOf(Segment(l, r)) },
+    bools(left = true) to { _, _, t, b -> listOf(Segment(t, b)) },
+    bools(right = true) to { _, _, t, b -> listOf(Segment(t, b)) },
+    bools(
+      topRight = true,
+      bottomLeft = true
+    ) to { l, r, t, b ->
+      listOf(
+        Segment(t, l),
+        Segment(r, b)
+      )
+    },
+    bools(
+      topLeft = true,
+      bottomRight = true
+    ) to { l, r, t, b ->
+      listOf(
+        Segment(t, r),
+        Segment(l, b)
+      )
+    },
+  )
+
 /**
  * From https://wordsandbuttons.online/the_simplest_possible_smooth_contouring_algorithm.html
  */
@@ -65,91 +132,21 @@ fun getContour(
       val bottomLeft = p + Point(-(grd_size / 2), (grd_size / 2))
 
       thresholds.forEach { threshold ->
-        val pointsIn = listOf(
-          vF(topLeft) > threshold, // topLeft
-          vF(topRight) > threshold, // topRight
-          vF(bottomLeft) > threshold, // bottomLeft
-          vF(bottomRight) > threshold, // bottomRight
+        val pointsIn = bools(
+          topLeft = vF(topLeft) > threshold, // topLeft
+          topRight = vF(topRight) > threshold, // topRight
+          bottomLeft = vF(bottomLeft) > threshold, // bottomLeft
+          bottomRight = vF(bottomRight) > threshold, // bottomRight
         )
 
-        val leftMidpoint = Segment(topLeft, bottomLeft).midPoint.bound(xRange, yRange)
-        val rightMidpoint = Segment(topRight, bottomRight).midPoint.bound(xRange, yRange)
-        val bottomMidpoint = Segment(bottomLeft, bottomRight).midPoint.bound(xRange, yRange)
-        val topMidpoint = Segment(topLeft, topRight).midPoint.bound(xRange, yRange)
-
         points.getValue(threshold).addAll(
-          when (pointsIn) {
-            listOf(
-              false, false,
-              false, false
-            ),
-            listOf(
-              true, true,
-              true, true
-            ) -> listOf()
-
-            listOf(
-              false, false,
-              true, false
-            ), listOf(
-              true, true,
-              false, true
-            ) -> listOf(Segment(leftMidpoint, bottomMidpoint))
-
-            listOf(
-              false, false,
-              false, true
-            ), listOf(
-              true, true,
-              true, false
-            ) -> listOf(Segment(rightMidpoint, bottomMidpoint))
-
-            listOf(
-              false, true,
-              false, false
-            ), listOf(
-              true, false,
-              true, true
-            ) -> listOf(Segment(topMidpoint, rightMidpoint))
-
-            listOf(
-              false, true,
-              true, true
-            ),
-            listOf(
-              true, false,
-              false, false
-            ) -> listOf(Segment(topMidpoint, leftMidpoint))
-
-            listOf(
-              false, false,
-              true, true
-            ), listOf(
-              true, true,
-              false, false,
-            ) -> listOf(Segment(leftMidpoint, rightMidpoint))
-
-            listOf(
-              false, true,
-              false, true
-            ), listOf(
-              true, false,
-              true, false
-            ) -> listOf(Segment(topMidpoint, bottomMidpoint))
-
-            listOf(
-              false, true,
-              true, false
-            ) -> listOf(Segment(topMidpoint, leftMidpoint), Segment(rightMidpoint, bottomMidpoint))
-
-            listOf(
-              true, false,
-              false, true
-            ) -> listOf(Segment(topMidpoint, leftMidpoint), Segment(rightMidpoint, bottomMidpoint))
-
-
-            else -> listOf()
-          }
+          LOOKUP_TABLE[pointsIn]?.invoke(
+            Segment(topLeft, bottomLeft).midPoint.bound(xRange, yRange),
+            Segment(topRight, bottomRight).midPoint.bound(xRange, yRange),
+            Segment(topLeft, topRight).midPoint.bound(xRange, yRange),
+            Segment(bottomLeft, bottomRight).midPoint.bound(xRange, yRange),
+          )
+            ?: listOf()
         )
       }
     }
@@ -162,17 +159,20 @@ fun getContour(
 /**
  * @param step the sample rate along bound.
  */
-fun getNoiseContour(
-  thresholds: List<Double>,
-  bound: BoundRect,
-  step: Double,
-  noise: Noise,
-) = getContour(
-  thresholds,
-  step,
-  xRange = bound.left..bound.right,
-  yRange = bound.top..bound.bottom,
-) { x, y ->
-  (noise.get(x, y) + 0.5)
-}
+val getNoiseContour = {
+    thresholds: List<Double>,
+    bound: BoundRect,
+    step: Double,
+    noise: Noise,
+  ->
+  getContour(
+    thresholds,
+    step,
+    xRange = bound.left..bound.right,
+    yRange = bound.top..bound.bottom,
+  ) { x, y ->
+    (noise.get(x, y) + 0.5)
+  }
+}.memoize()
+
 

@@ -1,7 +1,24 @@
 package util
 
 import geomerativefork.src.util.boundInt
+import util.iterators.endPointPair
+import util.iterators.getLerpIndices
+import util.iterators.mapPercentToIndex
+import util.iterators.zip
 import java.awt.Color
+
+fun List<Color>.lerp(amt: Double): Color {
+  val lerpIndices = getLerpIndices(amt)
+
+  return if (lerpIndices.isEmpty()) Color.PINK
+  else lerpIndices.map { get(it) }
+    .endPointPair()
+    .lerp(mapPercentToIndex(amt) - lerpIndices.first())
+}
+
+fun Pair<Color, Color>.lerp(amt: Double) = (first.rgbList() to second.rgbList())
+  .zip { rgb1, rgb2 -> (rgb1 + rgb2) / 2 }
+  .toColor()
 
 fun String.toColor(): Color? = Color.decode(this)
 fun String.toRGBInt(): Int = toColor()?.rgb ?: 0

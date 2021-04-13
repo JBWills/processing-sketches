@@ -2,12 +2,12 @@ package sketches
 
 import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
-import controls.ControlGroup.Companion.group
-import controls.ControlTab.Companion.tab
 import controls.booleanProp
 import controls.doubleProp
 import controls.intProp
 import controls.noiseProp
+import controls.panels.ControlList.Companion.row
+import controls.panels.ControlTab.Companion.tab
 import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
@@ -21,7 +21,6 @@ import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.geomutil.toRShape
 import util.times
-
 
 class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
   "Flower",
@@ -47,12 +46,12 @@ class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
       maxRad,
       minRad,
       baseNumInternalCircles,
-      distBetweenNoisePerCircle
+      distBetweenNoisePerCircle,
     ) = values.globalValues
 
     val (
       distBetweenInternalCircles,
-      numInternalCircles
+      numInternalCircles,
     ) = values.tabValues
 
     if (layerIndex > numCircles) return
@@ -165,7 +164,7 @@ data class FlowerData(
       "Flower",
       booleanProp(::clipToBounds),
       intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
-      group(
+      row(
         doubleProp(::maxRad, 100.0..2000.0),
         doubleProp(::minRad, 0.0..400.0)
       ),

@@ -3,11 +3,12 @@ import RecordMode.RecordSVG
 import appletExtensions.PAppletExt
 import controls.Control.Button
 import controls.ControlFrame
-import controls.ControlGroup
-import controls.ControlGroupable
-import controls.ControlTab
-import controls.ControlTab.Companion.tab
 import controls.booleanProp
+import controls.panels.ControlList.Companion.col
+import controls.panels.ControlTab
+import controls.panels.ControlTab.Companion.singleTab
+import controls.panels.ControlTab.Companion.tab
+import controls.panels.Panelable
 import coordinate.Point
 import geomerativefork.src.RG
 import processing.core.PConstants
@@ -116,13 +117,12 @@ abstract class BaseSketch(
   /**
    * Override this to add multiple controlTabs to your sketch.
    */
-  open fun getControlTabs(): Array<ControlTab> =
-    arrayOf(tab("controls", *getControls()))
+  open fun getControlTabs(): Array<ControlTab> = singleTab("test").toTypedArray()
 
   /**
    * Override this to add controls to your sketch.
    */
-  open fun getControls(): Array<ControlGroupable> = arrayOf()
+  open fun getControls(): Panelable = col()
 
   fun updateControls() {
     val lastControlFrame = controlFrame ?: return
@@ -142,10 +142,10 @@ abstract class BaseSketch(
 
   fun setActiveTab(tabName: String) = controlFrame?.setActiveTab(tabName)
 
-  private fun getAllControls() = listOf(
+  private fun getAllControls(): List<ControlTab> = listOf(
     tab(
       "file",
-      ControlGroup(booleanProp(::isDebugMode), heightRatio = 0.3),
+      booleanProp(::isDebugMode),
       Button("Save frame") { recordMode = RecordSVG },
     ),
     *getControlTabs(),

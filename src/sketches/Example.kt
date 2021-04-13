@@ -1,9 +1,9 @@
 package sketches
 
 import BaseSketch
-import controls.ControlSection.Companion.section
-import controls.ControlTab.Companion.tab
 import controls.intProp
+import controls.panels.ControlTab.Companion.layerTab
+import controls.panels.ControlTab.Companion.singleTab
 import controls.props.PropData
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
@@ -15,8 +15,8 @@ import sketches.base.LayeredCanvasSketch
  */
 class Example : LayeredCanvasSketch<ExampleData, ExampleLayerData>(
   "Example",
-  ExampleData(),
-  { ExampleLayerData() }
+  defaultGlobal = ExampleData(),
+  layerToDefaultTab = { ExampleLayerData() },
 ) {
   override fun drawSetup(layerInfo: DrawInfo) {}
 
@@ -30,11 +30,8 @@ class Example : LayeredCanvasSketch<ExampleData, ExampleLayerData>(
 data class ExampleLayerData(
   var exampleTabField: Int = 1
 ) : PropData<ExampleLayerData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "L",
-      intProp(::exampleTabField, 0..10)
-    )
+  override fun BaseSketch.bind() = layerTab(
+    intProp(::exampleTabField, 0..10),
   )
 
   override fun clone() = copy()
@@ -45,13 +42,9 @@ data class ExampleLayerData(
 data class ExampleData(
   var exampleGlobalField: Int = 1,
 ) : PropData<ExampleData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "Global",
-      section(
-        intProp(::exampleGlobalField, 0..10)
-      )
-    )
+  override fun BaseSketch.bind() = singleTab(
+    "Global",
+    intProp(::exampleGlobalField, 0..10),
   )
 
   override fun clone() = copy()

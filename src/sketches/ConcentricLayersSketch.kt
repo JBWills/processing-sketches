@@ -1,10 +1,10 @@
 package sketches
 
 import BaseSketch
-import controls.ControlGroup.Companion.group
-import controls.ControlTab.Companion.tab
 import controls.doubleProp
 import controls.intProp
+import controls.panels.ControlList.Companion.row
+import controls.panels.ControlTab.Companion.tab
 import controls.props.PropData
 import coordinate.Arc
 import coordinate.Circ
@@ -122,7 +122,7 @@ data class CircleGlobalData(
     tab(
       "Global",
       intProp(::numCircles, 1..100),
-      group(
+      row(
         doubleProp(::startRad, zeroTo(500)),
         doubleProp(::endRad, zeroTo(1000)),
       ),

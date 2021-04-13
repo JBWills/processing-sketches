@@ -112,14 +112,14 @@ internal class LineTest {
     val line = S(Point.Zero, Point(2, 2))
 
     assertTrue(line.contains(Point.Zero))
-    assertTrue(line.contains(Point(1, 1)))
+    assertTrue(line.contains(Point.One))
     assertTrue(line.contains(Point(2, 2)))
     assertFalse(line.contains(Point(2.1, 2.1)))
     assertFalse(line.contains(Point(-0.1, -0.1)))
     assertFalse(line.contains(Point(0, -0.1)))
 
     assertTrue(line.flip().contains(Point.Zero))
-    assertTrue(line.flip().contains(Point(1, 1)))
+    assertTrue(line.flip().contains(Point.One))
     assertTrue(line.flip().contains(Point(2, 2)))
     assertFalse(line.flip().contains(Point(2.1, 2.1)))
     assertFalse(line.flip().contains(Point(-0.1, -0.1)))
@@ -128,7 +128,7 @@ internal class LineTest {
 
   @Test
   fun testGetOverlap() {
-    val a = Point(1, 1)
+    val a = Point.One
     val b = Point(2, 2)
     val c = Point(3, 3)
     val d = Point(4, 4)
@@ -155,7 +155,7 @@ internal class LineTest {
 
   @Test
   fun testGetOverlapWithNoOverlap() {
-    val a = Point(1, 1)
+    val a = Point.One
     val b = Point(2, 2)
     val c = Point(3, 3)
     val d = Point(4, 4)

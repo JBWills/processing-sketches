@@ -96,6 +96,7 @@ data class Noise(
   private fun getPointOnNoisePlane(pointInDrawSpace: Point) = (pointInDrawSpace + offset) * scale
 
   fun get(x: Number, y: Number) = noiseAt(getPointOnNoisePlane(Point(x, y)))
+  fun getPositive(x: Number, y: Number) = noiseAt(getPointOnNoisePlane(Point(x, y))) + 0.5
 
   private fun move(p: Point, scaleFn: (Point) -> Point = { it }): Point {
     val noisePoint = noiseAt2D(getPointOnNoisePlane(p))

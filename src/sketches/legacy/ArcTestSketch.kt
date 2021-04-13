@@ -3,10 +3,10 @@ package sketches.legacy
 import BaseSketch
 import LayerConfig
 import appletExtensions.intersection
-import controls.ControlGroupable
-import controls.controls
 import controls.doublePairProp
 import controls.doubleProp
+import controls.panels.ControlList.Companion.col
+import controls.panels.Panelable
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
@@ -32,11 +32,11 @@ open class ArcTestSketch(
   private val outerPaddingY: Double = sizeY * 0.05
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
-    sizeY - 2 * outerPaddingY,
-    sizeX - 2 * outerPaddingX
+    sizeX - 2 * outerPaddingX,
+    sizeY - 2 * outerPaddingY
   )
 
-  override fun getControls(): Array<ControlGroupable> = controls(
+  override fun getControls(): Panelable = col(
     doubleProp(::startAngle, 0..360),
     doubleProp(::length, 0..360),
     doublePairProp(::position, 0.0..sizeX.toDouble()),
@@ -55,8 +55,6 @@ open class ArcTestSketch(
     val clippedCircle = moveCircle.intersection(baseCircle)
 
     circle(baseCircle)
-
-
 
     arc(clippedCircle)
 

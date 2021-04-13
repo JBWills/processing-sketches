@@ -1,15 +1,9 @@
 package test.coordinate
 
 import coordinate.BoundRect
-import coordinate.Deg
-import coordinate.Line
 import coordinate.Point
-import coordinate.Segment
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import kotlin.math.sqrt
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 
 internal class RectTest {

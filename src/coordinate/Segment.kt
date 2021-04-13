@@ -36,19 +36,21 @@ class Segment(
   constructor(p1: Point, len: Number, slope: Deg)
     : this(p1, slope, len.toDouble())
 
-  val center = p1 + slope.unitVector * (length / 2)
+  val center: Point by lazy { p1 + slope.unitVector * (length / 2) }
   val p1: Point get() = origin
-  val p2: Point get() = p1 + slope.unitVector * length
+  val p2: Point by lazy { p1 + slope.unitVector * length }
 
   fun getPointAtPercent(percent: Double) = origin + (slope.unitVector * (length * percent))
 
   fun toRShape() = RShape.createLine(p1.xf, p1.yf, p2.xf, p2.yf)
 
-  val points get() = arrayOf(p1, p2)
+  val points: Array<Point> by lazy { arrayOf(p1, p2) }
 
-  val unitVector get() = slope.unitVector
+  val unitVector by lazy { slope.unitVector }
 
-  val midPoint get() = p1 + unitVector * (length / 2)
+  val midPoint by lazy { p1 + unitVector * (length / 2) }
+
+  fun splitAtMidpoint() = Pair(Segment(p1, midPoint), Segment(midPoint, p2))
 
   /**
    * Sometimes segments can get flipped, this flips them back to their correct direction.
@@ -176,6 +178,10 @@ class Segment(
   }
 
   companion object {
+    fun centered(center: Point, slope: Deg, length: Double): Segment =
+      Segment(center, 0, slope).expand(length)
+
+
     fun List<Segment>.move(amount: Point) = map { it + amount }
     fun Pair<Point, Point>.toSegment() = Segment(first, second)
   }

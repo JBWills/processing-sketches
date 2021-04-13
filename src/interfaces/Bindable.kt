@@ -1,14 +1,14 @@
 package interfaces
 
 import BaseSketch
-import controls.ControlTab
+import controls.panels.ControlTab
 import kotlinx.serialization.KSerializer
 
-interface KSerializable<T> {
+fun interface KSerializable<T> {
   fun toSerializer(): KSerializer<T>
 }
 
-interface Copyable<T> {
+fun interface Copyable<T> {
   fun clone(): T
 }
 
@@ -18,9 +18,4 @@ interface Bindable {
    */
   fun bindSketch(s: BaseSketch): List<ControlTab> = s.bind()
   fun BaseSketch.bind(): List<ControlTab>
-}
-
-interface TabBindable : Bindable {
-  override fun BaseSketch.bind(): List<ControlTab> = listOf(bindTab())
-  fun BaseSketch.bindTab(): ControlTab
 }
