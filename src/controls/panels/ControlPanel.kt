@@ -16,11 +16,15 @@ enum class ListDirection {
 
 sealed class ControlPanel(
   val name: String = "",
-  var style: ControlStyle = ControlStyle.NO_OVERRIDES,
+  var style: ControlStyle = ControlStyle.EmptyStyle,
   open val widthRatio: Double = 1.0,
   open val heightRatio: Double = 1.0,
-  var parent: ControlPanel? = null
+  var parent: ControlPanel? = null,
 ) : Panelable {
+  init {
+    incrementedId++
+  }
+
   fun isEmpty() = heightRatio == 0.0 || widthRatio == 0.0
 
   val styleFromParents: ControlStyle
@@ -28,9 +32,11 @@ sealed class ControlPanel(
       return it.styleFromParents.withOverrides(style)
     } ?: style
 
+  val nameWithIncrementedId: String = "$name $incrementedId"
+
   val id: String
     get() = (
-      parent?.let { return it.id + name } ?: name
+      parent?.let { return it.id + nameWithIncrementedId } ?: nameWithIncrementedId
       ).replace(" ", "")
 
   override fun toControlPanel(): ControlPanel = this
@@ -58,12 +64,19 @@ sealed class ControlPanel(
     )
   }
 
+  override fun toString(): String {
+    return "ControlPanel(name='$name', style=$style, widthRatio=$widthRatio, heightRatio=$heightRatio, parent=${parent?.name})"
+  }
 
   var paddingOverrides: PaddingRect?
     get() = style.paddingOverrides
     set(value) {
       style = style.withPadding(value)
     }
+
+  companion object {
+    var incrementedId = 0
+  }
 }
 
 /**
@@ -71,7 +84,7 @@ sealed class ControlPanel(
  */
 class ControlTab(
   name: String,
-  style: ControlStyle = ControlStyle.NO_OVERRIDES,
+  style: ControlStyle = ControlStyle.EmptyStyle,
   val panel: ControlPanel
 ) : ControlPanel(name, style) {
   init {
@@ -80,14 +93,14 @@ class ControlTab(
 
   constructor(
     name: String,
-    style: ControlStyle = ControlStyle.NO_OVERRIDES,
+    style: ControlStyle = ControlStyle.EmptyStyle,
     vararg rows: Panelable = arrayOf()
   ) : this(name, style, ControlList.col(*rows))
 
   constructor(
     tab: ControlTab,
     name: String? = null,
-    style: ControlStyle? = ControlStyle.NO_OVERRIDES
+    style: ControlStyle? = ControlStyle.EmptyStyle
   ) : this(
     name ?: tab.name,
     style ?: tab.style,
@@ -97,30 +110,40 @@ class ControlTab(
   fun withName(newName: String) = ControlTab(this, newName)
   fun withName(nameFunc: (String) -> String) = ControlTab(this, nameFunc(name))
 
-  companion object {
-    fun tab(name: String, vararg sections: Panelable) = ControlTab(
-      name,
-      ControlStyle.NO_OVERRIDES,
-      *sections.mapArray { it.toControlPanel() },
-    )
+  override fun toString(): String {
+    return "ControlTab(panel=$panel, base=${super.toString()})"
+  }
 
-    fun singleTab(name: String, vararg sections: Panelable) = listOf(
+
+  companion object {
+    fun tab(name: String, vararg sections: Panelable, style: ControlStyle? = null) =
       ControlTab(
         name,
-        ControlStyle.NO_OVERRIDES,
+        style ?: ControlStyle.EmptyStyle,
         *sections.mapArray { it.toControlPanel() },
+      )
+
+    fun singleTab(
+      name: String,
+      vararg sections: Panelable,
+      style: ControlStyle? = null
+    ) = listOf(
+      tab(
+        name,
+        *sections.mapArray { it.toControlPanel() },
+        style = style ?: ControlStyle.EmptyStyle,
       ),
     )
 
-    fun layerTab(vararg sections: Panelable) = listOf(
-      tab("L", *sections),
+    fun layerTab(vararg sections: Panelable, style: ControlStyle? = null) = listOf(
+      tab("L", *sections, style = style ?: ControlStyle.EmptyStyle),
     )
   }
 }
 
 class ControlList(
   name: String = "",
-  style: ControlStyle = ControlStyle.NO_OVERRIDES,
+  style: ControlStyle = ControlStyle.EmptyStyle,
   val direction: ListDirection = Row,
   val widthOverride: Double? = null,
   val heightOverride: Double? = null,
@@ -132,7 +155,7 @@ class ControlList(
 
   constructor(
     name: String = "",
-    style: ControlStyle = ControlStyle.NO_OVERRIDES,
+    style: ControlStyle = ControlStyle.EmptyStyle,
     direction: ListDirection = Row,
     widthOverride: Double? = null,
     heightOverride: Double? = null,
@@ -195,6 +218,10 @@ class ControlList(
     }
   }
 
+  override fun toString(): String {
+    return "ControlList(direction=$direction, widthOverride=$widthOverride, heightOverride=$heightOverride, items=${items.size}, base=${super.toString()})"
+  }
+
   override
   val heightRatio by lazy {
     val ratio = when (direction) {
@@ -220,6 +247,7 @@ class ControlList(
       ratio
     else widthOverride ?: ratio
   }
+
 
   companion object {
     fun rowIf(
@@ -295,12 +323,15 @@ class ControlList(
 
 class ControlItem(
   name: String = "",
-  style: ControlStyle = ControlStyle.NO_OVERRIDES,
+  style: ControlStyle = ControlStyle.EmptyStyle,
   widthRatio: Double = 1.0,
   heightRatio: Double = 1.0,
   val control: Control<*>,
 ) : ControlPanel(name, style, widthRatio, heightRatio) {
   override fun toControlPanel(): ControlPanel = this
+  override fun toString(): String {
+    return "ControlItem(control=$control, base=${super.toString()})"
+  }
 
   constructor(
     item: ControlItem,
@@ -316,4 +347,6 @@ class ControlItem(
       heightRatio?.toDouble() ?: item.heightRatio,
       item.control,
     )
+
+
 }

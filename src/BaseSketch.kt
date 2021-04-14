@@ -22,7 +22,7 @@ class LayerConfig(val style: Style)
 
 enum class RecordMode {
   NoRecord,
-  RecordSVG
+  RecordSVG,
 }
 
 abstract class BaseSketch(

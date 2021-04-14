@@ -9,6 +9,7 @@ import controls.Control.Toggle
 import controls.panels.ControlList.Companion.row
 import controls.panels.ControlPanel
 import controls.panels.ControlPanelProp
+import controls.panels.ControlStyle
 import controls.panels.Panelable
 import controls.props.PropData
 import coordinate.Deg
@@ -21,6 +22,7 @@ import util.toDoubleRange
 import util.tuple.and
 import util.xRange
 import util.yRange
+import java.awt.Color
 import kotlin.reflect.KMutableProperty0
 
 open class GenericReferenceField<T>(
@@ -154,9 +156,10 @@ fun BaseSketch.pointProp(
 fun BaseSketch.noiseProp(
   ref: KMutableProperty0<Noise>,
   showStrengthSliders: Boolean = true,
+  style: ControlStyle = ControlStyle.Orange.withColor(frameBackground = Color(50, 20, 0))
 ) = prop(ref) {
   noiseControls(ref, showStrengthSliders)
-}
+}.withStyle(style)
 
 fun dropdownList(
   name: String,

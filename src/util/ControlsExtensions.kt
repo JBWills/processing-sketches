@@ -58,8 +58,8 @@ fun <T : Controller<T>> getBindFunc(
     positionAndSize(bound)
     panel.styleFromParents.let {
       setColorBackground(it.backgroundColor.rgb)
-      setColorActive(it.selectedColor.rgb)
-      setColorForeground(it.deselectedColor.rgb)
+      setColorActive(it.onHoverColor.rgb)
+      setColorForeground(it.color.rgb)
       setColorLabel(it.textColor.rgb)
     }
 

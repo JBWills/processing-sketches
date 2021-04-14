@@ -1,14 +1,18 @@
 package coordinate
 
+import appletExtensions.withFillNonNull
+import appletExtensions.withStrokeNonNull
 import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
 import geomerativefork.src.RShape
 import interfaces.shape.Walkable
 import kotlinx.serialization.Serializable
+import processing.core.PApplet
 import util.atAmountAlong
 import util.iterators.mapArray
 import util.iterators.mapWithNextCyclical
 import util.min
+import java.awt.Color
 import kotlin.math.abs
 
 @Serializable
@@ -23,7 +27,7 @@ data class BoundRect(
   constructor(topLeft: Point, width: Number, height: Number) : this(
     topLeft,
     width.toDouble(),
-    height.toDouble()
+    height.toDouble(),
   )
 
   constructor(topLeft: Point, size: Point) : this(topLeft, size.x, size.y)
@@ -76,19 +80,19 @@ data class BoundRect(
   fun minusPadding(paddingRect: PaddingRect) = BoundRect(
     topLeft + Point(paddingRect.left, paddingRect.top),
     width - paddingRect.totalHorizontal(),
-    height - paddingRect.totalVertical()
+    height - paddingRect.totalVertical(),
   )
 
   fun minusPaddingHorizontal(paddingRect: PaddingRect) = BoundRect(
     topLeft + Point(paddingRect.left, 0),
     width - paddingRect.totalHorizontal(),
-    height
+    height,
   )
 
   fun minusPaddingVertical(paddingRect: PaddingRect) = BoundRect(
     topLeft + Point(0, paddingRect.top),
     width,
-    height - paddingRect.totalVertical()
+    height - paddingRect.totalVertical(),
   )
 
   fun recentered(newCenter: Point) =
@@ -115,7 +119,7 @@ data class BoundRect(
       line.intersection(topSegment),
       line.intersection(bottomSegment),
       line.intersection(leftSegment),
-      line.intersection(rightSegment)
+      line.intersection(rightSegment),
     )
       .sortedBy { (x, y) -> y * 1000 + x }
 
@@ -137,7 +141,7 @@ data class BoundRect(
     abs(point.x - left),
     abs(point.x - right),
     abs(point.y - top),
-    abs(point.y - bottom)
+    abs(point.y - bottom),
   )
 
   fun toRShape(): RShape = RShape.createRectangle(center.toRPoint(), w = width, h = height)
@@ -165,9 +169,21 @@ data class BoundRect(
       BoundRect(
         Point(center) - Point(width.toDouble() / 2.0, height.toDouble() / 2.0),
         width,
-        height
+        height,
       )
 
     fun centeredRect(center: Point, size: Point) = centeredRect(center, size.x, size.y)
+
+    fun PApplet.drawRect(boundRect: BoundRect, stroke: Color? = null, fill: Color? = null) =
+      withStrokeNonNull(stroke) {
+        withFillNonNull(fill) {
+          rect(
+            boundRect.left.toFloat(),
+            boundRect.top.toFloat(),
+            boundRect.width.toFloat(),
+            boundRect.height.toFloat(),
+          )
+        }
+      }
   }
 }

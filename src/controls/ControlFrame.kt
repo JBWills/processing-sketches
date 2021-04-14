@@ -1,5 +1,6 @@
 package controls
 
+import appletExtensions.addSolidColorRectangle
 import appletExtensions.setTabs
 import controlP5.ControlP5
 import controlP5.Tab
@@ -64,13 +65,19 @@ class ControlFrame(
     tabBound.minusPadding(FRAME_PADDING),
   )
 
-  private fun drawPanel(tab: ControlTab, panel: ControlPanel, bound: BoundRect): Unit =
+  private fun drawPanel(tab: ControlTab, panel: ControlPanel, bound: BoundRect) {
+    // Add a solid rectangle to the background
+    panel.style.frameBackgroundColorOverrides?.let { c ->
+      cp5.addSolidColorRectangle("${panel.id} background", tab.name, bound, c)
+    }
+
     when (panel) {
       is ControlTab -> drawPanel(tab, panel.panel, bound)
       is ControlItem -> drawPanelItem(tab, panel, bound)
       is ControlList -> panel.childBounds(bound)
         .forEach { (child, childBound) -> drawPanel(tab, child, childBound) }
     }
+  }
 
   private fun drawPanelItem(controlTab: ControlTab, panelItem: ControlItem, bound: BoundRect) =
     panelItem.control.applyToControl(

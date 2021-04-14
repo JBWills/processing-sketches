@@ -6,7 +6,9 @@ import controlP5.ControllerInterface
 import controlP5.ControllerList
 import controlP5.Tab
 import controls.panels.ControlTab
+import coordinate.BoundRect
 import util.with
+import java.awt.Color
 
 fun <R> ControllerList.map(block: (ControllerInterface<*>) -> R): List<R> =
   (0 until size()).map { block(get(it)) }
@@ -32,3 +34,10 @@ fun ControlP5.setTabs(
   addTabs(tabs.slice(0 until tabs.size - 1))
   activeTab?.name?.let { controlWindow.activateTab(it) }
 }
+
+fun ControlP5.addSolidColorRectangle(id: String, tabName: String, bound: BoundRect, color: Color) =
+  addBackground(id)
+    .moveTo(getTab(tabName))
+    .setPosition(bound.left.toFloat(), bound.top.toFloat())
+    .setSize(bound.width.toInt(), bound.height.toInt())
+    .setBackgroundColor(color.rgb)

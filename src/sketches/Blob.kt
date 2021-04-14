@@ -86,12 +86,12 @@ data class BlobLayerData(
 ) : PropData<BlobLayerData> {
   override fun BaseSketch.bind() = layerTab(
     prop(::shape),
-    doubleProp(::gridStep, 1.0..30.0).withStyle(ControlStyle.GREEN),
+    doubleProp(::gridStep, 1.0..30.0).withStyle(ControlStyle.Green),
     noiseProp(::noise, showStrengthSliders = false),
     row(
       doubleProp(::thresholdStart, ZeroToOne),
       doubleProp(::thresholdEnd, ZeroToOne),
-    ).withStyle(ControlStyle.RED),
+    ).withStyle(ControlStyle.Red),
     intProp(::numThresholds, 1..10),
   )
 
