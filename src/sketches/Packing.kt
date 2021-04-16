@@ -3,9 +3,9 @@ package sketches
 import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
-import controls.*
 import controls.panels.ControlList.Companion.row
-import controls.panels.ControlTab.Companion.tab
+import controls.panels.ControlTab.Companion.layerTab
+import controls.panels.ControlTab.Companion.singleTab
 import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
@@ -22,7 +22,8 @@ import java.awt.Color
 class Packing : LayeredCanvasSketch<PackingData, PackingLayerData>(
   "Packing",
   PackingData(),
-  { PackingLayerData() }) {
+  { PackingLayerData() },
+) {
   init {
     numLayers = 1
   }
@@ -74,12 +75,9 @@ class Packing : LayeredCanvasSketch<PackingData, PackingLayerData>(
 data class PackingLayerData(
   var PackingField: Int = 1,
 ) : PropData<PackingLayerData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "L",
-      intProp(::PackingField, 1..100)
-    )
-  )
+  override fun BaseSketch.bind() = layerTab {
+    intSlider(::PackingField, 1..100)
+  }
 
   override fun clone(): PackingLayerData = copy()
   override fun toSerializer() = serializer()
@@ -93,7 +91,7 @@ data class PackingData(
     quality = High,
     scale = 1.0,
     offset = Point.Zero,
-    strength = Point(0, 0)
+    strength = Point(0, 0),
   ),
   var dotNoise: Noise = Noise(
     seed = 100,
@@ -101,7 +99,7 @@ data class PackingData(
     quality = High,
     scale = 1.0,
     offset = Point.Zero,
-    strength = Point(0, 0)
+    strength = Point(0, 0),
   ),
   var boundDotsToCircle: Boolean = true,
   var drawDots: Boolean = true,
@@ -112,25 +110,24 @@ data class PackingData(
   var circleSize: Double = 300.0,
   var circleOffset: Point = Point.Zero,
 ) : PropData<PackingData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "Packing",
-      noiseProp(::centroidNoise),
-      noiseProp(::dotNoise),
-      row(
-        booleanProp(::drawDots),
-        booleanProp(::boundDotsToCircle),
-      ),
-      row(
-        intProp(::numDots, 0..100_000),
-        intProp(::numCentroids, 1..10_000),
-      ),
-      intProp(::iterations, 1..32),
-      booleanProp(::equalCardinality),
-      doubleProp(::circleSize, 50.0..800.0),
-      doublePairProp(::circleOffset, NegativeOneToOne * sizeX to NegativeOneToOne * sizeY),
-    )
-  )
+  override fun BaseSketch.bind() = singleTab(
+    "Packing",
+  ) {
+    noisePanel(::centroidNoise)
+    noisePanel(::dotNoise)
+    row {
+      toggle(::drawDots)
+      toggle(::boundDotsToCircle)
+    }
+    row {
+      intSlider(::numDots, 0..100_000)
+      intSlider(::numCentroids, 1..10_000)
+    }
+    intSlider(::iterations, 1..32)
+    toggle(::equalCardinality)
+    slider(::circleSize, 50.0..800.0)
+    sliderPair(::circleOffset, NegativeOneToOne * sizeX to NegativeOneToOne * sizeY)
+  }
 
   override fun clone(): PackingData = copy()
   override fun toSerializer() = serializer()

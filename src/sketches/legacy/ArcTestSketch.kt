@@ -3,8 +3,6 @@ package sketches.legacy
 import BaseSketch
 import LayerConfig
 import appletExtensions.intersection
-import controls.doublePairProp
-import controls.doubleProp
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
 import coordinate.BoundRect
@@ -33,15 +31,15 @@ open class ArcTestSketch(
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
     sizeX - 2 * outerPaddingX,
-    sizeY - 2 * outerPaddingY
+    sizeY - 2 * outerPaddingY,
   )
 
-  override fun getControls(): Panelable = col(
-    doubleProp(::startAngle, 0..360),
-    doubleProp(::length, 0..360),
-    doublePairProp(::position, 0.0..sizeX.toDouble()),
-    doubleProp(::size, 0..150),
-  )
+  override fun getControls(): Panelable = col {
+    slider(::startAngle, 0..360)
+    slider(::length, 0..360)
+    sliderPair(::position, 0.0..sizeX.toDouble())
+    slider(::size, 0..150)
+  }
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()

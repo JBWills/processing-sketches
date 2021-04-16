@@ -4,15 +4,10 @@ import BaseSketch
 import FastNoiseLite.NoiseType
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
-import controls.Control.Button
-import controls.booleanProp
-import controls.doubleProp
-import controls.enumProp
-import controls.intProp
+import controls.Control.Button.Companion.button
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlList.Companion.row
 import controls.panels.Panelable
-import controls.pointProp
 import coordinate.BoundRect
 import coordinate.Point
 import java.awt.Color
@@ -50,30 +45,41 @@ open class WarpSketch(
   private var seed: Int = 1000
   private var noiseType: NoiseType = Perlin
 
-  override fun getControls(): Panelable = col(
-    Button("clear") {
+  override fun getControls(): Panelable = col {
+    button("clear") {
       points.clear()
       markDirty()
-    },
-    doubleProp(::xMidpointVal),
-    enumProp(::noiseType),
-    row(
-      booleanProp(::withVerticalLines),
-      booleanProp(::withHorizontalLines),
-    ),
-    doubleProp(::quality),
-    row(
-      intProp(::numLines, range = 1..100),
-      doubleProp(::lineSpacing, range = 0.001..200.0),
-    ),
-    intProp(::noiseScale, range = 1..100),
-    row(
-      intProp(::moveAmountX, range = 0..2000),
-      intProp(::moveAmountY, range = 0..2000),
-    ),
-    intProp(::seed, range = 0..2000),
-    row(pointProp(::noiseOffset, Point.One..Point(1000, 1000))),
-  )
+    }
+
+    slider(::xMidpointVal)
+
+    dropdownList(::noiseType)
+
+    row {
+      toggle(::withVerticalLines)
+      toggle(::withHorizontalLines)
+    }
+
+    slider(::quality)
+
+    row {
+      intSlider(::numLines, range = 1..100)
+      slider(::lineSpacing, range = 0.001..200.0)
+    }
+
+    intSlider(::noiseScale, range = 1..100)
+
+    row {
+      intSlider(::moveAmountX, range = 0..2000)
+      intSlider(::moveAmountY, range = 0..2000)
+    }
+
+    intSlider(::seed, range = 0..2000)
+
+    row(heightOverride = 3) {
+      slider2D(::noiseOffset, Point.One..Point(1000, 1000))
+    }
+  }
 
   override fun mousePressed(p: Point) {
     points.add(p)

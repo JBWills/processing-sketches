@@ -305,14 +305,18 @@ open class RShape() : RGeomElem() {
    * @related draw ( )
    */
   override fun toPolygon(): RPolygon =
-    RPolygon(children.flatMapArray { it.toPolygon().contours } +
-               paths.flatMapArray { path ->
-                 if (path.points.isEmpty()) return@flatMapArray arrayOf()
-                 arrayOf(RContour(path.points).apply {
-                   closed = path.closed
-                   setStyle(path)
-                 })
-               })
+    RPolygon(
+      children.flatMapArray { it.toPolygon().contours } +
+        paths.flatMapArray { path ->
+          if (path.points.isEmpty()) return@flatMapArray arrayOf()
+          arrayOf(
+            RContour(path.points).apply {
+              closed = path.closed
+              setStyle(path)
+            },
+          )
+        },
+    )
 
   fun polygonize() {
     paths.forEach(RPath::polygonize)
@@ -351,8 +355,9 @@ open class RShape() : RGeomElem() {
     polyTransform: (RPolygon, RPolygon) -> RPolygon,
     shapeTransform: RShape.(RShape) -> RShape,
   ): RShape =
-    RShape(paths = polyTransform(toPolygon(), p.toPolygon()).toShape().paths,
-           children = children.mapArray { shapeTransform(it, p) }, style = this
+    RShape(
+      paths = polyTransform(toPolygon(), p.toPolygon()).toShape().paths,
+      children = children.mapArray { shapeTransform(it, p) }, style = this,
     )
 
   /**
@@ -468,16 +473,22 @@ open class RShape() : RGeomElem() {
    * @eexample RGroup_getPoints
    */
   override val pointsInPaths: Array<Array<RPoint>>
-    get() = arrayOf(*paths.flatMapArray { it.pointsInPaths },
-                    *children.flatMapArray { it.pointsInPaths })
+    get() = arrayOf(
+      *paths.flatMapArray { it.pointsInPaths },
+      *children.flatMapArray { it.pointsInPaths },
+    )
 
   override val handlesInPaths: Array<Array<RPoint>>
-    get() = arrayOf(*paths.flatMapArray { it.handlesInPaths },
-                    *children.flatMapArray { it.handlesInPaths })
+    get() = arrayOf(
+      *paths.flatMapArray { it.handlesInPaths },
+      *children.flatMapArray { it.handlesInPaths },
+    )
 
   override val tangentsInPaths: Array<Array<RPoint>>
-    get() = arrayOf(*paths.flatMapArray { it.tangentsInPaths },
-                    *children.flatMapArray { it.tangentsInPaths })
+    get() = arrayOf(
+      *paths.flatMapArray { it.tangentsInPaths },
+      *children.flatMapArray { it.tangentsInPaths },
+    )
 
   fun splitPaths(t: Float): Array<RShape> {
     val result = mutableListOf<RShape>()
@@ -765,11 +776,13 @@ open class RShape() : RGeomElem() {
           val angle = atan2(tg.y, tg.x)
           val pletter = RPoint(px, py)
           p.sub(pletter)
-          elem.transform(RMatrix().apply {
-            translate(p)
-            rotate(angle, pletter)
-            scale(wght, pletter)
-          })
+          elem.transform(
+            RMatrix().apply {
+              translate(p)
+              rotate(angle, pletter)
+              scale(wght, pletter)
+            },
+          )
           i++
         }
       }
@@ -796,7 +809,7 @@ open class RShape() : RGeomElem() {
         }
       }
       else -> throw RuntimeException(
-        "Unknown adaptor type : " + RG.adaptorType + ". The method RG.setAdaptor() only accepts RG.BYPOINT or RG.BYELEMENT as parameter values."
+        "Unknown adaptor type : " + RG.adaptorType + ". The method RG.setAdaptor() only accepts RG.BYPOINT or RG.BYELEMENT as parameter values.",
       )
     }
   }
@@ -1069,7 +1082,7 @@ open class RShape() : RGeomElem() {
             pnts[2].x,
             pnts[2].y,
             pnts[2].x,
-            pnts[2].y
+            pnts[2].y,
           )
           RCommand.CUBICBEZIERTO -> g.bezierVertex(
             pnts[1].x,
@@ -1077,7 +1090,7 @@ open class RShape() : RGeomElem() {
             pnts[2].x,
             pnts[2].y,
             pnts[3].x,
-            pnts[3].y
+            pnts[3].y,
           )
         }
       }
@@ -1102,11 +1115,11 @@ open class RShape() : RGeomElem() {
           RCommand.LINETO -> g.vertex(pnts[1].x, pnts[1].y)
           RCommand.QUADBEZIERTO -> g.bezierVertex(
             pnts[1].x, pnts[1].y, pnts[2].x, pnts[2].y,
-            pnts[2].x, pnts[2].y
+            pnts[2].x, pnts[2].y,
           )
           RCommand.CUBICBEZIERTO -> g.bezierVertex(
             pnts[1].x, pnts[1].y, pnts[2].x, pnts[2].y,
-            pnts[3].x, pnts[3].y
+            pnts[3].x, pnts[3].y,
           )
         }
       }
@@ -1177,17 +1190,17 @@ open class RShape() : RGeomElem() {
       star.addMoveTo(x - radiusBig, y)
       star.addLineTo(
         x - (radiusSmall * cos(Math.PI / spikes)).toFloat(),
-        y - (radiusSmall * sin(Math.PI / spikes)).toFloat()
+        y - (radiusSmall * sin(Math.PI / spikes)).toFloat(),
       )
       var i = 2
       while (i < 2 * spikes) {
         star.addLineTo(
           x - (radiusBig * cos(Math.PI * i / spikes)).toFloat(),
-          y - (radiusBig * sin(Math.PI * i / spikes)).toFloat()
+          y - (radiusBig * sin(Math.PI * i / spikes)).toFloat(),
         )
         star.addLineTo(
           x - (radiusSmall * cos(Math.PI * (i + 1) / spikes)).toFloat(),
-          y - (radiusSmall * sin(Math.PI * (i + 1) / spikes)).toFloat()
+          y - (radiusSmall * sin(Math.PI * (i + 1) / spikes)).toFloat(),
         )
         i += 2
       }
@@ -1206,17 +1219,19 @@ open class RShape() : RGeomElem() {
      * @eexample createRectangle
      */
     @JvmStatic
-    fun createRectangle(x: Float, y: Float, w: Float, h: Float): RShape = RShape(RPath(
-      arrayOf(
-        RPoint(x, y),
-        RPoint(x + w, y),
-        RPoint(x + w, y + h),
-        RPoint(x, y + h),
-      )
-    ).also { it.addClose() })
+    fun createRectangle(x: Float, y: Float, w: Float, h: Float): RShape = RShape(
+      RPath(
+        arrayOf(
+          RPoint(x, y),
+          RPoint(x + w, y),
+          RPoint(x + w, y + h),
+          RPoint(x, y + h),
+        ),
+      ).also { it.addClose() },
+    )
 
-    fun createRectangle(center: RPoint, w: Number, h: Number) =
-      createRectangle(center.x, center.y, w.toFloat(), h.toFloat())
+    fun createRectangle(topLeft: RPoint, w: Number, h: Number) =
+      createRectangle(topLeft.x, topLeft.y, w.toFloat(), h.toFloat())
 
     /**
      * Use this method to create a new elliptical shape.

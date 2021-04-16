@@ -3,13 +3,10 @@ package sketches
 import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
-import controls.doubleProp
-import controls.intProp
-import controls.noiseControls
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlList.Companion.row
 import controls.panels.Panelable
-import controls.pointProp
+import controls.props.types.doubleProp
 import coordinate.BoundRect
 import coordinate.BoundRect.Companion.mappedOnto
 import coordinate.Circ
@@ -55,18 +52,23 @@ open class CircleWarpSketch(
     strength = Point(0, 0),
   )
 
-  override fun getControls(): Panelable = col(
-    row(
-      intProp(::numCircles, range = 1..1000),
-      doubleProp(::circleSpacing, range = 0.001..50.0),
-    ),
-    row(
-      intProp(::moveAmountX, range = 0..2000),
-      intProp(::moveAmountY, range = 0..2000),
-    ),
-    noiseControls(::noise),
-    row(pointProp(::centerOrigin, Point.Zero..Point.One)),
-  )
+  override fun getControls(): Panelable = col {
+    row {
+      intSlider(::numCircles, range = 1..1000)
+      doubleProp(::circleSpacing, range = 0.001..50.0)
+    }
+
+    row {
+      intSlider(::moveAmountX, range = 0..2000)
+      intSlider(::moveAmountY, range = 0..2000)
+    }
+
+    noisePanel(::noise)
+
+    row(heightOverride = 3) {
+      slider2D(::centerOrigin, Point.Zero..Point.One)
+    }
+  }
 
   override fun mousePressed(p: Point) {
     points.add(p)

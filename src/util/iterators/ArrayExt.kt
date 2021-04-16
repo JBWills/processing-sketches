@@ -15,7 +15,7 @@ inline fun <reified T> Array<Array<T>>.flattenArray(): Array<T> =
 inline fun <reified T> varargIf(conditional: Boolean, item: T): Array<T> =
   if (conditional) arrayOf(item) else arrayOf()
 
-inline fun <reified T> controlIf(conditional: Boolean, item: T): T? =
+inline fun <reified T> ifOrNull(conditional: Boolean, item: T): T? =
   if (conditional) item else null
 
 inline fun <reified T> Array<T?>.filterNotNull(): Array<T> = mapNotNull { it }.toTypedArray()

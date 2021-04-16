@@ -3,14 +3,9 @@ package sketches
 import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import appletExtensions.getParallelLinesInBound
-import controls.degProp
-import controls.doublePairProp
-import controls.doubleProp
-import controls.enumProp
-import controls.noiseProp
 import controls.panels.ControlList.Companion.row
 import controls.panels.ControlTab.Companion.layerTab
-import controls.panels.ControlTab.Companion.tab
+import controls.panels.ControlTab.Companion.singleTab
 import controls.props.PropData
 import coordinate.Deg
 import coordinate.Point
@@ -106,18 +101,18 @@ data class MoireLinesLayerData(
     strength = Point(0, 0),
   ),
 ) : PropData<MoireLinesLayerData> {
-  override fun BaseSketch.bind() = layerTab(
-    enumProp(::shape),
-    row(
-      doubleProp(::lineDensity, 0.5..1.0),
-      degProp(::lineAngle, 0.0..90.0),
-    ),
-    doubleProp(::lineOffset, 0.0..1.0),
-    doublePairProp(::shapeSize, 0.0..2.0, withLockToggle = true, defaultLocked = true),
-    doublePairProp(::shapeCenter, -0.5..1.5),
-    degProp(::shapeRotation, 0.0..90.0),
-    noiseProp(::noise),
-  )
+  override fun BaseSketch.bind() = layerTab {
+    dropdownList(::shape)
+    row {
+      slider(::lineDensity, 0.5..1.0)
+      degreeSlider(::lineAngle, 0.0..90.0)
+    }
+    slider(::lineOffset, 0.0..1.0)
+    sliderPair(::shapeSize, 0.0..2.0, withLockToggle = true, defaultLocked = true)
+    sliderPair(::shapeCenter, -0.5..1.5)
+    degreeSlider(::shapeRotation, 0.0..90.0)
+    noisePanel(::noise)
+  }
 
   override fun clone() = copy()
   override fun toSerializer() = serializer()
@@ -127,11 +122,7 @@ data class MoireLinesLayerData(
 data class MoireLinesData(
   var lineDensity: Double = 0.5,
 ) : PropData<MoireLinesData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "Global",
-    ),
-  )
+  override fun BaseSketch.bind() = singleTab("Global")
 
   override fun clone() = copy()
 

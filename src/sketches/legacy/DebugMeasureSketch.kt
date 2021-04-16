@@ -3,13 +3,9 @@ package sketches.legacy
 import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
-import controls.doubleProp
-import controls.intProp
-import controls.noiseControls
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlList.Companion.row
 import controls.panels.Panelable
-import controls.pointProp
 import coordinate.BoundRect
 import coordinate.Point
 import fastnoise.Noise
@@ -57,26 +53,33 @@ open class DebugMeasureSketch(
     strength = Point(0, 0),
   )
 
-  override fun getControls(): Panelable = col(
-    row(
-      intProp(::numCircles, range = 1..1000),
-      doubleProp(::circleSpacing, range = 0.001..50.0),
-    ),
-    row(
-      doubleProp(::moveAmountX, range = 0.0..5.0),
-      doubleProp(::moveAmountY, range = 0.0..2000.0),
-    ),
-    row(
-      doubleProp(::spiralRotations, range = 0.0..10.0),
-      doubleProp(::spiralSpacing, range = 0.0..50.0),
-    ),
-    row(
-      doubleProp(::spiralStartAngle, range = 0.0..2.0),
-      doubleProp(::interiorSpiralStartAngle, range = 0.0..2.0),
-    ),
-    noiseControls(::noise),
-    row(pointProp(::centerOrigin, Point.Zero..Point.One)),
-  )
+  override fun getControls(): Panelable = col {
+    row {
+      intSlider(::numCircles, range = 1..1000)
+      slider(::circleSpacing, range = 0.001..50.0)
+    }
+
+    row {
+      slider(::moveAmountX, range = 0.0..5.0)
+      slider(::moveAmountY, range = 0.0..2000.0)
+    }
+
+    row {
+      slider(::spiralRotations, range = 0.0..10.0)
+      slider(::spiralSpacing, range = 0.0..50.0)
+    }
+
+    row {
+      slider(::spiralStartAngle, range = 0.0..2.0)
+      slider(::interiorSpiralStartAngle, range = 0.0..2.0)
+    }
+
+    noisePanel(::noise)
+
+    row(heightOverride = 3) {
+      slider2D(::centerOrigin, Point.Zero..Point.One)
+    }
+  }
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()

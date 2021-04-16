@@ -2,21 +2,17 @@ package sketches.base
 
 import LayerConfig
 import controls.Control.Button.Companion.button
-import controls.dropdownList
-import controls.intProp
-import controls.nullableEnumProp
 import controls.panels.ControlList.Companion.row
 import controls.panels.ControlTab
 import controls.panels.ControlTab.Companion.tab
+import controls.props.LayerAndGlobalProps
+import controls.props.LayerAndGlobalProps.Companion.props
 import controls.props.PropData
-import controls.props.Props
-import controls.props.Props.Companion.props
 import controls.props.deletePresetFile
 import controls.props.loadPresets
 import controls.props.savePresetToFile
 import kotlinx.serialization.KSerializer
 import util.constants.getLayerColors
-import util.iterators.controlIf
 import util.iterators.mapArrayIndexed
 import util.print.Orientation
 import util.print.Paper
@@ -24,7 +20,6 @@ import util.print.Pen
 import util.print.StrokeWeight
 import util.print.StrokeWeight.Thick
 import util.print.Style
-import util.textInput
 import java.awt.Color
 
 abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>>(
@@ -40,10 +35,10 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
 
   private val fallbackProps = props(maxLayers, defaultGlobal, layerToDefaultTab)
 
-  private var presets: Map<String, Props<TabValues, GlobalValues>> =
+  private var presets: Map<String, LayerAndGlobalProps<TabValues, GlobalValues>> =
     loadPresets(maxLayers, globalSerializer, layerSerializer)
 
-  private var props: Props<TabValues, GlobalValues> =
+  private var layerAndGlobalProps: LayerAndGlobalProps<TabValues, GlobalValues> =
     presets.getOrDefault(DEFAULT_PRESET_NAME, fallbackProps)
 
   /* controlled props */
@@ -58,7 +53,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   final override fun setup() {
     super.setup()
 
-    setActiveTab(props.globalControlTabs.firstOrNull()?.name ?: CANVAS_TAB_NAME)
+    setActiveTab(layerAndGlobalProps.globalControlTabs.firstOrNull()?.name ?: CANVAS_TAB_NAME)
   }
 
   abstract fun drawOnce(values: LayerInfo)
@@ -71,38 +66,35 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
       .plus(LayerConfig(Pen.ThickGellyWhite.style))
 
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
-    tab(
-      PRESETS_TAB_NAME,
-      row(
-        button("Override $DEFAULT_PRESET_NAME preset") { savePreset(DEFAULT_PRESET_NAME) },
-        controlIf(
-          currentPreset != DEFAULT_PRESET_NAME,
-          button("Override $currentPreset preset") { savePreset(currentPreset) },
-        ),
-        controlIf(
-          currentPreset != DEFAULT_PRESET_NAME,
-          button("Delete $currentPreset preset") { deletePreset(currentPreset) },
-        ),
-      ),
+    tab(PRESETS_TAB_NAME) {
+      row {
+        button("Override $DEFAULT_PRESET_NAME preset") { savePreset(DEFAULT_PRESET_NAME) }
+
+        if (currentPreset != DEFAULT_PRESET_NAME) {
+          button("Override $currentPreset preset") { savePreset(currentPreset) }
+          button("Delete $currentPreset preset") { deletePreset(currentPreset) }
+        }
+      }
+
       textInput(
         textFieldLabel = "New Preset Name",
         submitButtonLabel = "Save new preset",
-      ) { savePreset(it) },
+      ) { savePreset(it) }
+
       dropdownList("Load Preset", presets.keys.sorted(), ::currentPreset) {
         val newPreset = presets[it] ?: return@dropdownList
-        props = newPreset
+        layerAndGlobalProps = newPreset
         updateControls()
         markDirty()
-      },
-    ),
-    tab(
-      CANVAS_TAB_NAME,
-      super.getControls(),
-      intProp(::numLayers, range = 0..maxLayers),
-      nullableEnumProp(::weightOverride, StrokeWeight.values()),
-    ),
-    *props.globalControlTabs,
-    *props.layerControlTabs.mapArrayIndexed { index, tab ->
+      }
+    },
+    tab(CANVAS_TAB_NAME) {
+      +super.getControls()
+      intSlider(::numLayers, range = 0..maxLayers)
+      dropdownList(::weightOverride, StrokeWeight.values())
+    },
+    *layerAndGlobalProps.globalControlTabs,
+    *layerAndGlobalProps.layerControlTabs.mapArrayIndexed { index, tab ->
       tab.withName("${tab.name}-${index + 1}")
     },
   )
@@ -110,7 +102,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   final override fun drawSetup() {
     super.drawSetup()
 
-    val (global, tab) = props.cloneValues()
+    val (global, tab) = layerAndGlobalProps.cloneValues()
     frozenValues = DrawInfo(global, tab).also { drawSetup(it) }
   }
 
@@ -120,7 +112,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   }
 
   private fun savePreset(presetName: String) {
-    savePresetToFile(svgBaseFileName, presetName, props)
+    savePresetToFile(svgBaseFileName, presetName, layerAndGlobalProps)
     refreshPresets()
   }
 

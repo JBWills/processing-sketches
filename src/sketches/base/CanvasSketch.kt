@@ -3,11 +3,7 @@ package sketches.base
 import BaseSketch
 import LayerConfig
 import appletExtensions.withStyle
-import controls.booleanProp
-import controls.doublePairProp
-import controls.enumProp
 import controls.panels.ControlList.Companion.col
-import controls.panels.ControlList.Companion.row
 import controls.panels.Panelable
 import coordinate.Point
 import util.darkened
@@ -49,14 +45,14 @@ abstract class CanvasSketch(
 
   override fun getFilenameSuffix(): String = paper.name
 
-  override fun getControls(): Panelable = col(
-    row(enumProp(::paper) { markCanvasDirty() }),
-    row(enumProp(::orientation) { markCanvasDirty() }),
-    row(booleanProp(::drawBoundRect)),
-    row(booleanProp(::isDebugMode)),
-    doublePairProp(::boundBoxCenter),
-    doublePairProp(::boundBoxScale),
-  )
+  override fun getControls(): Panelable = col {
+    dropdownList(::paper) { markCanvasDirty() }
+    dropdownList(::orientation) { markCanvasDirty() }
+    toggle(::drawBoundRect)
+    toggle(::isDebugMode)
+    sliderPair(::boundBoxCenter)
+    sliderPair(::boundBoxScale)
+  }
 
   abstract fun drawOnce(layer: Int)
 
@@ -69,8 +65,8 @@ abstract class CanvasSketch(
       .applyOverrides(
         Style(
           weight = if (isRecording) Thick else null,
-          color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5f) else null
-        )
+          color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5f) else null,
+        ),
       )
 
     withStyle(style) {
@@ -88,7 +84,6 @@ abstract class CanvasSketch(
     .toBoundRect(orientation)
     .scale(
       boundBoxScale,
-      newCenter = boundBoxCenter * Point(sizeX, sizeY)
+      newCenter = boundBoxCenter * Point(sizeX, sizeY),
     )
-
 }

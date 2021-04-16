@@ -11,4 +11,7 @@ fun interface Panelable {
 
   fun withStyle(style: ControlStyle): ControlPanel =
     toControlPanel().with(style = style)
+
+  fun applyStyleOverrides(style: ControlStyle?): Panelable =
+    if (style != null) toControlPanel().overrideStyles(style) else this
 }

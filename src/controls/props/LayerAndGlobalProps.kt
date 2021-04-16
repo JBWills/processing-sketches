@@ -1,28 +1,15 @@
 package controls.props
 
 import BaseSketch
-import controls.TabProp
-import controls.panels.ControlList.Companion.col
-import controls.panels.ControlPanel
 import controls.panels.ControlTab
-import controls.tabProp
-import interfaces.Bindable
-import interfaces.Copyable
-import interfaces.KSerializable
 import util.iterators.flattenArray
 import util.iterators.mapArray
 import util.map
 
-interface PropData<T> : Bindable, Copyable<T>, KSerializable<T> {
-  fun asControlPanel(sketch: BaseSketch): ControlPanel = col(
-    *bindSketch(sketch).mapArray { it.panel },
-  )
-}
-
 /**
- * Props for a sketch.
+ * Props for a [LayeredCanvasSketch].
  */
-class Props<TabValues : PropData<TabValues>, GlobalValues : PropData<GlobalValues>>(
+class LayerAndGlobalProps<TabValues : PropData<TabValues>, GlobalValues : PropData<GlobalValues>>(
   private val sketch: BaseSketch,
   maxLayers: Int,
   defaultGlobal: GlobalValues,
@@ -69,6 +56,6 @@ class Props<TabValues : PropData<TabValues>, GlobalValues : PropData<GlobalValue
       maxLayers: Int,
       defaultGlobal: GlobalValues,
       layerToDefaultTab: (Int) -> TabValues,
-    ) = Props(this, maxLayers, defaultGlobal, layerToDefaultTab)
+    ) = LayerAndGlobalProps(this, maxLayers, defaultGlobal, layerToDefaultTab)
   }
 }

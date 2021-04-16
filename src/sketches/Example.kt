@@ -1,7 +1,6 @@
 package sketches
 
 import BaseSketch
-import controls.intProp
 import controls.panels.ControlTab.Companion.layerTab
 import controls.panels.ControlTab.Companion.singleTab
 import controls.props.PropData
@@ -28,11 +27,11 @@ class Example : LayeredCanvasSketch<ExampleData, ExampleLayerData>(
 
 @Serializable
 data class ExampleLayerData(
-  var exampleTabField: Int = 1
+  var exampleTabField: Int = 1,
 ) : PropData<ExampleLayerData> {
-  override fun BaseSketch.bind() = layerTab(
-    intProp(::exampleTabField, 0..10),
-  )
+  override fun BaseSketch.bind() = layerTab {
+    intSlider(::exampleTabField, 0..10)
+  }
 
   override fun clone() = copy()
   override fun toSerializer() = serializer()
@@ -42,10 +41,9 @@ data class ExampleLayerData(
 data class ExampleData(
   var exampleGlobalField: Int = 1,
 ) : PropData<ExampleData> {
-  override fun BaseSketch.bind() = singleTab(
-    "Global",
-    intProp(::exampleGlobalField, 0..10),
-  )
+  override fun BaseSketch.bind() = singleTab("Global") {
+    intSlider(::exampleGlobalField, 0..10)
+  }
 
   override fun clone() = copy()
 

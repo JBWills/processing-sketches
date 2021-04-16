@@ -144,7 +144,7 @@ data class BoundRect(
     abs(point.y - bottom),
   )
 
-  fun toRShape(): RShape = RShape.createRectangle(center.toRPoint(), w = width, h = height)
+  fun toRShape(): RShape = RShape.createRectangle(topLeft.toRPoint(), w = width, h = height)
   fun toRPath(): RPath = RPath(rPoints).also { it.addClose() }
 
   fun getBoundSegment(line: Segment): Segment? {

@@ -1,21 +1,20 @@
-package controls.props
+package controls.props.types
 
 import BaseSketch
 import arrow.core.memoize
-import controls.degProp
-import controls.doublePairProp
-import controls.enumProp
 import controls.panels.ControlTab
 import controls.panels.ControlTab.Companion.singleTab
-import controls.props.ShapeType.Ellipse
+import controls.props.PropData
+import controls.props.types.ShapeType.Ellipse
 import coordinate.BoundRect
+import coordinate.BoundRect.Companion.centeredRect
 import coordinate.Deg
 import coordinate.Point
-import geomerativefork.src.RShape.Companion.createEllipse
-import geomerativefork.src.RShape.Companion.createRectangle
+import geomerativefork.src.RPath
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import util.ZeroToOne
+import util.geomutil.ellipse
+import util.geomutil.rotated
 
 enum class ShapeType {
   Ellipse,
@@ -42,18 +41,7 @@ data class ShapeProp(
     rotation ?: s.rotation,
   )
 
-  fun getRPath(bounds: BoundRect) = _getRPath(bounds)
-
-  @Transient
-  private val _getRPath = { bounds: BoundRect ->
-    val center = bounds.pointAt(center.x, center.y).toRPoint()
-
-    if (type == Ellipse) {
-      createEllipse(center, size.toRPoint())
-    } else {
-      createRectangle(center, size.x, size.y)
-    }.paths.first()
-  }.memoize()
+  fun getRPath(bound: BoundRect): RPath = getRPathMemo(bound, type, size, center, rotation)
 
   override fun toSerializer() = serializer()
 
@@ -67,3 +55,22 @@ data class ShapeProp(
     degProp(::rotation),
   )
 }
+
+private val getRPathMemo = {
+    bound: BoundRect,
+    type: ShapeType,
+    size: Point,
+    centerRatio: Point,
+    rotation: Deg,
+  ->
+  val centerPoint = bound.pointAt(centerRatio.x, centerRatio.y)
+
+  val rShape =
+    if (type == Ellipse) ellipse(centerPoint, size)
+    else centeredRect(centerPoint, size).toRShape()
+
+  rShape
+    .rotated(rotation, centerPoint)
+    .paths
+    .first()
+}.memoize()

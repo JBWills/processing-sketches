@@ -2,14 +2,12 @@ package sketches.legacy
 
 import BaseSketch
 import LayerConfig
-import controls.Control.Button
-import controls.Control.Slider
-import controls.Control.Slider2d
-import controls.Control.Toggle
+import controls.Control.Button.Companion.button
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
 import coordinate.BoundRect
 import coordinate.Point
+import util.tuple.and
 import java.awt.Color
 
 open class CurveSketch(
@@ -28,7 +26,7 @@ open class CurveSketch(
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
     sizeX - 2 * outerPaddingX,
-    sizeY - 2 * outerPaddingY
+    sizeY - 2 * outerPaddingY,
   )
 
   private val points: MutableList<Point> = mutableListOf()
@@ -41,44 +39,20 @@ open class CurveSketch(
   private var noiseOffset: Point = Point(0, 0)
   private var quality: Double = 0.5
 
-  override fun getControls(): Panelable = col(
-    Button("clear") {
+  override fun getControls(): Panelable = col {
+    button("clear") {
       points.clear()
       markDirty()
-    },
-    Slider("xval", defaultValue = xMidpointVal) {
-      xMidpointVal = it
-      markDirty()
-    },
-    Toggle("withHorizontalLines") {
-      withHorizontalLines = it
-      markDirty()
-    },
-    Slider("quality", defaultValue = quality) {
-      quality = it
-      markDirty()
-    },
-    Slider("numLines", range = 1.0..100.0, defaultValue = numLines.toDouble()) {
-      numLines = it.toInt()
-      markDirty()
-    },
-    Slider("lineSpacing", range = 0.0..200.0, defaultValue = lineSpacing) {
-      lineSpacing = it
-      markDirty()
-    },
-    Slider("noiseScale", range = 1.0..100.0, defaultValue = noiseScale.toDouble()) {
-      noiseScale = it.toInt()
-      markDirty()
-    },
-    Slider("moveAmount", range = 0.0..2000.0, defaultValue = moveAmount.toDouble()) {
-      moveAmount = it.toInt()
-      markDirty()
-    },
-    Slider2d("noiseOffset", rangeX = 1.0..100.0, rangeY = 1.0..10.0, defaultValue = noiseOffset) {
-      noiseOffset = it
-      markDirty()
-    },
-  )
+    }
+    slider(::xMidpointVal)
+    toggle(::withHorizontalLines)
+    slider(::quality)
+    intSlider(::numLines, range = 1..100)
+    slider(::lineSpacing, range = 0.0..200.0)
+    intSlider(::noiseScale, range = 1..100)
+    intSlider(::moveAmount, range = 0..2000)
+    slider2D(::noiseOffset, 1.0..100.0 and 1.0..10.0)
+  }
 
   override fun mousePressed(p: Point) {
     points.add(p)

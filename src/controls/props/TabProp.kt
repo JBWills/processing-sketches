@@ -1,4 +1,4 @@
-package controls
+package controls.props
 
 import BaseSketch
 import controls.panels.ControlTab

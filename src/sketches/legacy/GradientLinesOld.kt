@@ -2,7 +2,6 @@ package sketches.legacy
 
 import BaseSketch
 import LayerConfig
-import controls.Control.Slider
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
 import coordinate.BoundRect
@@ -23,20 +22,12 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
     sizeX - 2 * outerPaddingX,
-    sizeY - 2 * outerPaddingY
+    sizeY - 2 * outerPaddingY,
   )
 
-  override fun getControls(): Panelable = col(
-    Slider(
-      text = "Line angle (degrees)",
-      range = 0.0..360.0,
-      handleChange =
-      {
-        lineDegrees = it.toInt()
-        markDirty()
-      }
-    )
-  )
+  override fun getControls(): Panelable = col {
+    intSlider(::lineDegrees, 0..360)
+  }
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     fun getPointsLinesShouldCrossThrough(
@@ -67,7 +58,7 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
     fun bounds(segIndexFromTop: Int, numSegs: Int = 1) = BoundRect(
       drawBound.topLeft + Point(0f, segIndexFromTop * segmentHeight),
       drawBound.width,
-      segmentHeight * numSegs
+      segmentHeight * numSegs,
     )
 
     rect(drawBound)
@@ -76,7 +67,7 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
         bound = bounds(it + 1),
         numLines = 4.pow(it),
         direction = Deg.HORIZONTAL,
-        addFinalLine = true
+        addFinalLine = true,
       )
     }
 
@@ -84,38 +75,38 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
       bound = bounds(5, 4),
       numLines = 4.pow(3),
       direction = Deg.HORIZONTAL,
-      addFinalLine = true
+      addFinalLine = true,
     )
 
     drawLines(
       bound = bounds(5),
       numLines = 5,
       direction = Deg.VERTICAL,
-      addFinalLine = true
+      addFinalLine = true,
     )
     drawLines(
       bound = bounds(6),
       numLines = 10,
       direction = Deg.VERTICAL,
-      addFinalLine = true
+      addFinalLine = true,
     )
     drawLines(
       bound = bounds(7),
       numLines = 20,
       direction = Deg.VERTICAL,
-      addFinalLine = true
+      addFinalLine = true,
     )
     drawLines(
       bound = bounds(8),
       numLines = 30,
       direction = Deg.VERTICAL,
-      addFinalLine = true
+      addFinalLine = true,
     )
     drawLines(
       bound = bounds(9),
       numLines = 40,
       direction = Deg.VERTICAL,
-      addFinalLine = true
+      addFinalLine = true,
     )
 
   }

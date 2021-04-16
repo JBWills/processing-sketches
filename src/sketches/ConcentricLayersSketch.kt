@@ -1,10 +1,9 @@
 package sketches
 
 import BaseSketch
-import controls.doubleProp
-import controls.intProp
 import controls.panels.ControlList.Companion.row
-import controls.panels.ControlTab.Companion.tab
+import controls.panels.ControlTab.Companion.layerTab
+import controls.panels.ControlTab.Companion.singleTab
 import controls.props.PropData
 import coordinate.Arc
 import coordinate.Circ
@@ -23,7 +22,7 @@ class ConcentricLayersSketch : LayeredCanvasSketch<CircleGlobalData, CircleLayer
   "ConcentricLayersSketch",
   CircleGlobalData(),
   { CircleLayerData() },
-  maxLayers = MAX_CIRCLES
+  maxLayers = MAX_CIRCLES,
 ) {
   val trueNumLayers get() = arcsPerLayer.size
   val trueNumCircles get() = if (arcsPerLayer.size <= 1) 0 else arcsPerLayer[1].size
@@ -55,7 +54,7 @@ class ConcentricLayersSketch : LayeredCanvasSketch<CircleGlobalData, CircleLayer
         Deg(c.startAngle + circleIndex * c.startAngleDelta),
         (c.startLength + circleIndex * c.angleLengthDelta)
           .bound(0.0, 360.0),
-        circle
+        circle,
       )
     }
   }
@@ -66,7 +65,7 @@ class ConcentricLayersSketch : LayeredCanvasSketch<CircleGlobalData, CircleLayer
         getArcsForLayer(
           it,
           layerInfo.allTabValues[it],
-          layerInfo.globalValues
+          layerInfo.globalValues,
         )
       }
   }
@@ -77,7 +76,7 @@ class ConcentricLayersSketch : LayeredCanvasSketch<CircleGlobalData, CircleLayer
     .flatMapIndexed { circleIndex, layerArc ->
       layerArc.minusAll(
         getArcsAtIndex(circleIndex, values.layerIndex + 1)
-          .mapIf({ !it.isSizeZero }) { it.expandPixels(values.globalValues.spacing) }
+          .mapIf({ !it.isSizeZero }) { it.expandPixels(values.globalValues.spacing) },
       )
     }.forEach {
       it
@@ -95,17 +94,14 @@ data class CircleLayerData(
   var startCircle: Int = 0,
   var endCircle: Int = 0,
 ) : PropData<CircleLayerData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "L",
-      doubleProp(::startAngleDelta, negToPos(180)),
-      doubleProp(::angleLengthDelta, negToPos(16)),
-      doubleProp(::startAngle, negToPos(360)),
-      doubleProp(::startLength, zeroTo(360)),
-      intProp(::startCircle, 0..100),
-      intProp(::endCircle, 0..100),
-    )
-  )
+  override fun BaseSketch.bind() = layerTab {
+    slider(::startAngleDelta, negToPos(180))
+    slider(::angleLengthDelta, negToPos(16))
+    slider(::startAngle, negToPos(360))
+    slider(::startLength, zeroTo(360))
+    intSlider(::startCircle, 0..100)
+    intSlider(::endCircle, 0..100)
+  }
 
   override fun clone() = copy()
   override fun toSerializer() = serializer()
@@ -118,17 +114,16 @@ data class CircleGlobalData(
   var endRad: Double = 500.0,
   var spacing: Double = 5.0,
 ) : PropData<CircleGlobalData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "Global",
-      intProp(::numCircles, 1..100),
-      row(
-        doubleProp(::startRad, zeroTo(500)),
-        doubleProp(::endRad, zeroTo(1000)),
-      ),
-      doubleProp(::spacing, zeroTo(360)),
-    )
-  )
+  override fun BaseSketch.bind() = singleTab("Global") {
+    intSlider(::numCircles, 1..100)
+
+    row {
+      slider(::startRad, zeroTo(500))
+      slider(::endRad, zeroTo(1000))
+    }
+
+    slider(::spacing, zeroTo(360))
+  }
 
   override fun clone() = copy()
 

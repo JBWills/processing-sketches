@@ -80,12 +80,7 @@ class ControlFrame(
   }
 
   private fun drawPanelItem(controlTab: ControlTab, panelItem: ControlItem, bound: BoundRect) =
-    panelItem.control.applyToControl(
-      controlP5 = cp5,
-      tab = cp5.getTab(controlTab.name),
-      panel = panelItem,
-      bound = bound,
-    )
+    panelItem.draw(cp5, controlTab, bound)
 
   override fun setup() {
     tabs.forEach { setupTab(it) }

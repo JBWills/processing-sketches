@@ -2,11 +2,9 @@ package sketches
 
 import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
-import controls.doubleProp
-import controls.intProp
-import controls.noiseProp
 import controls.panels.ControlList.Companion.row
-import controls.panels.ControlTab.Companion.tab
+import controls.panels.ControlTab.Companion.layerTab
+import controls.panels.ControlTab.Companion.singleTab
 import controls.props.PropData
 import coordinate.Point
 import coordinate.Segment
@@ -40,7 +38,7 @@ class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { 
 
     val waveNoise = Noise(
       values.noise,
-      offset = values.noise.offset + (values.distBetweenNoisePerCircle * layer)
+      offset = values.noise.offset + (values.distBetweenNoisePerCircle * layer),
     )
 
     fun waveAmountAlong(n: Int) = (n.toDouble() + 1) / values.numCircles
@@ -66,11 +64,13 @@ class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { 
         .toRPath()
 
       if (height == baseHeight) {
-        val waveShape = RShape(warpedPath.apply {
-          addLineTo(sizeX.toFloat(), sizeY.toFloat())
-          addLineTo(0f, sizeY.toFloat())
-          addClose()
-        })
+        val waveShape = RShape(
+          warpedPath.apply {
+            addLineTo(sizeX.toFloat(), sizeY.toFloat())
+            addLineTo(0f, sizeY.toFloat())
+            addClose()
+          },
+        )
 
         nextUnionShape = if (unionShape == null) waveShape else unionShape?.union(waveShape)
       }
@@ -92,20 +92,13 @@ data class WaveTab(
   var distBetweenLines: Double = 10.0,
   var offset: Double = 0.0,
 ) : PropData<WaveTab> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "L",
-      doubleProp(
-        ::distBetweenLines,
-        1.0..200.0
-      ),
-      doubleProp(::offset, -200.0..200.0)
-    )
-  )
+  override fun BaseSketch.bind() = layerTab {
+    slider(::distBetweenLines, 1.0..200.0)
+    slider(::offset, -200.0..200.0)
+  }
 
   override fun clone() = copy()
-  override fun toSerializer() =
-    serializer()
+  override fun toSerializer() = serializer()
 }
 
 @Serializable
@@ -116,7 +109,7 @@ data class WaveGlobal(
     quality = High,
     scale = 1.0,
     offset = Point.Zero,
-    strength = Point(10, 0)
+    strength = Point(10, 0),
   ),
   var numCircles: Int = 5,
   var maxHeight: Double = 500.0,
@@ -124,25 +117,19 @@ data class WaveGlobal(
   var baseNumInternalCircles: Int = 1,
   var distBetweenNoisePerCircle: Double = 150.0,
 ) : PropData<WaveGlobal> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "Waves",
-      intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
-      row(
-        doubleProp(::maxHeight, 100.0..2000.0),
-        doubleProp(::minHeight, -400.0..400.0),
-      ),
-      intProp(::baseNumInternalCircles, 1..100),
-      doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
-      noiseProp(::noise),
-    )
-  )
+  override fun BaseSketch.bind() = singleTab("Waves") {
+    intSlider(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS)
+    row {
+      slider(::maxHeight, 100.0..2000.0)
+      slider(::minHeight, -400.0..400.0)
+    }
+    intSlider(::baseNumInternalCircles, 1..100)
+    slider(::distBetweenNoisePerCircle, 0.0..150.0)
+    noisePanel(::noise)
+  }
 
-  override fun clone(): WaveGlobal =
-    copy()
-
-  override fun toSerializer() =
-    serializer()
+  override fun clone(): WaveGlobal = copy()
+  override fun toSerializer() = serializer()
 }
 
 fun main() = Waves().run()

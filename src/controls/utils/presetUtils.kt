@@ -1,7 +1,7 @@
 package controls.props
 
 import BaseSketch
-import controls.props.Props.Companion.props
+import controls.props.LayerAndGlobalProps.Companion.props
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
@@ -33,7 +33,7 @@ fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> Bas
   presetName: String,
   globalSerializer: KSerializer<GlobalValues>,
   layerSerializer: KSerializer<TabValues>,
-): Props<TabValues, GlobalValues> {
+): LayerAndGlobalProps<TabValues, GlobalValues> {
   val presetFile = File(getPresetPath(sketchBaseName, presetName))
   var presetData: Pair<GlobalValues, List<TabValues>>? = null
   if (presetFile.exists()) {
@@ -44,7 +44,7 @@ fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> Bas
 
   return props(
     maxLayers,
-    presetData.first
+    presetData.first,
   ) { i -> presetData.second[i] }
 }
 
@@ -55,14 +55,14 @@ fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> Bas
  *
  * @param sketchBaseName The name of the sketch (this is used as a subfolder to store the presets)
  * @param presetName The name of the specific preset (this is used for the json filename)
- * @param props The props to serialize into a preset.
+ * @param layerAndGlobalProps The props to serialize into a preset.
  */
 fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> savePresetToFile(
   sketchBaseName: String,
   presetName: String,
-  props: Props<GlobalValues, TabValues>,
+  layerAndGlobalProps: LayerAndGlobalProps<GlobalValues, TabValues>,
 ) {
-  val s = serializeDrawInfo(props)
+  val s = serializeDrawInfo(layerAndGlobalProps)
 
   if (s == null) {
     println("Could not save preset. Error in serialization.")
@@ -87,10 +87,10 @@ fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> Bas
   maxLayers: Int,
   globalSerializer: KSerializer<GlobalValues>,
   layerSerializer: KSerializer<TabValues>,
-): Map<String, Props<TabValues, GlobalValues>> =
+): Map<String, LayerAndGlobalProps<TabValues, GlobalValues>> =
   getAllFilesInPath(
     getPresetDir(svgBaseFileName).path,
-    recursive = false
+    recursive = false,
   )
     .mapNotNull { file ->
       val fileName = file.nameWithoutExtension
@@ -98,11 +98,10 @@ fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> Bas
         maxLayers,
         presetName = fileName,
         globalSerializer,
-        layerSerializer
+        layerSerializer,
       )
       preset?.let { fileName to it }
     }.toMap()
-
 
 private fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> BaseSketch.loadPresetOrNull(
   maxLayers: Int,
@@ -115,7 +114,7 @@ private fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValu
     svgBaseFileName,
     presetName,
     globalSerializer,
-    layerSerializer
+    layerSerializer,
   )
 } catch (e: Exception) {
   println("Failed to load preset: $presetName. Got error: ${e.message}")
@@ -123,14 +122,14 @@ private fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValu
 }
 
 private fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> serializeDrawInfo(
-  props: Props<TabValues, GlobalValues>,
+  layerAndGlobalProps: LayerAndGlobalProps<TabValues, GlobalValues>,
 ): String? = try {
-  val globalJsonObject = props.globalValues.toJsonElement()
-  val layersJsonArray = props.tabValues.toJsonArray()
+  val globalJsonObject = layerAndGlobalProps.globalValues.toJsonElement()
+  val layersJsonArray = layerAndGlobalProps.tabValues.toJsonArray()
 
   jsonObjectOf(
     SERIAL_KEY_GLOBAL to globalJsonObject,
-    SERIAL_KEY_LAYERS to layersJsonArray
+    SERIAL_KEY_LAYERS to layersJsonArray,
   ).serializedString()
 } catch (e: Exception) {
   println("Failed to serialize.\nError message: ${e.message}")

@@ -1,14 +1,12 @@
 package sketches
 
+
 import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
-import controls.booleanProp
-import controls.doublePairProp
-import controls.intProp
-import controls.noiseProp
 import controls.panels.ControlList.Companion.row
-import controls.panels.ControlTab.Companion.tab
+import controls.panels.ControlTab.Companion.layerTab
+import controls.panels.ControlTab.Companion.singleTab
 import controls.props.PropData
 import coordinate.Point
 import fastnoise.Noise
@@ -33,7 +31,7 @@ class Mesh : LayeredCanvasSketch<MeshData, MeshLayerData>(
   "Mesh",
   MeshData(),
   { MeshLayerData() },
-  canvas = A4Black
+  canvas = A4Black,
 ) {
   init {
     numLayers = 1
@@ -97,7 +95,7 @@ class Mesh : LayeredCanvasSketch<MeshData, MeshLayerData>(
 
       val diagonals =
         numDotsX.map { startXIndex -> getDiagonal(startXIndex, 0) } +
-        (1 until numDotsY).map { startYIndex -> getDiagonal(0, startYIndex) }
+          (1 until numDotsY).map { startYIndex -> getDiagonal(0, startYIndex) }
 
       diagonals.draw(boundRect)
     }
@@ -113,7 +111,7 @@ class Mesh : LayeredCanvasSketch<MeshData, MeshLayerData>(
         numDotsX.map { startXIndex ->
           getDiagonal(startXIndex, 0)
         } +
-        (1 until numDotsY).map { startYIndex -> getDiagonal(0, startYIndex) }
+          (1 until numDotsY).map { startYIndex -> getDiagonal(0, startYIndex) }
 
       diagonals.draw(boundRect)
     }
@@ -124,12 +122,9 @@ class Mesh : LayeredCanvasSketch<MeshData, MeshLayerData>(
 data class MeshLayerData(
   var MeshTabField: Int = 1,
 ) : PropData<MeshLayerData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "T",
-      intProp(::MeshTabField, 0..10)
-    )
-  )
+  override fun BaseSketch.bind() = layerTab {
+    intSlider(::MeshTabField, 0..10)
+  }
 
   override fun clone() = copy()
 
@@ -144,7 +139,7 @@ data class MeshData(
     quality = High,
     scale = 1.0,
     offset = Point.Zero,
-    strength = Point(10, 0)
+    strength = Point(10, 0),
   ),
   var numDots: Point = Point(10, 10),
   var size: Point = Point(0.5, 0.5),
@@ -154,27 +149,26 @@ data class MeshData(
   var showVerticals: Boolean = true,
   var showHorizontals: Boolean = true,
 ) : PropData<MeshData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "Global",
-      noiseProp(::noise),
-      row(
-        booleanProp(::showDiagonalsDown),
-        booleanProp(::showDiagonalsUp),
-        booleanProp(::showVerticals),
-        booleanProp(::showHorizontals)
-      ),
-      doublePairProp(::numDots, zeroTo(1000) + 2),
-      doublePairProp(::size, zeroTo(1.5)),
-      doublePairProp(::dotRectCenter, ZeroToOne),
-    )
-  )
+  override fun BaseSketch.bind() = singleTab(
+    "Global",
+  ) {
+    noisePanel(::noise)
+    row {
+      toggle(::showDiagonalsDown)
+      toggle(::showDiagonalsUp)
+      toggle(::showVerticals)
+      toggle(::showHorizontals)
+    }
+    sliderPair(::numDots, zeroTo(1000) + 2)
+    sliderPair(::size, zeroTo(1.5))
+    sliderPair(::dotRectCenter, ZeroToOne)
+  }
 
   override fun clone() = copy(
     numDots = numDots.copy(),
     noise = noise.copy(),
     size = size.copy(),
-    dotRectCenter = dotRectCenter.copy()
+    dotRectCenter = dotRectCenter.copy(),
   )
 
   override fun toSerializer() = serializer()

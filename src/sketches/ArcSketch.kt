@@ -3,7 +3,6 @@ package sketches
 import BaseSketch
 import LayerConfig
 import appletExtensions.intersection
-import controls.Control.Slider
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
 import coordinate.BoundRect
@@ -20,7 +19,7 @@ open class ArcSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "svgs.ArcSketch",
   sizeX = sizeX,
-  sizeY = sizeY
+  sizeY = sizeY,
 ) {
   var steps = 312.0
   var step = 4.0
@@ -36,43 +35,19 @@ open class ArcSketch(
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
     sizeX - 2 * outerPaddingX,
-    sizeY - 2 * outerPaddingY
+    sizeY - 2 * outerPaddingY,
   )
 
-  override fun getControls(): Panelable = col(
-    Slider("Steps", 20.0..10560.0, steps) {
-      steps = it
-      markDirty()
-    },
-    Slider("Step", 1.0..20.0, step) {
-      step = it
-      markDirty()
-    },
-    Slider("ratio", -2.0..2.0, ratio) {
-      ratio = it
-      markDirty()
-    },
-    Slider("centerHeight", -400.0..600.0, centerHeight) {
-      centerHeight = it
-      markDirty()
-    },
-    Slider("occludingSize", 10.0..600.0, occludingSize) {
-      occludingSize = it
-      markDirty()
-    },
-    Slider("occludingHeight", -400.0..600.0, occludingHeight) {
-      occludingHeight = it
-      markDirty()
-    },
-    Slider("power", 0.0..2.0, power) {
-      power = it
-      markDirty()
-    },
-    Slider("power2", 0.0..2.0, power2) {
-      power2 = it
-      markDirty()
-    },
-  )
+  override fun getControls(): Panelable = col {
+    slider(::steps, 20.0..10560.0)
+    slider(::step, 1.0..20.0)
+    slider(::ratio, -2.0..2.0)
+    slider(::centerHeight, -400.0..600.0)
+    slider(::occludingSize, 10.0..600.0)
+    slider(::occludingHeight, -400.0..600.0)
+    slider(::power, 0.0..2.0)
+    slider(::power2, 0.0..2.0)
+  }
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()

@@ -83,9 +83,9 @@ fun getParallelLinesInBound(
       isMovingAwayFromAllCorners(
         bound,
         walkDirection.getPointAtDist(
-          currDist - distanceBetween.toDouble()
+          currDist - distanceBetween.toDouble(),
         ),
-        newOrigin
+        newOrigin,
       )
     ) {
       // if you're not currently in bounds but you were before that means you've left
@@ -128,7 +128,7 @@ fun Sketch.drawParallelLinesInBound(
 
     if (!wasInBound && isMovingAwayFromAllCorners(
         bound,
-        walkDirection.getPointAtDist(currDist - distanceBetween.toDouble()), newOrigin
+        walkDirection.getPointAtDist(currDist - distanceBetween.toDouble()), newOrigin,
       )
     ) {
       // if you're not currently in bounds but you were before that means you've left

@@ -3,15 +3,12 @@ import RecordMode.RecordSVG
 import appletExtensions.PAppletExt
 import controls.Control.Button
 import controls.ControlFrame
-import controls.booleanProp
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlTab
-import controls.panels.ControlTab.Companion.singleTab
-import controls.panels.ControlTab.Companion.tab
 import controls.panels.Panelable
+import controls.props.types.booleanProp
 import coordinate.Point
 import geomerativefork.src.RG
-import processing.core.PConstants
 import processing.event.MouseEvent
 import util.combineDrawLayersIntoSVG
 import util.print.StrokeWeight.Thick
@@ -117,12 +114,12 @@ abstract class BaseSketch(
   /**
    * Override this to add multiple controlTabs to your sketch.
    */
-  open fun getControlTabs(): Array<ControlTab> = singleTab("test").toTypedArray()
+  open fun getControlTabs(): Array<ControlTab> = ControlTab.singleTab("test").toTypedArray()
 
   /**
    * Override this to add controls to your sketch.
    */
-  open fun getControls(): Panelable = col()
+  open fun getControls(): Panelable = col {}
 
   fun updateControls() {
     val lastControlFrame = controlFrame ?: return
@@ -143,7 +140,7 @@ abstract class BaseSketch(
   fun setActiveTab(tabName: String) = controlFrame?.setActiveTab(tabName)
 
   private fun getAllControls(): List<ControlTab> = listOf(
-    tab(
+    ControlTab.tab(
       "file",
       booleanProp(::isDebugMode),
       Button("Save frame") { recordMode = RecordSVG },
@@ -160,6 +157,7 @@ abstract class BaseSketch(
 
     randomSeed(0)
 
-    colorMode(PConstants.RGB, 255f, 255f, 255f, 255f)
+    colorMode(RGB, 255f, 255f, 255f, 255f)
   }
 }
+

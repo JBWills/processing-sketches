@@ -130,8 +130,6 @@ data class ControlStyle(
       ),
     )
 
-    val x = run { println(Base) }
-
     fun styleWithPadding(p: PaddingRect) = ControlStyle(paddingOverrides = p)
 
     fun Panelable.withRedStyle() = withStyle(Red)

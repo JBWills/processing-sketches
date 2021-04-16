@@ -2,9 +2,9 @@ package sketches
 
 import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
-import controls.*
 import controls.panels.ControlList.Companion.row
-import controls.panels.ControlTab.Companion.tab
+import controls.panels.ControlTab.Companion.layerTab
+import controls.panels.ControlTab.Companion.singleTab
 import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
@@ -25,7 +25,8 @@ import kotlin.math.max
 class GeomerativeSketch : LayeredCanvasSketch<GeomData, GeomLayerData>(
   "GeomerativeSketch",
   GeomData(),
-  { GeomLayerData() }) {
+  { GeomLayerData() },
+) {
   init {
     numLayers = 1
   }
@@ -37,7 +38,7 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomData, GeomLayerData>(
     (0 until values.numCircles).forEach { idx ->
       val circleNoise = Noise(
         values.noise,
-        offset = values.noise.offset + (values.distBetweenNoisePerCircle * idx)
+        offset = values.noise.offset + (values.distBetweenNoisePerCircle * idx),
       )
 
       val firstIndex = if (idx == 0) 0 else -values.numExtraStrokesToDraw
@@ -50,9 +51,10 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomData, GeomLayerData>(
 
         val radius =
           max(
-            0.0, (values.minRad..values.maxRad).atAmountAlong(
-              (idx + amountAlongInnerCircle) / (values.numCircles + 1)
-            )
+            0.0,
+            (values.minRad..values.maxRad).atAmountAlong(
+              (idx + amountAlongInnerCircle) / (values.numCircles + 1),
+            ),
           )
 
         if (radius < values.minRad) return@map
@@ -61,7 +63,7 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomData, GeomLayerData>(
           .warpedRadially(circleNoise) { noiseVal ->
             (noiseVal) * values.noise.strength.magnitude * max(
               0.5,
-              amountAlongInnerCircle
+              amountAlongInnerCircle,
             ) * (idx.toDouble())
           }
 
@@ -99,15 +101,11 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomData, GeomLayerData>(
 data class GeomLayerData(
   var numInternalCircles: Int = 1,
 ) : PropData<GeomLayerData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "L",
-      intProp(::numInternalCircles, 1..20)
-    )
-  )
+  override fun BaseSketch.bind() = layerTab {
+    intSlider(::numInternalCircles, 1..20)
+  }
 
   override fun clone() = copy()
-
   override fun toSerializer() = serializer()
 }
 
@@ -124,22 +122,19 @@ data class GeomData(
     quality = High,
     scale = 0.15,
     offset = Point.Zero,
-    strength = Point(0, 0)
+    strength = Point(0, 0),
   ),
 ) : PropData<GeomData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "Geom",
-      intProp(::numCircles, 1..40),
-      row(
-        doubleProp(::maxRad, 100.0..2000.0),
-        doubleProp(::minRad, 0.0..400.0),
-      ),
-      doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
-      intProp(::numExtraStrokesToDraw, 0..100),
-      noiseProp(::noise),
-    )
-  )
+  override fun BaseSketch.bind() = singleTab("Geom") {
+    intSlider(::numCircles, 1..40)
+    row {
+      slider(::maxRad, 100.0..2000.0)
+      slider(::minRad, 0.0..400.0)
+    }
+    slider(::distBetweenNoisePerCircle, 0.0..150.0)
+    intSlider(::numExtraStrokesToDraw, 0..100)
+    noisePanel(::noise)
+  }
 
   override fun clone() = copy()
   override fun toSerializer() = serializer()

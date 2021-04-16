@@ -2,12 +2,9 @@ package sketches
 
 import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
-import controls.booleanProp
-import controls.doubleProp
-import controls.intProp
-import controls.noiseProp
 import controls.panels.ControlList.Companion.row
-import controls.panels.ControlTab.Companion.tab
+import controls.panels.ControlTab.Companion.layerTab
+import controls.panels.ControlTab.Companion.singleTab
 import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
@@ -25,7 +22,7 @@ import util.times
 class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
   "Flower",
   FlowerData(),
-  { FlowerLayerData() }
+  { FlowerLayerData() },
 ) {
   init {
     numLayers = MAX_LAYERS
@@ -58,7 +55,7 @@ class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
 
     val circleNoise = Noise(
       noise,
-      offset = noise.offset + (distBetweenNoisePerCircle * layerIndex)
+      offset = noise.offset + (distBetweenNoisePerCircle * layerIndex),
     )
 
     val baseRadius = (minRad..maxRad)
@@ -126,16 +123,12 @@ data class FlowerLayerData(
   var distBetweenInternalCircles: Double = 10.0,
   var numInternalCircles: Int = 1,
 ) : PropData<FlowerLayerData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "L",
-      doubleProp(::distBetweenInternalCircles, 1.0..200.0),
-      intProp(::numInternalCircles, 0..200),
-    )
-  )
+  override fun BaseSketch.bind() = layerTab {
+    slider(::distBetweenInternalCircles, 1.0..200.0)
+    intSlider(::numInternalCircles, 0..200)
+  }
 
   override fun clone() = copy()
-
   override fun toSerializer() = serializer()
 }
 
@@ -151,7 +144,7 @@ data class FlowerData(
     quality = High,
     scale = 1.0,
     offset = Point.Zero,
-    strength = Point(10, 0)
+    strength = Point(10, 0),
   ),
   var numCircles: Int = 10,
   var maxRad: Double = 300.0,
@@ -159,20 +152,17 @@ data class FlowerData(
   var baseNumInternalCircles: Int = 1,
   var distBetweenNoisePerCircle: Double = 150.0,
 ) : PropData<FlowerData> {
-  override fun BaseSketch.bind() = listOf(
-    tab(
-      "Flower",
-      booleanProp(::clipToBounds),
-      intProp(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS),
-      row(
-        doubleProp(::maxRad, 100.0..2000.0),
-        doubleProp(::minRad, 0.0..400.0)
-      ),
-      intProp(::baseNumInternalCircles, 1..100),
-      doubleProp(::distBetweenNoisePerCircle, 0.0..150.0),
-      noiseProp(::noise),
-    )
-  )
+  override fun BaseSketch.bind() = singleTab("Flower") {
+    toggle(::clipToBounds)
+    intSlider(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS)
+    row {
+      slider(::maxRad, 100.0..2000.0)
+      slider(::minRad, 0.0..400.0)
+    }
+    intSlider(::baseNumInternalCircles, 1..100)
+    slider(::distBetweenNoisePerCircle, 0.0..150.0)
+    noisePanel(::noise)
+  }
 
   override fun clone() = copy()
   override fun toSerializer() = serializer()
