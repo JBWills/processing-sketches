@@ -1,6 +1,34 @@
 package controls.panels
 
 import coordinate.PaddingRect
+import util.constants.Blue0
+import util.constants.Blue1
+import util.constants.Blue2
+import util.constants.Blue3
+import util.constants.Gray0
+import util.constants.Gray1
+import util.constants.Gray2
+import util.constants.Gray3
+import util.constants.Green0
+import util.constants.Green1
+import util.constants.Green2
+import util.constants.Green3
+import util.constants.Orange0
+import util.constants.Orange1
+import util.constants.Orange2
+import util.constants.Orange3
+import util.constants.Purple0
+import util.constants.Purple1
+import util.constants.Purple2
+import util.constants.Purple3
+import util.constants.Red0
+import util.constants.Red1
+import util.constants.Red2
+import util.constants.Red3
+import util.constants.Yellow0
+import util.constants.Yellow1
+import util.constants.Yellow2
+import util.constants.Yellow3
 import java.awt.Color
 
 data class ControlStyle(
@@ -73,52 +101,35 @@ data class ControlStyle(
   fun withPadding(p: PaddingRect?) = withOverrides(ControlStyle(paddingOverrides = p))
   fun withChildPadding(p: PaddingRect?) = withOverrides(ControlStyle(childPaddingOverrides = p))
 
+  fun withoutFrameBackground() = ControlStyle(
+    backgroundColorOverrides = backgroundColorOverrides,
+    colorOverrides = colorOverrides,
+    onHoverColorOverrides = onHoverColorOverrides,
+    frameBackgroundColorOverrides = null,
+    textColorOverrides = textColorOverrides,
+    paddingOverrides = paddingOverrides,
+    childPaddingOverrides = childPaddingOverrides,
+  )
+
   override fun toString(): String {
     return "ControlStyle(backgroundColor=$backgroundColorOverrides, color=$colorOverrides, onHoverColor=$onHoverColorOverrides, frameBackgroundColor=${frameBackgroundColorOverrides} textColor=$textColorOverrides, padding=$paddingOverrides, childPadding=$childPaddingOverrides, padding=$padding, childPadding=$childPadding, backgroundColor=$backgroundColor, selectedColor=$onHoverColor, textColor=$textColor, deselectedColor=$color)"
   }
 
   companion object {
-    val Purple = ControlStyle(
-      backgroundColorOverrides = Color(50, 5, 131),
-      onHoverColorOverrides = Color(90, 0, 220),
-      colorOverrides = Color(108, 0, 238),
+    private fun s(background: Color, frame: Color, hover: Color, color: Color) = ControlStyle(
+      backgroundColorOverrides = background,
+      frameBackgroundColorOverrides = frame,
+      onHoverColorOverrides = hover,
+      colorOverrides = color,
     )
 
-    val Red = ControlStyle(
-      backgroundColorOverrides = Color(81, 5, 30),
-      onHoverColorOverrides = Color(121, 15, 70),
-      colorOverrides = Color(141, 5, 80),
-    )
-
-    val Green = ControlStyle(
-      backgroundColorOverrides = Color(8, 51, 5),
-      onHoverColorOverrides = Color(8, 81, 5),
-      colorOverrides = Color(8, 101, 5),
-    )
-
-    val Blue = ControlStyle(
-      backgroundColorOverrides = Color(8, 25, 101),
-      onHoverColorOverrides = Color(8, 45, 131),
-      colorOverrides = Color(8, 45, 161),
-    )
-
-    val Orange = ControlStyle(
-      backgroundColorOverrides = Color(71, 37, 8),
-      onHoverColorOverrides = Color(121, 47, 8),
-      colorOverrides = Color(111, 42, 8),
-    )
-
-    val Yellow = ControlStyle(
-      backgroundColorOverrides = Color(71, 65, 8),
-      onHoverColorOverrides = Color(121, 100, 8),
-      colorOverrides = Color(111, 90, 8),
-    )
-
-    val Gray = ControlStyle(
-      backgroundColorOverrides = Color(67, 67, 87),
-      onHoverColorOverrides = Color(97, 97, 107),
-      colorOverrides = Color(87, 87, 97),
-    )
+    val Purple = s(background = Purple1, frame = Purple0, hover = Purple2, color = Purple3)
+    val Red = s(background = Red1, frame = Red0, hover = Red2, color = Red3)
+    val Green = s(background = Green1, frame = Green0, hover = Green2, color = Green3)
+    val Blue = s(background = Blue1, frame = Blue0, hover = Blue2, color = Blue3)
+    val Orange = s(background = Orange1, frame = Orange0, hover = Orange2, color = Orange3)
+    val Yellow = s(background = Yellow1, frame = Yellow0, hover = Yellow2, color = Yellow3)
+    val Gray = s(background = Gray1, frame = Gray0, hover = Gray2, color = Gray3)
 
     val EmptyStyle = ControlStyle()
 

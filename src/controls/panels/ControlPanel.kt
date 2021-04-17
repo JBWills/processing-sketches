@@ -1,5 +1,6 @@
 package controls.panels
 
+import BaseSketch
 import controlP5.ControlP5
 import controls.Control
 import controls.panels.ControlList.Companion.col
@@ -8,7 +9,6 @@ import controls.panels.ListDirection.Col
 import controls.panels.ListDirection.Row
 import coordinate.BoundRect
 import coordinate.Point
-import geomerativefork.src.util.mapArray
 import kotlin.math.max
 
 enum class ListDirection {
@@ -34,12 +34,12 @@ sealed class ControlPanel(
       return it.styleFromParents.withOverrides(style)
     } ?: style
 
-  private val nameWithIncrementedId: String = "$name $incrementedId"
+  private val nameWithIncrementedId: String = "$name($incrementedId)"
 
   val id: String
     get() = (
-      parent?.let { return it.id + nameWithIncrementedId } ?: nameWithIncrementedId
-      ).replace(" ", "")
+      parent?.let { return "${it.id} > $nameWithIncrementedId" } ?: nameWithIncrementedId
+      )
 
   override fun toControlPanel(): ControlPanel = this
 
@@ -72,7 +72,7 @@ sealed class ControlPanel(
   }
 
   override fun toString(): String {
-    return "ControlPanel(name='$name', style=$style, widthRatio=$widthRatio, heightRatio=$heightRatio, parent=${parent?.name})"
+    return "ControlPanel(name='$name', parent=${parent?.name})"
   }
 
   companion object {
@@ -119,51 +119,22 @@ class ControlTab(
   fun withName(nameFunc: (String) -> String) = ControlTab(this, nameFunc(name))
 
   override fun toString(): String {
-    return "ControlTab(panel=$panel, base=${super.toString()})"
+    return "ControlTab(name = $name, panel=$panel, base=${super.toString()})"
   }
 
   companion object {
-    fun tab(name: String, vararg sections: Panelable, style: ControlStyle? = null) =
+    fun tab(name: String, style: ControlStyle? = null, block: PanelBuilder.() -> Unit) =
       ControlTab(
         name,
-        style ?: EmptyStyle,
-        *sections.mapArray { it.toControlPanel() },
-      )
-
-    fun tab(name: String, style: ControlStyle? = null, block: PanelBuilder.() -> Unit) =
-      tab(
-        name,
-        *PanelBuilder().apply(block).mapArray { it.toControlPanel() },
-        style = style,
-      )
-
-    fun singleTab(
-      name: String,
-      vararg sections: Panelable,
-      style: ControlStyle? = null
-    ) = listOf(
-      tab(
-        name,
-        *sections.mapArray { it.toControlPanel() },
         style = style ?: EmptyStyle,
-      ),
-    )
+        col(block = block),
+      )
 
     fun singleTab(
       name: String,
       style: ControlStyle? = null,
       block: PanelBuilder.() -> Unit,
-    ) = listOf(
-      tab(
-        name,
-        *PanelBuilder().apply(block).mapArray { it.toControlPanel() },
-        style = style ?: EmptyStyle,
-      ),
-    )
-
-    fun layerTab(vararg sections: Panelable, style: ControlStyle? = null) = listOf(
-      tab("L", *sections, style = style ?: EmptyStyle),
-    )
+    ) = listOf(tab(name, style ?: EmptyStyle, block))
 
     fun layerTab(
       style: ControlStyle? = null,
@@ -295,92 +266,37 @@ class ControlList(
 
 
   companion object {
-    fun PanelBuilder.row(
-      name: String,
-      style: ControlStyle? = null,
-      widthOverride: Number? = null,
-      heightOverride: Number? = null,
+    private fun PanelBuilder.boundList(
+      direction: ListDirection,
+      name: String? = null,
       block: PanelBuilder.() -> Unit,
-    ) = ControlList(
-      name = name,
-      style = style ?: EmptyStyle,
-      direction = Row,
-      widthOverride = widthOverride?.toDouble(),
-      heightOverride = heightOverride?.toDouble(),
-      items = PanelBuilder().apply(block).toTypedArray(),
-    ).also { add(it) }
+    ): ControlList = list(direction, name, block).also { add(it) }
 
-    fun row(
-      name: String,
-      style: ControlStyle? = null,
-      widthOverride: Number? = null,
-      heightOverride: Number? = null,
+    private fun list(
+      direction: ListDirection,
+      name: String? = null,
       block: PanelBuilder.() -> Unit,
-    ) = ControlList(
-      name = name,
-      style = style ?: EmptyStyle,
-      direction = Row,
-      widthOverride = widthOverride?.toDouble(),
-      heightOverride = heightOverride?.toDouble(),
-      items = PanelBuilder().apply(block).toTypedArray(),
-    )
-
-    fun row(
-      style: ControlStyle? = null,
-      widthOverride: Number? = null,
-      heightOverride: Number? = null,
-      block: PanelBuilder.() -> Unit,
-    ) = row("", style, widthOverride, heightOverride, block)
-
-    fun col(
-      name: String,
-      style: ControlStyle? = null,
-      widthOverride: Number? = null,
-      heightOverride: Number? = null,
-      block: PanelBuilder.() -> Unit,
-    ) = ControlList(
-      name = name,
-      style = style ?: EmptyStyle,
-      direction = Col,
-      widthOverride = widthOverride?.toDouble(),
-      heightOverride = heightOverride?.toDouble(),
-      items = PanelBuilder().apply(block).toTypedArray(),
-    )
-
-    fun PanelBuilder.row(
-      widthOverride: Number? = null,
-      heightOverride: Number? = null,
-      style: ControlStyle? = null,
-      block: PanelBuilder.() -> Unit,
-    ) = row(
-      name = "",
-      widthOverride = widthOverride,
-      heightOverride = heightOverride,
-      style = style,
-      block = block,
-    )
-
-    fun PanelBuilder.col(
-      name: String,
-      widthOverride: Number? = null,
-      heightOverride: Number? = null,
-      block: PanelBuilder.() -> Unit,
-    ) = ControlList(
-      name = name,
-      direction = Col,
-      widthOverride = widthOverride?.toDouble(),
-      heightOverride = heightOverride?.toDouble(),
-      items = PanelBuilder().apply(block).toTypedArray(),
-    ).also { add(it) }
-
-    fun col(
-      style: ControlStyle? = null,
-      block: PanelBuilder.() -> Unit,
-    ) = PanelBuilder().let { panel ->
-      panel.col(name = "", block = block)
-        .applyStyleOverrides(style)
-        .also { panel.add(it) }
+    ): ControlList {
+      val updatedPanel = PanelBuilder().apply(block)
+      return ControlList(
+        name = name ?: direction.name,
+        style = updatedPanel.style ?: EmptyStyle,
+        direction = direction,
+        widthOverride = updatedPanel.widthRatio?.toDouble(),
+        heightOverride = updatedPanel.heightRatio?.toDouble(),
+        items = updatedPanel.toTypedArray(),
+      )
     }
+
+    fun row(name: String? = null, block: PanelBuilder.() -> Unit) = list(Row, name, block)
+
+    fun PanelBuilder.row(name: String? = null, block: PanelBuilder.() -> Unit) =
+      boundList(Row, name, block)
+
+    fun col(name: String? = null, block: PanelBuilder.() -> Unit) = list(Col, name, block)
+
+    fun PanelBuilder.col(name: String? = null, block: PanelBuilder.() -> Unit) =
+      boundList(Col, name, block)
   }
 }
 
@@ -401,7 +317,7 @@ class ControlItem(
 ) : ControlPanel(control.name, style, widthRatio, heightRatio) {
   override fun toControlPanel(): ControlPanel = this
   override fun toString(): String {
-    return "ControlItem(control=$control, base=${super.toString()})"
+    return "ControlItem(control=${control.name}, base=${super.toString()})"
   }
 
   constructor(
@@ -417,8 +333,9 @@ class ControlItem(
       item.control,
     )
 
-  fun draw(cp5: ControlP5, tab: ControlTab, bound: BoundRect) {
+  fun draw(sketch: BaseSketch, cp5: ControlP5, tab: ControlTab, bound: BoundRect) {
     control.applyToControl(
+      sketch = sketch,
       controlP5 = cp5,
       tab = cp5.getTab(tab.name),
       panel = this,

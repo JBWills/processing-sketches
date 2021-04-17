@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
 import controls.panels.ControlList.Companion.row
@@ -75,7 +74,7 @@ class Packing : LayeredCanvasSketch<PackingData, PackingLayerData>(
 data class PackingLayerData(
   var PackingField: Int = 1,
 ) : PropData<PackingLayerData> {
-  override fun BaseSketch.bind() = layerTab {
+  override fun bind() = layerTab {
     intSlider(::PackingField, 1..100)
   }
 
@@ -110,7 +109,7 @@ data class PackingData(
   var circleSize: Double = 300.0,
   var circleOffset: Point = Point.Zero,
 ) : PropData<PackingData> {
-  override fun BaseSketch.bind() = singleTab(
+  override fun bind() = singleTab(
     "Packing",
   ) {
     noisePanel(::centroidNoise)
@@ -126,7 +125,7 @@ data class PackingData(
     intSlider(::iterations, 1..32)
     toggle(::equalCardinality)
     slider(::circleSize, 50.0..800.0)
-    sliderPair(::circleOffset, NegativeOneToOne * sizeX to NegativeOneToOne * sizeY)
+    sliderPair(::circleOffset, NegativeOneToOne * 500 to NegativeOneToOne * 500)
   }
 
   override fun clone(): PackingData = copy()

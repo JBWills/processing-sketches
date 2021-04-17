@@ -1,5 +1,6 @@
 package controls.props.types
 
+import BaseSketch
 import controls.Control.Button
 import controls.Control.TextInput
 import controls.panels.ControlList
@@ -8,7 +9,7 @@ import controls.panels.ControlList.Companion.row
 fun textInputProp(
   textFieldLabel: String,
   submitButtonLabel: String,
-  onSubmit: (String) -> Unit,
+  onSubmit: BaseSketch.(String) -> Unit,
 ): ControlList {
   val input = TextInput(textFieldLabel)
   val button = Button.buttonProp(submitButtonLabel) {

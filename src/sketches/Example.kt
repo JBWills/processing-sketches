@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import controls.panels.ControlTab.Companion.layerTab
 import controls.panels.ControlTab.Companion.singleTab
 import controls.props.PropData
@@ -29,7 +28,7 @@ class Example : LayeredCanvasSketch<ExampleData, ExampleLayerData>(
 data class ExampleLayerData(
   var exampleTabField: Int = 1,
 ) : PropData<ExampleLayerData> {
-  override fun BaseSketch.bind() = layerTab {
+  override fun bind() = layerTab {
     intSlider(::exampleTabField, 0..10)
   }
 
@@ -41,7 +40,7 @@ data class ExampleLayerData(
 data class ExampleData(
   var exampleGlobalField: Int = 1,
 ) : PropData<ExampleData> {
-  override fun BaseSketch.bind() = singleTab("Global") {
+  override fun bind() = singleTab("Global") {
     intSlider(::exampleGlobalField, 0..10)
   }
 

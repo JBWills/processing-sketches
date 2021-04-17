@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import appletExtensions.getParallelLinesInBound
 import controls.panels.ControlList.Companion.row
 import controls.panels.ControlStyle.Companion.Green
@@ -69,12 +68,13 @@ data class BlobLayerData(
   var thresholdEnd: Double = 0.9,
   var numThresholds: Int = 1,
 ) : PropData<BlobLayerData> {
-  override fun BaseSketch.bind() = layerTab {
+  override fun bind() = layerTab {
     slider(::gridStep, 1.0..30.0, style = Green)
 
     noisePanel(::noise, showStrengthSliders = false)
 
-    row(Red) {
+    row {
+      style = Red
       slider(::thresholdStart, ZeroToOne)
       slider(::thresholdEnd, ZeroToOne)
     }
@@ -99,7 +99,7 @@ data class BlobData(
   var lineDensity: Double = 0.3,
   var lineOffset: Double = 0.0,
 ) : PropData<BlobData> {
-  override fun BaseSketch.bind() = singleTab("Global") {
+  override fun bind() = singleTab("Global") {
     panel(::shape, style = Red)
     slider(::lineDensity, ZeroToOne)
     slider(::lineOffset, ZeroToOne)

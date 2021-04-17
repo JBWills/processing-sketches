@@ -76,7 +76,8 @@ open class DebugMeasureSketch(
 
     noisePanel(::noise)
 
-    row(heightOverride = 3) {
+    row {
+      heightRatio = 3
       slider2D(::centerOrigin, Point.Zero..Point.One)
     }
   }

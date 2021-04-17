@@ -52,7 +52,7 @@ data class Noise(
     quality ?: noise.quality,
     scale ?: noise.scale,
     Point(offset ?: noise.offset),
-    Point(strength ?: noise.strength)
+    Point(strength ?: noise.strength),
   )
 
   constructor(n: Noise) : this(
@@ -61,7 +61,7 @@ data class Noise(
     n.quality,
     n.scale,
     n.offset,
-    n.strength
+    n.strength,
   )
 
   /**
@@ -83,12 +83,12 @@ data class Noise(
     strength: Point? = null,
   ) = Noise(
     this, seed = seed, noiseType = noiseType, quality = quality, scale = scale,
-    offset = offset, strength = strength
+    offset = offset, strength = strength,
   )
 
   private fun noiseAt2D(p: Point) = Point(
     fastNoise.GetNoise(p.xf, p.yf, 0f),
-    fastNoise.GetNoise(p.xf, p.yf, 100f)
+    fastNoise.GetNoise(p.xf, p.yf, 100f),
   ) * strength
 
   private fun noiseAt(p: Point) = fastNoise.GetNoise(p.xf, p.yf, 0f).toDouble()
@@ -150,13 +150,14 @@ data class Noise(
       noise: Noise, aroundPoint: Point, scaleFn: (Double) -> Double = { it },
     ) = noise.warpRadially(this, aroundPoint, scaleFn)
 
-    val DEFAULT = Noise(
-      seed = 100,
-      noiseType = Perlin,
-      quality = High,
-      scale = 0.15,
-      offset = Point.Zero,
-      strength = Point(0, 0)
-    )
+    val DEFAULT
+      get() = Noise(
+        seed = 100,
+        noiseType = Perlin,
+        quality = High,
+        scale = 0.15,
+        offset = Point.Zero,
+        strength = Point(0, 0),
+      )
   }
 }

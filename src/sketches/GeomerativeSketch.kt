@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import controls.panels.ControlList.Companion.row
 import controls.panels.ControlTab.Companion.layerTab
@@ -101,7 +100,7 @@ class GeomerativeSketch : LayeredCanvasSketch<GeomData, GeomLayerData>(
 data class GeomLayerData(
   var numInternalCircles: Int = 1,
 ) : PropData<GeomLayerData> {
-  override fun BaseSketch.bind() = layerTab {
+  override fun bind() = layerTab {
     intSlider(::numInternalCircles, 1..20)
   }
 
@@ -125,7 +124,7 @@ data class GeomData(
     strength = Point(0, 0),
   ),
 ) : PropData<GeomData> {
-  override fun BaseSketch.bind() = singleTab("Geom") {
+  override fun bind() = singleTab("Geom") {
     intSlider(::numCircles, 1..40)
     row {
       slider(::maxRad, 100.0..2000.0)

@@ -1,5 +1,6 @@
 package appletExtensions
 
+import controlP5.Background
 import controlP5.ControlP5
 import controlP5.ControlWindow
 import controlP5.ControllerInterface
@@ -35,7 +36,12 @@ fun ControlP5.setTabs(
   activeTab?.name?.let { controlWindow.activateTab(it) }
 }
 
-fun ControlP5.addSolidColorRectangle(id: String, tabName: String, bound: BoundRect, color: Color) =
+fun ControlP5.addSolidColorRectangle(
+  id: String,
+  tabName: String,
+  bound: BoundRect,
+  color: Color
+): Background =
   addBackground(id)
     .moveTo(getTab(tabName))
     .setPosition(bound.left.toFloat(), bound.top.toFloat())

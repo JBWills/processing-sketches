@@ -1,6 +1,5 @@
 package controls.props.types
 
-import BaseSketch
 import controls.Control.Slider
 import controls.Control.Toggle
 import controls.props.GenericProp.Companion.prop
@@ -9,14 +8,14 @@ import util.ZeroToOne
 import util.toDoubleRange
 import kotlin.reflect.KMutableProperty0
 
-fun BaseSketch.booleanProp(ref: KMutableProperty0<Boolean>) =
+fun booleanProp(ref: KMutableProperty0<Boolean>) =
   prop(ref) { Toggle(ref, text = ref.name) { markDirty() } }
 
-fun BaseSketch.intProp(ref: KMutableProperty0<Int>, range: IntRange) =
+fun intProp(ref: KMutableProperty0<Int>, range: IntRange) =
   prop(ref) { Slider(ref, range) { markDirty() } }
 
-fun BaseSketch.doubleProp(ref: KMutableProperty0<Double>, range: DoubleRange = ZeroToOne) =
+fun doubleProp(ref: KMutableProperty0<Double>, range: DoubleRange = ZeroToOne) =
   prop(ref) { Slider(ref, range) { markDirty() } }
 
-fun BaseSketch.doubleProp(ref: KMutableProperty0<Double>, range: IntRange) =
+fun doubleProp(ref: KMutableProperty0<Double>, range: IntRange) =
   doubleProp(ref, range.toDoubleRange())

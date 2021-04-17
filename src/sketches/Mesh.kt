@@ -1,7 +1,6 @@
 package sketches
 
 
-import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
 import controls.panels.ControlList.Companion.row
@@ -122,7 +121,7 @@ class Mesh : LayeredCanvasSketch<MeshData, MeshLayerData>(
 data class MeshLayerData(
   var MeshTabField: Int = 1,
 ) : PropData<MeshLayerData> {
-  override fun BaseSketch.bind() = layerTab {
+  override fun bind() = layerTab {
     intSlider(::MeshTabField, 0..10)
   }
 
@@ -149,7 +148,7 @@ data class MeshData(
   var showVerticals: Boolean = true,
   var showHorizontals: Boolean = true,
 ) : PropData<MeshData> {
-  override fun BaseSketch.bind() = singleTab(
+  override fun bind() = singleTab(
     "Global",
   ) {
     noisePanel(::noise)

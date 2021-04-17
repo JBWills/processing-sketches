@@ -76,7 +76,8 @@ open class WarpSketch(
 
     intSlider(::seed, range = 0..2000)
 
-    row(heightOverride = 3) {
+    row {
+      heightRatio = 3
       slider2D(::noiseOffset, Point.One..Point(1000, 1000))
     }
   }

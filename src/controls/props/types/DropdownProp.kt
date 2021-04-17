@@ -1,6 +1,5 @@
 package controls.props.types
 
-import BaseSketch
 import controls.Control.Dropdown
 import controls.Control.EnumDropdown
 import controls.props.GenericProp.Companion.prop
@@ -20,14 +19,14 @@ fun dropdownListProp(
   onChange(it)
 }
 
-fun <E : Enum<E>> BaseSketch.enumProp(
+fun <E : Enum<E>> enumProp(
   ref: KMutableProperty0<E>,
   onChange: () -> Unit = {},
 ) = prop(ref) {
   EnumDropdown(ref, text = ref.name) { onChange(); markDirty() }
 }
 
-fun <E : Enum<E>> BaseSketch.nullableEnumProp(
+fun <E : Enum<E>> nullableEnumProp(
   ref: KMutableProperty0<E?>,
   values: Array<E>,
   onChange: () -> Unit = {},

@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
 import controls.panels.ControlList.Companion.row
 import controls.panels.ControlTab.Companion.layerTab
@@ -92,7 +91,7 @@ data class WaveTab(
   var distBetweenLines: Double = 10.0,
   var offset: Double = 0.0,
 ) : PropData<WaveTab> {
-  override fun BaseSketch.bind() = layerTab {
+  override fun bind() = layerTab {
     slider(::distBetweenLines, 1.0..200.0)
     slider(::offset, -200.0..200.0)
   }
@@ -117,7 +116,7 @@ data class WaveGlobal(
   var baseNumInternalCircles: Int = 1,
   var distBetweenNoisePerCircle: Double = 150.0,
 ) : PropData<WaveGlobal> {
-  override fun BaseSketch.bind() = singleTab("Waves") {
+  override fun bind() = singleTab("Waves") {
     intSlider(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS)
     row {
       slider(::maxHeight, 100.0..2000.0)

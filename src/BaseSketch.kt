@@ -1,12 +1,13 @@
 import RecordMode.NoRecord
 import RecordMode.RecordSVG
 import appletExtensions.PAppletExt
-import controls.Control.Button
+import controls.Control.Button.Companion.button
 import controls.ControlFrame
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlTab
+import controls.panels.ControlTab.Companion.singleTab
+import controls.panels.ControlTab.Companion.tab
 import controls.panels.Panelable
-import controls.props.types.booleanProp
 import coordinate.Point
 import geomerativefork.src.RG
 import processing.event.MouseEvent
@@ -36,7 +37,7 @@ abstract class BaseSketch(
   var isDebugMode: Boolean = false
 
   private fun resetControlFrame() {
-    controlFrame = ControlFrame(400, 800, getAllControls())
+    controlFrame = ControlFrame(this, 400, 800, getAllControls())
   }
 
   private var controlFrame: ControlFrame? = null
@@ -114,7 +115,7 @@ abstract class BaseSketch(
   /**
    * Override this to add multiple controlTabs to your sketch.
    */
-  open fun getControlTabs(): Array<ControlTab> = ControlTab.singleTab("test").toTypedArray()
+  open fun getControlTabs(): Array<ControlTab> = singleTab("test") {}.toTypedArray()
 
   /**
    * Override this to add controls to your sketch.
@@ -140,11 +141,10 @@ abstract class BaseSketch(
   fun setActiveTab(tabName: String) = controlFrame?.setActiveTab(tabName)
 
   private fun getAllControls(): List<ControlTab> = listOf(
-    ControlTab.tab(
-      "file",
-      booleanProp(::isDebugMode),
-      Button("Save frame") { recordMode = RecordSVG },
-    ),
+    tab("file") {
+      toggle(::isDebugMode)
+      button("Save frame") { recordMode = RecordSVG }
+    },
     *getControlTabs(),
   )
 

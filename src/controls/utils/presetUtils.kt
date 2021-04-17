@@ -1,20 +1,21 @@
-package controls.props
+package controls.utils
 
 import BaseSketch
+import controls.props.LayerAndGlobalProps
 import controls.props.LayerAndGlobalProps.Companion.props
+import controls.props.PropData
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.Json.Default.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import util.io.decode
 import util.io.getAllFilesInPath
 import util.io.getPresetDir
 import util.io.getPresetPath
+import util.io.jsonStringOf
 import util.io.save
-import util.jsonObjectOf
-import util.serializedString
-import util.toJsonArray
-import util.toJsonElement
+import util.io.toJsonArray
+import util.io.toJsonElement
 import java.io.File
 
 private const val SERIAL_KEY_GLOBAL = "global"
@@ -42,10 +43,7 @@ fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> Bas
 
   if (presetData == null) throw Exception("No preset data found")
 
-  return props(
-    maxLayers,
-    presetData.first,
-  ) { i -> presetData.second[i] }
+  return props(maxLayers, presetData.first) { i -> presetData.second[i] }
 }
 
 /**
@@ -124,13 +122,10 @@ private fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValu
 private fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> serializeDrawInfo(
   layerAndGlobalProps: LayerAndGlobalProps<TabValues, GlobalValues>,
 ): String? = try {
-  val globalJsonObject = layerAndGlobalProps.globalValues.toJsonElement()
-  val layersJsonArray = layerAndGlobalProps.tabValues.toJsonArray()
-
-  jsonObjectOf(
-    SERIAL_KEY_GLOBAL to globalJsonObject,
-    SERIAL_KEY_LAYERS to layersJsonArray,
-  ).serializedString()
+  jsonStringOf(
+    SERIAL_KEY_GLOBAL to layerAndGlobalProps.globalValues.toJsonElement(),
+    SERIAL_KEY_LAYERS to layerAndGlobalProps.tabValues.toJsonArray(),
+  )
 } catch (e: Exception) {
   println("Failed to serialize.\nError message: ${e.message}")
   null
@@ -141,14 +136,14 @@ private fun <GlobalValues, TabValues> deserializeDrawInfo(
   layerSerializer: KSerializer<TabValues>,
   fileContents: String,
 ): Pair<GlobalValues, List<TabValues>>? = try {
-  val element2 = Json.parseToJsonElement(fileContents).jsonObject
-  val globalElement = element2[SERIAL_KEY_GLOBAL]
+  val element = Json.parseToJsonElement(fileContents).jsonObject
+  val globalElement = element[SERIAL_KEY_GLOBAL]
     ?: throw Exception("Json doesn't contain $SERIAL_KEY_GLOBAL key.")
-  val layersList = element2[SERIAL_KEY_LAYERS]
+  val layersList = element[SERIAL_KEY_LAYERS]
     ?: throw Exception("Json doesn't contain $SERIAL_KEY_LAYERS key.")
 
-  val globalValues = decodeFromJsonElement(globalSerializer, globalElement)
-  val layers = decodeFromJsonElement(ListSerializer(layerSerializer), layersList)
+  val globalValues = decode(globalSerializer, globalElement)
+  val layers = decode(ListSerializer(layerSerializer), layersList)
 
   globalValues to layers
 } catch (e: Exception) {

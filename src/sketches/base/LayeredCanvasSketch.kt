@@ -8,9 +8,9 @@ import controls.panels.ControlTab.Companion.tab
 import controls.props.LayerAndGlobalProps
 import controls.props.LayerAndGlobalProps.Companion.props
 import controls.props.PropData
-import controls.props.deletePresetFile
-import controls.props.loadPresets
-import controls.props.savePresetToFile
+import controls.utils.deletePresetFile
+import controls.utils.loadPresets
+import controls.utils.savePresetToFile
 import kotlinx.serialization.KSerializer
 import util.constants.getLayerColors
 import util.iterators.mapArrayIndexed

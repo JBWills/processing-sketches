@@ -1,6 +1,5 @@
 package controls.props
 
-import BaseSketch
 import controls.panels.ControlTab
 import util.iterators.flattenArray
 import util.iterators.mapArray
@@ -10,7 +9,6 @@ import util.map
  * Props for a [LayeredCanvasSketch].
  */
 class LayerAndGlobalProps<TabValues : PropData<TabValues>, GlobalValues : PropData<GlobalValues>>(
-  private val sketch: BaseSketch,
   maxLayers: Int,
   defaultGlobal: GlobalValues,
   layerToDefaultTab: (Int) -> TabValues,
@@ -22,16 +20,12 @@ class LayerAndGlobalProps<TabValues : PropData<TabValues>, GlobalValues : PropDa
     .toMutableList()
 
   private val global: TabProp<GlobalValues> by lazy {
-    sketch.tabProp(::globalBackingField) { currValues ->
-      currValues.bindSketch(this)
-    }
+    tabProp(::globalBackingField) { it.bind() }
   }
 
   private val tabs: List<TabProp<TabValues>> by lazy {
     maxLayers.map { tabIndex ->
-      sketch.tabProp(layersBackingField, tabIndex) { currValues ->
-        currValues.bindSketch(sketch)
-      }
+      tabProp(layersBackingField, tabIndex) { it.bind() }
     }
   }
 
@@ -52,10 +46,10 @@ class LayerAndGlobalProps<TabValues : PropData<TabValues>, GlobalValues : PropDa
     globalValues.clone() to tabValues.map { it.clone() }
 
   companion object {
-    fun <TabValues : PropData<TabValues>, GlobalValues : PropData<GlobalValues>> BaseSketch.props(
+    fun <TabValues : PropData<TabValues>, GlobalValues : PropData<GlobalValues>> props(
       maxLayers: Int,
       defaultGlobal: GlobalValues,
       layerToDefaultTab: (Int) -> TabValues,
-    ) = LayerAndGlobalProps(this, maxLayers, defaultGlobal, layerToDefaultTab)
+    ) = LayerAndGlobalProps(maxLayers, defaultGlobal, layerToDefaultTab)
   }
 }

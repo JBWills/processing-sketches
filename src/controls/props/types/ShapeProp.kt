@@ -1,6 +1,5 @@
 package controls.props.types
 
-import BaseSketch
 import arrow.core.memoize
 import controls.panels.ControlTab
 import controls.panels.ControlTab.Companion.singleTab
@@ -47,13 +46,12 @@ data class ShapeProp(
 
   override fun clone() = ShapeProp(this)
 
-  override fun BaseSketch.bind(): List<ControlTab> = singleTab(
-    "ShapeProp",
-    enumProp(::type),
-    doublePairProp(::center, ZeroToOne to ZeroToOne),
-    doublePairProp(::size, 0.0..2000.0, withLockToggle = true, defaultLocked = true),
-    degProp(::rotation),
-  )
+  override fun bind(): List<ControlTab> = singleTab("ShapeProp") {
+    dropdownList(::type)
+    sliderPair(::center, ZeroToOne to ZeroToOne)
+    sliderPair(::size, 0.0..2000.0, withLockToggle = true, defaultLocked = true)
+    degreeSlider(::rotation)
+  }
 }
 
 private val getRPathMemo = {
@@ -70,6 +68,7 @@ private val getRPathMemo = {
     else centeredRect(centerPoint, size).toRShape()
 
   rShape
+    .also { it.polygonize() }
     .rotated(rotation, centerPoint)
     .paths
     .first()

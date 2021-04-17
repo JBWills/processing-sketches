@@ -1,6 +1,5 @@
 package controls.props.types
 
-import BaseSketch
 import controls.Control.Slider
 import controls.Control.Toggle
 import controls.panels.ControlList.Companion.row
@@ -10,14 +9,14 @@ import util.DoubleRange
 import util.tuple.and
 import kotlin.reflect.KMutableProperty0
 
-fun BaseSketch.doublePairProp(
+fun doublePairProp(
   ref: KMutableProperty0<Point>,
   range: DoubleRange,
   withLockToggle: Boolean = false,
   defaultLocked: Boolean = false,
 ) = doublePairProp(ref, range to range, withLockToggle, defaultLocked)
 
-fun BaseSketch.doublePairProp(
+fun doublePairProp(
   ref: KMutableProperty0<Point>,
   ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0),
   withLockToggle: Boolean = false,

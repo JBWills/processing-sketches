@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import controls.panels.ControlList.Companion.row
 import controls.panels.ControlTab.Companion.layerTab
 import controls.panels.ControlTab.Companion.singleTab
@@ -94,7 +93,7 @@ data class CircleLayerData(
   var startCircle: Int = 0,
   var endCircle: Int = 0,
 ) : PropData<CircleLayerData> {
-  override fun BaseSketch.bind() = layerTab {
+  override fun bind() = layerTab {
     slider(::startAngleDelta, negToPos(180))
     slider(::angleLengthDelta, negToPos(16))
     slider(::startAngle, negToPos(360))
@@ -114,7 +113,7 @@ data class CircleGlobalData(
   var endRad: Double = 500.0,
   var spacing: Double = 5.0,
 ) : PropData<CircleGlobalData> {
-  override fun BaseSketch.bind() = singleTab("Global") {
+  override fun bind() = singleTab("Global") {
     intSlider(::numCircles, 1..100)
 
     row {

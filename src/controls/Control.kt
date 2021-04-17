@@ -1,5 +1,6 @@
 package controls
 
+import BaseSketch
 import controlP5.ControlP5
 import controlP5.Controller
 import controlP5.DropdownList
@@ -37,7 +38,7 @@ val DEFAULT_RANGE = 0.0..1.0
 sealed class Control<T : Controller<T>>(
   var name: String,
   val createFunc: ControlP5.(id: String) -> T,
-  val block: T.() -> Unit,
+  val block: T.(BaseSketch) -> Unit,
 ) : Panelable {
   override fun toControlPanel(): ControlPanel = ControlItem(control = this)
 
@@ -49,14 +50,20 @@ sealed class Control<T : Controller<T>>(
       if (value != null && value != ref?.value) ref?.value = value
     }
 
-  fun applyToControl(controlP5: ControlP5, tab: Tab, panel: ControlPanel, bound: BoundRect) {
-    ref = createFunc(controlP5, panel.id).apply {
+  fun applyToControl(
+    sketch: BaseSketch,
+    controlP5: ControlP5,
+    tab: Tab,
+    panel: ControlPanel,
+    bound: BoundRect
+  ) {
+    ref = controlP5.createFunc(panel.id).apply {
       label = this@Control.name
       moveTo(tab)
       positionAndSize(bound)
       style(panel.styleFromParents)
 
-      block()
+      block(sketch)
     }
   }
 
@@ -71,24 +78,24 @@ sealed class Control<T : Controller<T>>(
 
   class Button(
     text: String,
-    handleClick: () -> Unit,
+    handleClick: BaseSketch.() -> Unit,
   ) : Control<controlP5.Button>(
     text,
     ControlP5::addButton,
-    {
-      onClick { handleClick() }
+    { sketch ->
+      onClick { sketch.handleClick() }
     },
   ) {
     companion object {
       fun buttonProp(
         text: String,
-        onClick: () -> Unit
+        onClick: BaseSketch.() -> Unit
       ) = Button(text, onClick)
 
       fun MutableList<Panelable>.button(
         text: String,
         style: ControlStyle? = null,
-        onClick: () -> Unit
+        onClick: BaseSketch.() -> Unit
       ) = add(Button(text, onClick).applyStyleOverrides(style))
     }
   }
@@ -96,13 +103,13 @@ sealed class Control<T : Controller<T>>(
   class Toggle(
     text: String,
     defaultValue: Boolean = false,
-    handleToggled: (Boolean) -> Unit,
+    handleToggled: BaseSketch.(Boolean) -> Unit,
   ) : Control<controlP5.Toggle>(
     text,
     ControlP5::addToggle,
-    {
+    { sketch ->
       setValue(defaultValue)
-      onChange { handleToggled(booleanValue) }
+      onChange { sketch.handleToggled(booleanValue) }
       captionLabel.align(ControlP5.CENTER, ControlP5.CENTER)
       captionLabel.setSize(13)
     },
@@ -110,9 +117,10 @@ sealed class Control<T : Controller<T>>(
     constructor(
       valRef: KMutableProperty0<Boolean>,
       text: String? = null,
-      handleChange: (Boolean) -> Unit = {},
+      handleChange: BaseSketch.(Boolean) -> Unit = {},
     ) : this(
-      text?.splitCamelCase() ?: valRef.name.splitCamelCase(), valRef.get(),
+      text?.splitCamelCase() ?: valRef.name.splitCamelCase(),
+      valRef.get(),
       {
         valRef.set(it)
         handleChange(it)
@@ -124,15 +132,15 @@ sealed class Control<T : Controller<T>>(
     text: String,
     range: DoubleRange = DEFAULT_RANGE,
     defaultValue: Double? = null,
-    handleChange: (Double) -> Unit,
+    handleChange: BaseSketch.(Double) -> Unit,
   ) : Control<controlP5.Slider>(
     text,
     ControlP5::addSlider,
-    {
+    { sketch ->
       range(range)
 
       this.value = defaultValue?.toFloat() ?: range.start.toFloat()
-      onChange { handleChange(value.toDouble()) }
+      onChange { sketch.handleChange(value.toDouble()) }
       captionLabel.align(ControlP5.RIGHT, ControlP5.BOTTOM)
       captionLabel.setSize(13)
       valueLabel.align(ControlP5.LEFT, ControlP5.BOTTOM)
@@ -144,7 +152,7 @@ sealed class Control<T : Controller<T>>(
       range: DoubleRange = DEFAULT_RANGE,
       getter: () -> Double,
       setter: (Double) -> Unit,
-      handleChange: (Double) -> Unit,
+      handleChange: BaseSketch.(Double) -> Unit,
     ) : this(
       text, range, getter(),
       {
@@ -157,7 +165,7 @@ sealed class Control<T : Controller<T>>(
       valRef: KMutableProperty0<Double>,
       range: DoubleRange = DEFAULT_RANGE,
       text: String? = null,
-      handleChange: (Double) -> Unit = {},
+      handleChange: BaseSketch.(Double) -> Unit = {},
     ) : this(
       text?.splitCamelCase() ?: valRef.name.splitCamelCase(),
       range,
@@ -170,7 +178,7 @@ sealed class Control<T : Controller<T>>(
       valRef: KMutableProperty0<Int>,
       range: IntRange,
       text: String? = null,
-      handleChange: (Int) -> Unit = {},
+      handleChange: BaseSketch.(Int) -> Unit = {},
     ) : this(
       text = text?.splitCamelCase() ?: valRef.name.splitCamelCase(),
       range = range.toDoubleRange(),
@@ -188,18 +196,18 @@ sealed class Control<T : Controller<T>>(
     rangeX: DoubleRange = DEFAULT_RANGE,
     rangeY: DoubleRange = DEFAULT_RANGE,
     defaultValue: Point? = null,
-    handleChange: (Point) -> Unit,
+    handleChange: BaseSketch.(Point) -> Unit,
   ) : Control<controlP5.Slider2D>(
     text,
     ControlP5::addSlider2D,
-    {
+    { sketch ->
       range(rangeX, rangeY)
       val defaultPoint = defaultValue ?: Point(rangeX.start, rangeY.start)
 
       cursorX = defaultPoint.x.toFloat()
       cursorY = defaultPoint.y.toFloat()
 
-      onChange { handleChange(Point(arrayValue[0], arrayValue[1])) }
+      onChange { sketch.handleChange(Point(arrayValue[0], arrayValue[1])) }
       captionLabel.align(ControlP5.RIGHT, ControlP5.BOTTOM)
       captionLabel.setSize(13)
       valueLabel.align(ControlP5.LEFT, ControlP5.BOTTOM)
@@ -211,7 +219,7 @@ sealed class Control<T : Controller<T>>(
       rangeX: DoubleRange = DEFAULT_RANGE,
       rangeY: DoubleRange = DEFAULT_RANGE,
       text: String? = null,
-      handleChange: (Point) -> Unit = {},
+      handleChange: BaseSketch.(Point) -> Unit = {},
     ) : this(
       text?.splitCamelCase() ?: valRef.name.splitCamelCase(), rangeX, rangeY, valRef.get(),
       {
@@ -224,7 +232,7 @@ sealed class Control<T : Controller<T>>(
       text: String,
       range: PointRange = Point.Zero..Point.One,
       defaultValue: Point? = null,
-      handleChange: (Point) -> Unit,
+      handleChange: BaseSketch.(Point) -> Unit,
     ) : this(text, range.xRange, range.yRange, defaultValue, handleChange)
   }
 
@@ -232,11 +240,11 @@ sealed class Control<T : Controller<T>>(
     text: String,
     options: List<String>,
     defaultValue: String,
-    handleChange: (String) -> Unit = {},
+    handleChange: BaseSketch.(String) -> Unit = {},
   ) : Control<DropdownList>(
     text,
     ControlP5::addDropdownList,
-    {
+    { sketch ->
       setType(DropdownList.LIST)
       setItems(options)
 
@@ -244,7 +252,7 @@ sealed class Control<T : Controller<T>>(
 
       onChange {
         val selectedOption = options[value.toInt()]
-        handleChange(selectedOption)
+        sketch.handleChange(selectedOption)
       }
     },
   )
@@ -252,11 +260,11 @@ sealed class Control<T : Controller<T>>(
   class EnumDropdown<E : Enum<E>>(
     text: String,
     defaultValue: E,
-    handleChange: (E) -> Unit = {},
+    handleChange: BaseSketch.(E) -> Unit = {},
   ) : Control<DropdownList>(
     text,
     ControlP5::addDropdownList,
-    {
+    { sketch ->
       setType(DropdownList.LIST)
       val options = defaultValue.declaringClass.enumConstants.sortedBy { it.name }
       setItems(options.map { it.name })
@@ -265,16 +273,17 @@ sealed class Control<T : Controller<T>>(
 
       onChange {
         val selectedOption = options[value.toInt()]
-        handleChange(selectedOption)
+        sketch.handleChange(selectedOption)
       }
     },
   ) {
     constructor(
       enumRef: KMutableProperty0<E>,
       text: String? = null,
-      handleChange: (E) -> Unit = {},
+      handleChange: BaseSketch.(E) -> Unit = {},
     ) : this(
-      text?.splitCamelCase() ?: enumRef.get().declaringClass.simpleName, enumRef.get(),
+      text?.splitCamelCase() ?: enumRef.get().declaringClass.simpleName,
+      enumRef.get(),
       {
         enumRef.set(it)
         handleChange(it)

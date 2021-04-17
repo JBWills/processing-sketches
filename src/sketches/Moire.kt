@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
 import controls.panels.ControlList.Companion.row
 import controls.panels.ControlTab.Companion.layerTab
@@ -73,7 +72,7 @@ data class MoireLayerData(
   var startRad: Double = 0.0,
   var endRad: Double = 100.0,
 ) : PropData<MoireLayerData> {
-  override fun BaseSketch.bind() = layerTab {
+  override fun bind() = layerTab {
     noisePanel(::noise)
     slider(::numRotations, 1.0..1000.0)
     sliderPair(::centerPoint, -1.0..1.0)
@@ -94,7 +93,7 @@ data class MoireData(
     numRotations = 100.0,
   ),
 ) : PropData<MoireData> {
-  override fun BaseSketch.bind() = singleTab("Global") {
+  override fun bind() = singleTab("Global") {
     panel(::baseData)
   }
 

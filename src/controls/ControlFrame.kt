@@ -1,5 +1,6 @@
 package controls
 
+import BaseSketch
 import appletExtensions.addSolidColorRectangle
 import appletExtensions.setTabs
 import controlP5.ControlP5
@@ -15,6 +16,7 @@ import processing.core.PApplet
 import java.awt.Color
 
 class ControlFrame(
+  private val sketch: BaseSketch,
   private val w: Int,
   private val h: Int,
   private var tabs: List<ControlTab>,
@@ -80,7 +82,7 @@ class ControlFrame(
   }
 
   private fun drawPanelItem(controlTab: ControlTab, panelItem: ControlItem, bound: BoundRect) =
-    panelItem.draw(cp5, controlTab, bound)
+    panelItem.draw(sketch, cp5, controlTab, bound)
 
   override fun setup() {
     tabs.forEach { setupTab(it) }

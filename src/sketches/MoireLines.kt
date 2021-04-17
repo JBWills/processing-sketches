@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import appletExtensions.getParallelLinesInBound
 import controls.panels.ControlList.Companion.row
@@ -101,7 +100,7 @@ data class MoireLinesLayerData(
     strength = Point(0, 0),
   ),
 ) : PropData<MoireLinesLayerData> {
-  override fun BaseSketch.bind() = layerTab {
+  override fun bind() = layerTab {
     dropdownList(::shape)
     row {
       slider(::lineDensity, 0.5..1.0)
@@ -122,7 +121,9 @@ data class MoireLinesLayerData(
 data class MoireLinesData(
   var lineDensity: Double = 0.5,
 ) : PropData<MoireLinesData> {
-  override fun BaseSketch.bind() = singleTab("Global")
+  override fun bind() = singleTab("Global") {
+    
+  }
 
   override fun clone() = copy()
 

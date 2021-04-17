@@ -1,6 +1,5 @@
 package sketches
 
-import BaseSketch
 import FastNoiseLite.NoiseType.ValueCubic
 import controls.panels.ControlList.Companion.row
 import controls.panels.ControlTab.Companion.layerTab
@@ -123,7 +122,7 @@ data class FlowerLayerData(
   var distBetweenInternalCircles: Double = 10.0,
   var numInternalCircles: Int = 1,
 ) : PropData<FlowerLayerData> {
-  override fun BaseSketch.bind() = layerTab {
+  override fun bind() = layerTab {
     slider(::distBetweenInternalCircles, 1.0..200.0)
     intSlider(::numInternalCircles, 0..200)
   }
@@ -152,7 +151,7 @@ data class FlowerData(
   var baseNumInternalCircles: Int = 1,
   var distBetweenNoisePerCircle: Double = 150.0,
 ) : PropData<FlowerData> {
-  override fun BaseSketch.bind() = singleTab("Flower") {
+  override fun bind() = singleTab("Flower") {
     toggle(::clipToBounds)
     intSlider(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS)
     row {
