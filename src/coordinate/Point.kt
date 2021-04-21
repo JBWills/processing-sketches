@@ -10,8 +10,11 @@ import util.DoubleRange
 import util.equalsDelta
 import util.roundedString
 import util.squared
+import util.step
 import util.toDegrees
 import kotlin.math.atan2
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sqrt
 
 operator fun Number.times(p: Point) = p * this
@@ -85,6 +88,9 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
   val xf = x.toFloat()
   val yf = y.toFloat()
 
+  val xi = x.toInt()
+  val yi = y.toInt()
+
   val magnitude
     get() = sqrt(x.squared() + y.squared())
 
@@ -144,39 +150,7 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
 
   fun map(block: (Double) -> Number) = Point(block(x), block(y))
 
-  companion object {
-    fun add(p1: Point, p2: Point) = p1 + p2
-    fun subtract(p1: Point, p2: Point) = p1 - p2
-    fun multiply(p1: Point, f: Double) = p1 * f
-
-    operator fun Number.times(p: Point) = p * toDouble()
-    operator fun Number.minus(p: Point) = p - toDouble()
-    operator fun Number.plus(p: Point) = p + toDouble()
-    operator fun Number.div(p: Point) = p / toDouble()
-
-    fun List<Point>.move(amount: Point): List<Point> = map { it + amount }
-    fun List<Point>.plusIf(p: Point?): List<Point> = if (p != null) this.plusElement(p) else this
-    fun MutableList<Point>.addIf(p: Point?): List<Point> {
-      if (p != null) this.add(p)
-
-      return this
-    }
-
-    fun zip(p1: Point, p2: Point, block: (Double, Double) -> Number) =
-      Point(block(p1.x, p2.x), block(p1.y, p2.y))
-
-    fun Point?.plusIf(other: List<Point>) = if (this != null) this + other else other
-
-    val Zero = Point(0, 0)
-    val NegativeToPositive = Point(-1, 1)
-    val Half = Point(0.5, 0.5)
-    val Up = Point(0, -1)
-    val Down = Point(0, 1)
-    val Left = Point(-1, 0)
-    val Right = Point(1, 0)
-    val One = Point(1, 1)
-    val Unit = Point(1, 0)
-  }
+  fun forEach2D(block: (Point) -> Unit) = (Zero..this).forEach2D(block)
 
   override fun toString(): String {
     return "Point(x=${x.roundedString()}, y=${y.roundedString()})"
@@ -201,22 +175,48 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
     result = 31 * result + y.hashCode()
     return result
   }
-}
-
-data class PixelPoint(val x: Int, val y: Int) {
-  operator fun unaryMinus() = PixelPoint(-x, -y)
-
-  operator fun unaryPlus() = PixelPoint(+x, +y)
-
-  operator fun plus(other: PixelPoint) = PixelPoint(x + other.x, y + other.y)
-
-  operator fun minus(other: PixelPoint) = PixelPoint(x - other.x, y - other.y)
-
-  fun toPoint() = Point(x, y)
 
   companion object {
-    fun add(p1: PixelPoint, p2: PixelPoint) = p1 + p2
+    fun add(p1: Point, p2: Point) = p1 + p2
+    fun subtract(p1: Point, p2: Point) = p1 - p2
+    fun multiply(p1: Point, f: Double) = p1 * f
 
-    fun subtract(p1: PixelPoint, p2: PixelPoint) = p1 - p2
+    operator fun Number.times(p: Point) = p * toDouble()
+    operator fun Number.minus(p: Point) = p - toDouble()
+    operator fun Number.plus(p: Point) = p + toDouble()
+    operator fun Number.div(p: Point) = p / toDouble()
+
+    fun List<Point>.move(amount: Point): List<Point> = map { it + amount }
+    fun List<Point>.plusIf(p: Point?): List<Point> = if (p != null) this.plusElement(p) else this
+    fun MutableList<Point>.addIf(p: Point?): List<Point> {
+      if (p != null) this.add(p)
+
+      return this
+    }
+
+    fun zip(p1: Point, p2: Point, block: (Double, Double) -> Number) =
+      Point(block(p1.x, p2.x), block(p1.y, p2.y))
+
+    fun Point?.plusIf(other: List<Point>) = if (this != null) this + other else other
+
+    fun minXY(p1: Point, p2: Point) = Point(min(p1.x, p2.x), min(p1.y, p2.y))
+    fun maxXY(p1: Point, p2: Point) = Point(max(p1.x, p2.x), max(p1.y, p2.y))
+
+    fun PointProgression.forEach2D(block: (Point) -> Unit) =
+      (start.x..endInclusive.x step 1.0).forEach { x ->
+        (start.y..endInclusive.y step 1.0).forEach { y ->
+          block(Point(x, y))
+        }
+      }
+
+    val Zero = Point(0, 0)
+    val NegativeToPositive = Point(-1, 1)
+    val Half = Point(0.5, 0.5)
+    val Up = Point(0, -1)
+    val Down = Point(0, 1)
+    val Left = Point(-1, 0)
+    val Right = Point(1, 0)
+    val One = Point(1, 1)
+    val Unit = Point(1, 0)
   }
 }

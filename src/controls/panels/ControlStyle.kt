@@ -1,6 +1,10 @@
 package controls.panels
 
 import coordinate.PaddingRect
+import util.constants.Black0
+import util.constants.Black1
+import util.constants.Black2
+import util.constants.Black3
 import util.constants.Blue0
 import util.constants.Blue1
 import util.constants.Blue2
@@ -130,6 +134,7 @@ data class ControlStyle(
     val Orange = s(background = Orange1, frame = Orange0, hover = Orange2, color = Orange3)
     val Yellow = s(background = Yellow1, frame = Yellow0, hover = Yellow2, color = Yellow3)
     val Gray = s(background = Gray1, frame = Gray0, hover = Gray2, color = Gray3)
+    val Black = s(background = Black1, frame = Black0, hover = Black2, color = Black3)
 
     val EmptyStyle = ControlStyle()
 

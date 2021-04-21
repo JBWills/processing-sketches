@@ -8,12 +8,18 @@ import controlP5.Tab
 import controlP5.Textfield
 import controls.panels.ControlItem
 import controls.panels.ControlPanel
-import controls.panels.ControlStyle
 import controls.panels.Panelable
+import controls.utils.selectFile
 import coordinate.BoundRect
 import coordinate.Point
 import util.DoubleRange
 import util.PointRange
+import util.bounds
+import util.image.ImageCrop
+import util.image.pasteOnTopCentered
+import util.image.scaleAndCrop
+import util.image.solidColorPImage
+import util.io.noImageSelectedFilepath
 import util.positionAndSize
 import util.range
 import util.splitCamelCase
@@ -21,6 +27,8 @@ import util.style
 import util.toDoubleRange
 import util.xRange
 import util.yRange
+import java.awt.Color
+import java.io.File
 import kotlin.reflect.KMutableProperty0
 
 val DEFAULT_RANGE = 0.0..1.0
@@ -67,6 +75,40 @@ sealed class Control<T : Controller<T>>(
     }
   }
 
+  class ImageFile(
+    fieldName: String,
+    defaultPath: String = "",
+    thumbnailCrop: ImageCrop = ImageCrop.Fill,
+    onChange: BaseSketch.(String?) -> Unit,
+  ) : Control<controlP5.Button>(
+    fieldName,
+    ControlP5::addButton,
+    { sketch ->
+      fun updateThumbnailAndLabel(path: String) {
+        val noImageSelected =
+          path.isBlank() || !File(path).exists() || path == noImageSelectedFilepath
+
+        sketch.loadImage(if (noImageSelected) noImageSelectedFilepath else path)
+          .scaleAndCrop(thumbnailCrop, bounds)
+          .let { setImage(it.pasteOnTopCentered(solidColorPImage(bounds.size, Color.PINK))) }
+        label = if (noImageSelected) "No Image Selected" else path
+        setCaptionLabel(if (noImageSelected) "No Image Selected" else path)
+        isLabelVisible = true
+      }
+
+      setColorBackground(Color.PINK.rgb)
+
+      updateThumbnailAndLabel(defaultPath)
+      onClick {
+        sketch.selectFile { file ->
+          val path = if (file == null || file.path == noImageSelectedFilepath) "" else file.path
+          updateThumbnailAndLabel(path)
+          sketch.onChange(path)
+        }
+      }
+    },
+  )
+
   class TextInput(
     fieldName: String,
     defaultValue: String = "",
@@ -91,12 +133,6 @@ sealed class Control<T : Controller<T>>(
         text: String,
         onClick: BaseSketch.() -> Unit
       ) = Button(text, onClick)
-
-      fun MutableList<Panelable>.button(
-        text: String,
-        style: ControlStyle? = null,
-        onClick: BaseSketch.() -> Unit
-      ) = add(Button(text, onClick).applyStyleOverrides(style))
     }
   }
 

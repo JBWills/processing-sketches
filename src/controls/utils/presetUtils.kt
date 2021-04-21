@@ -11,7 +11,7 @@ import kotlinx.serialization.json.jsonObject
 import util.io.decode
 import util.io.getAllFilesInPath
 import util.io.getPresetDir
-import util.io.getPresetPath
+import util.io.getPresetFilepath
 import util.io.jsonStringOf
 import util.io.save
 import util.io.toJsonArray
@@ -35,7 +35,7 @@ fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> Bas
   globalSerializer: KSerializer<GlobalValues>,
   layerSerializer: KSerializer<TabValues>,
 ): LayerAndGlobalProps<TabValues, GlobalValues> {
-  val presetFile = File(getPresetPath(sketchBaseName, presetName))
+  val presetFile = File(getPresetFilepath(sketchBaseName, presetName))
   var presetData: Pair<GlobalValues, List<TabValues>>? = null
   if (presetFile.exists()) {
     presetData = deserializeDrawInfo(globalSerializer, layerSerializer, presetFile.readText())
@@ -68,7 +68,7 @@ fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> sav
   }
 
   try {
-    File(getPresetPath(baseSketchName = sketchBaseName, presetName))
+    File(getPresetFilepath(baseSketchName = sketchBaseName, presetName))
       .save(s)
   } catch (e: Exception) {
     println("Could not save preset. Error message: ${e.message}")
@@ -76,7 +76,7 @@ fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> sav
 }
 
 fun BaseSketch.deletePresetFile(presetName: String) {
-  val f = File(getPresetPath(svgBaseFileName, presetName))
+  val f = File(getPresetFilepath(svgBaseFileName, presetName))
 
   if (f.exists()) f.delete()
 }

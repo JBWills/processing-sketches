@@ -4,7 +4,6 @@ import BaseSketch
 import FastNoiseLite.NoiseType
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
-import controls.Control.Button.Companion.button
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlList.Companion.row
 import controls.panels.Panelable

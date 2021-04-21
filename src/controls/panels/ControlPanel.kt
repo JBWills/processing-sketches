@@ -97,6 +97,10 @@ class ControlTab(
 ) : ControlPanel(name, style) {
   init {
     panel.parent = this
+
+    if (name == "global") {
+      throw Exception("Can name a tab \"global\". I know, it's annoying. You can do \"Global\" instead.")
+    }
   }
 
   constructor(

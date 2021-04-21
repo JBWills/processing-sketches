@@ -12,6 +12,7 @@ import util.atAmountAlong
 import util.iterators.mapArray
 import util.iterators.mapWithNextCyclical
 import util.min
+import util.step
 import java.awt.Color
 import kotlin.math.abs
 
@@ -70,12 +71,21 @@ data class BoundRect(
   fun isLeft(line: Line) = line.origin.x == left && line.slope.isVertical()
   fun isRight(line: Line) = line.origin.x == right && line.slope.isVertical()
 
-  fun expand(amount: Double) = expand(amount, amount)
-  fun expand(amountX: Double, amountY: Double) =
-    BoundRect(topLeft - Point(amountX, amountY), width + 2 * amountX, height + 2 * amountY)
+  fun expand(amountX: Number, amountY: Number) = BoundRect(
+    topLeft - Point(amountX, amountY),
+    width + 2 * amountX.toDouble(),
+    height + 2 * amountY.toDouble(),
+  )
 
-  fun shrink(amountX: Double, amountY: Double) =
-    BoundRect(topLeft + Point(amountX, amountY), width - 2 * amountX, height - 2 * amountY)
+  fun expand(amount: Number) = expand(amount, amount)
+  fun expand(amount: Point) = expand(amount.x, amount.y)
+
+  fun shrink(amountX: Number, amountY: Number) = expand(-amountX.toDouble(), -amountY.toDouble())
+  fun shrink(amount: Number) = expand(-amount.toDouble())
+  fun shrink(amount: Point) = expand(-amount)
+
+  fun resizeCentered(newSize: Point): BoundRect =
+    BoundRect(center - (newSize / 2), newSize.x, newSize.y)
 
   fun minusPadding(paddingRect: PaddingRect) = BoundRect(
     topLeft + Point(paddingRect.left, paddingRect.top),
@@ -96,7 +106,7 @@ data class BoundRect(
   )
 
   fun recentered(newCenter: Point) =
-    BoundRect(topLeft - (newCenter - center), width, height)
+    BoundRect(topLeft - (center - newCenter), width, height)
 
   fun scaleX(scaleFactor: Double) = centeredRect(center, width * scaleFactor, height)
 
@@ -108,6 +118,7 @@ data class BoundRect(
   fun atXAmount(percent: Double) = (left..right).atAmountAlong(percent)
   fun atYAmount(percent: Double) = (top..bottom).atAmountAlong(percent)
   fun pointAt(percentX: Double, percentY: Double) = Point(atXAmount(percentX), atYAmount(percentY))
+  fun pointAt(percent: Point) = Point(atXAmount(percent.x), atYAmount(percent.y))
 
   fun getBoundSegment(line: Line): Segment? {
     if (isTop(line)) return topSegment
@@ -146,6 +157,15 @@ data class BoundRect(
 
   fun toRShape(): RShape = RShape.createRectangle(topLeft.toRPoint(), w = width, h = height)
   fun toRPath(): RPath = RPath(rPoints).also { it.addClose() }
+
+  fun forEachGrid(block: (Point) -> Unit) = forEachSampled(1.0, 1.0, block)
+
+  fun forEachSampled(stepX: Number, stepY: Number, block: (Point) -> Unit) =
+    (left..right step stepX.toDouble()).forEach { x ->
+      (top..bottom step stepY.toDouble()).forEach { y ->
+        block(Point(x, y))
+      }
+    }
 
   fun getBoundSegment(line: Segment): Segment? {
     if (inRect(line.p1) && roughDistFromSides(line.p1) > line.length + 5) return Segment(line)

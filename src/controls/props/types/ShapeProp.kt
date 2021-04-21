@@ -12,6 +12,7 @@ import coordinate.Point
 import geomerativefork.src.RPath
 import kotlinx.serialization.Serializable
 import util.ZeroToOne
+import util.geomutil.contains
 import util.geomutil.ellipse
 import util.geomutil.rotated
 
@@ -41,6 +42,8 @@ data class ShapeProp(
   )
 
   fun getRPath(bound: BoundRect): RPath = getRPathMemo(bound, type, size, center, rotation)
+
+  fun contains(p: Point, sketchBound: BoundRect) = getRPath(sketchBound).contains(p)
 
   override fun toSerializer() = serializer()
 

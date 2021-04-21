@@ -2,7 +2,6 @@ package sketches.legacy
 
 import BaseSketch
 import LayerConfig
-import controls.Control.Button.Companion.button
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
 import coordinate.BoundRect

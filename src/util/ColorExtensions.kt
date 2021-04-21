@@ -16,6 +16,9 @@ fun List<Color>.lerp(amt: Double): Color {
     .lerp(mapPercentToIndex(amt) - lerpIndices.first())
 }
 
+
+fun Color.luminance(): Double = 0.3 * red + 0.59 * green + 0.11 * blue
+
 fun Pair<Color, Color>.lerp(amt: Double) = (first.rgbList() to second.rgbList())
   .zip { rgb1, rgb2 -> (rgb1 + rgb2) / 2 }
   .toColor()

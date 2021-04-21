@@ -62,3 +62,9 @@ val Gray0 = Color(29, 27, 35)
 val Gray1 = Color(67, 67, 87)
 val Gray2 = Color(97, 97, 107)
 val Gray3 = Color(87, 87, 97)
+
+
+val Black0 = Color(0, 0, 0)
+val Black1 = Color(23, 24, 20)
+val Black2 = Color(40, 40, 40)
+val Black3 = Color(40, 40, 40)

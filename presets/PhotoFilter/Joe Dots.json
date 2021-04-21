@@ -1,0 +1,20 @@
+{
+    "layers": [
+        {
+        },
+        {
+        },
+        {
+        }
+    ],
+    "global": {
+        "photoFile": "/Users/jameswills/Desktop/totryprocessing/DSC03242-2.jpg",
+        "imageSize": 1119.7999267578125,
+        "imageBlackPoint": 97,
+        "drawImage": false,
+        "blurRadius": 0.0,
+        "numDots": 60270,
+        "randomSeed": 250,
+        "drawDotsOnDark": false
+    }
+}

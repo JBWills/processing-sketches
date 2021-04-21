@@ -2,7 +2,6 @@ package sketches
 
 import FastNoiseLite.NoiseType.Value
 import FastNoiseLite.NoiseType.ValueCubic
-import controls.Control.Button.Companion.button
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlList.Companion.row
 import controls.panels.ControlStyle

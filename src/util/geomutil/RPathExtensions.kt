@@ -8,3 +8,5 @@ fun RPoint.toPoint() = Point(x, y)
 fun RPath.toPoints() = points.map(RPoint::toPoint)
 fun List<RPath>.toPoints() = map(RPath::toPoints)
 fun Array<RPath>.toPoints() = map(RPath::toPoints)
+
+fun RPath.contains(p: Point) = contains(p.toRPoint())

@@ -1,6 +1,7 @@
 package controls.panels
 
 import BaseSketch
+import controls.Control.Button
 import controls.props.GenericProp.Companion.prop
 import controls.props.PropData
 import controls.props.types.booleanProp
@@ -9,6 +10,7 @@ import controls.props.types.doublePairProp
 import controls.props.types.doubleProp
 import controls.props.types.dropdownListProp
 import controls.props.types.enumProp
+import controls.props.types.imageFileProp
 import controls.props.types.intProp
 import controls.props.types.noiseProp
 import controls.props.types.nullableEnumProp
@@ -20,6 +22,8 @@ import fastnoise.Noise
 import util.DoubleRange
 import util.PointRange
 import util.ZeroToOne
+import util.image.ImageCrop
+import util.image.ImageCrop.Fill
 import util.toDoubleRange
 import util.tuple.and
 import util.xRange
@@ -40,6 +44,12 @@ class PanelBuilder(val panels: MutableList<Panelable>) : MutableList<Panelable> 
 
   private fun Panelable.applyAndAdd(style: ControlStyle? = null) =
     applyStyleOverrides(style).also { add(it) }
+
+  fun button(
+    text: String,
+    style: ControlStyle? = null,
+    onClick: BaseSketch.() -> Unit
+  ) = Button(text, onClick).applyAndAdd(style)
 
   fun toggle(
     ref: KMutableProperty0<Boolean>,
@@ -128,6 +138,12 @@ class PanelBuilder(val panels: MutableList<Panelable>) : MutableList<Panelable> 
     style: ControlStyle? = null,
     onChange: () -> Unit = {},
   ) = nullableEnumProp(ref, values, onChange).applyAndAdd(style)
+  
+  fun imageSelect(
+    ref: KMutableProperty0<String>,
+    style: ControlStyle? = null,
+    thumbnailCrop: ImageCrop = Fill,
+  ) = imageFileProp(ref, thumbnailCrop).applyAndAdd(style)
 
   fun noisePanel(
     ref: KMutableProperty0<Noise>,

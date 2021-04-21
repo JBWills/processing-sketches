@@ -1,7 +1,6 @@
 import RecordMode.NoRecord
 import RecordMode.RecordSVG
 import appletExtensions.PAppletExt
-import controls.Control.Button.Companion.button
 import controls.ControlFrame
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlTab
@@ -15,6 +14,7 @@ import util.combineDrawLayersIntoSVG
 import util.print.StrokeWeight.Thick
 import util.print.Style
 import java.awt.Color
+import java.io.File
 
 class LayerConfig(val style: Style)
 
@@ -35,6 +35,11 @@ abstract class BaseSketch(
   val sketchSize get() = Point(sizeX, sizeY)
 
   var isDebugMode: Boolean = false
+
+  fun fileSelected(block: (File?) -> Unit, f: File?) {
+    kotlin.io.println("file selected: $f")
+    block(f)
+  }
 
   private fun resetControlFrame() {
     controlFrame = ControlFrame(this, 400, 800, getAllControls())

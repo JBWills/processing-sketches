@@ -1,0 +1,27 @@
+{
+    "layers": [
+        {
+        },
+        {
+        },
+        {
+        }
+    ],
+    "global": {
+        "photo": {
+            "photoFile": "/Users/jameswills/Desktop/totryprocessing/DSC00245-2.jpg",
+            "imageSize": 677.0,
+            "imageBlackPoint": 57,
+            "imageWhitePoint": 210,
+            "drawImage": false
+        },
+        "sampleRate": {
+            "x": 6.334677219390869,
+            "y": 13.447580337524414
+        },
+        "circleSizes": {
+            "x": 0.0,
+            "y": 5.989248275756836
+        }
+    }
+}

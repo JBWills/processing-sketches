@@ -5,6 +5,11 @@ import controlP5.Slider
 import controlP5.Slider2D
 import controls.panels.ControlStyle
 import coordinate.BoundRect
+import coordinate.Point
+
+val Controller<*>.topLeft get(): Point = Point(position[0], position[1])
+
+val Controller<*>.bounds get(): BoundRect = BoundRect(topLeft, width, height)
 
 fun Slider.range(r: DoubleRange): Slider = setRange(r.start.toFloat(), r.endInclusive.toFloat())
 fun Slider2D.range(x: DoubleRange, y: DoubleRange): Slider2D =
