@@ -1,8 +1,7 @@
 package sketches
 
-import controls.panels.ControlList.Companion.row
-import controls.panels.ControlTab.Companion.layerTab
-import controls.panels.ControlTab.Companion.singleTab
+import controls.panels.TabsBuilder.Companion.layerTab
+import controls.panels.TabsBuilder.Companion.singleTab
 import controls.props.PropData
 import coordinate.Arc
 import coordinate.Circ

@@ -9,6 +9,6 @@ import interfaces.KSerializable
 
 interface PropData<T> : Bindable, Copyable<T>, KSerializable<T> {
   fun asControlPanel(): ControlPanel = col {
-    addAll(bind().mapArray { it.panel })
+    +bind().mapArray { it.panel }.toList()
   }.toControlPanel()
 }

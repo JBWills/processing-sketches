@@ -2,9 +2,8 @@ package sketches
 
 import FastNoiseLite.NoiseType.Perlin
 import appletExtensions.getParallelLinesInBound
-import controls.panels.ControlList.Companion.row
-import controls.panels.ControlTab.Companion.layerTab
-import controls.panels.ControlTab.Companion.singleTab
+import controls.panels.TabsBuilder.Companion.layerTab
+import controls.panels.TabsBuilder.Companion.singleTab
 import controls.props.PropData
 import coordinate.Deg
 import coordinate.Point
@@ -122,7 +121,7 @@ data class MoireLinesData(
   var lineDensity: Double = 0.5,
 ) : PropData<MoireLinesData> {
   override fun bind() = singleTab("Global") {
-    
+
   }
 
   override fun clone() = copy()

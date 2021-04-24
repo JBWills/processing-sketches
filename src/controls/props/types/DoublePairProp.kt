@@ -53,8 +53,8 @@ fun doublePairProp(
   }.withWidth(0.5)
 
   row(ref.name) {
-    add(ctrlX)
-    add(ctrlY)
-    if (withLockToggle) add(ctrlToggle)
+    +ctrlX
+    +ctrlY
+    if (withLockToggle) +ctrlToggle
   }
 }

@@ -2,10 +2,9 @@ package controls.props.types
 
 import BaseSketch
 import arrow.core.memoize
-import controls.panels.ControlList.Companion.row
 import controls.panels.ControlStyle
 import controls.panels.ControlTab
-import controls.panels.ControlTab.Companion.singleTab
+import controls.panels.TabsBuilder.Companion.singleTab
 import controls.props.PropData
 import coordinate.Point
 import kotlinx.serialization.Serializable
@@ -97,11 +96,11 @@ data class PhotoProp(
   }
 }
 
-val _transformImage = { img: PImage?,
-                        imageSize: Double,
-                        imageBlackAndWhitePoint: Pair<Int, Int>,
-                        invert: Boolean,
-                        blurRadius: Double ->
+private val _transformImage = { img: PImage?,
+                                imageSize: Double,
+                                imageBlackAndWhitePoint: Pair<Int, Int>,
+                                invert: Boolean,
+                                blurRadius: Double ->
   img
     ?.scaleByLargestDimension(imageSize)
     ?.luminance()

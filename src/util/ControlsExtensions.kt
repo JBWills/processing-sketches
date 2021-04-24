@@ -3,7 +3,9 @@ package util
 import controlP5.Controller
 import controlP5.Slider
 import controlP5.Slider2D
+import controlP5.Tab
 import controls.panels.ControlStyle
+import controls.panels.TabStyle
 import coordinate.BoundRect
 import coordinate.Point
 
@@ -31,5 +33,12 @@ fun <T> Controller<T>.style(controlStyle: ControlStyle): Controller<T> {
   setColorActive(controlStyle.onHoverColor.rgb)
   setColorForeground(controlStyle.color.rgb)
   setColorLabel(controlStyle.textColor.rgb)
+  return this
+}
+
+fun Tab.style(tabStyle: TabStyle): Tab {
+  tabStyle.tabBackgroundColor?.let { setColorBackground(it.rgb) }
+  tabStyle.tabOnHoverColor?.let { setColorActive(it.rgb) }
+  tabStyle.tabColor?.let { setColorForeground(it.rgb) }
   return this
 }

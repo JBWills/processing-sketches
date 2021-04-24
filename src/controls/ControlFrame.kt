@@ -11,8 +11,8 @@ import controls.panels.ControlPanel
 import controls.panels.ControlTab
 import coordinate.BoundRect
 import coordinate.PaddingRect
-import coordinate.Point
 import processing.core.PApplet
+import util.style
 import java.awt.Color
 
 class ControlFrame(
@@ -27,7 +27,8 @@ class ControlFrame(
     }
   }
 
-  private val tabBound: BoundRect get() = BoundRect(Point.Zero, w, h)
+  private val tabHeight: Int = 16
+  private val tabBound: BoundRect get() = BoundRect(w, h).minusPadding(PaddingRect(top = tabHeight))
 
   fun getActiveTabAndIndex(): Pair<ControlTab, Int>? {
     val currentTabName = cp5.controlWindow.currentTab.name
@@ -61,11 +62,19 @@ class ControlFrame(
 
   override fun settings() = size(w, h)
 
-  private fun setupTab(tab: ControlTab) = drawPanel(
-    tab,
-    tab.panel,
-    tabBound.minusPadding(FRAME_PADDING),
-  )
+  private fun setupTab(tab: ControlTab) {
+    val style = tab.tabStyle
+    cp5.controlWindow.getTab(tab.name)?.style(style)
+    style.frameBackgroundColor?.let {
+      cp5.addSolidColorRectangle("${tab.name} background", tab.name, tabBound, it)
+    }
+
+    drawPanel(
+      tab,
+      tab.panel,
+      tabBound.minusPadding(style.nonNullPadding),
+    )
+  }
 
   private fun drawPanel(tab: ControlTab, panel: ControlPanel, bound: BoundRect) {
     // Add a solid rectangle to the background
@@ -94,12 +103,5 @@ class ControlFrame(
 
   init {
     runSketch(arrayOf(this.javaClass.name), this)
-  }
-
-  companion object {
-    val FRAME_PADDING = PaddingRect(
-      base = 15,
-      top = 30,
-    )
   }
 }

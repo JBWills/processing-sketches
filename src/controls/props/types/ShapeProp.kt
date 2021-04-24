@@ -2,7 +2,7 @@ package controls.props.types
 
 import arrow.core.memoize
 import controls.panels.ControlTab
-import controls.panels.ControlTab.Companion.singleTab
+import controls.panels.TabsBuilder.Companion.singleTab
 import controls.props.PropData
 import controls.props.types.ShapeType.Ellipse
 import coordinate.BoundRect

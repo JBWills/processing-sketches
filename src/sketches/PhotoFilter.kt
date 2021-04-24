@@ -1,8 +1,9 @@
 package sketches
 
 import controls.panels.ControlStyle
-import controls.panels.ControlTab.Companion.layerTab
-import controls.panels.ControlTab.Companion.tab
+import controls.panels.TabStyle
+import controls.panels.TabsBuilder.Companion.layerTab
+import controls.panels.TabsBuilder.Companion.tabs
 import controls.props.PropData
 import controls.props.types.PhotoProp
 import coordinate.Point
@@ -22,13 +23,13 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
   "PhotoFilter",
   defaultGlobal = PhotoFilterData(),
   layerToDefaultTab = { PhotoFilterLayerData() },
+  maxLayers = 1,
 ) {
   override fun drawSetup(layerInfo: DrawInfo) {}
 
   override fun drawOnce(values: LayerInfo) {
     val (
       photo,
-      drawDotsOnDark,
       sampleRate,
       circleSizes,
     ) = values.globalValues
@@ -71,21 +72,21 @@ data class PhotoFilterLayerData(
 @Serializable
 data class PhotoFilterData(
   var photo: PhotoProp = PhotoProp(),
-  var drawDotsOnDark: Boolean = true,
   var sampleRate: Point = Point(5, 5),
   var circleSizes: Point = Point(0, 30),
 ) : PropData<PhotoFilterData> {
-  override fun bind() = listOf(
+  override fun bind() = tabs {
     tab("Photo") {
       panel(::photo)
-    },
+    }
+
     tab("Filters") {
+      tabStyle = TabStyle.Green
       style = ControlStyle.Blue
       sliderPair(::sampleRate, 2.0..50.0, withLockToggle = true)
       sliderPair(::circleSizes, 0.0..20.0 and 2.0..30.0)
-      toggle(::drawDotsOnDark)
-    },
-  )
+    }
+  }
 
   override fun clone() = copy()
 

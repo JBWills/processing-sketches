@@ -18,7 +18,7 @@ fun textInputProp(
   }
 
   return row {
-    add(input)
-    add(button.withWidth(0.5))
+    +input
+    +button.withWidth(0.5)
   }
 }

@@ -2,6 +2,8 @@ package controls.panels
 
 import BaseSketch
 import controls.Control.Button
+import controls.panels.ListDirection.Col
+import controls.panels.ListDirection.Row
 import controls.props.GenericProp.Companion.prop
 import controls.props.PropData
 import controls.props.types.booleanProp
@@ -31,19 +33,66 @@ import util.yRange
 import java.awt.Color
 import kotlin.reflect.KMutableProperty0
 
-class PanelBuilder(val panels: MutableList<Panelable>) : MutableList<Panelable> by panels {
+open class PanelBuilder(val panels: MutableList<Panelable>) {
+  var name: String? = null
+  var direction: ListDirection = Col
   var style: ControlStyle? = null
   var heightRatio: Number? = null
   var widthRatio: Number? = null
 
-  constructor() : this(mutableListOf())
+  constructor(
+    name: String? = null,
+    direction: ListDirection? = null,
+    style: ControlStyle? = null,
+    heightRatio: Number? = null,
+    widthRatio: Number? = null,
+  ) : this(mutableListOf()) {
+    this.name = name ?: this.name
+    this.direction = direction ?: this.direction
+    this.style = style ?: this.style
+    this.heightRatio = heightRatio ?: this.heightRatio
+    this.widthRatio = widthRatio ?: this.widthRatio
+  }
 
-  operator fun Panelable.unaryPlus() = add(this)
-  operator fun List<Panelable>.unaryPlus() = addAll(this)
-  operator fun Array<Panelable>.unaryPlus() = addAll(this)
+  constructor(
+    name: String? = null,
+    direction: ListDirection? = null,
+    style: ControlStyle? = null,
+    heightRatio: Number? = null,
+    widthRatio: Number? = null,
+    block: PanelBuilder.() -> Unit,
+  ) : this(
+    name,
+    direction,
+    style,
+    heightRatio,
+    widthRatio,
+  ) {
+    apply(block)
+  }
+
+  operator fun Panelable.unaryPlus() = panels.add(this)
+  operator fun List<Panelable>.unaryPlus() = panels.addAll(this)
+  operator fun Array<Panelable>.unaryPlus() = panels.addAll(this)
 
   private fun Panelable.applyAndAdd(style: ControlStyle? = null) =
-    applyStyleOverrides(style).also { add(it) }
+    applyStyleOverrides(style).also { panels.add(it) }
+
+  fun build(): ControlList = ControlList(
+    name = name ?: direction.name,
+    style = style ?: ControlStyle.EmptyStyle,
+    direction = direction,
+    widthOverride = widthRatio?.toDouble(),
+    heightOverride = heightRatio?.toDouble(),
+    items = panels.toTypedArray(),
+  )
+
+  fun createAndAdd(name: String? = null, direction: ListDirection, block: PanelBuilder.() -> Unit) =
+    +PanelBuilder(name, direction, block = block).build()
+
+  fun row(name: String? = null, block: PanelBuilder.() -> Unit) = createAndAdd(name, Row, block)
+
+  fun col(name: String? = null, block: PanelBuilder.() -> Unit) = createAndAdd(name, Col, block)
 
   fun button(
     text: String,
@@ -138,7 +187,7 @@ class PanelBuilder(val panels: MutableList<Panelable>) : MutableList<Panelable> 
     style: ControlStyle? = null,
     onChange: () -> Unit = {},
   ) = nullableEnumProp(ref, values, onChange).applyAndAdd(style)
-  
+
   fun imageSelect(
     ref: KMutableProperty0<String>,
     style: ControlStyle? = null,
@@ -157,4 +206,9 @@ class PanelBuilder(val panels: MutableList<Panelable>) : MutableList<Panelable> 
     ref: KMutableProperty0<T>,
     style: ControlStyle? = null,
   ) = prop(ref).applyAndAdd(style)
+
+  companion object {
+    internal fun list(block: PanelBuilder.() -> Unit): ControlList =
+      PanelBuilder().apply(block).build()
+  }
 }

@@ -51,11 +51,12 @@ sealed class ControlPanel(
   fun with(
     widthRatio: Double? = null,
     heightRatio: Double? = null,
-    style: ControlStyle? = null
+    style: ControlStyle? = null,
+    tabStyle: TabStyle? = null,
   ): ControlPanel = when (this) {
     is ControlTab -> ControlTab(
       this,
-      style = style,
+      tabStyle = tabStyle ?: style?.let { TabStyle(it) },
     )
     is ControlList -> ControlList(
       this,
@@ -92,9 +93,9 @@ sealed class ControlPanel(
  */
 class ControlTab(
   name: String,
-  style: ControlStyle = EmptyStyle,
+  val tabStyle: TabStyle = TabStyle.Base,
   val panel: ControlPanel
-) : ControlPanel(name, style) {
+) : ControlPanel(name, tabStyle.nonNullControlStyle) {
   init {
     panel.parent = this
 
@@ -105,17 +106,17 @@ class ControlTab(
 
   constructor(
     name: String,
-    style: ControlStyle = EmptyStyle,
+    tabStyle: TabStyle = TabStyle.Base,
     vararg rows: Panelable = arrayOf()
-  ) : this(name, style, col { addAll(rows) }.toControlPanel())
+  ) : this(name, tabStyle, col { +rows.toList() }.toControlPanel())
 
   constructor(
     tab: ControlTab,
     name: String? = null,
-    style: ControlStyle? = EmptyStyle
+    tabStyle: TabStyle? = null,
   ) : this(
     name ?: tab.name,
-    style ?: tab.style,
+    tabStyle ?: tab.tabStyle,
     tab.panel,
   )
 
@@ -127,23 +128,8 @@ class ControlTab(
   }
 
   companion object {
-    fun tab(name: String, style: ControlStyle? = null, block: PanelBuilder.() -> Unit) =
-      ControlTab(
-        name,
-        style = style ?: EmptyStyle,
-        col(block = block),
-      )
-
-    fun singleTab(
-      name: String,
-      style: ControlStyle? = null,
-      block: PanelBuilder.() -> Unit,
-    ) = listOf(tab(name, style ?: EmptyStyle, block))
-
-    fun layerTab(
-      style: ControlStyle? = null,
-      block: PanelBuilder.() -> Unit,
-    ) = singleTab("L", style, block)
+    fun tab(name: String, style: TabStyle? = null, block: PanelBuilder.() -> Unit) =
+      ControlTab(name, style ?: TabStyle.Base, col(block = block))
   }
 }
 
@@ -270,37 +256,11 @@ class ControlList(
 
 
   companion object {
-    private fun PanelBuilder.boundList(
-      direction: ListDirection,
-      name: String? = null,
-      block: PanelBuilder.() -> Unit,
-    ): ControlList = list(direction, name, block).also { add(it) }
+    fun row(name: String? = null, block: PanelBuilder.() -> Unit) =
+      PanelBuilder(name, Row, block = block).build()
 
-    private fun list(
-      direction: ListDirection,
-      name: String? = null,
-      block: PanelBuilder.() -> Unit,
-    ): ControlList {
-      val updatedPanel = PanelBuilder().apply(block)
-      return ControlList(
-        name = name ?: direction.name,
-        style = updatedPanel.style ?: EmptyStyle,
-        direction = direction,
-        widthOverride = updatedPanel.widthRatio?.toDouble(),
-        heightOverride = updatedPanel.heightRatio?.toDouble(),
-        items = updatedPanel.toTypedArray(),
-      )
-    }
-
-    fun row(name: String? = null, block: PanelBuilder.() -> Unit) = list(Row, name, block)
-
-    fun PanelBuilder.row(name: String? = null, block: PanelBuilder.() -> Unit) =
-      boundList(Row, name, block)
-
-    fun col(name: String? = null, block: PanelBuilder.() -> Unit) = list(Col, name, block)
-
-    fun PanelBuilder.col(name: String? = null, block: PanelBuilder.() -> Unit) =
-      boundList(Col, name, block)
+    fun col(name: String? = null, block: PanelBuilder.() -> Unit) =
+      PanelBuilder(name, Col, block = block).build()
   }
 }
 

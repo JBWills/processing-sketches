@@ -19,6 +19,7 @@ import util.image.ImageCrop
 import util.image.pasteOnTopCentered
 import util.image.scaleAndCrop
 import util.image.solidColorPImage
+import util.io.loadImageMemo
 import util.io.noImageSelectedFilepath
 import util.positionAndSize
 import util.range
@@ -88,9 +89,9 @@ sealed class Control<T : Controller<T>>(
         val noImageSelected =
           path.isBlank() || !File(path).exists() || path == noImageSelectedFilepath
 
-        sketch.loadImage(if (noImageSelected) noImageSelectedFilepath else path)
-          .scaleAndCrop(thumbnailCrop, bounds)
-          .let { setImage(it.pasteOnTopCentered(solidColorPImage(bounds.size, Color.PINK))) }
+        sketch.loadImageMemo(if (noImageSelected) noImageSelectedFilepath else path)
+          ?.scaleAndCrop(thumbnailCrop, bounds)
+          ?.let { setImage(it.pasteOnTopCentered(solidColorPImage(bounds.size, Color.PINK))) }
         label = if (noImageSelected) "No Image Selected" else path
         setCaptionLabel(if (noImageSelected) "No Image Selected" else path)
         isLabelVisible = true

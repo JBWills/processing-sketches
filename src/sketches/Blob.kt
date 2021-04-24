@@ -1,11 +1,10 @@
 package sketches
 
 import appletExtensions.getParallelLinesInBound
-import controls.panels.ControlList.Companion.row
 import controls.panels.ControlStyle.Companion.Green
 import controls.panels.ControlStyle.Companion.Red
-import controls.panels.ControlTab.Companion.layerTab
-import controls.panels.ControlTab.Companion.singleTab
+import controls.panels.TabsBuilder.Companion.layerTab
+import controls.panels.TabsBuilder.Companion.singleTab
 import controls.props.PropData
 import controls.props.types.ShapeProp
 import controls.props.types.ShapeType.Rectangle

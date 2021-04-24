@@ -28,7 +28,7 @@ val LAYER_COLORS = listOf(
 
 fun getLayerColors(n: Int) = LAYER_COLORS.extendCyclical(n)
 
-val Purple0 = Color(40, 5, 81)
+val Purple0 = Color(30, 5, 61)
 val Purple1 = Color(50, 5, 131)
 val Purple2 = Color(90, 0, 220)
 val Purple3 = Color(108, 0, 238)

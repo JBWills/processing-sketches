@@ -32,6 +32,7 @@ data class BoundRect(
   )
 
   constructor(topLeft: Point, size: Point) : this(topLeft, size.x, size.y)
+  constructor(width: Number, height: Number) : this(Point.Zero, width, height)
 
   init {
     if (height < 0) {

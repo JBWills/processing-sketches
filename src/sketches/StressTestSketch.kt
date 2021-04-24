@@ -2,10 +2,8 @@ package sketches
 
 import FastNoiseLite.NoiseType.Value
 import FastNoiseLite.NoiseType.ValueCubic
-import controls.panels.ControlList.Companion.col
-import controls.panels.ControlList.Companion.row
 import controls.panels.ControlStyle
-import controls.panels.ControlTab.Companion.tab
+import controls.panels.TabsBuilder.Companion.tabs
 import controls.props.PropData
 import controls.props.types.ShapeProp
 import coordinate.Point
@@ -51,7 +49,7 @@ data class StressTestLayerData(
   var shape3: ShapeProp = ShapeProp(),
   var shape4: ShapeProp = ShapeProp(),
 ) : PropData<StressTestLayerData> {
-  override fun bind() = listOf(
+  override fun bind() = tabs {
     tab("L") {
       row {
         noisePanel(::noise)
@@ -80,13 +78,14 @@ data class StressTestLayerData(
           panel(::shape2, style = ControlStyle.Green)
         }
       }
-    },
+    }
+
     tab("L2") {
       style = ControlStyle.Gray
       panel(::shape3, style = ControlStyle.Red)
       panel(::shape4, style = ControlStyle.Green)
-    },
-  )
+    }
+  }
 
   override fun clone() = copy()
   override fun toSerializer() = serializer()
@@ -110,7 +109,7 @@ data class StressTestData(
   var shapeGlobal3: ShapeProp = ShapeProp(),
   var shapeGlobal4: ShapeProp = ShapeProp(),
 ) : PropData<StressTestData> {
-  override fun bind() = listOf(
+  override fun bind() = tabs {
     tab("Global") {
       row {
         noisePanel(::noiseGlobal)
@@ -139,13 +138,15 @@ data class StressTestData(
           panel(::shapeGlobal2, style = ControlStyle.Green)
         }
       }
-    },
+    }
+
     tab("baby") {
       style = ControlStyle.Gray
       panel(::shapeGlobal3, style = ControlStyle.Red)
       panel(::shapeGlobal4, style = ControlStyle.Green)
-    },
-  )
+    }
+  }
+
 
   override fun clone() = copy()
 

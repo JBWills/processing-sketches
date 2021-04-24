@@ -4,9 +4,9 @@ import appletExtensions.PAppletExt
 import controls.ControlFrame
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlTab
-import controls.panels.ControlTab.Companion.singleTab
 import controls.panels.ControlTab.Companion.tab
 import controls.panels.Panelable
+import controls.panels.TabsBuilder.Companion.singleTab
 import coordinate.Point
 import geomerativefork.src.RG
 import processing.event.MouseEvent
