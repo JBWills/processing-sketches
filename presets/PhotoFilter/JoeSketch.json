@@ -1,0 +1,42 @@
+{
+    "layers": [
+        {
+        }
+    ],
+    "global": {
+        "photo": {
+            "photoFile": "/Users/jameswills/Desktop/totryprocessing/DSC00245-2.jpg",
+            "imageCenter": {
+                "x": 0.3863636553287506,
+                "y": 0.5703702569007874
+            },
+            "imageSize": 1215.0714111328125,
+            "imageBlackPoint": 41,
+            "imageWhitePoint": 216,
+            "drawImage": false,
+            "cropShape": {
+                "type": "Rectangle",
+                "size": {
+                    "x": 680.5556030273438,
+                    "y": 680.5556030273438
+                },
+                "center": {
+                    "x": 0.5,
+                    "y": 0.5082417726516724
+                }
+            },
+            "shouldCrop": true
+        },
+        "sampleRate": {
+            "x": 8.266668319702148,
+            "y": 14.933334350585938
+        },
+        "objectSize": {
+            "x": 0.0,
+            "y": 21.536724090576172
+        },
+        "baseRotation": {
+            "inputValue": 210.00001525878906
+        }
+    }
+}

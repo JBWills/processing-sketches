@@ -112,6 +112,13 @@ open class PAppletExt : PApplet() {
     if (radius.toDouble() > 0) circle(Circ(this, radius))
   }
 
+  fun Point.drawSquare(size: Number = 2, rotation: Deg = Deg(0)) {
+    if (size.toDouble() > 0)
+      BoundRect.centeredRect(this, Point(size, size))
+        .toRPath()
+        .apply { rotate(rotation.rad.toFloat()) }.draw()
+  }
+
   fun Iterable<Point>.drawPoints(radius: Int = 2) = forEach { it.drawPoint(radius) }
 
   fun arcs(arcs: Iterable<Arc>) = arcs.forEach { a -> arc(a) }

@@ -6,12 +6,22 @@ import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.props.PropData
 import controls.props.types.PhotoProp
+import coordinate.Deg
 import coordinate.Point
+import coordinate.Segment.Companion.toUnitVectorSegment
+import geomerativefork.src.util.bound
 import kotlinx.serialization.Serializable
+import sketches.FilterType.Circles
+import sketches.FilterType.Crosses
+import sketches.FilterType.Crosses2
+import sketches.FilterType.Crosses4
+import sketches.FilterType.Lines
+import sketches.FilterType.Squares
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.image.bounds
 import util.image.get
+import util.image.gradientAt
 import util.tuple.and
 
 /**
@@ -28,11 +38,7 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
   override fun drawSetup(layerInfo: DrawInfo) {}
 
   override fun drawOnce(values: LayerInfo) {
-    val (
-      photo,
-      sampleRate,
-      circleSizes,
-    ) = values.globalValues
+    val (photo, sampleRate, filterType, objectSize, baseRotation, filterSize) = values.globalValues
     val (PhotoFilterTabField) = values.tabValues
 
     val image = photo.loadMemoized(this) ?: return
@@ -52,7 +58,71 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
 
       val lumAtP = image.get(imagePoint).red / 255.0
 
-      canvasPoint.drawPoint((circleSizes.x..circleSizes.y).atAmountAlong(lumAtP))
+      val length = (objectSize.x..objectSize.y).atAmountAlong(lumAtP)
+      if (length < 0) return@forEachSampled
+
+      when (filterType) {
+        Circles -> canvasPoint.drawPoint(length)
+        Crosses -> {
+          val segment = image
+            .gradientAt(imagePoint, filterSize)
+            .toUnitVectorSegment(canvasPoint)
+            .resizeCentered(length)
+            .centeredWithSlope(baseRotation)
+          listOf(segment, segment.centeredWithSlope(segment.slope + 90)).draw()
+        }
+        Crosses2 -> {
+          val length1 = lumAtP.bound(0.0, 0.5) * 2 * length
+          val length2 = (lumAtP.bound(0.5, 1.0) - 0.5) * 2 * length
+
+          val segment = image
+            .gradientAt(imagePoint, filterSize)
+            .toUnitVectorSegment(canvasPoint)
+            .centeredWithSlope(baseRotation)
+          listOf(
+            segment
+              .resizeCentered(length1),
+            segment
+              .centeredWithSlope(segment.slope + 90)
+              .resizeCentered(length2),
+          )
+            .filter { it.length > 1 }
+            .draw()
+        }
+        Crosses4 -> {
+          val length1 = lumAtP.bound(0.0, 0.25) * 4 * length
+          val length2 = (lumAtP.bound(0.25, 0.5) - 0.25) * 4 * length
+          val length3 = (lumAtP.bound(0.5, 0.75) - 0.5) * 4 * length
+          val length4 = (lumAtP.bound(0.75, 1.0) - 0.75) * 4 * length
+
+          val segment = image
+            .gradientAt(imagePoint, filterSize)
+            .toUnitVectorSegment(canvasPoint)
+            .centeredWithSlope(baseRotation)
+          listOf(
+            segment
+              .resizeCentered(length1),
+            segment
+              .centeredWithSlope(segment.slope + 90)
+              .resizeCentered(length2),
+            segment
+              .centeredWithSlope(segment.slope + 45)
+              .resizeCentered(length3),
+            segment
+              .centeredWithSlope(segment.slope + 135)
+              .resizeCentered(length4),
+          )
+            .filter { it.length > 1 }
+            .draw()
+        }
+        Squares -> canvasPoint.drawSquare(length, rotation = baseRotation)
+        Lines -> image
+          .gradientAt(imagePoint, filterSize)
+          .toUnitVectorSegment(canvasPoint)
+          .resizeCentered(length)
+          .centeredWithSlope(baseRotation)
+          .draw()
+      }
     }
   }
 }
@@ -69,11 +139,23 @@ data class PhotoFilterLayerData(
   override fun toSerializer() = serializer()
 }
 
+enum class FilterType {
+  Circles,
+  Squares,
+  Lines,
+  Crosses,
+  Crosses2,
+  Crosses4,
+}
+
 @Serializable
 data class PhotoFilterData(
   var photo: PhotoProp = PhotoProp(),
   var sampleRate: Point = Point(5, 5),
-  var circleSizes: Point = Point(0, 30),
+  var filterType: FilterType = Lines,
+  var objectSize: Point = Point(0, 30),
+  var baseRotation: Deg = Deg(0),
+  var filterSize: Int = 1,
 ) : PropData<PhotoFilterData> {
   override fun bind() = tabs {
     tab("Photo") {
@@ -83,8 +165,11 @@ data class PhotoFilterData(
     tab("Filters") {
       tabStyle = TabStyle.Green
       style = ControlStyle.Blue
+      dropdownList(::filterType, style = ControlStyle.Gray)
       sliderPair(::sampleRate, 2.0..50.0, withLockToggle = true)
-      sliderPair(::circleSizes, 0.0..20.0 and 2.0..30.0)
+      sliderPair(::objectSize, 0.0..20.0 and 2.0..30.0)
+      degreeSlider(::baseRotation)
+      intSlider(::filterSize, 1..100)
     }
   }
 

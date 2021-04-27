@@ -63,7 +63,7 @@ class Segment(
 
     if (!slope.isParallelWith(d)) {
       throw Exception(
-        "Error, trying to reorient Segment with non-parallel direction!\nLine: $this\nNewdir: $d"
+        "Error, trying to reorient Segment with non-parallel direction!\nLine: $this\nNewdir: $d",
       )
     }
 
@@ -73,7 +73,11 @@ class Segment(
   fun expand(amt: Number) =
     Segment(p1 - (slope.unitVector * (amt.toDouble() / 2)), slope, length + amt.toDouble())
 
+  fun resizeCentered(newLength: Number) = expand(newLength.toDouble() - length)
+
   fun withReorientedDirection(l: Segment) = withReorientedDirection(l.slope)
+
+  fun centeredWithSlope(d: Deg) = centered(center, d, length)
 
   fun flip() = Segment(p2, p1)
 
@@ -180,6 +184,11 @@ class Segment(
   companion object {
     fun centered(center: Point, slope: Deg, length: Double): Segment =
       Segment(center, 0, slope).expand(length)
+
+    fun Point.toUnitVectorSegment(center: Point) = Segment(
+      center - (normalized / 2),
+      center + (normalized / 2),
+    )
 
 
     fun List<Segment>.move(amount: Point) = map { it + amount }

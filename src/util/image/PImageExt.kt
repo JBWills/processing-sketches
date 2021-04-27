@@ -7,6 +7,7 @@ import coordinate.Point.Companion.minXY
 import processing.core.PConstants.RGB
 import processing.core.PImage
 import util.image.ImageCrop.Crop
+import util.luminance
 import java.awt.Color
 
 val PImage.bounds: BoundRect
@@ -31,6 +32,11 @@ private val _get = { image: PImage, topLeft: Point, size: Point ->
 fun PImage.get(topLeft: Point, size: Point): PImage = _get(this, topLeft, size)
 
 fun PImage.get(bounds: BoundRect): PImage = get(bounds.topLeft, bounds.size)
+
+fun PImage.gradientAt(point: Point, filterSizePx: Int = 1) = Point(
+  get(point.addX(-filterSizePx)).luminance() + get(point.addX(filterSizePx)).luminance(),
+  get(point.addY(-filterSizePx)).luminance() + get(point.addY(filterSizePx)).luminance(),
+)
 
 fun PImage.cropHeightCentered(newHeight: Int): PImage = cropCentered(Point(width, newHeight))
 
