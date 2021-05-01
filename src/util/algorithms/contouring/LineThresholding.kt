@@ -11,9 +11,9 @@ import util.algorithms.contouring.SegmentContourStatus.InOutIn
 import util.algorithms.contouring.SegmentContourStatus.Inside
 import util.algorithms.contouring.SegmentContourStatus.OutInOut
 import util.algorithms.contouring.SegmentContourStatus.Outside
-import util.pointsAndLines.PolyLine
-import util.pointsAndLines.addPoints
-import util.pointsAndLines.forEachSegment
+import util.pointsAndLines.mutablePolyLine.addPoints
+import util.pointsAndLines.polyLine.PolyLine
+import util.pointsAndLines.polyLine.forEachSegment
 
 val MIN_SEGMENT_LENGTH = 1
 

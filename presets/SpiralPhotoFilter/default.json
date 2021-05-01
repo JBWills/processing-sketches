@@ -1,0 +1,33 @@
+{
+    "layers": [
+        {
+        }
+    ],
+    "global": {
+        "photo": {
+            "photoFile": "/Users/jameswills/Desktop/totryprocessing/DSC03242-2.jpg",
+            "imageCenter": {
+                "x": 0.42690056562423706,
+                "y": 0.49619489908218384
+            },
+            "imageSize": 854.2542114257812,
+            "drawImage": false,
+            "blurRadius": 0.0
+        },
+        "spiral": {
+            "sizeEnd": {
+                "x": 271.4285888671875,
+                "y": 271.4285888671875
+            },
+            "origin": {
+                "x": 0.49435025453567505,
+                "y": 0.48765432834625244
+            },
+            "numRotations": 28,
+            "step": 0.009999999776482582
+        },
+        "spiralFreq": 0.9830508232116699,
+        "spiralAmp": 8.757061958312988,
+        "skew": 15.0
+    }
+}

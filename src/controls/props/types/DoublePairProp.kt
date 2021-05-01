@@ -3,7 +3,7 @@ package controls.props.types
 import controls.Control.Slider
 import controls.Control.Toggle
 import controls.panels.ControlList.Companion.row
-import controls.props.GenericProp.Companion.prop
+import controls.props.GenericProp
 import coordinate.Point
 import util.DoubleRange
 import util.tuple.and
@@ -21,7 +21,7 @@ fun doublePairProp(
   ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0),
   withLockToggle: Boolean = false,
   defaultLocked: Boolean = false,
-) = prop(ref) {
+) = GenericProp(ref) {
   var locked: Boolean = defaultLocked && ref.get().x == ref.get().y
   var ctrlY: Slider? = null
   val ctrlX = Slider(

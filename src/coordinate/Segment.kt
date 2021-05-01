@@ -1,5 +1,6 @@
 package coordinate
 
+import arrow.core.memoize
 import geomerativefork.src.RShape
 import interfaces.shape.Walkable
 import util.equalsZero
@@ -10,7 +11,7 @@ import java.awt.geom.Line2D
 import kotlin.math.abs
 import kotlin.math.atan
 
-fun getSlope(p1: Point, p2: Point): Deg {
+private val _getSlope = { p1: Point, p2: Point ->
   val denominator = p2.x - p1.x
   var deg = if (denominator.equalsZero()) {
     Deg(90)
@@ -23,22 +24,28 @@ fun getSlope(p1: Point, p2: Point): Deg {
     deg = Deg(deg.value + 180)
   }
 
-  return deg
-}
+  deg
+}.memoize()
+
+fun getSlope(p1: Point, p2: Point): Deg = _getSlope(p1, p2)
 
 class Segment(
   p1: Point,
-  slope: Deg,
-  val length: Double,
-) : Line(p1, slope), Walkable {
-  constructor(p1: Point, p2: Point) : this(p1, getSlope(p1, p2), p1.dist(p2))
+  val p2: Point
+) : Line(p1, getSlope(p1, p2)), Walkable {
+  constructor(
+    p1: Point,
+    slope: Deg,
+    length: Double
+  ) : this(p1, p1 + (slope.unitVector * length))
+
   constructor(s: Segment) : this(s.p1, s.p2)
   constructor(p1: Point, len: Number, slope: Deg)
     : this(p1, slope, len.toDouble())
 
+  val length: Double get() = p1.dist(p2)
   val center: Point by lazy { p1 + slope.unitVector * (length / 2) }
   val p1: Point get() = origin
-  val p2: Point by lazy { p1 + slope.unitVector * length }
 
   fun getPointAtPercent(percent: Double) = origin + (slope.unitVector * (length * percent))
 
@@ -74,6 +81,7 @@ class Segment(
     Segment(p1 - (slope.unitVector * (amt.toDouble() / 2)), slope, length + amt.toDouble())
 
   fun resizeCentered(newLength: Number) = expand(newLength.toDouble() - length)
+  fun recentered(newCenter: Point) = centered(newCenter, slope, length)
 
   fun withReorientedDirection(l: Segment) = withReorientedDirection(l.slope)
 
@@ -93,6 +101,14 @@ class Segment(
   operator fun minus(other: Point) = Segment(p1 - other, p2 - other)
   operator fun unaryPlus() = Segment(+p1, +p2)
   operator fun unaryMinus() = Segment(-p1, -p2)
+
+  fun combine(other: Segment): Segment {
+    if (this.p2 != other.p1) {
+      throw Exception("Can't combine two segments when the end of segment 1 doesn't match the start of segment 2.\nSegment 1: $this\nSegment 2: $other")
+    }
+
+    return Segment(p1, other.p2)
+  }
 
   override fun walk(step: Double) = (p1..p2 step step).toList()
 
@@ -178,7 +194,7 @@ class Segment(
   }
 
   override fun toString(): String {
-    return "LineSegment(p1=$p1, p2=$p2, slope=$slope)"
+    return "Segment(p1=$p1, p2=$p2, slope=$slope)"
   }
 
   companion object {

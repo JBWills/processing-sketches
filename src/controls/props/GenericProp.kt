@@ -13,15 +13,4 @@ open class GenericProp<T>(
   override fun set(newVal: T) = ref.set(newVal)
 
   override fun toControlPanel(): ControlPanel = controlsGetter().toControlPanel()
-
-  companion object {
-    fun <T> prop(
-      ref: KMutableProperty0<T>,
-      controlsGetter: () -> Panelable,
-    ) = GenericProp(ref, controlsGetter = controlsGetter)
-
-    fun <T : PropData<T>> prop(
-      ref: KMutableProperty0<T>
-    ) = prop(ref) { ref.get().asControlPanel() }
-  }
 }

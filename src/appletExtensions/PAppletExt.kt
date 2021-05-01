@@ -21,7 +21,8 @@ import util.iterators.addNotNull
 import util.iterators.forEach2D
 import util.iterators.mapWithNext
 import util.lerp
-import util.pointsAndLines.forEachSegment
+import util.pointsAndLines.polyLine.forEachSegment
+import util.pointsAndLines.polyLine.normalizeForPrint
 import util.toRadians
 import java.awt.Color
 
@@ -129,7 +130,7 @@ open class PAppletExt : PApplet() {
 
   fun shape(vertices: List<Point>) {
     beginShape()
-    vertices.forEach { vertex ->
+    vertices.normalizeForPrint().forEach { vertex ->
       vertex(vertex)
     }
     endShape()
@@ -173,7 +174,11 @@ open class PAppletExt : PApplet() {
   }
 
   fun shape(path: RPath, bound: BoundRect, boundInside: Boolean = true) {
-    getBoundLines(path.points.map { Point(it.x, it.y) }, bound, boundInside).map { shapeList ->
+    getBoundLines(
+      path.points.map { Point(it.x, it.y) }.normalizeForPrint(),
+      bound,
+      boundInside,
+    ).map { shapeList ->
       shape(shapeList)
     }
   }
@@ -220,6 +225,7 @@ open class PAppletExt : PApplet() {
 
   @JvmName("drawPolyLines")
   fun List<List<Point>>.draw() = shapes(this)
+  fun RPath.drawLine() = points.map { Point(it.x, it.y) }.draw()
   fun Circ.draw() = circle(this)
   fun Segment.draw() = line(this)
   fun Line.draw(bounds: BoundRect) = bounds.getBoundSegment(this)?.let { line(it) }

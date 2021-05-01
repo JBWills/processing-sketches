@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 import util.cos
 import util.equalsDelta
 import util.sin
+import util.tan
 import util.toRadians
 import kotlin.math.abs
 import kotlin.math.min
@@ -45,6 +46,7 @@ data class Deg(private val inputValue: Double) {
   val rad get() = value.toRadians()
 
   val unitVector get() = Point(rad.cos(), -rad.sin())
+  val unitSegment get() = Segment(Point.Zero, Point(rad.cos(), -rad.sin()))
 
   fun rotatedTowards(amt: Deg, dir: RotationDirection = Clockwise): Deg {
     val signedAmt = if (dir == Clockwise) amt.value else -(amt.value)
@@ -73,6 +75,10 @@ data class Deg(private val inputValue: Double) {
   operator fun unaryPlus() = Deg(+value)
   operator fun div(other: Deg) = Deg(value / other.value)
   operator fun div(other: Number) = Deg(value / other.toDouble())
+
+  fun sin(): Double = rad.sin()
+  fun cos(): Double = rad.cos()
+  fun tangent(): Deg = rad.tan().let { tan -> if (tan.isNaN()) HORIZONTAL else Deg(tan) }
 
   fun isHorizontal() = isParallelWith(180)
   fun isVertical() = isParallelWith(90)

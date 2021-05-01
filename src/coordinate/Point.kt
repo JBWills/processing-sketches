@@ -44,9 +44,11 @@ class PointIterator(
 
   private fun getNext(): Point = getNext(curr)
 
-  private fun isPastEnd(p: Point) = start.dist(endInclusive) < start.dist(p)
+  private fun isPastEnd(p: Point) =
+    (start == endInclusive && p != start) || start.dist(endInclusive) < start.dist(p)
 
-  override fun hasNext() = curr == null || start.dist(endInclusive) > start.dist(curr!!)
+  override fun hasNext() =
+    curr == null || (start != endInclusive && start.dist(endInclusive) > start.dist(curr!!))
 
   override fun next(): Point {
     val next = getNext()
@@ -146,6 +148,8 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
 
   operator fun rangeTo(other: Point) = PointProgression(this, other)
 
+  fun lineTo(other: Point) = Segment(this, other)
+
   fun lerp(to: Point, steps: Int) = this..to step (dist(to) / steps)
 
   fun map(block: (Double) -> Number) = Point(block(x), block(y))
@@ -153,7 +157,7 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
   fun forEach2D(block: (Point) -> Unit) = (Zero..this).forEach2D(block)
 
   override fun toString(): String {
-    return "Point(x=${x.roundedString()}, y=${y.roundedString()})"
+    return "Point(x=${x.roundedString(5)}, y=${y.roundedString(5)})"
   }
 
   fun toRPoint(): RPoint = RPoint(xf, yf)

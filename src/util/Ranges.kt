@@ -73,6 +73,9 @@ infix fun Double.until(s: Double) = DoubleProgression(this, s - 1)
 fun DoubleRange.atAmountAlong(amountAlong: Double = 0.0) =
   start + ((endInclusive - start) * amountAlong)
 
+fun PointRange.atAmountAlong(amountAlong: Double = 0.0) =
+  start + ((endInclusive - start) * amountAlong)
+
 fun IntRange.atAmountAlong(amountAlong: Double = 0.0) =
   start + ((endInclusive - start) * amountAlong)
 

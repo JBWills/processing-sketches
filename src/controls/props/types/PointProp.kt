@@ -1,7 +1,7 @@
 package controls.props.types
 
 import controls.Control.Slider2d
-import controls.props.GenericProp.Companion.prop
+import controls.props.GenericProp
 import coordinate.Point
 import util.DoubleRange
 import util.PointRange
@@ -13,7 +13,7 @@ import kotlin.reflect.KMutableProperty0
 fun pointProp(
   ref: KMutableProperty0<Point>,
   ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0),
-) = prop(ref) { Slider2d(ref, ranges.first, ranges.second) { markDirty() } }
+) = GenericProp(ref) { Slider2d(ref, ranges.first, ranges.second) { markDirty() } }
 
 fun pointProp(
   ref: KMutableProperty0<Point>,

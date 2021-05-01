@@ -1,14 +1,15 @@
 package util
 
 import coordinate.Point
-import java.lang.Math.floor
 import java.lang.Math.toDegrees
 import java.lang.Math.toRadians
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.cos
+import kotlin.math.floor
 import kotlin.math.pow
 import kotlin.math.sin
+import kotlin.math.tan
 
 val EPSILON = 0.00001
 
@@ -21,9 +22,7 @@ fun forEachPoint(w: Double, h: Double, step: Double, block: (p: Point) -> Unit) 
 
 fun <R> Int.map(f: (Int) -> R) = (0 until this).map(f)
 
-fun Int.times(f: (Int) -> Unit) {
-  for (i in 0 until this) f(i)
-}
+fun Int.times(f: (Int) -> Unit) = (0 until this).forEach(f)
 
 fun Double.floorInt(): Int = floor(this).toInt()
 fun Double.ceilInt(): Int = ceil(this).toInt()
@@ -61,11 +60,13 @@ fun Number.notEqualsZero() = !equalsZero()
 
 fun <T : Number> T.sin(): Double = sin(toDouble())
 fun <T : Number> T.cos(): Double = cos(toDouble())
+fun <T : Number> T.tan(): Double = tan(toDouble())
 fun Int.squared(): Int = this * this
 fun Int.pow(other: Int): Int = toDouble().pow(other.toDouble()).toInt()
 fun Int.pow(other: Number): Double = toDouble().pow(other.toDouble())
 fun Number.pow(other: Number): Double = toDouble().pow(other.toDouble())
 fun Double.squared(): Double = this * this
+fun Double.sqrt(): Double = kotlin.math.sqrt(this)
 
 fun Number.toRadians(): Double = toRadians(toDouble())
 fun Number.toDegrees(): Double = toDegrees(toDouble())

@@ -105,9 +105,9 @@ class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
 
       sDiffed.forEach { splitPath ->
         if (clipToBounds)
-          shape(splitPath.points.map { Point(it.x, it.y) }, boundRect)
+          shape(splitPath, boundRect)
         else
-          splitPath.draw()
+          splitPath.drawLine()
       }
     }
   }

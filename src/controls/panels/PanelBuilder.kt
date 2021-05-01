@@ -2,12 +2,12 @@ package controls.panels
 
 import BaseSketch
 import controls.Control.Button
+import controls.Control.Slider
 import controls.panels.ListDirection.Col
 import controls.panels.ListDirection.Row
-import controls.props.GenericProp.Companion.prop
+import controls.props.GenericProp
 import controls.props.PropData
 import controls.props.types.booleanProp
-import controls.props.types.degProp
 import controls.props.types.doublePairProp
 import controls.props.types.doubleProp
 import controls.props.types.dropdownListProp
@@ -149,7 +149,12 @@ open class PanelBuilder(val panels: MutableList<Panelable>) {
     ref: KMutableProperty0<Deg>,
     range: DoubleRange = 0.0..360.0,
     style: ControlStyle? = null,
-  ) = degProp(ref, range).applyAndAdd(style)
+  ) = GenericProp(ref) {
+    Slider(ref.name, range, ref.get().value) {
+      ref.set(Deg(it))
+      markDirty()
+    }
+  }.applyAndAdd(style)
 
   fun sliderPair(
     ref: KMutableProperty0<Point>,
@@ -205,7 +210,9 @@ open class PanelBuilder(val panels: MutableList<Panelable>) {
   fun <T : PropData<T>> panel(
     ref: KMutableProperty0<T>,
     style: ControlStyle? = null,
-  ) = prop(ref).applyAndAdd(style)
+  ) = GenericProp(ref) {
+    ref.get().asControlPanel()
+  }.applyAndAdd(style)
 
   companion object {
     internal fun list(block: PanelBuilder.() -> Unit): ControlList =

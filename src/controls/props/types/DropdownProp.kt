@@ -2,7 +2,7 @@ package controls.props.types
 
 import controls.Control.Dropdown
 import controls.Control.EnumDropdown
-import controls.props.GenericProp.Companion.prop
+import controls.props.GenericProp
 import kotlin.reflect.KMutableProperty0
 
 fun dropdownListProp(
@@ -22,7 +22,7 @@ fun dropdownListProp(
 fun <E : Enum<E>> enumProp(
   ref: KMutableProperty0<E>,
   onChange: () -> Unit = {},
-) = prop(ref) {
+) = GenericProp(ref) {
   EnumDropdown(ref, text = ref.name) { onChange(); markDirty() }
 }
 
@@ -30,7 +30,7 @@ fun <E : Enum<E>> nullableEnumProp(
   ref: KMutableProperty0<E?>,
   values: Array<E>,
   onChange: () -> Unit = {},
-) = prop(ref) {
+) = GenericProp(ref) {
   val noneOption = "None"
   Dropdown(
     text = ref.name,
