@@ -10,11 +10,9 @@ import controls.props.types.SpiralProp
 import coordinate.Deg
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.cos
 import util.image.bounds
 import util.image.get
 import util.pointsAndLines.polyLine.mapWithLength
-import util.sin
 
 /**
  * Starter sketch that uses all of the latest bells and whistles.
@@ -49,13 +47,7 @@ class SpiralPhotoFilter : LayeredCanvasSketch<SpiralPhotoFilterData, SpiralPhoto
         (point - imageBounds.topLeft).let { if (image.bounds.contains(it)) it else null }
 
       val lumAtP = imagePoint?.let { image.get(it).red / 255.0 } ?: 0.0
-      val sinVal =
-        ((length / spiralFreq).sin() + (length / spiralFreq).cos())
-//      val moveAmount = sinVal * spiralAmp * lumAtP
-//      val deg = Segment(boundRect.pointAt(spiral.origin), point).slope
       val degTwo = Deg((length / spiralFreq))
-//      val moveVector =
-//        deg.unitVector * moveAmount + (deg.plus(90).unitVector * skew * ((-2 * length) / spiralFreq).sin() * lumAtP)
       point + degTwo.unitVector * spiralAmp * lumAtP
 
     }.draw()

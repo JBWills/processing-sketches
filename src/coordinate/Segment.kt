@@ -1,6 +1,5 @@
 package coordinate
 
-import arrow.core.memoize
 import geomerativefork.src.RShape
 import interfaces.shape.Walkable
 import util.equalsZero
@@ -11,7 +10,7 @@ import java.awt.geom.Line2D
 import kotlin.math.abs
 import kotlin.math.atan
 
-private val _getSlope = { p1: Point, p2: Point ->
+fun getSlope(p1: Point, p2: Point): Deg {
   val denominator = p2.x - p1.x
   var deg = if (denominator.equalsZero()) {
     Deg(90)
@@ -24,10 +23,8 @@ private val _getSlope = { p1: Point, p2: Point ->
     deg = Deg(deg.value + 180)
   }
 
-  deg
-}.memoize()
-
-fun getSlope(p1: Point, p2: Point): Deg = _getSlope(p1, p2)
+  return deg
+}
 
 class Segment(
   p1: Point,
@@ -43,7 +40,7 @@ class Segment(
   constructor(p1: Point, len: Number, slope: Deg)
     : this(p1, slope, len.toDouble())
 
-  val length: Double get() = p1.dist(p2)
+  val length: Double by lazy { p1.dist(p2) }
   val center: Point by lazy { p1 + slope.unitVector * (length / 2) }
   val p1: Point get() = origin
 

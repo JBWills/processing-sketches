@@ -1,10 +1,8 @@
 package util.pointsAndLines.polyLine
 
-import coordinate.Point
 import coordinate.Segment
 import geomerativefork.src.util.boundMin
 import util.DoubleRange
-import util.debugLog
 
 fun PolyLine.normalizeForPrint() = normalizeDistances(1.5..1000.0)
 
@@ -21,9 +19,7 @@ fun PolyLine.normalizeDistances(distRange: DoubleRange, angleCutoff: Double = 45
     distRangeStartClipped..distRange.endInclusive.boundMin(distRangeStartClipped + 0.1)
   val result = mutableListOf<Segment>()
   var lastSegment: Segment? = null
-  var lastPoint: Point? = null
   forEachSegment { segment ->
-//    val lastSegment = lastPoint?.lineTo(segment.p1)
     lastSegment?.let { lastNonNull ->
       if (lastNonNull.angleBetween(segment) > angleCutoff) {
         result.add(lastNonNull)
@@ -38,10 +34,7 @@ fun PolyLine.normalizeDistances(distRange: DoubleRange, angleCutoff: Double = 45
         result.add(newSegment)
         null
       }
-      newSegment.length < distRangeClipped.start -> {
-        debugLog("here2 \nlas: $lastSegment\nseg: $segment \nnew: $newSegment")
-        newSegment
-      }
+      newSegment.length < distRangeClipped.start -> newSegment
       else -> {
         val splitSegments: List<Segment> =
           newSegment.walk(distRangeClipped.endInclusive).toSegments()
@@ -49,13 +42,10 @@ fun PolyLine.normalizeDistances(distRange: DoubleRange, angleCutoff: Double = 45
 
         val last = splitSegments.last()
 
-        debugLog("here3")
         if (last.length in distRangeClipped) {
           result.add(last)
-          debugLog("here4")
           null
         } else {
-          debugLog("here5")
           last
         }
       }
