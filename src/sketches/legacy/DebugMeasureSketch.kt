@@ -4,7 +4,6 @@ import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import controls.panels.ControlList.Companion.col
-import controls.panels.ControlList.Companion.row
 import controls.panels.Panelable
 import coordinate.BoundRect
 import coordinate.Point
@@ -17,21 +16,19 @@ import java.awt.Color
 
 open class DebugMeasureSketch(
   backgroundColor: Color = Color.WHITE,
-  sizeX: Int = DPI.InkScape.toPixels(20),
-  sizeY: Int = DPI.InkScape.toPixels(20),
+  size: Point = Point(DPI.InkScape.toPixels(20), DPI.InkScape.toPixels(20)),
 ) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "DebugMeasureSketch",
-  sizeX = sizeX,
-  sizeY = sizeY,
+  size = size,
 ) {
 
-  private val outerPaddingX: Double = sizeX * 0.02
-  private val outerPaddingY: Double = sizeY * 0.02
+  private val outerPaddingX: Double = size.x * 0.02
+  private val outerPaddingY: Double = size.y * 0.02
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
-    sizeX - 2 * outerPaddingX,
-    sizeY - 2 * outerPaddingY,
+    size.x - 2 * outerPaddingX,
+    size.y - 2 * outerPaddingY,
   )
 
   private var numCircles: Int = 12

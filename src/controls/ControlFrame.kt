@@ -47,7 +47,7 @@ class ControlFrame(
     surface.setVisible(false)
   }
 
-  fun indexOfTab(tabName: String): Int? {
+  fun indexOfTab(tabName: String?): Int? {
     val index = tabs.indexOfFirst { it.name == tabName }
     return if (index == -1) null else index
   }

@@ -1,5 +1,6 @@
 package controls.props.types
 
+import BaseSketch
 import controls.Control.Dropdown
 import controls.Control.EnumDropdown
 import controls.props.GenericProp
@@ -9,7 +10,7 @@ fun dropdownListProp(
   name: String,
   options: List<String>,
   ref: KMutableProperty0<String>,
-  onChange: (String) -> Unit = {},
+  onChange: BaseSketch.(String) -> Unit = {},
 ) = Dropdown(
   text = name,
   options = options,
@@ -21,7 +22,7 @@ fun dropdownListProp(
 
 fun <E : Enum<E>> enumProp(
   ref: KMutableProperty0<E>,
-  onChange: () -> Unit = {},
+  onChange: BaseSketch.() -> Unit = {},
 ) = GenericProp(ref) {
   EnumDropdown(ref, text = ref.name) { onChange(); markDirty() }
 }
@@ -29,7 +30,7 @@ fun <E : Enum<E>> enumProp(
 fun <E : Enum<E>> nullableEnumProp(
   ref: KMutableProperty0<E?>,
   values: Array<E>,
-  onChange: () -> Unit = {},
+  onChange: BaseSketch.() -> Unit = {},
 ) = GenericProp(ref) {
   val noneOption = "None"
   Dropdown(

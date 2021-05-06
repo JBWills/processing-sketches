@@ -2,9 +2,10 @@ package util.print
 
 import coordinate.BoundRect
 import coordinate.Point
+import util.doIf
 import util.lightened
 import util.print.DPI.InkScape
-import util.print.Orientation.Landscape
+import util.print.Orientation.Portrait
 import java.awt.Color
 import java.awt.Color.BLACK
 import java.awt.Color.RED
@@ -37,7 +38,6 @@ enum class Paper(
   val defaultBackgroundColor: Color,
   val defaultStrokeColor: Color,
 ) {
-
   LargeWhite(14, 11, WHITE, BLACK),
   LargeBlack(18, 12, BLACK, WHITE),
   A4White(11.69, 8.27, WHITE, BLACK),
@@ -49,14 +49,20 @@ enum class Paper(
 
   private fun sidePx(sideInches: Double, dpi: DPI = InkScape) = dpi.toPixels(sideInches)
 
+  fun px(orientation: Orientation, dpi: DPI = InkScape) =
+    Point(
+      sidePx(longSideInches, dpi),
+      sidePx(shortSideInches, dpi),
+    ).doIf(orientation == Portrait) { it.swapXY() }
+
   fun horizontalPx(orientation: Orientation, dpi: DPI = InkScape) =
-    sidePx(if (orientation == Landscape) longSideInches else shortSideInches, dpi)
+    px(orientation, dpi).x
 
   fun verticalPx(orientation: Orientation, dpi: DPI = InkScape) =
-    sidePx(if (orientation == Landscape) shortSideInches else longSideInches, dpi)
+    px(orientation, dpi).y
 
-  fun toBoundRect(orientation: Orientation) =
-    BoundRect(Point.Zero, horizontalPx(orientation), verticalPx(orientation))
+  fun toBoundRect(orientation: Orientation, dpi: DPI = InkScape) =
+    BoundRect(Point.Zero, horizontalPx(orientation, dpi), verticalPx(orientation, dpi))
 
   constructor(
     longSideInches: Number,
@@ -68,6 +74,6 @@ enum class Paper(
       longSideInches.toDouble(),
       shortSideInches.toDouble(),
       defaultBackgroundColor,
-      defaultStrokeColor
+      defaultStrokeColor,
     )
 }

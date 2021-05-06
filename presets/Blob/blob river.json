@@ -6,30 +6,24 @@
                 "noiseType": "ValueCubic",
                 "scale": 2.0,
                 "offset": {
-                    "x": 683.9321899414062,
-                    "y": 434.9888000488281
+                    "x": 667.0,
+                    "y": 417.46246337890625
                 },
                 "strength": {
                     "x": 0.0,
                     "y": 0.0
                 }
             },
-            "gridStep": 1.4027777910232544,
+            "gridStep": 6.074999809265137,
             "drawBlob": true,
-            "thresholdStart": 0.0,
-            "thresholdEnd": 1.0,
-            "numThresholds": 14,
-            "shouldSmooth": true,
-            "smoothEpsilon": 4.935028553009033
+            "thresholdStart": 0.5197740197181702,
+            "thresholdEnd": 0.6263158321380615
         },
         {
-            "shouldSmooth": true
         },
         {
         }
     ],
-    "canvas": {
-    },
     "global": {
         "shape": {
             "type": "Rectangle",
@@ -44,16 +38,17 @@
         "lineNoise": {
             "seed": 100,
             "noiseType": "ValueCubic",
-            "scale": 0.3888888955116272,
+            "quality": "Low",
+            "scale": 1.3794872760772705,
             "offset": {
                 "x": 680.0078125,
                 "y": 506.43914794921875
             },
             "strength": {
                 "x": 124.29379272460938,
-                "y": 299.4350280761719
+                "y": 63.157901763916016
             }
         },
-        "lineDensity": 0.8861111402511597
+        "lineDensity": 0.17499999701976776
     }
 }

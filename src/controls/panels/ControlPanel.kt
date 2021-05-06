@@ -214,7 +214,7 @@ class ControlList(
         if (isRow) Point(item.widthRatio / widthRatio, 1)
         else Point(1, item.heightRatio / heightRatio)
         )
-      val childBound = BoundRect(currPoint, elementSize)
+      val childBound = BoundRect(currPoint, elementSize.x, elementSize.y)
 
       currPoint =
         if (isRow) childBound.topRight + paddingBetweenElements.zeroY()

@@ -6,14 +6,13 @@ import controls.panels.ControlTab.Companion.tab
 import controls.props.LayerAndGlobalProps
 import controls.props.LayerAndGlobalProps.Companion.props
 import controls.props.PropData
+import controls.props.types.CanvasProp
 import controls.utils.deletePresetFile
 import controls.utils.loadPresets
 import controls.utils.savePresetToFile
 import kotlinx.serialization.KSerializer
 import util.constants.getLayerColors
 import util.iterators.mapArrayIndexed
-import util.print.Orientation
-import util.print.Paper
 import util.print.Pen
 import util.print.StrokeWeight
 import util.print.StrokeWeight.Thick
@@ -24,14 +23,12 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   svgBaseFilename: String,
   defaultGlobal: GlobalValues,
   layerToDefaultTab: (Int) -> TabValues,
-  canvas: Paper = Paper.SquareBlack,
-  orientation: Orientation = Orientation.Landscape,
   val maxLayers: Int = MAX_LAYERS,
-) : CanvasSketch(svgBaseFilename, canvas, orientation) {
+) : CanvasSketch(svgBaseFilename, CanvasProp()) {
   private val globalSerializer: KSerializer<GlobalValues> = defaultGlobal.toSerializer()
   private val layerSerializer: KSerializer<TabValues> = layerToDefaultTab(0).toSerializer()
 
-  private val fallbackProps = props(maxLayers, defaultGlobal, layerToDefaultTab)
+  private val fallbackProps = props(maxLayers, CanvasProp(), defaultGlobal, layerToDefaultTab)
 
   private var presets: Map<String, LayerAndGlobalProps<TabValues, GlobalValues>> =
     loadPresets(maxLayers, globalSerializer, layerSerializer)
@@ -47,6 +44,12 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
 
   // Values that are locked during draw (so they don't change in the middle of a draw step)
   private var frozenValues: DrawInfo? = null
+
+  override var canvasProps
+    get() = layerAndGlobalProps.canvasValues
+    set(value) {
+      layerAndGlobalProps = LayerAndGlobalProps(layerAndGlobalProps, canvasData = value)
+    }
 
   final override fun setup() {
     super.setup()
@@ -87,7 +90,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
       }
     },
     tab(CANVAS_TAB_NAME) {
-      +super.getControls()
+      +layerAndGlobalProps.canvasControls
       intSlider(::numLayers, range = 0..maxLayers)
       dropdownList(::weightOverride, StrokeWeight.values())
     },
@@ -100,13 +103,19 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   final override fun drawSetup() {
     super.drawSetup()
 
-    val (global, tab) = layerAndGlobalProps.cloneValues()
-    frozenValues = DrawInfo(global, tab).also { drawSetup(it) }
+    val (canvas, global, tab) = layerAndGlobalProps.cloneValues()
+    frozenValues = DrawInfo(canvas, global, tab).also { drawSetup(it) }
   }
 
   final override fun drawOnce(layer: Int) {
     val frozenValues = frozenValues ?: return
-    drawOnce(LayerInfo(layer, frozenValues.globalValues, frozenValues.allTabValues))
+    drawOnce(
+      LayerInfo(
+        layer,
+        frozenValues.globalValues,
+        frozenValues.allTabValues,
+      ),
+    )
   }
 
   private fun savePreset(presetName: String) {
@@ -129,6 +138,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   private fun coloredLayer(c: Color) = LayerConfig(Style(Thick, c))
 
   open inner class DrawInfo(
+    val canvasValues: CanvasProp,
     val globalValues: GlobalValues,
     val allTabValues: List<TabValues>,
   ) {
@@ -140,7 +150,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
     val layerIndex: Int,
     globalValues: GlobalValues,
     allTabValues: List<TabValues>,
-  ) : DrawInfo(globalValues, allTabValues) {
+  ) : DrawInfo(canvasProps, globalValues, allTabValues) {
     val tabValues = allTabValues[layerIndex]
   }
 

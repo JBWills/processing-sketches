@@ -52,7 +52,7 @@ class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { 
 
     var nextUnionShape: RShape? = null
 
-    val baseWarpedPoints = Segment(Point(0, height), Point(sizeX, height))
+    val baseWarpedPoints = Segment(Point(0, height), Point(size.x, height))
       .warped(waveNoise)
 
     while (height < maxLineHeight) {
@@ -64,8 +64,8 @@ class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { 
       if (height == baseHeight) {
         val waveShape = RShape(
           warpedPath.apply {
-            addLineTo(sizeX.toFloat(), sizeY.toFloat())
-            addLineTo(0f, sizeY.toFloat())
+            addLineTo(size.x.toFloat(), size.y.toFloat())
+            addLineTo(0f, size.y.toFloat())
             addClose()
           },
         )

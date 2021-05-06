@@ -14,6 +14,9 @@ private val JsonFormat = Json {
   prettyPrint = true
 }
 
+fun <T> JsonElement.decode(deserializer: DeserializationStrategy<T>): T =
+  JsonFormat.decodeFromJsonElement(deserializer, this)
+
 fun <T> decode(deserializer: DeserializationStrategy<T>, element: JsonElement): T =
   JsonFormat.decodeFromJsonElement(deserializer, element)
 

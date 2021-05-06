@@ -14,7 +14,6 @@ import util.ZeroToOne
 import util.map
 import util.percentAlong
 import util.plus
-import util.print.Paper.A4Black
 import util.tuple.map
 import util.zeroTo
 import java.awt.Color
@@ -28,7 +27,6 @@ class Mesh : LayeredCanvasSketch<MeshData, MeshLayerData>(
   "Mesh",
   MeshData(),
   { MeshLayerData() },
-  canvas = A4Black,
 ) {
   init {
     numLayers = 1

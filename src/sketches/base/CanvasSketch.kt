@@ -3,64 +3,41 @@ package sketches.base
 import BaseSketch
 import LayerConfig
 import appletExtensions.withStyle
-import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import coordinate.Point
+import controls.props.types.CanvasProp
 import util.darkened
-import util.print.Orientation
-import util.print.Paper
 import util.print.StrokeWeight.Thick
 import util.print.Style
 import java.awt.Color
 
 abstract class CanvasSketch(
   svgBaseFilename: String,
-  canvas: Paper = Paper.SquareBlack,
-  var orientation: Orientation = Orientation.Landscape,
+  open var canvasProps: CanvasProp,
 ) : BaseSketch(
-  canvas.defaultBackgroundColor,
-  canvas.defaultStrokeColor,
+  canvasProps.paper.defaultBackgroundColor,
+  canvasProps.paper.defaultStrokeColor,
   svgBaseFilename,
-  canvas.horizontalPx(orientation),
-  canvas.verticalPx(orientation),
+  canvasProps.pagePx,
 ) {
 
-  var paper: Paper = canvas
-  var boundBoxCenter: Point = Point.Half
-  var boundBoxScale: Point = Point(0.8, 0.8)
-  var drawBoundRect: Boolean = true
-
-  var boundRect = calcBoundRect()
+  val boundRect get() = canvasProps.boundRect
 
   init {
     markDirty()
   }
 
-  private fun markCanvasDirty() {
-    updateSize(paper.horizontalPx(orientation), paper.verticalPx(orientation))
+  override fun getFilenameSuffix(): String = canvasProps.paper.name
 
-    backgroundColor = paper.defaultBackgroundColor
-    strokeColor = paper.defaultStrokeColor
-  }
-
-  override fun getFilenameSuffix(): String = paper.name
-
-  override fun getControls(): Panelable = col {
-    dropdownList(::paper) { markCanvasDirty() }
-    dropdownList(::orientation) { markCanvasDirty() }
-    toggle(::drawBoundRect)
-    toggle(::isDebugMode)
-    sliderPair(::boundBoxCenter)
-    sliderPair(::boundBoxScale)
-  }
+  override fun getControls(): Panelable = canvasProps.asControlPanel()
 
   abstract fun drawOnce(layer: Int)
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
     noFill()
 
-    val needsDarkStroke: Boolean = isRecording || paper.defaultBackgroundColor != Color.black
-    val style = paper.defaultStyle
+    val needsDarkStroke: Boolean =
+      isRecording || canvasProps.paper.defaultBackgroundColor != Color.black
+    val style = canvasProps.paper.defaultStyle
       .applyOverrides(layerConfig.style)
       .applyOverrides(
         Style(
@@ -71,19 +48,10 @@ abstract class CanvasSketch(
 
     withStyle(style) {
       if (layer == getLayers().size - 1) {
-        boundRect = calcBoundRect()
-
-        if (drawBoundRect) rect(boundRect)
+        if (canvasProps.drawBoundRect) rect(boundRect)
       } else {
         drawOnce(layer)
       }
     }
   }
-
-  private fun calcBoundRect() = paper
-    .toBoundRect(orientation)
-    .scale(
-      boundBoxScale,
-      newCenter = boundBoxCenter * Point(sizeX, sizeY),
-    )
 }

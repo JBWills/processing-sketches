@@ -69,7 +69,7 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
             .toUnitVectorSegment(canvasPoint)
             .resizeCentered(length)
             .centeredWithSlope(baseRotation)
-          listOf(segment, segment.centeredWithSlope(segment.slope + 90)).draw()
+          listOf(segment, segment.centeredWithSlope(segment.slope + 90)).drawAsLine()
         }
         Crosses2 -> {
           val length1 = lumAtP.bound(0.0, 0.5) * 2 * length
@@ -87,7 +87,7 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
               .resizeCentered(length2),
           )
             .filter { it.length > 1 }
-            .draw()
+            .drawAsLine()
         }
         Crosses4 -> {
           val length1 = lumAtP.bound(0.0, 0.25) * 4 * length
@@ -113,7 +113,7 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
               .resizeCentered(length4),
           )
             .filter { it.length > 1 }
-            .draw()
+            .drawAsLine()
         }
         Squares -> canvasPoint.drawSquare(length, rotation = baseRotation)
         Lines -> image

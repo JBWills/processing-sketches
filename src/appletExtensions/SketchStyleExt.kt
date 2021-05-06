@@ -46,8 +46,7 @@ fun PApplet.withFillNonNull(fill: Color?, block: () -> Unit) =
  */
 fun PApplet.withStyle(s: Style, block: () -> Unit) {
   pushStyle()
-  if (s.weightPx != null) strokeWeight(s.weightPx.toFloat())
-  if (s.color != null) stroke(s.color.rgb)
+  s.apply(this)
 
   block()
   popStyle()

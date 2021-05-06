@@ -31,7 +31,12 @@ data class BoundRect(
     height.toDouble(),
   )
 
-  constructor(topLeft: Point, size: Point) : this(topLeft, size.x, size.y)
+  constructor(topLeft: Point, bottomRight: Point) : this(
+    topLeft,
+    (bottomRight - topLeft).x,
+    (bottomRight - topLeft).y,
+  )
+
   constructor(width: Number, height: Number) : this(Point.Zero, width, height)
 
   init {
@@ -53,8 +58,8 @@ data class BoundRect(
   val xPixels: Iterable<Int> by lazy { left.toInt()..right.toInt() }
   val yPixels: Iterable<Int> by lazy { top.toInt()..bottom.toInt() }
 
-  val topSegment by lazy { Segment(topLeft, Deg(0), width) }
-  val bottomSegment by lazy { Segment(bottomLeft, Deg(0), width) }
+  val topSegment by lazy { Segment(topLeft, topRight) }
+  val bottomSegment by lazy { Segment(bottomLeft, bottomRight) }
   val leftSegment by lazy { Segment(topLeft, bottomLeft) }
   val rightSegment by lazy { Segment(topRight, bottomRight) }
 
@@ -71,6 +76,8 @@ data class BoundRect(
   fun isBottom(line: Line) = line.origin.y == bottom && line.slope.isHorizontal()
   fun isLeft(line: Line) = line.origin.x == left && line.slope.isVertical()
   fun isRight(line: Line) = line.origin.x == right && line.slope.isVertical()
+
+  fun asPolyLine() = listOf(topLeft, topRight, bottomRight, bottomLeft, topLeft)
 
   fun expand(amountX: Number, amountY: Number) = BoundRect(
     topLeft - Point(amountX, amountY),

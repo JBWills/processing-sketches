@@ -23,6 +23,7 @@ import util.iterators.mapWithNext
 import util.lerp
 import util.pointsAndLines.polyLine.forEachSegment
 import util.pointsAndLines.polyLine.normalizeForPrint
+import util.pointsAndLines.polyLine.toPolyLine
 import util.toRadians
 import java.awt.Color
 
@@ -32,6 +33,11 @@ import java.awt.Color
 open class PAppletExt : PApplet() {
 
   val NOISE = getNoise(Perlin)
+
+  fun background(c: Color) = background(c.rgb)
+  fun stroke(c: Color) = stroke(c.rgb)
+  fun fill(c: Color) = fill(c.rgb)
+  fun setSurfaceSize(p: Point) = surface.setSize(p.xi, p.yi)
 
   fun getNoise(type: NoiseType = Perlin): FastNoiseLite =
     FastNoiseLite().also { it.SetNoiseType(type) }
@@ -136,11 +142,17 @@ open class PAppletExt : PApplet() {
     endShape()
   }
 
-  private fun shapes(lines: List<List<Point>>) = lines.forEach { vertices ->
-    beginShape()
-    vertices.forEach { vertex -> vertex(vertex) }
-    endShape()
-  }
+  private fun shapes(lines: List<List<Point>>, debug: Boolean = false) =
+    lines.forEachIndexed { lineIndex, vertices ->
+      if (debug) {
+        pushStyle()
+        stroke(if (lineIndex % 2 == 0) Color.RED else Color.GREEN)
+      }
+      beginShape()
+      vertices.forEach { vertex -> vertex(vertex) }
+      endShape()
+      if (debug) popStyle()
+    }
 
   fun shape(vertices: Array<RPoint>) {
     beginShape()
@@ -219,12 +231,12 @@ open class PAppletExt : PApplet() {
     }
   }
 
-  @JvmName("drawSegments")
-  fun List<Segment>.draw() = map { it.draw() }
+  fun List<Segment>.drawAsSegments() = map { it.draw() }
+  fun List<Segment>.drawAsLine() = toPolyLine().draw()
   fun List<Point>.draw() = shape(this)
 
   @JvmName("drawPolyLines")
-  fun List<List<Point>>.draw() = shapes(this)
+  fun List<List<Point>>.draw(debug: Boolean = false) = shapes(this, debug)
   fun RPath.drawLine() = points.map { Point(it.x, it.y) }.draw()
   fun Circ.draw() = circle(this)
   fun Segment.draw() = line(this)

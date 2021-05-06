@@ -8,10 +8,12 @@ import interfaces.math.Mathable
 import kotlinx.serialization.Serializable
 import util.DoubleRange
 import util.equalsDelta
+import util.equalsZero
 import util.roundedString
 import util.squared
 import util.step
 import util.toDegrees
+import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min
@@ -149,6 +151,16 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
   operator fun rangeTo(other: Point) = PointProgression(this, other)
 
   fun lineTo(other: Point) = Segment(this, other)
+
+  fun perpendicularDistanceTo(line: Segment): Double {
+    val (x0, y0) = this
+    val (x1, y1) = line.p1
+    val (x2, y2) = line.p2
+    val denominator = sqrt((x2 - x1).squared() + (y2 - y1).squared())
+
+    return if (denominator.equalsZero()) dist(line.p1)
+    else abs((x2 - x1) * (y1 - y0) - (x1 - x0) * (y2 - y1)) / denominator
+  }
 
   fun lerp(to: Point, steps: Int) = this..to step (dist(to) / steps)
 

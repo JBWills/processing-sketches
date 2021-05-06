@@ -1,0 +1,67 @@
+{
+    "layers": [
+        {
+            "noise": {
+                "seed": 1238,
+                "noiseType": "ValueCubic",
+                "scale": 2.0,
+                "offset": {
+                    "x": 373.50848388671875,
+                    "y": 215.9098358154297
+                },
+                "strength": {
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "gridStep": 3.094444513320923,
+            "drawBlob": true,
+            "thresholdStart": 0.42937853932380676,
+            "thresholdEnd": 0.901129961013794,
+            "numThresholds": 8
+        },
+        {
+            "noise": {
+                "seed": 838,
+                "noiseType": "Perlin",
+                "scale": 1.07,
+                "offset": {
+                    "x": 317.0677795410156,
+                    "y": 636.5414428710938
+                },
+                "strength": {
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            }
+        },
+        {
+        }
+    ],
+    "global": {
+        "shape": {
+            "type": "Rectangle",
+            "size": {
+                "x": 1171.4285888671875,
+                "y": 871.4285278320312
+            }
+        },
+        "lineAngle": {
+            "inputValue": 128.0
+        },
+        "lineNoise": {
+            "seed": 100,
+            "noiseType": "ValueCubic",
+            "scale": 0.2222222238779068,
+            "offset": {
+                "x": 929.4491577148438,
+                "y": 342.66363525390625
+            },
+            "strength": {
+                "x": 203.3898162841797,
+                "y": 299.4350280761719
+            }
+        },
+        "lineDensity": 0.8777778148651123
+    }
+}

@@ -5,6 +5,7 @@ package test.util
 import coordinate.Point
 import org.junit.jupiter.api.Test
 import util.atAmountAlong
+import util.numSteps
 import util.percentAlong
 import util.step
 import kotlin.test.assertEquals
@@ -15,19 +16,19 @@ internal class RangeTest {
   fun testIterator() {
     assertEquals(
       listOf(0.0, 1.0, 2.0),
-      (0.0..2.0 step 1.0).map { it }
+      (0.0..2.0 step 1.0).map { it },
     )
     assertEquals(
       listOf(2.0, 1.0, 0.0),
-      (2.0..0.0 step -1.0).map { it }
+      (2.0..0.0 step -1.0).map { it },
     )
     assertEquals(
       listOf(0.0, 2.0),
-      (0.0..2.0 step 2.0).map { it }
+      (0.0..2.0 step 2.0).map { it },
     )
     assertEquals(
       listOf(0.0),
-      (0.0..0.0 step 1.0).map { it }
+      (0.0..0.0 step 1.0).map { it },
     )
   }
 
@@ -35,16 +36,16 @@ internal class RangeTest {
   fun testPointRange() {
     assertEquals(
       listOf(Point.Zero, Point(0, 0.5), Point(0, 1)),
-      (Point.Zero..Point(0, 1) step 0.5).toList()
+      (Point.Zero..Point(0, 1) step 0.5).toList(),
     )
     assertEquals(
       listOf(Point.Zero, Point(0, 0.6), Point(0, 1)),
-      (Point.Zero..Point(0, 1) step 0.6).toList()
+      (Point.Zero..Point(0, 1) step 0.6).toList(),
     )
     assertEquals(listOf(Point.Zero, Point(0, 1)), (Point.Zero..Point(0, 1) step 2.0).toList())
     assertEquals(
       listOf(Point(0, 1), Point(0, 0.5), Point.Zero),
-      (Point.Zero..Point(0, 1) step -0.5).toList()
+      (Point.Zero..Point(0, 1) step -0.5).toList(),
     )
   }
 
@@ -74,5 +75,10 @@ internal class RangeTest {
     assertEquals(0.75, (-1..1).percentAlong(0.5))
     assertEquals(0.0, (-1..1).percentAlong(-1.0))
     assertEquals(-0.5, (0..-1).percentAlong(0.5))
+  }
+
+  @Test
+  fun testNumSteps() {
+    assertEquals(listOf(1.0, 1.25, 1.5, 1.75, 2.0), (1.0..2.0 numSteps 5.0).toList())
   }
 }

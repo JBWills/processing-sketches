@@ -6,6 +6,7 @@ import coordinate.Point
 import coordinate.Segment
 import fastnoise.Noise
 import util.DoubleRange
+import util.iterators.zipNullPadded
 import util.step
 import kotlin.math.sign
 
@@ -58,54 +59,80 @@ private fun bools(
   bottomLeft ?: bottom ?: left ?: all ?: false,
 )
 
-val LOOKUP_TABLE: Map<List<Boolean>, (leftMidPoint: Point, rightMidpoint: Point, topMidpoint: Point, bottomMidpoint: Point) -> List<Segment>> =
-  mapOf(
-    bools(all = false) to { _, _, _, _ -> listOf() },
-    bools(all = true) to { _, _, _, _ -> listOf() },
-    bools(bottomLeft = true) to { l, _, _, b -> listOf(Segment(l, b)) },
-    bools(all = true, bottomLeft = false) to { l, _, _, b ->
-      listOf(Segment(l, b))
-    },
-    bools(bottomRight = true) to { _, r, _, b ->
-      listOf(Segment(r, b))
-    },
-    bools(
-      all = true,
-      bottomRight = false
-    ) to { _, r, _, b ->
-      listOf(Segment(r, b))
-    },
-    bools(topRight = true) to { _, r, t, _ -> listOf(Segment(t, r)) },
-    bools(all = true, topRight = false) to { _, r, t, _ ->
-      listOf(Segment(t, r))
-    },
-    bools(topLeft = true) to { l, _, t, _ -> listOf(Segment(t, l)) },
-    bools(all = true, topLeft = false) to { l, _, t, _ ->
-      listOf(Segment(t, l))
-    },
-    bools(top = true) to { l, r, _, _ -> listOf(Segment(l, r)) },
-    bools(bottom = true) to { l, r, _, _ -> listOf(Segment(l, r)) },
-    bools(left = true) to { _, _, t, b -> listOf(Segment(t, b)) },
-    bools(right = true) to { _, _, t, b -> listOf(Segment(t, b)) },
-    bools(
-      topRight = true,
-      bottomLeft = true
-    ) to { l, r, t, b ->
-      listOf(
-        Segment(t, l),
-        Segment(r, b)
+private typealias MidpointsToSegments = (
+  f: (Point) -> Boolean,
+  boundBox: BoundRect,
+) -> List<Segment>
+
+private fun sWithCommonPointOrDirection(s1: Segment, s2: Segment): Pair<Segment, Segment> =
+  when {
+    s1.p1 == s2.p2 -> s1 to s2.flip()
+    s1.p2 == s2.p1 -> s1.flip() to s2
+    s1.isParallel(s2) -> s1.withReorientedDirection(s2) to s2
+    else -> s1 to s2
+  }
+
+private fun shouldFlipDirection(s1: Segment, s2: Segment): Pair<Boolean, Boolean> =
+  when {
+    s1.p1 == s2.p2 -> false to true
+    s1.p2 == s2.p1 -> true to false
+    s1.isParallel(s2) -> (s1.p1 != s2.p1) to false
+    else -> false to false
+  }
+
+private fun s(s1: Segment, s2: Segment, f: (Point) -> Boolean): List<Segment> {
+  val (s1ShouldFlip, s2ShouldFlip) = shouldFlipDirection(s1, s2)
+
+  val s1Points = if (s1ShouldFlip) s1.pointsAtThreshold(f).reversed() else s1.pointsAtThreshold(f)
+  val s2Points = if (s2ShouldFlip) s2.pointsAtThreshold(f).reversed() else s2.pointsAtThreshold(f)
+
+  return (s1Points to s2Points)
+    .zipNullPadded { p1, p2 ->
+      Segment(
+        p1 ?: s1Points.last(),
+        p2 ?: s2Points.last(),
       )
-    },
-    bools(
-      topLeft = true,
-      bottomRight = true
-    ) to { l, r, t, b ->
-      listOf(
-        Segment(t, r),
-        Segment(l, b)
-      )
-    },
-  )
+    }
+}
+
+private val LOOKUP_TABLE: Map<List<Boolean>, MidpointsToSegments> = mapOf(
+  bools(all = false)
+    to { f, bound -> listOf() },
+  bools(all = true)
+    to { f, bound -> listOf() },
+  bools(bottomLeft = true)
+    to { f, bound -> s(bound.leftSegment, bound.bottomSegment, f) },
+  bools(all = true, bottomLeft = false)
+    to { f, bound -> s(bound.leftSegment, bound.bottomSegment, f) },
+  bools(bottomRight = true)
+    to { f, bound -> s(bound.rightSegment, bound.bottomSegment, f) },
+  bools(all = true, bottomRight = false)
+    to { f, bound -> s(bound.rightSegment, bound.bottomSegment, f) },
+  bools(topRight = true)
+    to { f, bound -> s(bound.topSegment, bound.rightSegment, f) },
+  bools(all = true, topRight = false)
+    to { f, bound -> s(bound.topSegment, bound.rightSegment, f) },
+  bools(topLeft = true)
+    to { f, bound -> s(bound.topSegment, bound.leftSegment, f) },
+  bools(all = true, topLeft = false)
+    to { f, bound -> s(bound.topSegment, bound.leftSegment, f) },
+  bools(top = true)
+    to { f, bound -> s(bound.leftSegment, bound.rightSegment, f) },
+  bools(bottom = true)
+    to { f, bound -> s(bound.leftSegment, bound.rightSegment, f) },
+  bools(left = true)
+    to { f, bound -> s(bound.topSegment, bound.bottomSegment, f) },
+  bools(right = true)
+    to { f, bound -> s(bound.topSegment, bound.bottomSegment, f) },
+  bools(topRight = true, bottomLeft = true)
+    to { f, bound ->
+    s(bound.topSegment, bound.leftSegment, f) + s(bound.rightSegment, bound.bottomSegment, f)
+  },
+  bools(topLeft = true, bottomRight = true)
+    to { f, bound ->
+    s(bound.topSegment, bound.rightSegment, f) + s(bound.leftSegment, bound.bottomSegment, f)
+  },
+)
 
 /**
  * From https://wordsandbuttons.online/the_simplest_possible_smooth_contouring_algorithm.html
@@ -132,21 +159,20 @@ fun getContour(
       val bottomLeft = p + Point(-(grd_size / 2), (grd_size / 2))
 
       thresholds.forEach { threshold ->
+        fun isVf(p: Point) = vF(p) > threshold
         val pointsIn = bools(
-          topLeft = vF(topLeft) > threshold, // topLeft
-          topRight = vF(topRight) > threshold, // topRight
-          bottomLeft = vF(bottomLeft) > threshold, // bottomLeft
-          bottomRight = vF(bottomRight) > threshold, // bottomRight
+          topLeft = isVf(topLeft), // topLeft
+          topRight = isVf(topRight), // topRight
+          bottomLeft = isVf(bottomLeft), // bottomLeft
+          bottomRight = isVf(bottomRight), // bottomRight
         )
 
         points.getValue(threshold).addAll(
           LOOKUP_TABLE[pointsIn]?.invoke(
-            Segment(topLeft, bottomLeft).midPoint.bound(xRange, yRange),
-            Segment(topRight, bottomRight).midPoint.bound(xRange, yRange),
-            Segment(topLeft, topRight).midPoint.bound(xRange, yRange),
-            Segment(bottomLeft, bottomRight).midPoint.bound(xRange, yRange),
+            { point -> isVf(point) },
+            BoundRect(topLeft, bottomRight),
           )
-            ?: listOf()
+            ?: listOf(),
         )
       }
     }
@@ -174,5 +200,3 @@ val getNoiseContour = {
     (noise.get(x, y) + 0.5)
   }
 }.memoize()
-
-

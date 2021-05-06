@@ -13,21 +13,19 @@ import java.awt.Color
 open class GradientLinesSketch(
   private var lineDegrees: Double = 0.0,
   backgroundColor: Color = Color.BLACK,
-  sizeX: Int = 576,
-  sizeY: Int = 864,
+  size: Point = Point(576, 864),
 ) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "svgs.GradientLines",
-  sizeX = sizeX,
-  sizeY = sizeY,
+  size = size,
 ) {
 
-  private val outerPaddingX: Double = sizeX * 0.05
-  private val outerPaddingY: Double = sizeY * 0.05
+  private val outerPaddingX: Double = size.x * 0.05
+  private val outerPaddingY: Double = size.y * 0.05
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
-    sizeX - 2 * outerPaddingX,
-    sizeY - 2 * outerPaddingY,
+    size.x - 2 * outerPaddingX,
+    size.y - 2 * outerPaddingY,
   )
 
   override fun getControls(): Panelable = col {

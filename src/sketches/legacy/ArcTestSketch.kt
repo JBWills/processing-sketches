@@ -14,31 +14,29 @@ open class ArcTestSketch(
   var startAngle: Double = 0.0,
   var length: Double = 360.0,
   backgroundColor: Color = Color.BLACK,
-  sizeX: Int = 576,
-  sizeY: Int = 864,
+  size: Point = Point(576, 864),
 ) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "svgs.StarterSketch",
-  sizeX = sizeX,
-  sizeY = sizeY,
+  size = size,
 ) {
 
   var position: Point = center
-  var size: Double = 50.0
+  var arcSize: Double = 50.0
 
-  private val outerPaddingX: Double = sizeX * 0.05
-  private val outerPaddingY: Double = sizeY * 0.05
+  private val outerPaddingX: Double = size.x * 0.05
+  private val outerPaddingY: Double = size.y * 0.05
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
-    sizeX - 2 * outerPaddingX,
-    sizeY - 2 * outerPaddingY,
+    size.x - 2 * outerPaddingX,
+    size.y - 2 * outerPaddingY,
   )
 
   override fun getControls(): Panelable = col {
     slider(::startAngle, 0..360)
     slider(::length, 0..360)
-    sliderPair(::position, 0.0..sizeX.toDouble())
-    slider(::size, 0..150)
+    sliderPair(::position, 0.0..size.x)
+    slider(::arcSize, 0..150)
   }
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
@@ -49,7 +47,7 @@ open class ArcTestSketch(
     noFill()
 
     val baseCircle = Circ(center, 90.0)
-    val moveCircle = Circ(position, size)
+    val moveCircle = Circ(position, arcSize)
     val clippedCircle = moveCircle.intersection(baseCircle)
 
     circle(baseCircle)

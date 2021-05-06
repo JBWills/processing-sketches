@@ -1,7 +1,7 @@
 import RecordMode.NoRecord
 import RecordMode.RecordSVG
 import appletExtensions.PAppletExt
-import controls.ControlFrame
+import appletExtensions.withStyle
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlTab
 import controls.panels.ControlTab.Companion.tab
@@ -11,8 +11,11 @@ import coordinate.Point
 import geomerativefork.src.RG
 import processing.event.MouseEvent
 import util.combineDrawLayersIntoSVG
+import util.lineLimit
 import util.print.StrokeWeight.Thick
 import util.print.Style
+import util.print.TextAlign.CenterVertical
+import util.window.BaseSketchWindow
 import java.awt.Color
 import java.io.File
 
@@ -23,16 +26,16 @@ enum class RecordMode {
   RecordSVG,
 }
 
+val CONTROL_PANEL_SIZE = Point(400, 800)
+
 abstract class BaseSketch(
-  protected var backgroundColor: Color = Color.white,
-  protected var strokeColor: Color = Color.BLACK,
+  var backgroundColor: Color = Color.white,
+  var strokeColor: Color = Color.BLACK,
   val svgBaseFileName: String = "output",
-  var sizeX: Int = 1000,
-  var sizeY: Int = 1000,
+  var size: Point = Point(1000, 1000),
 ) : PAppletExt() {
-  val sizeXD get() = sizeX.toDouble()
-  val sizeYD get() = sizeX.toDouble()
-  val sketchSize get() = Point(sizeX, sizeY)
+  private val window by lazy { BaseSketchWindow(svgBaseFileName, surface) }
+  val sketchSize get() = Point(size.x, size.y)
 
   var isDebugMode: Boolean = false
 
@@ -41,19 +44,12 @@ abstract class BaseSketch(
     block(f)
   }
 
-  private fun resetControlFrame() {
-    controlFrame = ControlFrame(this, 400, 800, getAllControls())
+  fun updateSize(newSize: Point) {
+    size = newSize
+    setSurfaceSize(newSize)
   }
 
-  private var controlFrame: ControlFrame? = null
-
-  fun updateSize(newSizeX: Int, newSizeY: Int) {
-    sizeX = newSizeX
-    sizeY = newSizeY
-    surface.setSize(newSizeX, newSizeY)
-  }
-
-  val center get() = Point(sizeX / 2, sizeY / 2)
+  val center get() = Point(size.x / 2, size.y / 2)
 
   private var dirty = true
   private var recordMode: RecordMode = NoRecord
@@ -65,7 +61,7 @@ abstract class BaseSketch(
   val isRecording get() = recordMode != NoRecord
 
   fun run() {
-    setSize(sizeX, sizeY)
+    setSize(size.xi, size.yi)
     runSketch()
   }
 
@@ -92,18 +88,33 @@ abstract class BaseSketch(
     onlyRunIfDirty {
       val layers = getLayers()
       background(backgroundColor.rgb)
-      drawSetup()
-      if (recordMode == RecordSVG) {
-        combineDrawLayersIntoSVG(svgBaseFileName, getFilenameSuffix(), layers.size) { layerIndex ->
-          drawOnce(layerIndex, layers[layerIndex])
-        }
+      window.setLoadingStarted()
+      try {
+        drawSetup()
+        if (recordMode == RecordSVG) {
+          combineDrawLayersIntoSVG(
+            svgBaseFileName,
+            getFilenameSuffix(),
+            layers.size,
+          ) { layerIndex ->
+            drawOnce(layerIndex, layers[layerIndex])
+          }
 
-        recordMode = NoRecord
-      } else {
-        layers.forEachIndexed { index, layer ->
-          drawOnce(index, layer)
+          recordMode = NoRecord
+        } else {
+          layers.forEachIndexed { index, layer ->
+            drawOnce(index, layer)
+          }
+        }
+      } catch (e: Exception) {
+        e.printStackTrace()
+        background(Color.white)
+        withStyle(Style(textAlign = CenterVertical, fillColor = Color.black, textSize = 20)) {
+          text(e.stackTraceToString().lineLimit(5), 10f, center.yf)
         }
       }
+
+      window.setLoadingEnded()
     }
   }
 
@@ -127,24 +138,6 @@ abstract class BaseSketch(
    */
   open fun getControls(): Panelable = col {}
 
-  fun updateControls() {
-    val lastControlFrame = controlFrame ?: return
-    val lastActiveTab = lastControlFrame.getActiveTabAndIndex()
-    lastControlFrame.close()
-
-    resetControlFrame()
-
-    val controlFrame = controlFrame ?: return
-    val (tab, index) = lastActiveTab ?: return
-
-    var newTabIndex = controlFrame.indexOfTab(tab.name) ?: index
-    if (newTabIndex >= controlFrame.numTabs()) newTabIndex = 0
-
-    controlFrame.setActiveTab(newTabIndex)
-  }
-
-  fun setActiveTab(tabName: String) = controlFrame?.setActiveTab(tabName)
-
   private fun getAllControls(): List<ControlTab> = listOf(
     tab("file") {
       toggle(::isDebugMode)
@@ -153,12 +146,16 @@ abstract class BaseSketch(
     *getControlTabs(),
   )
 
+  fun updateControls() = window.updateControls(this, CONTROL_PANEL_SIZE, getAllControls())
+
+  fun setActiveTab(tabName: String) = window.controlFrame?.setActiveTab(tabName)
+
   override fun setup() {
     RG.init(this)
     RG.setPolygonizer(RG.ADAPTATIVE)
 
     surface.setResizable(true)
-    resetControlFrame()
+    updateControls()
 
     randomSeed(0)
 

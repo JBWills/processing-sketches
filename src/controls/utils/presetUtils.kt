@@ -4,6 +4,7 @@ import BaseSketch
 import controls.props.LayerAndGlobalProps
 import controls.props.LayerAndGlobalProps.Companion.props
 import controls.props.PropData
+import controls.props.types.CanvasProp
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
@@ -16,8 +17,10 @@ import util.io.jsonStringOf
 import util.io.save
 import util.io.toJsonArray
 import util.io.toJsonElement
+import util.tuple.Pair3
 import java.io.File
 
+private const val SERIAL_KEY_CANVAS = "canvas"
 private const val SERIAL_KEY_GLOBAL = "global"
 private const val SERIAL_KEY_LAYERS = "layers"
 
@@ -28,7 +31,7 @@ private const val SERIAL_KEY_LAYERS = "layers"
  * @param sketchBaseName The name of the sketch (this is used as a subfolder to store the presets)
  * @param presetName The name of the specific preset (this is used for the json filename)
  */
-fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> BaseSketch.loadPreset(
+fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> loadPreset(
   maxLayers: Int,
   sketchBaseName: String,
   presetName: String,
@@ -36,14 +39,14 @@ fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>> Bas
   layerSerializer: KSerializer<TabValues>,
 ): LayerAndGlobalProps<TabValues, GlobalValues> {
   val presetFile = File(getPresetFilepath(sketchBaseName, presetName))
-  var presetData: Pair<GlobalValues, List<TabValues>>? = null
+  var presetData: Pair3<CanvasProp?, GlobalValues, List<TabValues>>? = null
   if (presetFile.exists()) {
     presetData = deserializeDrawInfo(globalSerializer, layerSerializer, presetFile.readText())
   }
 
   if (presetData == null) throw Exception("No preset data found")
 
-  return props(maxLayers, presetData.first) { i -> presetData.second[i] }
+  return props(maxLayers, presetData.a, presetData.b) { i -> presetData.c[i] }
 }
 
 /**
@@ -123,6 +126,7 @@ private fun <GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValu
   layerAndGlobalProps: LayerAndGlobalProps<TabValues, GlobalValues>,
 ): String? = try {
   jsonStringOf(
+    SERIAL_KEY_CANVAS to layerAndGlobalProps.canvasValues.toJsonElement(),
     SERIAL_KEY_GLOBAL to layerAndGlobalProps.globalValues.toJsonElement(),
     SERIAL_KEY_LAYERS to layerAndGlobalProps.tabValues.toJsonArray(),
   )
@@ -135,7 +139,7 @@ private fun <GlobalValues, TabValues> deserializeDrawInfo(
   globalSerializer: KSerializer<GlobalValues>,
   layerSerializer: KSerializer<TabValues>,
   fileContents: String,
-): Pair<GlobalValues, List<TabValues>>? = try {
+): Pair3<CanvasProp?, GlobalValues, List<TabValues>>? = try {
   val element = Json.parseToJsonElement(fileContents).jsonObject
   val globalElement = element[SERIAL_KEY_GLOBAL]
     ?: throw Exception("Json doesn't contain $SERIAL_KEY_GLOBAL key.")
@@ -144,8 +148,9 @@ private fun <GlobalValues, TabValues> deserializeDrawInfo(
 
   val globalValues = decode(globalSerializer, globalElement)
   val layers = decode(ListSerializer(layerSerializer), layersList)
+  val canvasProp: CanvasProp? = element[SERIAL_KEY_CANVAS]?.decode(CanvasProp().toSerializer())
 
-  globalValues to layers
+  Pair3(canvasProp, globalValues, layers)
 } catch (e: Exception) {
   println("Error deserializing. Got message: ${e.message}. Json Text:\n\n$fileContents")
   null

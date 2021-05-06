@@ -17,12 +17,12 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
   svgBaseFileName = "svgs.CircleSketch",
 ) {
 
-  val outerPaddingX: Double = sizeX * 0.2
-  val outerPaddingY: Double = sizeY * 0.2
+  val outerPaddingX: Double = size.x * 0.2
+  val outerPaddingY: Double = size.y * 0.2
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
-    sizeX - 2 * outerPaddingX,
-    sizeY - 2 * outerPaddingY,
+    size.x - 2 * outerPaddingX,
+    size.y - 2 * outerPaddingY,
   )
 
   override fun getControls(): Panelable = col {

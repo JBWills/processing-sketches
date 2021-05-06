@@ -2,40 +2,35 @@
     "layers": [
         {
             "noise": {
-                "seed": 1143,
+                "seed": 850,
                 "noiseType": "ValueCubic",
                 "scale": 2.0,
                 "offset": {
-                    "x": 683.9321899414062,
-                    "y": 434.9888000488281
+                    "x": 810.9237060546875,
+                    "y": 145.80458068847656
                 },
                 "strength": {
                     "x": 0.0,
                     "y": 0.0
                 }
             },
-            "gridStep": 1.4027777910232544,
+            "gridStep": 3.4972221851348877,
             "drawBlob": true,
-            "thresholdStart": 0.0,
+            "thresholdStart": 0.38418078422546387,
             "thresholdEnd": 1.0,
-            "numThresholds": 14,
-            "shouldSmooth": true,
-            "smoothEpsilon": 4.935028553009033
+            "numThresholds": 10
         },
         {
-            "shouldSmooth": true
         },
         {
         }
     ],
-    "canvas": {
-    },
     "global": {
         "shape": {
             "type": "Rectangle",
             "size": {
-                "x": 571.4285888671875,
-                "y": 571.4285888671875
+                "x": 1242.8570556640625,
+                "y": 785.7142944335938
             }
         },
         "lineAngle": {
@@ -44,13 +39,13 @@
         "lineNoise": {
             "seed": 100,
             "noiseType": "ValueCubic",
-            "scale": 0.3888888955116272,
+            "scale": 0.2222222238779068,
             "offset": {
-                "x": 680.0078125,
-                "y": 506.43914794921875
+                "x": 929.4491577148438,
+                "y": 342.66363525390625
             },
             "strength": {
-                "x": 124.29379272460938,
+                "x": 203.3898162841797,
                 "y": 299.4350280761719
             }
         },

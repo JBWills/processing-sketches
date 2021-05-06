@@ -2,6 +2,7 @@ package fastnoise
 
 import FastNoiseLite
 import FastNoiseLite.NoiseType
+import FastNoiseLite.NoiseType.Cellular
 import FastNoiseLite.NoiseType.Perlin
 import coordinate.Arc
 import coordinate.BoundRect
@@ -92,6 +93,10 @@ data class Noise(
   ) * strength
 
   private fun noiseAt(p: Point) = fastNoise.GetNoise(p.xf, p.yf, 0f).toDouble()
+    .let {
+      if (noiseType == Cellular) it - 0.5
+      else it
+    }
 
   private fun getPointOnNoisePlane(pointInDrawSpace: Point) = (pointInDrawSpace + offset) * scale
 

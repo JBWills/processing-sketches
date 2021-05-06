@@ -5,6 +5,8 @@ import geomerativefork.src.util.bound
 import util.atAmountAlong
 import util.ceilInt
 import util.floorInt
+import util.map
+import kotlin.math.max
 
 fun <T> List<T>.endPointPair() = Pair(first(), last())
 
@@ -13,6 +15,13 @@ fun <T, R> Pair<List<T>, List<T>>.zip(block: (T, T) -> R): List<R> {
 
   return first.mapIndexed { index, firstItem ->
     block(firstItem, second[index])
+  }
+}
+
+fun <T, R> Pair<List<T>, List<T>>.zipNullPadded(block: (T?, T?) -> R): List<R> {
+  val size = max(first.size, second.size)
+  return size.map { index ->
+    block(first.getOrNull(index), second.getOrNull(index))
   }
 }
 
@@ -30,7 +39,7 @@ fun <T> List<T>.getLerpIndices(lerpAmt: Double): List<Int> {
 
   return listOf(
     lowerIndex,
-    upperIndex
+    upperIndex,
   )
 }
 

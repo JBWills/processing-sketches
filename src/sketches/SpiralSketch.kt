@@ -19,21 +19,19 @@ import kotlin.math.sin
 
 open class SpiralSketch(
   backgroundColor: Color = Color.WHITE,
-  sizeX: Int = 9 * 72,
-  sizeY: Int = 9 * 72,
+  size: Point = Point(9 * 72, 9 * 72),
 ) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "SpiralSketch",
-  sizeX = sizeX,
-  sizeY = sizeY,
+  size = size,
 ) {
 
-  private val outerPaddingX: Double = sizeX * 0.02
-  private val outerPaddingY: Double = sizeY * 0.02
+  private val outerPaddingX: Double = size.x * 0.02
+  private val outerPaddingY: Double = size.y * 0.02
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
-    sizeX - 2 * outerPaddingX,
-    sizeY - 2 * outerPaddingY,
+    size.x - 2 * outerPaddingX,
+    size.y - 2 * outerPaddingY,
   )
 
   private val points: MutableList<Point> = mutableListOf()

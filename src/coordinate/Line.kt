@@ -18,6 +18,7 @@ open class Line(
 
   fun angleBetween(other: Line): Double = slope.rotation(other.slope)
 
+  fun isParallel(other: Line): Boolean = (angleBetween(other) % 180.0).equalsZero()
   fun intersection(other: Line): Point? {
     val this2d = toLine2d()
     val that2d = other.toLine2d()

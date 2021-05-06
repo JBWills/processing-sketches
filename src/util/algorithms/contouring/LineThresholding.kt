@@ -47,20 +47,23 @@ private enum class SegmentContourStatus {
   }
 }
 
-val Segment.getMidpointPointClosestToThreshold: (noise: Noise, threshold: Double) -> Point
-  get() = { noise: Noise, threshold: Double ->
-    if (length < MIN_SEGMENT_LENGTH) midPoint
-    else {
-      fun Point.inside() = belowThreshold(noise, threshold)
+fun Segment.getPointAtThreshold(noise: Noise, threshold: Double): Point {
+  if (length < MIN_SEGMENT_LENGTH) return midPoint
 
-      val s = if (p1.inside()) this else flip()
+  fun Point.inside() = belowThreshold(noise, threshold)
 
-      if (s.midPoint.inside())
-        Segment(midPoint, s.p2).getMidpointPointClosestToThreshold(noise, threshold)
-      else
-        Segment(s.p1, midPoint).getMidpointPointClosestToThreshold(noise, threshold)
-    }
-  }.memoize()
+  val s = if (p1.inside()) this else flip()
+
+  return if (s.midPoint.inside()) {
+    Segment(s.midPoint, s.p2)
+  } else {
+    Segment(s.p1, s.midPoint)
+  }.getPointAtThreshold(noise, threshold)
+}
+
+val _getPointAtThresholdMemoized = { s: Segment, noise: Noise, threshold: Double ->
+  s.getPointAtThreshold(noise, threshold)
+}.memoize()
 
 fun PolyLine.walkThreshold(noise: Noise, threshold: Double): List<PolyLine> {
   val result = mutableListOf<PolyLine>()
@@ -80,11 +83,11 @@ fun PolyLine.walkThreshold(noise: Noise, threshold: Double): List<PolyLine> {
       Outside -> completeCurrSegment()
       Entering -> {
         completeCurrSegment()
-        val midPoint = segment.getMidpointPointClosestToThreshold(noise, threshold)
+        val midPoint = _getPointAtThresholdMemoized(segment, noise, threshold)
         curr.addAll(listOf(midPoint, segment.p2))
       }
       Exiting -> {
-        val midPoint = segment.getMidpointPointClosestToThreshold(noise, threshold)
+        val midPoint = _getPointAtThresholdMemoized(segment, noise, threshold)
 
         curr.addPoints(segment.p1, midPoint)
 
@@ -92,19 +95,19 @@ fun PolyLine.walkThreshold(noise: Noise, threshold: Double): List<PolyLine> {
       }
       InOutIn -> {
         val (first, second) = segment.splitAtMidpoint()
-        val firstMidPoint = first.getMidpointPointClosestToThreshold(noise, threshold)
+        val firstMidPoint = _getPointAtThresholdMemoized(first, noise, threshold)
 
         curr.addPoints(first.p1, firstMidPoint)
 
         completeCurrSegment()
 
-        val secondMidPoint = second.getMidpointPointClosestToThreshold(noise, threshold)
+        val secondMidPoint = _getPointAtThresholdMemoized(second, noise, threshold)
         curr.addAll(listOf(secondMidPoint, second.p2))
       }
       OutInOut -> {
         val (first, second) = segment.splitAtMidpoint()
-        val firstMidPoint = first.getMidpointPointClosestToThreshold(noise, threshold)
-        val secondMidPoint = second.getMidpointPointClosestToThreshold(noise, threshold)
+        val firstMidPoint = _getPointAtThresholdMemoized(first, noise, threshold)
+        val secondMidPoint = _getPointAtThresholdMemoized(second, noise, threshold)
         curr.addPoints(firstMidPoint, secondMidPoint)
         completeCurrSegment()
       }

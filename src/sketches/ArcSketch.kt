@@ -13,13 +13,11 @@ import java.awt.Color
 
 open class ArcSketch(
   backgroundColor: Color = Color.WHITE,
-  sizeX: Int = 11 * 72,
-  sizeY: Int = 16 * 72,
+  size: Point = Point(11 * 72, 16 * 72)
 ) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "svgs.ArcSketch",
-  sizeX = sizeX,
-  sizeY = sizeY,
+  size = size,
 ) {
   var steps = 312.0
   var step = 4.0
@@ -30,12 +28,12 @@ open class ArcSketch(
   var power = 1.1
   var power2 = 1.1
 
-  private val outerPaddingX: Double = sizeX * 0.02
-  private val outerPaddingY: Double = sizeY * 0.02
+  private val outerPaddingX: Double = size.x * 0.02
+  private val outerPaddingY: Double = size.y * 0.02
   var drawBound: BoundRect = BoundRect(
     Point(outerPaddingX, outerPaddingY),
-    sizeX - 2 * outerPaddingX,
-    sizeY - 2 * outerPaddingY,
+    size.x - 2 * outerPaddingX,
+    size.y - 2 * outerPaddingY,
   )
 
   override fun getControls(): Panelable = col {

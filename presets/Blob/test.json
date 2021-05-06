@@ -28,8 +28,6 @@
         {
         }
     ],
-    "canvas": {
-    },
     "global": {
         "shape": {
             "type": "Rectangle",

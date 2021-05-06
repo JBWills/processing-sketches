@@ -67,7 +67,12 @@ val NegativeOneToOne = -1.0..1.0
 fun zeroTo(max: Number) = 0.0..max.toDouble()
 fun negToPos(minMax: Number) = -minMax.toDouble()..minMax.toDouble()
 
-infix fun DoubleRange.step(s: Double) = DoubleProgression(start, endInclusive) step s
+infix fun DoubleRange.step(s: Double): DoubleProgression =
+  DoubleProgression(start, endInclusive) step s
+
+infix fun DoubleRange.numSteps(numSteps: Number) =
+  step((endInclusive - start) / (numSteps.toDouble() - 1))
+
 infix fun Double.until(s: Double) = DoubleProgression(this, s - 1)
 
 fun DoubleRange.atAmountAlong(amountAlong: Double = 0.0) =

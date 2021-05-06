@@ -177,20 +177,20 @@ open class PanelBuilder(val panels: MutableList<Panelable>) {
     options: List<String>,
     ref: KMutableProperty0<String>,
     style: ControlStyle? = null,
-    onChange: (String) -> Unit = {},
+    onChange: BaseSketch.(String) -> Unit = {},
   ) = dropdownListProp(name, options, ref, onChange).applyAndAdd(style)
 
   fun <E : Enum<E>> dropdownList(
     ref: KMutableProperty0<E>,
     style: ControlStyle? = null,
-    onChange: () -> Unit = {},
+    onChange: BaseSketch.() -> Unit = {},
   ) = enumProp(ref, onChange).applyAndAdd(style)
 
   fun <E : Enum<E>> dropdownList(
     ref: KMutableProperty0<E?>,
     values: Array<E>,
     style: ControlStyle? = null,
-    onChange: () -> Unit = {},
+    onChange: BaseSketch.() -> Unit = {},
   ) = nullableEnumProp(ref, values, onChange).applyAndAdd(style)
 
   fun imageSelect(

@@ -14,22 +14,16 @@
                     "y": 0.0
                 }
             },
-            "gridStep": 1.4027777910232544,
+            "gridStep": 6.074999809265137,
             "drawBlob": true,
-            "thresholdStart": 0.0,
-            "thresholdEnd": 1.0,
-            "numThresholds": 14,
-            "shouldSmooth": true,
-            "smoothEpsilon": 4.935028553009033
+            "thresholdStart": 0.5197740197181702,
+            "thresholdEnd": 0.6263158321380615
         },
         {
-            "shouldSmooth": true
         },
         {
         }
     ],
-    "canvas": {
-    },
     "global": {
         "shape": {
             "type": "Rectangle",
