@@ -3,6 +3,10 @@ package sketches
 import FastNoiseLite.NoiseType.ValueCubic
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.noisePanel
+import controls.panels.panelext.slider
+import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
@@ -159,6 +163,7 @@ data class FlowerData(
     }
     intSlider(::baseNumInternalCircles, 1..100)
     slider(::distBetweenNoisePerCircle, 0.0..150.0)
+
     noisePanel(::noise)
   }
 

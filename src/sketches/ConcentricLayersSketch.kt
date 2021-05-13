@@ -2,6 +2,8 @@ package sketches
 
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.slider
 import controls.props.PropData
 import coordinate.Arc
 import coordinate.Circ

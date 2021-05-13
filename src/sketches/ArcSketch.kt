@@ -5,6 +5,7 @@ import LayerConfig
 import appletExtensions.intersection
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
+import controls.panels.panelext.slider
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point

@@ -5,7 +5,10 @@ import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.props.types.doubleProp
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.noisePanel
+import controls.panels.panelext.slider
+import controls.panels.panelext.slider2D
 import coordinate.BoundRect
 import coordinate.BoundRect.Companion.mappedOnto
 import coordinate.Circ
@@ -52,7 +55,7 @@ open class CircleWarpSketch(
   override fun getControls(): Panelable = col {
     row {
       intSlider(::numCircles, range = 1..1000)
-      doubleProp(::circleSpacing, range = 0.001..50.0)
+      slider(::circleSpacing, range = 0.001..50.0)
     }
 
     row {

@@ -4,6 +4,11 @@ import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.noisePanel
+import controls.panels.panelext.slider
+import controls.panels.panelext.sliderPair
+import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
@@ -11,10 +16,14 @@ import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.*
+import util.NegativeOneToOne
 import util.algorithms.kMeans
 import util.algorithms.makeHull
 import util.geomutil.toRPath
+import util.letWith
+import util.map
+import util.randomPoint
+import util.times
 import java.awt.Color
 
 class Packing : LayeredCanvasSketch<PackingData, PackingLayerData>(

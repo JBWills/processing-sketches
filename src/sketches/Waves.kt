@@ -3,6 +3,9 @@ package sketches
 import FastNoiseLite.NoiseType.ValueCubic
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.noisePanel
+import controls.panels.panelext.slider
 import controls.props.PropData
 import coordinate.Point
 import coordinate.Segment

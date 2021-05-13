@@ -2,6 +2,7 @@ package controls.props.types
 
 import controls.panels.ControlStyle
 import controls.panels.ControlTab.Companion.tab
+import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import coordinate.Point
 import kotlinx.serialization.Serializable

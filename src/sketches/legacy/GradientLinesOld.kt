@@ -4,6 +4,7 @@ import BaseSketch
 import LayerConfig
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
+import controls.panels.panelext.intSlider
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line

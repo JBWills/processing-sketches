@@ -5,6 +5,7 @@ import LayerConfig
 import appletExtensions.drawParallelLinesInBound
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
+import controls.panels.panelext.slider
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Point

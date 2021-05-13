@@ -3,6 +3,9 @@ package controls.props.types
 import arrow.core.memoize
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.degreeSlider
+import controls.panels.panelext.dropdown
+import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import controls.props.types.ShapeType.Ellipse
 import controls.props.types.ShapeType.Rectangle
@@ -74,7 +77,7 @@ data class ShapeProp(
   override fun clone() = ShapeProp(this)
 
   override fun bind(): List<ControlTab> = singleTab("ShapeProp") {
-    dropdownList(::type)
+    dropdown(::type)
     sliderPair(::center, ZeroToOne to ZeroToOne)
     sliderPair(::size, 0.0..2000.0, withLockToggle = true, defaultLocked = true)
     degreeSlider(::rotation)

@@ -2,6 +2,10 @@ package controls.props.types
 
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.slider
+import controls.panels.panelext.slider2D
+import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import coordinate.BoundRect
 import coordinate.Deg

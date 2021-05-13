@@ -5,6 +5,10 @@ import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.noisePanel
+import controls.panels.panelext.slider
+import controls.panels.panelext.slider2D
 import coordinate.BoundRect
 import coordinate.Point
 import fastnoise.Noise

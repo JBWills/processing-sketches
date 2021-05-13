@@ -4,6 +4,11 @@ import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import controls.panels.TabsBuilder.Companion.tabs
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.noisePanel
+import controls.panels.panelext.slider
+import controls.panels.panelext.slider2D
+import controls.panels.panelext.toggle
 import coordinate.BoundRect
 import coordinate.BoundRect.Companion.mappedOnto
 import coordinate.Circ

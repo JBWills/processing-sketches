@@ -4,6 +4,11 @@ import BaseSketch
 import LayerConfig
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
+import controls.panels.panelext.button
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.slider
+import controls.panels.panelext.slider2D
+import controls.panels.panelext.toggle
 import coordinate.BoundRect
 import coordinate.Point
 import util.tuple.and

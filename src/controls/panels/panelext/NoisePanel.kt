@@ -1,21 +1,29 @@
-package controls.props.types
+package controls.panels.panelext
 
 import BaseSketch
 import controls.Control.EnumDropdown
 import controls.Control.Slider
 import controls.Control.Slider2d
-import controls.panels.ControlList.Companion.col
+import controls.panels.ControlList
 import controls.panels.ControlPanel
+import controls.panels.ControlStyle
+import controls.panels.PanelBuilder
 import controls.props.GenericProp
 import coordinate.Point
 import fastnoise.Noise
+import java.awt.Color
 import kotlin.reflect.KMutableProperty0
 
-fun noiseProp(
+fun PanelBuilder.noisePanel(
   ref: KMutableProperty0<Noise>,
   showStrengthSliders: Boolean = true,
-) = GenericProp(ref) {
-  noiseControls(ref, showStrengthSliders)
+  style: ControlStyle = ControlStyle.Orange.withColor(
+    frameBackground = Color(50, 20, 0),
+  )
+) = addNewPanel(style) {
+  GenericProp(ref) {
+    noiseControls(ref, showStrengthSliders)
+  }
 }
 
 private fun noiseControls(
@@ -29,7 +37,7 @@ private fun noiseControls(
 
   val noise = noiseProp.get()
 
-  return col(noiseProp.name) {
+  return ControlList.col(noiseProp.name) {
     row {
       +EnumDropdown("Quality", noise.quality) {
         updateNoiseField { with(quality = it) }

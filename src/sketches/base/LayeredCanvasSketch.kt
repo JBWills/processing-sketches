@@ -3,6 +3,10 @@ package sketches.base
 import LayerConfig
 import controls.panels.ControlTab
 import controls.panels.ControlTab.Companion.tab
+import controls.panels.panelext.button
+import controls.panels.panelext.dropdown
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.textInput
 import controls.props.LayerAndGlobalProps
 import controls.props.LayerAndGlobalProps.Companion.props
 import controls.props.PropData
@@ -80,17 +84,16 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
         }
       }
 
-      textInput(
-        textFieldLabel = "New Preset Name",
-        submitButtonLabel = "Save new preset",
-      ) { savePreset(it) }
+      textInput(textFieldLabel = "New Preset Name", submitButtonLabel = "Save new preset") {
+        savePreset(it)
+      }
 
-      dropdownList("Load Preset", presets.keys.sorted(), ::currentPreset) { onSwitchCanvas(it) }
+      dropdown("Load Preset", presets.keys.sorted(), ::currentPreset) { onSwitchCanvas(it) }
     },
     tab(CANVAS_TAB_NAME) {
       +layerAndGlobalProps.canvasControls
       intSlider(::numLayers, range = 0..maxLayers)
-      dropdownList(::weightOverride, StrokeWeight.values())
+      dropdown(::weightOverride, StrokeWeight.values())
     },
     *layerAndGlobalProps.globalControlTabs,
     *layerAndGlobalProps.layerControlTabs.mapArrayIndexed { index, tab ->

@@ -4,6 +4,9 @@ import BaseSketch
 import controls.panels.ControlStyle
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.dropdown
+import controls.panels.panelext.sliderPair
+import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.BoundRect
 import coordinate.Point
@@ -57,8 +60,8 @@ data class CanvasProp(
   }
 
   override fun bind(): List<ControlTab> = singleTab("SpiralProp") {
-    dropdownList(::paper) { markCanvasDirty(this) }
-    dropdownList(::orientation) { markCanvasDirty(this) }
+    dropdown(::paper) { markCanvasDirty(this) }
+    dropdown(::orientation) { markCanvasDirty(this) }
     col {
       style = ControlStyle.Red
       toggle(::drawBoundRect)

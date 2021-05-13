@@ -4,6 +4,10 @@ import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.noisePanel
+import controls.panels.panelext.sliderPair
+import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.Point
 import fastnoise.Noise

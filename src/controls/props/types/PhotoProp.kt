@@ -5,6 +5,11 @@ import arrow.core.memoize
 import controls.panels.ControlStyle
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.imageSelect
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.slider
+import controls.panels.panelext.slider2D
+import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.Point
 import kotlinx.serialization.Serializable

@@ -4,6 +4,11 @@ import FastNoiseLite.NoiseType.Perlin
 import appletExtensions.getParallelLinesInBound
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.degreeSlider
+import controls.panels.panelext.dropdown
+import controls.panels.panelext.noisePanel
+import controls.panels.panelext.slider
+import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import coordinate.Deg
 import coordinate.Point
@@ -100,7 +105,7 @@ data class MoireLinesLayerData(
   ),
 ) : PropData<MoireLinesLayerData> {
   override fun bind() = layerTab {
-    dropdownList(::shape)
+    dropdown(::shape)
     row {
       slider(::lineDensity, 0.5..1.0)
       degreeSlider(::lineAngle, 0.0..90.0)

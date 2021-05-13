@@ -6,6 +6,12 @@ import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
+import controls.panels.panelext.button
+import controls.panels.panelext.dropdown
+import controls.panels.panelext.intSlider
+import controls.panels.panelext.slider
+import controls.panels.panelext.slider2D
+import controls.panels.panelext.toggle
 import coordinate.BoundRect
 import coordinate.Point
 import java.awt.Color
@@ -49,7 +55,7 @@ open class WarpSketch(
 
     slider(::xMidpointVal)
 
-    dropdownList(::noiseType)
+    dropdown(::noiseType)
 
     row {
       toggle(::withVerticalLines)
