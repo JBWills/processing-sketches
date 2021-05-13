@@ -1,35 +1,44 @@
 package util.geomutil
 
 import arrow.core.memoize
-import coordinate.BoundRect
-import coordinate.Circ
-import coordinate.Point
 import geomerativefork.src.RPath
+import interfaces.shape.Maskable
+import util.pointsAndLines.polyLine.PolyLine
+import util.pointsAndLines.polyLine.isClosed
 
 
-fun List<Point>.diff(path: RPath) = diffMemoized(path)
+fun PolyLine.diff(path: RPath, memoized: Boolean = false) =
+  if (memoized) diffMemoizedBase(this, path) else diffBase(path)
 
-fun List<Point>.intersection(path: RPath): List<List<Point>> = intersectionMemoized(path)
+fun PolyLine.intersection(path: RPath, memoized: Boolean = false) =
+  if (memoized) intersectionMemoizedBase(this, path) else intersectionBase(path)
 
-private val List<Point>.diffMemoized: (path: RPath) -> List<List<Point>>
-  get() = { path: RPath ->
-    toRPath(closed = !isEmpty() && first() == last())
-      .diff(path)
-      .toPoints()
-  }.memoize()
+private fun PolyLine.intersectionBase(path: RPath): List<PolyLine> =
+  toRPath(closed = isClosed())
+    .intersection(path)
+    .toPoints()
 
-private val List<Point>.intersectionMemoized: (path: RPath) -> List<List<Point>>
-  get() = { path: RPath ->
-    toRPath(closed = !isEmpty() && first() == last())
-      .intersection(path)
-      .toPoints()
-  }.memoize()
+private fun PolyLine.diffBase(path: RPath): List<PolyLine> =
+  toRPath(closed = isClosed())
+    .diff(path)
+    .toPoints()
 
-fun List<Point>.intersection(r: BoundRect): List<List<Point>> = intersection(r.toRPath())
+private val diffMemoizedBase = { polyLine: PolyLine, path: RPath ->
+  polyLine.diffBase(path)
+}.memoize()
 
-fun List<Point>.intersection(c: Circ): List<List<Point>> =
-  intersection(c.toRPath().also { it.polygonize() })
+private val intersectionMemoizedBase = { polyLine: PolyLine, path: RPath ->
+  polyLine.intersectionBase(path)
+}.memoize()
 
-fun List<Point>.diff(r: BoundRect): List<List<Point>> = diff(r.toRPath())
+private val maskableIntersectionMemoized = { polyLine: PolyLine, maskable: Maskable ->
+  maskable.intersection(polyLine)
+}.memoize()
 
-fun List<Point>.diff(c: Circ): List<List<Point>> = diff(c.toRPath())
+private val maskableDiffMemoized = { polyLine: PolyLine, maskable: Maskable ->
+  maskable.diff(polyLine)
+}.memoize()
+
+fun PolyLine.intersection(r: Maskable): List<PolyLine> = maskableIntersectionMemoized(this, r)
+
+fun PolyLine.diff(r: Maskable): List<PolyLine> = maskableDiffMemoized(this, r)

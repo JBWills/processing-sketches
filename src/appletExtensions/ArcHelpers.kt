@@ -40,8 +40,8 @@ fun LCircle.intersection(other: LCircle): IntersectionData {
     OVERLAPPING -> Overlapping(
       Pair(
         intersection.intersectionPoint1.toPoint(),
-        intersection.intersectionPoint2.toPoint()
-      )
+        intersection.intersectionPoint2.toPoint(),
+      ),
     )
     COINCIDENT -> Coincident
     CONCENTRIC_CONTAINED, ECCENTRIC_CONTAINED, INTERNALLY_TANGENT -> if (r > other.r) IntersectionData.Container else IntersectionData.Contained
@@ -100,8 +100,8 @@ private fun isTangentIntersection(
   val a1 = Arc(intersectionAndSurroundingPoints.first, intersectionAndSurroundingPoints.second, c)
   val a2 = Arc(intersectionAndSurroundingPoints.second, intersectionAndSurroundingPoints.third, c)
 
-  val bothArcsOutsideRect = !r.inRect(a1.pointAtBisector) && !r.inRect(a2.pointAtBisector)
-  val bothArcsInsideRect = r.inRect(a1.pointAtBisector) && r.inRect(a2.pointAtBisector)
+  val bothArcsOutsideRect = !r.contains(a1.pointAtBisector) && !r.contains(a2.pointAtBisector)
+  val bothArcsInsideRect = r.contains(a1.pointAtBisector) && r.contains(a2.pointAtBisector)
 
   return bothArcsOutsideRect || bothArcsInsideRect
 }
@@ -131,11 +131,11 @@ fun Circ.splitIntoArcsWhereIntersects(rect: BoundRect): List<Arc> {
 
 fun Circ.clipCircInsideRect(rect: BoundRect): List<Arc> =
   splitIntoArcsWhereIntersects(rect)
-    .filter { rect.inRect(it.pointAtBisector) }
+    .filter { rect.contains(it.pointAtBisector) }
 
 fun Circ.clipCircOutsideRect(rect: BoundRect): List<Arc> =
   splitIntoArcsWhereIntersects(rect)
-    .filterNot { rect.inRect(it.pointAtBisector) }
+    .filterNot { rect.contains(it.pointAtBisector) }
 
 fun Arc.clipInsideRect(rect: BoundRect): List<Arc> =
   clipCircInsideRect(rect)

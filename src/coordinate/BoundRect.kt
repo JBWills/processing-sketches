@@ -1,17 +1,23 @@
 package coordinate
 
+import appletExtensions.PAppletExt
 import appletExtensions.withFillNonNull
 import appletExtensions.withStrokeNonNull
 import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
+import geomerativefork.src.RRectangle
 import geomerativefork.src.RShape
+import interfaces.shape.Maskable
 import interfaces.shape.Walkable
 import kotlinx.serialization.Serializable
 import processing.core.PApplet
 import util.atAmountAlong
+import util.equalsZero
+import util.geomutil.toPoint
 import util.iterators.mapArray
 import util.iterators.mapWithNextCyclical
 import util.min
+import util.pointsAndLines.polyLine.PolyLine
 import util.step
 import java.awt.Color
 import kotlin.math.abs
@@ -21,7 +27,7 @@ data class BoundRect(
   val topLeft: Point,
   val width: Double,
   val height: Double,
-) : Walkable {
+) : Walkable, Maskable {
   val size: Point
     get() = Point(width, height)
 
@@ -166,6 +172,12 @@ data class BoundRect(
   fun toRShape(): RShape = RShape.createRectangle(topLeft.toRPoint(), w = width, h = height)
   fun toRPath(): RPath = RPath(rPoints).also { it.addClose() }
 
+  override fun intersection(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
+    ContinuousMaskedShape(polyLine, this).toBoundPoints(true)
+
+  override fun diff(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
+    ContinuousMaskedShape(polyLine, this).toBoundPoints(false)
+
   fun forEachGrid(block: (Point) -> Unit) = forEachSampled(1.0, 1.0, block)
 
   fun forEachSampled(stepX: Number, stepY: Number, block: (Point) -> Unit) =
@@ -176,15 +188,32 @@ data class BoundRect(
     }
 
   fun getBoundSegment(line: Segment): Segment? {
-    if (inRect(line.p1) && roughDistFromSides(line.p1) > line.length + 5) return Segment(line)
+    if (contains(line.p1) && roughDistFromSides(line.p1) > line.length + 5) return Segment(line)
 
     return getBoundSegment(line.toLine())
       ?.getOverlapWith(line)
       ?.withReorientedDirection(line)
   }
 
-  fun inRect(p: Point) = p.y in top..bottom && p.x in left..right
-  fun contains(p: Point) = inRect(p)
+  override fun intersection(line: Line, memoized: Boolean): List<Segment> =
+    getBoundSegment(line)?.let {
+      listOf(it)
+    } ?: listOf()
+
+  override fun intersection(segment: Segment, memoized: Boolean) = getBoundSegment(segment)?.let {
+    listOf(it)
+  } ?: listOf()
+
+  override fun diff(segment: Segment, memoized: Boolean): List<Segment> =
+    getBoundSegment(segment)?.let { boundSegment ->
+      val s1 = Segment(segment.p1, boundSegment.p1)
+      val s2 = Segment(boundSegment.p2, segment.p2)
+      listOf(s1, s2).filterNot { it.length.equalsZero() }
+    } ?: listOf(segment)
+
+  override fun contains(p: Point) = p.y in top..bottom && p.x in left..right
+
+  override fun draw(sketch: PAppletExt) = sketch.rect(this)
 
   override fun toString(): String {
     return "BoundRect(top=$top, left=$left, bottom=$bottom, right=$right)"
@@ -201,6 +230,8 @@ data class BoundRect(
       )
 
     fun centeredRect(center: Point, size: Point) = centeredRect(center, size.x, size.y)
+
+    fun RRectangle.toBoundRect(): BoundRect = BoundRect(topLeft.toPoint(), bottomRight.toPoint())
 
     fun PApplet.drawRect(boundRect: BoundRect, stroke: Color? = null, fill: Color? = null) =
       withStrokeNonNull(stroke) {

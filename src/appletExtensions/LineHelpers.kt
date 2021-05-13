@@ -1,6 +1,7 @@
 package appletExtensions
 
 import BaseSketch
+import arrow.core.memoize
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
@@ -10,7 +11,7 @@ import java.awt.Color
 
 typealias Sketch = BaseSketch
 
-fun getTangentCornerBisector(bound: BoundRect, deg: Deg): Line {
+private fun getTangentCornerBisector(bound: BoundRect, deg: Deg): Line {
   val isUpward = (deg.value % 180) in 0.0..90.0
 
   val leftCornerBisector = Line(bound.topLeft, Deg(-45))
@@ -59,12 +60,10 @@ private fun isMovingAwayFromAllCorners(
     movingAwayFromCorner(bound.bottomRight)
 }
 
-fun getParallelLinesInBound(
-  bound: BoundRect,
-  deg: Deg,
-  distanceBetween: Number,
-  offset: Number = 0.0,
-): List<Segment> {
+private val getParallelLinesInBoundBase = { bound: BoundRect,
+                                            deg: Deg,
+                                            distanceBetween: Number,
+                                            offset: Number ->
   val cornerAndDirection = getTangentCornerBisector(bound, deg)
   val walkDirection = getNormal(cornerAndDirection, deg)
   var currDist = offset.toDouble()
@@ -95,8 +94,30 @@ fun getParallelLinesInBound(
 
     currDist += distanceBetween.toDouble()
   }
-  return segments
+
+  segments
 }
+
+val getParallelLinesInBoundBaseMemoized = { bound: BoundRect,
+                                            deg: Deg,
+                                            distanceBetween: Number,
+                                            offset: Number ->
+  getParallelLinesInBoundBase(bound, deg, distanceBetween, offset)
+}.memoize()
+
+fun getParallelLinesInBound(
+  bound: BoundRect,
+  deg: Deg,
+  distanceBetween: Number,
+  offset: Number = 0.0,
+): List<Segment> = getParallelLinesInBoundBase(bound, deg, distanceBetween, offset)
+
+fun getParallelLinesInBoundMemo(
+  bound: BoundRect,
+  deg: Deg,
+  distanceBetween: Number,
+  offset: Number = 0.0,
+): List<Segment> = getParallelLinesInBoundBaseMemoized(bound, deg, distanceBetween, offset)
 
 fun Sketch.drawParallelLinesInBound(
   bound: BoundRect,

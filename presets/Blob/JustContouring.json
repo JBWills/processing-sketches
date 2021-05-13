@@ -4,21 +4,21 @@
             "noise": {
                 "seed": 1143,
                 "noiseType": "ValueCubic",
-                "scale": 2.0,
+                "scale": 1.6555556058883667,
                 "offset": {
-                    "x": 683.9321899414062,
-                    "y": 434.9888000488281
+                    "x": 367.8644104003906,
+                    "y": 364.05755615234375
                 },
                 "strength": {
                     "x": 0.0,
                     "y": 0.0
                 }
             },
-            "gridStep": 17.2722225189209,
+            "gridStep": 6.316666603088379,
             "drawBlob": true,
-            "thresholdStart": 0.3446327745914459,
-            "thresholdEnd": 0.7768361568450928,
-            "numThresholds": 9,
+            "thresholdStart": 0.0,
+            "thresholdEnd": 1.0,
+            "numThresholds": 20,
             "smoothEpsilon": 0.25,
             "chaikinTimes": 4
         },
@@ -35,23 +35,23 @@
     "global": {
         "shape": {
             "size": {
-                "x": 557.1428833007812,
-                "y": 557.1428833007812
+                "x": 471.4285583496094,
+                "y": 471.4285583496094
             }
         },
         "contourShape": {
             "size": {
-                "x": 657.1428833007812,
-                "y": 657.1428833007812
+                "x": 671.4285888671875,
+                "y": 671.4285888671875
             }
         },
         "lineAngle": {
-            "inputValue": 128.0
+            "inputValue": 129.0
         },
         "lineNoise": {
             "seed": 100,
             "noiseType": "ValueCubic",
-            "quality": "VeryLow",
+            "quality": "Medium",
             "scale": 0.49444445967674255,
             "offset": {
                 "x": 785.525390625,
@@ -62,6 +62,7 @@
                 "y": 299.4350280761719
             }
         },
-        "lineDensity": 0.9152542352676392
+        "lineDensity": 0.9152542352676392,
+        "lineOffset": 0.4887005686759949
     }
 }

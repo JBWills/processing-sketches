@@ -2,6 +2,7 @@ package coordinate
 
 import coordinate.ContinuousPoints.Companion.splitInBounds
 import coordinate.Point.Companion.addIf
+import interfaces.shape.Maskable
 import util.iterators.forEachWithSurrounding
 import util.iterators.forEachWithSurroundingCyclical
 
@@ -19,7 +20,7 @@ data class ContinuousPoints(val isInBound: Boolean, val points: MutableList<Poin
     val List<ContinuousPoints>.firstPoint get() = first().first
     val List<ContinuousPoints>.lastPoint get() = last().last
 
-    fun BoundRect.splitInBounds(points: List<Point>): List<ContinuousPoints> {
+    fun Maskable.splitInBounds(points: List<Point>): List<ContinuousPoints> {
       if (points.size < 2) return listOf()
 
       val isCyclical = points.isCyclical()
@@ -48,7 +49,7 @@ data class ContinuousPoints(val isInBound: Boolean, val points: MutableList<Poin
   }
 }
 
-class ContinuousMaskedShape(allPoints: List<Point>, val bound: BoundRect) {
+class ContinuousMaskedShape(allPoints: List<Point>, val bound: Maskable) {
   val points: List<ContinuousPoints> = bound.splitInBounds(allPoints)
   val first = lazy { points.firstOrNull()?.first }
   val last = lazy { points.lastOrNull()?.last }
@@ -62,27 +63,27 @@ class ContinuousMaskedShape(allPoints: List<Point>, val bound: BoundRect) {
       val isAtFirstEdge = index == 0 && !isCyclical
       val isAtLastEdge = index == points.size - 1 && !isCyclical
 
-      val prevBoundSegment = bound.getBoundSegment(Segment(prev.last, curr.first))
-      val nextBoundSegment = bound.getBoundSegment(Segment(curr.last, next.first))
+      val prevBoundSegments = bound.intersection(Segment(prev.last, curr.first))
+      val nextBoundSegments = bound.intersection(Segment(curr.last, next.first))
 
-      if (!isAtFirstEdge && prevBoundSegment != null && curr.isInBound != boundInside && prev.isInBound != boundInside) {
-        result.add(prevBoundSegment.points.toList())
+      if (!isAtFirstEdge && prevBoundSegments.isNotEmpty() && curr.isInBound != boundInside && prev.isInBound != boundInside) {
+        result.addAll(prevBoundSegments.map { it.asPolyLine })
       }
 
-      if (!isAtLastEdge && nextBoundSegment != null && curr.isInBound != boundInside && next.isInBound != boundInside) {
-        result.add(nextBoundSegment.points.toList())
+      if (!isAtLastEdge && nextBoundSegments.isNotEmpty() && curr.isInBound != boundInside && next.isInBound != boundInside) {
+        result.addAll(nextBoundSegments.map { it.asPolyLine })
       }
 
       if (curr.isInBound == boundInside) {
         val pointsSoFar = mutableListOf<Point>()
         if (!isAtFirstEdge && prev.isInBound != curr.isInBound) {
-          pointsSoFar.addIf(prevBoundSegment?.p1)
+          pointsSoFar.addIf(prevBoundSegments.firstOrNull()?.p1)
         }
 
         pointsSoFar.addAll(curr.points)
 
         if (!isAtLastEdge && next.isInBound != curr.isInBound) {
-          pointsSoFar.addIf(nextBoundSegment?.p2)
+          pointsSoFar.addIf(nextBoundSegments.lastOrNull()?.p2)
         }
 
         result.add(pointsSoFar)

@@ -49,6 +49,7 @@ class Segment(
   fun toRShape() = RShape.createLine(p1.xf, p1.yf, p2.xf, p2.yf)
 
   val points: Array<Point> by lazy { arrayOf(p1, p2) }
+  val asPolyLine: List<Point> by lazy { listOf(p1, p2) }
 
   val unitVector by lazy { slope.unitVector }
 

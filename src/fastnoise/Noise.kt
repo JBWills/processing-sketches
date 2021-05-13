@@ -4,6 +4,7 @@ import FastNoiseLite
 import FastNoiseLite.NoiseType
 import FastNoiseLite.NoiseType.Cellular
 import FastNoiseLite.NoiseType.Perlin
+import arrow.core.memoize
 import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
@@ -144,6 +145,10 @@ data class Noise(
   companion object {
     fun Walkable.warped(noise: Noise, scaleFn: (Point) -> Point = { it }): List<Point> =
       noise.warp(this, scaleFn)
+
+    val warpedMemo = { walkable: Walkable, noise: Noise ->
+      walkable.warped(noise)
+    }.memoize()
 
     fun Circ.warpedRadially(noise: Noise, scaleFn: (Double) -> Double = { it }) =
       warpedRadially(noise, origin, scaleFn)

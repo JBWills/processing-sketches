@@ -15,6 +15,7 @@ import fastnoise.Noise
 import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
 import geomerativefork.src.util.boundMin
+import interfaces.shape.Maskable
 import processing.core.PApplet
 import util.atAmountAlong
 import util.iterators.addNotNull
@@ -237,10 +238,14 @@ open class PAppletExt : PApplet() {
 
   @JvmName("drawPolyLines")
   fun List<List<Point>>.draw(debug: Boolean = false) = shapes(this, debug)
+
+  @JvmName("drawManyPolyLines")
+  fun List<List<List<Point>>>.draw(debug: Boolean = false) = shapes(this.flatten(), debug)
   fun RPath.drawLine() = points.map { Point(it.x, it.y) }.draw()
   fun Circ.draw() = circle(this)
   fun Segment.draw() = line(this)
   fun Line.draw(bounds: BoundRect) = bounds.getBoundSegment(this)?.let { line(it) }
   fun BoundRect.draw() = rect(this)
   fun Arc.draw() = arc(this)
+  fun Maskable.draw() = draw(this@PAppletExt)
 }

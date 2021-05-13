@@ -1,16 +1,21 @@
 package coordinate
 
+import appletExtensions.PAppletExt
 import coordinate.BoundRect.Companion.centeredRect
 import geomerativefork.src.RShape
+import interfaces.shape.Maskable
 import interfaces.shape.Walkable
 import util.atAmountAlong
 import util.circleintersection.LCircle
 import util.circleintersection.LVector2
 import util.circleintersection.getIntersectionPoints
 import util.equalsDelta
+import util.equalsZero
 import util.lessThanEqualToDelta
 import util.map
 import util.notEqualsZero
+import util.pointsAndLines.polyLine.PolyLine
+import util.squared
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -20,14 +25,15 @@ fun Point.isInCircle(c: Circ) = c.isInCircle(this)
 
 fun Point.toLVector() = LVector2(x, y)
 
-open class Circ(val origin: Point, val radius: Double) : Walkable {
+open class Circ(val origin: Point, val radius: Double) : Walkable, Maskable {
   constructor(origin: Point, radius: Number) : this(origin, radius.toDouble())
   constructor(radius: Number) : this(Point.Zero, radius.toDouble())
   constructor(c: Circ) : this(c.origin, c.radius)
 
-  val diameter = 2 * radius
-  val circumference: Double = 2 * PI * radius
-  val bounds: BoundRect = centeredRect(origin, diameter, diameter)
+  val diameter by lazy { 2 * radius }
+  val circumference: Double by lazy { 2 * PI * radius }
+  val bounds: BoundRect by lazy { centeredRect(origin, diameter, diameter) }
+  val radiusSquared: Double by lazy { radius.squared() }
 
   init {
     if (radius < 0) {
@@ -47,12 +53,37 @@ open class Circ(val origin: Point, val radius: Double) : Walkable {
   fun isOnCircle(p: Point) = radius.notEqualsZero() && origin.dist(p).equalsDelta(radius)
   fun isInCircle(p: Point) = radius.notEqualsZero() && origin.dist(p).lessThanEqualToDelta(radius)
 
-  fun contains(p: Point) = origin.dist(p) <= radius
+  override fun contains(p: Point) = origin.distSquared(p) <= radiusSquared
+
+  override fun intersection(line: Line, memoized: Boolean): List<Segment> {
+    TODO("Not yet implemented")
+  }
+
+  override fun intersection(segment: Segment, memoized: Boolean): List<Segment> =
+    listOfNotNull(bound(segment))
+
+  override fun diff(segment: Segment, memoized: Boolean): List<Segment> =
+    bound(segment)?.let { boundSegment ->
+      val s1 = Segment(segment.p1, boundSegment.p1)
+      val s2 = Segment(boundSegment.p2, segment.p2)
+      listOf(s1, s2).filterNot { it.length.equalsZero() }
+    } ?: listOf(segment)
+
+  override fun intersection(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
+    ContinuousMaskedShape(polyLine, this).toBoundPoints(true)
+
+
+  override fun diff(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
+    ContinuousMaskedShape(polyLine, this).toBoundPoints(false)
+
+  override fun draw(sketch: PAppletExt) = sketch.circle(this)
 
   fun toRShape() = RShape.createCircle(origin.toRPoint(), diameter)
 
   fun bound(s: Segment): Segment? {
     if (contains(s.p1) && contains(s.p2)) return s
+    if (origin.perpendicularDistanceTo(s) > radius) return null
+
     val intersections = getIntersectionPoints(s)
 
     if (intersections.size < 2) return null

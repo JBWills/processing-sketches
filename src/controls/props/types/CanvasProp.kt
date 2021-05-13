@@ -10,6 +10,7 @@ import coordinate.Point
 import kotlinx.serialization.Serializable
 import util.print.Orientation
 import util.print.Paper
+import util.with
 
 
 @Serializable
@@ -35,7 +36,7 @@ data class CanvasProp(
     orientation ?: c.orientation,
   )
 
-  val pagePx: Point = paper.px(orientation)
+  val pagePx: Point get() = paper.px(orientation)
 
   val boundRect get() = calcBoundRect()
 
@@ -48,7 +49,7 @@ data class CanvasProp(
 
   override fun clone() = CanvasProp(this)
 
-  private fun BaseSketch.markCanvasDirty() {
+  fun markCanvasDirty(sketch: BaseSketch) = sketch.with {
     updateSize(pagePx)
 
     backgroundColor = paper.defaultBackgroundColor
@@ -56,13 +57,19 @@ data class CanvasProp(
   }
 
   override fun bind(): List<ControlTab> = singleTab("SpiralProp") {
-    dropdownList(::paper) { markCanvasDirty() }
-    dropdownList(::orientation) { markCanvasDirty() }
+    dropdownList(::paper) { markCanvasDirty(this) }
+    dropdownList(::orientation) { markCanvasDirty(this) }
     col {
       style = ControlStyle.Red
       toggle(::drawBoundRect)
       sliderPair(::boundBoxCenter)
       sliderPair(::boundBoxScale, withLockToggle = true, defaultLocked = false)
+    }
+  }
+
+  companion object {
+    fun BaseSketch.updateCanvas(canvasProp: CanvasProp) {
+      canvasProp.markCanvasDirty(this)
     }
   }
 }

@@ -95,16 +95,19 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
   val xi = x.toInt()
   val yi = y.toInt()
 
-  val magnitude
-    get() = sqrt(x.squared() + y.squared())
+  val magnitude by lazy { sqrt(magnitudeSquared) }
 
-  val normalized: Point
-    get() {
-      if (magnitude == 0.0) return Point(1, 0)
-      return Point(x / magnitude, y / magnitude)
-    }
+  // useful when you don't want to do expensive sqrt() calcs
+  val magnitudeSquared by lazy { x.squared() + y.squared() }
+
+  val normalized: Point by lazy {
+    if (magnitudeSquared == 0.0) Point(1, 0)
+    else Point(x / magnitude, y / magnitude)
+  }
 
   fun dist(other: Point) = (this - other).magnitude
+
+  fun distSquared(other: Point) = (this - other).magnitudeSquared
 
   fun flipX() = Point(-x, y)
   fun flipY() = Point(x, -y)

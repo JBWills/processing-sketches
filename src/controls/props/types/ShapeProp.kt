@@ -5,20 +5,27 @@ import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.props.PropData
 import controls.props.types.ShapeType.Ellipse
+import controls.props.types.ShapeType.Rectangle
 import coordinate.BoundRect
 import coordinate.BoundRect.Companion.centeredRect
+import coordinate.Circ
 import coordinate.Deg
 import coordinate.Point
 import geomerativefork.src.RPath
+import interfaces.shape.Maskable
 import kotlinx.serialization.Serializable
 import util.ZeroToOne
 import util.geomutil.contains
+import util.geomutil.diff
 import util.geomutil.ellipse
+import util.geomutil.intersection
 import util.geomutil.rotated
+import util.pointsAndLines.polyLine.PolyLine
 
 enum class ShapeType {
   Ellipse,
   Rectangle,
+  ;
 }
 
 @Serializable
@@ -44,6 +51,23 @@ data class ShapeProp(
   fun getRPath(bound: BoundRect): RPath = getRPathMemo(bound, type, size, center, rotation)
 
   fun contains(p: Point, sketchBound: BoundRect) = getRPath(sketchBound).contains(p)
+
+  // Not accurate with rotation, sorry!
+  fun roughBounds(bound: BoundRect) = centeredRect(bound.pointAt(center.x, center.y), size)
+
+  fun asMaskable(boundRect: BoundRect): Maskable {
+    val centerPoint = boundRect.pointAt(center.x, center.y)
+    return when (type) {
+      Ellipse -> Circ(centerPoint, size.x)
+      Rectangle -> centeredRect(centerPoint, size.x, size.y)
+    }
+  }
+
+  fun intersection(boundRect: BoundRect, polyLine: PolyLine) =
+    polyLine.intersection(asMaskable(boundRect))
+
+  fun diff(boundRect: BoundRect, polyLine: PolyLine) =
+    polyLine.diff(asMaskable(boundRect))
 
   override fun toSerializer() = serializer()
 

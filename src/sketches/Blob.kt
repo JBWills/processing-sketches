@@ -1,17 +1,19 @@
 package sketches
 
-import appletExtensions.getParallelLinesInBound
+import appletExtensions.getParallelLinesInBoundMemo
+import controls.panels.ControlStyle.Companion.Blue
 import controls.panels.ControlStyle.Companion.Green
 import controls.panels.ControlStyle.Companion.Red
 import controls.panels.TabsBuilder.Companion.layerTab
-import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.TabsBuilder.Companion.tabs
 import controls.props.PropData
 import controls.props.types.ShapeProp
 import controls.props.types.ShapeType.Rectangle
 import coordinate.Deg
 import coordinate.Point
+import coordinate.Segment
 import fastnoise.Noise
-import fastnoise.Noise.Companion.warped
+import fastnoise.Noise.Companion.warpedMemo
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.ZeroToOne
@@ -56,46 +58,46 @@ class Blob : LayeredCanvasSketch<BlobData, BlobLayerData>(
 
     val (
       shape,
+      contourShape,
       lineAngle,
       lineNoise,
       lineDensity,
       lineOffset,
     ) = values.globalValues
-//
-//    boundRect.shrink(30).asPolyLine().chaikin(chaikinTimes).draw()
-//    return
 
     val distanceBetweenLines = (50.0..0.5).atAmountAlong(lineDensity)
-    val lines = getParallelLinesInBound(
+    val lines: List<Segment> = getParallelLinesInBoundMemo(
       boundRect.expand(lineNoise.strength.x, lineNoise.strength.y),
       lineAngle,
       distanceBetweenLines,
       lineOffset * distanceBetweenLines,
     )
 
-    val cPath = shape.getRPath(boundRect)
-
     if (drawBlob) {
       getNoiseContour(
         (thresholdStart..thresholdEnd numSteps numThresholds).toList(),
-        boundRect,
+        contourShape.roughBounds(boundRect),
         gridStep,
         noise,
-      ).map { (threshold, line) ->
-        var mergedLines = line.mergeSegments().toList()
+      ).forEach { (threshold, line) ->
+        line
+          .mergeSegments()
+          .map { line ->
+            val smoothedLine = if (shouldSmooth)
+              line.chaikin(chaikinTimes)
+                .douglassPeucker(smoothEpsilon)
+            else line
 
-        if (shouldSmooth) {
-          mergedLines = mergedLines.map { it.chaikin(chaikinTimes).douglassPeucker(smoothEpsilon) }
-        }
-
-        mergedLines.draw(drawDebug)
+            smoothedLine.intersection(contourShape.getRPath(boundRect))
+          }
+          .draw(drawDebug)
       }
     }
 
     lines.flatMap {
-      it.warped(lineNoise)
+      warpedMemo(it, lineNoise)
         .walkThreshold(noise, thresholdStart)
-        .flatMap { lineSegment -> lineSegment.intersection(cPath) }
+        .flatMap { lineSegment -> lineSegment.intersection(shape.asMaskable(boundRect)) }
     }.draw()
   }
 }
@@ -131,7 +133,7 @@ data class BlobLayerData(
       slider(::thresholdEnd, ZeroToOne)
     }
 
-    intSlider(::numThresholds, 1..20)
+    intSlider(::numThresholds, 1..200)
 
     row {
       style = Red
@@ -154,17 +156,30 @@ data class BlobData(
     center = Point.Half,
     rotation = Deg(0),
   ),
+  var contourShape: ShapeProp = ShapeProp(
+    type = Rectangle,
+    size = Point.One * 200,
+    center = Point.Half,
+    rotation = Deg(0),
+  ),
   var lineAngle: Deg = Deg(45),
   var lineNoise: Noise = Noise.DEFAULT,
   var lineDensity: Double = 0.3,
   var lineOffset: Double = 0.0,
 ) : PropData<BlobData> {
-  override fun bind() = singleTab("Global") {
-    panel(::shape, style = Red)
-    slider(::lineDensity, ZeroToOne)
-    slider(::lineOffset, ZeroToOne)
-    degreeSlider(::lineAngle)
-    noisePanel(::lineNoise)
+  override fun bind() = tabs {
+    tab("Crop") {
+      panel(::shape, style = Red)
+      panel(::contourShape, style = Blue)
+    }
+    tab("Global") {
+      row {
+        slider(::lineDensity, ZeroToOne)
+        slider(::lineOffset, ZeroToOne)
+      }
+      degreeSlider(::lineAngle)
+      noisePanel(::lineNoise)
+    }
   }
 
   override fun clone() = copy()

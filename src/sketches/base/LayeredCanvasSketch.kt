@@ -7,6 +7,7 @@ import controls.props.LayerAndGlobalProps
 import controls.props.LayerAndGlobalProps.Companion.props
 import controls.props.PropData
 import controls.props.types.CanvasProp
+import controls.props.types.CanvasProp.Companion.updateCanvas
 import controls.utils.deletePresetFile
 import controls.utils.loadPresets
 import controls.utils.savePresetToFile
@@ -55,6 +56,8 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
     super.setup()
 
     setActiveTab(layerAndGlobalProps.globalControlTabs.firstOrNull()?.name ?: CANVAS_TAB_NAME)
+
+    onSwitchCanvas(DEFAULT_PRESET_NAME)
   }
 
   abstract fun drawOnce(values: LayerInfo)
@@ -82,12 +85,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
         submitButtonLabel = "Save new preset",
       ) { savePreset(it) }
 
-      dropdownList("Load Preset", presets.keys.sorted(), ::currentPreset) {
-        val newPreset = presets[it] ?: return@dropdownList
-        layerAndGlobalProps = newPreset
-        updateControls()
-        markDirty()
-      }
+      dropdownList("Load Preset", presets.keys.sorted(), ::currentPreset) { onSwitchCanvas(it) }
     },
     tab(CANVAS_TAB_NAME) {
       +layerAndGlobalProps.canvasControls
@@ -100,6 +98,14 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
     },
   )
 
+  private fun onSwitchCanvas(newPresetName: String) {
+    val newPreset = presets[newPresetName] ?: return
+    layerAndGlobalProps = newPreset
+    updateCanvas(canvasProps)
+    updateControls()
+    markDirty()
+  }
+
   final override fun drawSetup() {
     super.drawSetup()
 
@@ -109,13 +115,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
 
   final override fun drawOnce(layer: Int) {
     val frozenValues = frozenValues ?: return
-    drawOnce(
-      LayerInfo(
-        layer,
-        frozenValues.globalValues,
-        frozenValues.allTabValues,
-      ),
-    )
+    drawOnce(LayerInfo(layer, frozenValues.globalValues, frozenValues.allTabValues))
   }
 
   private fun savePreset(presetName: String) {
