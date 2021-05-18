@@ -1,4 +1,4 @@
-package test.coordinate
+package tests.coordinate
 
 import coordinate.Deg
 import coordinate.Line
@@ -22,42 +22,42 @@ internal class LineTest {
     fun assertToLineEquals(pointFrom: Point = Point.Zero, pointTo: Point, expectedDeg: Number) {
       assertEquals(
         Line(pointFrom, Deg(expectedDeg)),
-        S(pointFrom, pointTo).toLine()
+        S(pointFrom, pointTo).toLine(),
       )
     }
 
     assertToLineEquals(pointTo = Point.Up, expectedDeg = 90)
-    assertToLineEquals(pointTo = Point.Down, expectedDeg = 90)
+    assertToLineEquals(pointTo = Point.Down, expectedDeg = 270)
     assertToLineEquals(pointTo = Point.Right, expectedDeg = 0)
-    assertToLineEquals(pointFrom = Point.Right, pointTo = Point.Zero, expectedDeg = 0)
-    assertToLineEquals(pointTo = Point.Left, expectedDeg = 0)
-    assertToLineEquals(pointTo = Point.One, expectedDeg = 45)
-    assertToLineEquals(pointTo = Point(-1, 1), expectedDeg = 315)
-    assertToLineEquals(pointTo = -Point.One, expectedDeg = 45)
+    assertToLineEquals(pointFrom = Point.Right, pointTo = Point.Zero, expectedDeg = 180)
+    assertToLineEquals(pointTo = Point.Left, expectedDeg = 180)
+    assertToLineEquals(pointTo = Point.One, expectedDeg = 315)
+    assertToLineEquals(pointTo = Point(-1, 1), expectedDeg = 225)
+    assertToLineEquals(pointTo = -Point.One, expectedDeg = 135)
   }
 
   @Test
   fun testConstructor() {
     assertEquals(
       S(Point.Zero, Point.Up),
-      S(Point.Zero, Deg(90), 1.0)
+      S(Point.Zero, Deg(90), 1.0),
     )
 
     assertEquals(
       S(Point.Zero, Point.Down),
-      S(Point.Zero, Deg(-90), 1.0)
+      S(Point.Zero, Deg(-90), 1.0),
     )
     assertEquals(
       S(Point.Zero, Point.Left),
-      S(Point.Zero, Deg(180), 1.0)
+      S(Point.Zero, Deg(180), 1.0),
     )
     assertEquals(
       S(Point.Zero, Point.Right),
-      S(Point.Zero, Deg(0), 1.0)
+      S(Point.Zero, Deg(0), 1.0),
     )
     assertEquals(
       S(Point.Zero, Point(sqrt(0.5), -sqrt(0.5))),
-      S(Point.Zero, Deg(45), 1.0)
+      S(Point.Zero, Deg(45), 1.0),
     )
   }
 
@@ -128,46 +128,46 @@ internal class LineTest {
 
   @Test
   fun testGetOverlap() {
-    val a = Point.One
-    val b = Point(2, 2)
-    val c = Point(3, 3)
-    val d = Point(4, 4)
+    val one = Point.One
+    val two = Point(2, 2)
+    val three = Point(3, 3)
+    val four = Point(4, 4)
 
     fun test(expected: S, s1: S, s2: S) = assertEquals(expected, s1.getOverlapWith(s2))
 
-    test(expected = S(a, b), S(a, c), S(a, b))
-    test(expected = S(a, b), S(a, b), S(a, c))
-    test(expected = S(a, b), S(c, a), S(a, b))
-    test(expected = S(b, a), S(b, a), S(a, c))
-    test(expected = S(b, a), S(a, c), S(b, a))
-    test(expected = S(a, b), S(a, b), S(c, a))
-    test(expected = S(b, a), S(c, a), S(b, a))
-    test(expected = S(b, a), S(b, a), S(c, a))
+    test(expected = S(one, two), S(one, three), S(one, two))
+    test(expected = S(one, two), S(one, two), S(one, three))
+    test(expected = S(two, one), S(three, one), S(one, two))
+    test(expected = S(two, one), S(two, one), S(one, three))
+    test(expected = S(one, two), S(one, three), S(two, one))
+    test(expected = S(one, two), S(one, two), S(three, one))
+    test(expected = S(two, one), S(three, one), S(two, one))
+    test(expected = S(two, one), S(two, one), S(three, one))
 
-    test(expected = S(a, b), S(a, d), S(a, b))
-    test(expected = S(b, c), S(a, d), S(b, c))
-    test(expected = S(b, c), S(b, c), S(b, c))
-    test(expected = S(c, b), S(c, b), S(c, b))
+    test(expected = S(one, two), S(one, four), S(one, two))
+    test(expected = S(two, three), S(one, four), S(two, three))
+    test(expected = S(two, three), S(two, three), S(two, three))
+    test(expected = S(three, two), S(three, two), S(three, two))
 
-    test(expected = S(c, d), S(a, d), S(c, d))
-    test(expected = S(a, d), S(a, d), S(d, a))
+    test(expected = S(three, four), S(one, four), S(three, four))
+    test(expected = S(one, four), S(one, four), S(four, one))
   }
 
   @Test
   fun testGetOverlapWithNoOverlap() {
-    val a = Point.One
-    val b = Point(2, 2)
-    val c = Point(3, 3)
-    val d = Point(4, 4)
-    val e = Point(5, 5)
+    val one = Point.One
+    val two = Point(2, 2)
+    val three = Point(3, 3)
+    val four = Point(4, 4)
+    val five = Point(5, 5)
 
     fun test(expected: S?, s1: S, s2: S) = assertEquals(expected, s1.getOverlapWith(s2))
 
-    test(expected = null, S(a, b), S(d, e))
-    test(expected = null, S(a, b), S(b, e))
-    test(expected = null, S(a, b), S(b, b))
-    test(expected = null, S(a, c), S(b, b))
-    test(expected = null, S(a, c), S(d, d))
+    test(expected = null, S(one, two), S(four, five))
+    test(expected = null, S(one, two), S(two, five))
+    test(expected = null, S(one, two), S(two, two))
+    test(expected = null, S(one, three), S(two, two))
+    test(expected = null, S(one, three), S(four, four))
   }
 
   @Test

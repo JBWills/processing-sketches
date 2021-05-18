@@ -1,6 +1,6 @@
 @file:Suppress("EmptyRange")
 
-package test.util
+package tests.util
 
 import coordinate.Point
 import org.junit.jupiter.api.Test

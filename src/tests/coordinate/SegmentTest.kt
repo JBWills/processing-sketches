@@ -1,4 +1,4 @@
-package test.coordinate
+package tests.coordinate
 
 import coordinate.Point
 import coordinate.Segment

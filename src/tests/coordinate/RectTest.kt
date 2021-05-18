@@ -1,4 +1,4 @@
-package test.coordinate
+package tests.coordinate
 
 import coordinate.BoundRect
 import coordinate.Point

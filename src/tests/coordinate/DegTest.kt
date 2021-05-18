@@ -1,4 +1,4 @@
-package test.coordinate
+package tests.coordinate
 
 import coordinate.Deg
 import coordinate.RotationDirection.Clockwise
@@ -116,10 +116,26 @@ internal class DegTest {
   fun isParallelWith() {
     fun t(expected: Boolean, d1: Number, d2: Number) {
       if (expected) {
-        assertEquals(expected, Deg(d1).isParallelWith(d2), "expected Deg($d1).isParallelWith($d2) to be $expected")
-        assertEquals(expected, Deg(d1).isParallelWith(Deg(d2)), "expected Deg($d1).isParallelWith(Deg($d2)) to be $expected")
-        assertEquals(expected, Deg(d2).isParallelWith(d1), "expected Deg($d2).isParallelWith($d1) to be $expected")
-        assertEquals(expected, Deg(d2).isParallelWith(Deg(d1)), "expected Deg($d2).isParallelWith(Deg($d1)) to be $expected")
+        assertEquals(
+          expected,
+          Deg(d1).isParallelWith(d2),
+          "expected Deg($d1).isParallelWith($d2) to be $expected",
+        )
+        assertEquals(
+          expected,
+          Deg(d1).isParallelWith(Deg(d2)),
+          "expected Deg($d1).isParallelWith(Deg($d2)) to be $expected",
+        )
+        assertEquals(
+          expected,
+          Deg(d2).isParallelWith(d1),
+          "expected Deg($d2).isParallelWith($d1) to be $expected",
+        )
+        assertEquals(
+          expected,
+          Deg(d2).isParallelWith(Deg(d1)),
+          "expected Deg($d2).isParallelWith(Deg($d1)) to be $expected",
+        )
       }
     }
 
