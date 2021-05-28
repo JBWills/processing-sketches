@@ -2,7 +2,6 @@ package coordinate
 
 import geomerativefork.src.RShape
 import interfaces.shape.Walkable
-import util.debugLog
 import util.equalsZero
 import util.greaterThanEqualToDelta
 import util.notEqualsZero
@@ -12,7 +11,6 @@ import kotlin.math.abs
 import kotlin.math.atan
 
 fun getSlope(p1: Point, p2: Point): Deg {
-  debugLog(p1, p2)
   val denominator = p2.x - p1.x
   var deg = if (denominator.equalsZero()) {
     Deg(90)
@@ -151,8 +149,6 @@ class Segment(
     val otherReoriented = other.withReorientedDirection(this)
     val (shorter, longer) =
       if (otherReoriented.length.greaterThanEqualToDelta(length)) this to otherReoriented else otherReoriented to this
-
-    debugLog(longer, shorter)
 
     var segment: Segment? = null
     if (!longer.contains(shorter.p1) && !longer.contains(shorter.p2)) {
