@@ -33,6 +33,8 @@ import java.awt.Color
  */
 open class PAppletExt : PApplet() {
 
+  val windowBounds: BoundRect get() = BoundRect(Point.Zero, width, height)
+
   val NOISE = getNoise(Perlin)
 
   fun background(c: Color) = background(c.rgb)

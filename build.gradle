@@ -30,6 +30,11 @@ dependencies {
     implementation group: 'ca.pjer', name: 'ekmeans', version: '2.0.0'
     implementation group: 'javax.vecmath', name: 'vecmath', version: '1.5.2'
     implementation "io.arrow-kt:arrow-core:$arrow_version"
+    implementation "org.deeplearning4j:deeplearning4j-core:1.0.0-M1"
+    implementation "org.nd4j:nd4j-native-platform:1.0.0-M1"
+    implementation group: 'net.mikera', name: 'vectorz', version: '0.66.0'
+    // https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-java
+    compileOnly group: 'org.apache.flink', name: 'flink-streaming-java_2.12', version: '1.13.1'
     implementation files(
             'third-party-java/svg-lib/svg.jar',
             'third-party-java/svg-lib/batik-xml-1.8.jar',

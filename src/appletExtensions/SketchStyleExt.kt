@@ -6,16 +6,16 @@ import java.awt.Color
 
 fun PApplet.stroke(c: Color) = stroke(c.rgb)
 
-fun PApplet.withStroke(c: Int, block: () -> Unit) {
+fun PApplet.withStroke(c: Int, alpha: Int = 255, block: () -> Unit) {
   pushStyle()
-  stroke(c)
+  stroke(c, alpha / 255f)
   block()
   popStyle()
 }
 
-fun PApplet.withFill(c: Int, block: () -> Unit) {
+fun PApplet.withFill(c: Int, alpha: Int = 255, block: () -> Unit) {
   pushStyle()
-  fill(c)
+  fill(c, alpha / 255f)
   block()
   popStyle()
 }
@@ -25,10 +25,10 @@ fun PApplet.withFill(c: Int, block: () -> Unit) {
  * last styling.
  */
 fun PApplet.withStroke(c: Color, block: () -> Unit) =
-  withStroke(c.rgb, block)
+  withStroke(c.rgb, c.alpha, block)
 
 fun PApplet.withFill(c: Color, block: () -> Unit) =
-  withFill(c.rgb, block)
+  withFill(c.rgb, c.alpha, block)
 
 /**
  * Run the block after applying stroke color, then switch back to

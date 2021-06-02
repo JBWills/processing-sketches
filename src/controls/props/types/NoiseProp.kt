@@ -6,17 +6,9 @@ import controls.Control.Slider
 import controls.Control.Slider2d
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlPanel
-import controls.props.GenericProp
 import coordinate.Point
 import fastnoise.Noise
 import kotlin.reflect.KMutableProperty0
-
-fun noiseProp(
-  ref: KMutableProperty0<Noise>,
-  showStrengthSliders: Boolean = true,
-) = GenericProp(ref) {
-  noiseControls(ref, showStrengthSliders)
-}
 
 private fun noiseControls(
   noiseProp: KMutableProperty0<Noise>,

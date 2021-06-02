@@ -6,6 +6,9 @@ inline fun <T, reified R> Array<T>.mapArrayIndexed(block: (Int, T) -> R): Array<
 inline fun <T, reified R> List<T>.mapArray(block: (T) -> R): Array<R> =
   Array(this.size) { block(this[it]) }
 
+inline fun <reified R> DoubleArray.mapArray(block: (Double) -> R): Array<R> =
+  Array(this.size) { block(this[it]) }
+
 inline fun <reified T> timesArray(iterations: Int, block: (i: Int) -> T): Array<T> =
   (0 until iterations).map(block).toTypedArray()
 

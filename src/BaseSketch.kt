@@ -86,7 +86,14 @@ abstract class BaseSketch(
    */
   open fun drawSetup() {}
 
+  /**
+   * This function is for drawing UI elements on top of the image. This is good for showing your
+   * cursor if you're using a tool or something.
+   */
+  open fun drawInteractive() {}
+
   override fun draw() {
+    drawInteractive()
     onlyRunIfDirty {
       val layers = getLayers()
       background(backgroundColor.rgb)
@@ -120,7 +127,7 @@ abstract class BaseSketch(
     }
   }
 
-  fun markDirty() {
+  open fun markDirty() {
     dirty = true
   }
 

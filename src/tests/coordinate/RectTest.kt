@@ -107,4 +107,37 @@ internal class RectTest {
     assertEquals(BoundRect(Point(-5, 1), 15, 3), r.resizeCentered(Point(15, 3)))
     assertEquals(BoundRect(Point(2.5, 1), 0, 3), r.resizeCentered(Point(0, 3)))
   }
+
+  @Test
+  fun testBoundIntersection() {
+    val rZero = BoundRect(Point.Zero, 5, 5)
+    val rOne = BoundRect(Point.One, 4, 4)
+    val rTwo = BoundRect(Point.One, 5, 5)
+    val rThree = BoundRect(Point.One, 3, 3)
+    val rFour = BoundRect(Point.One, 3, 10)
+    val disconnected = BoundRect(Point(10, 10), 3, 3)
+    val disconnectedX = BoundRect(Point(10, 1), 3, 3)
+    val disconnectedY = BoundRect(Point(1, 10), 3, 3)
+
+    assertEquals(rZero, rZero.boundsIntersection(rZero))
+
+    assertEquals(rOne, rZero.boundsIntersection(rOne))
+    assertEquals(rOne, rOne.boundsIntersection(rZero))
+
+    assertEquals(rOne, rTwo.boundsIntersection(rZero))
+    assertEquals(rOne, rZero.boundsIntersection(rTwo))
+
+    assertEquals(rThree, rThree.boundsIntersection(rZero))
+    assertEquals(rThree, rZero.boundsIntersection(rThree))
+
+    assertEquals(BoundRect(Point.One, 3, 4), rFour.boundsIntersection(rZero))
+    assertEquals(BoundRect(Point.One, 3, 4), rZero.boundsIntersection(rFour))
+
+    assertEquals(null, disconnected.boundsIntersection(rZero))
+    assertEquals(null, rZero.boundsIntersection(disconnected))
+    assertEquals(null, disconnectedX.boundsIntersection(rZero))
+    assertEquals(null, rZero.boundsIntersection(disconnectedX))
+    assertEquals(null, disconnectedY.boundsIntersection(rZero))
+    assertEquals(null, rZero.boundsIntersection(disconnectedY))
+  }
 }

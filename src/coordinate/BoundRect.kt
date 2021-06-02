@@ -21,6 +21,7 @@ import util.pointsAndLines.polyLine.PolyLine
 import util.step
 import java.awt.Color
 import kotlin.math.abs
+import kotlin.math.max
 
 @Serializable
 data class BoundRect(
@@ -84,6 +85,18 @@ data class BoundRect(
   fun isRight(line: Line) = line.origin.x == right && line.slope.isVertical()
 
   fun asPolyLine() = listOf(topLeft, topRight, bottomRight, bottomLeft, topLeft)
+
+  fun boundsIntersection(other: BoundRect): BoundRect? {
+    if (right <= other.left || other.right <= left) return null
+    if (bottom <= other.top || other.bottom <= top) return null
+
+    val maxLeft = max(left, other.left)
+    val maxTop = max(top, other.top)
+    val minRight = min(right, other.right)
+    val minBottom = min(bottom, other.bottom)
+
+    return BoundRect(Point(maxLeft, maxTop), Point(minRight, minBottom))
+  }
 
   fun expand(amountX: Number, amountY: Number) = BoundRect(
     topLeft - Point(amountX, amountY),
@@ -218,6 +231,9 @@ data class BoundRect(
   override fun toString(): String {
     return "BoundRect(top=$top, left=$left, bottom=$bottom, right=$right)"
   }
+
+  operator fun minus(p: Point): BoundRect = BoundRect(topLeft - p, width, height)
+  operator fun plus(p: Point): BoundRect = BoundRect(topLeft + p, width, height)
 
   companion object {
     fun Point.mappedOnto(r: BoundRect) = Point(r.left + (x * r.width), r.top + (y * r.height))

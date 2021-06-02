@@ -6,11 +6,14 @@ import util.equalsZero
 import util.lessThanEqualToDelta
 import util.toRadians
 
-class Arc(val startDeg: Deg, val lengthClockwise: Double, circle: Circ) :
-  Circ(circle.origin, circle.radius) {
+class Arc(
+  val startDeg: Deg,
+  val lengthClockwise: Double,
+  circle: Circ,
+) : Circ(circle) {
   constructor(startDeg: Deg, lengthClockwise: Number, circle: Circ) : this(
     startDeg,
-    lengthClockwise.toDouble(), circle
+    lengthClockwise.toDouble(), circle,
   )
 
   constructor(circle: Circ) : this(Deg(0), 360, circle)
@@ -19,7 +22,7 @@ class Arc(val startDeg: Deg, val lengthClockwise: Double, circle: Circ) :
   constructor(startDeg: Deg, endDeg: Deg, circle: Circ) : this(
     startDeg,
     startDeg.rotation(endDeg, Clockwise),
-    circle
+    circle,
   )
 
   constructor(
@@ -29,7 +32,7 @@ class Arc(val startDeg: Deg, val lengthClockwise: Double, circle: Circ) :
   ) : this(
     circle.angleAtPoint(startPoint),
     circle.angleAtPoint(endPoint),
-    circle
+    circle,
   )
 
   init {
@@ -72,7 +75,7 @@ class Arc(val startDeg: Deg, val lengthClockwise: Double, circle: Circ) :
     return Arc(
       startDeg - amt,
       endDeg + amt,
-      this
+      this,
     )
   }
 
@@ -138,7 +141,7 @@ class Arc(val startDeg: Deg, val lengthClockwise: Double, circle: Circ) :
       second.contains(firstStart) && second.contains(firstEnd) -> {
         listOf(
           Arc(second.startDeg, first.endDeg, this),
-          Arc(first.startDeg, second.endDeg, this)
+          Arc(first.startDeg, second.endDeg, this),
         )
           .sortedBy { it.startDeg.value }
           .filterNot { it.lengthClockwise == 0.0 }
@@ -171,16 +174,17 @@ class Arc(val startDeg: Deg, val lengthClockwise: Double, circle: Circ) :
     lengthClockwise == 360.0 -> listOf(Arc(other.endDeg, 360 - other.lengthClockwise, this))
     contains(other) -> listOf(
       Arc(startDeg, other.startDeg, this),
-      Arc(other.endDeg, endDeg, this)
+      Arc(other.endDeg, endDeg, this),
     )
     contains(other.startDeg) && !contains(other.endDeg) -> listOf(
-      Arc(startDeg, other.startDeg, this)
+      Arc(startDeg, other.startDeg, this),
     )
     contains(other.endDeg) && !contains(other.startDeg) -> listOf(
-      Arc(other.endDeg, endDeg, this)
+      Arc(other.endDeg, endDeg, this),
     )
-    else -> listOf( // if both endpoints are contained but entire arc isn't contained
-      Arc(other.endDeg, other.startDeg, this)
+    else -> listOf(
+      // if both endpoints are contained but entire arc isn't contained
+      Arc(other.endDeg, other.startDeg, this),
     )
   }.filterNot { it.lengthClockwise.equalsZero() }
 
