@@ -1,5 +1,6 @@
 package sketches
 
+import appletExtensions.draw.drawSquare
 import controls.panels.ControlStyle
 import controls.panels.TabStyle
 import controls.panels.TabsBuilder.Companion.layerTab
@@ -66,7 +67,7 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
       if (length < 0) return@forEachSampled
 
       when (filterType) {
-        Circles -> canvasPoint.drawPoint(length)
+        Circles -> canvasPoint.draw(length)
         Crosses -> {
           val segment = image
             .gradientAt(imagePoint, filterSize)
@@ -119,7 +120,7 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
             .filter { it.length > 1 }
             .drawAsLine()
         }
-        Squares -> canvasPoint.drawSquare(length, rotation = baseRotation)
+        Squares -> drawSquare(canvasPoint, length, rotation = baseRotation)
         Lines -> image
           .gradientAt(imagePoint, filterSize)
           .toUnitVectorSegment(canvasPoint)

@@ -1,9 +1,12 @@
 package controls.props.types
 
 import BaseSketch
+import appletExtensions.createGraphics
+import appletExtensions.draw.circle
 import appletExtensions.isMouseHovering
 import appletExtensions.mouseLocation
-import appletExtensions.withStroke
+import appletExtensions.withDraw
+import appletExtensions.withStyle
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.button
@@ -15,11 +18,15 @@ import controls.props.types.BrushType.Brush
 import controls.props.types.BrushType.Bucket
 import controls.props.types.BrushType.Eraser
 import coordinate.Circ
-import coordinate.Mat2D
-import coordinate.Mat2D.Companion.createCircle
+import geomerativefork.src.util.toRGBInt
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import processing.core.PConstants.ALPHA
+import processing.core.PGraphics
 import processing.core.PImage
+import processing.opengl.PGL.RGBA
+import util.print.StrokeWeight.VeryThick
+import util.print.Style
+import util.withAlpha
 import java.awt.Color
 
 enum class BrushType {
@@ -38,7 +45,12 @@ data class BrushProp(
   var brushType: BrushType = Brush,
 ) : PropData<BrushProp> {
 
-  val mask = Mat2D(1000, 1000)
+  @Contextual
+  var alphaMask: PGraphics? = null
+
+  @Contextual
+  var latestMaskImage: PImage? = null
+
 
   constructor(
     s: BrushProp,
@@ -62,7 +74,7 @@ data class BrushProp(
   override fun bind(): List<ControlTab> = singleTab("SpiralProp") {
     row {
       col {
-        button("Clear") { mask.clear(); markDirty() }
+        button("Clear") { alphaMask?.clear(); markDirty() }
         toggle(::showMask)
         dropdown(::brushType)
       }
@@ -75,28 +87,70 @@ data class BrushProp(
     }
   }
 
-  fun applyStroke(circ: Circ) = when (brushType) {
-    Brush -> mask.addCentered(circ.origin, createCircle(circ, intensity, feather))
-    Eraser -> mask.subtractCentered(circ.origin, createCircle(circ, intensity, feather))
-    Bucket -> mask.setAll(intensity)
-  }
+  private fun getFillStyle(add: Boolean, alpha: Double) = Style(
+    fillColor = (if (add) Color.WHITE else Color.BLACK).withAlpha(alpha.toRGBInt()),
+    noStroke = true,
+  )
 
-  fun getBrushCirc(sketch: BaseSketch) = Circ(sketch.mouseLocation(), size)
-
-  fun drawInteractive(sketch: BaseSketch) = sketch.withStroke(Color(255, 255, 255, 128)) {
-    if (showMask) {
-      val image = PImage(mask.width, mask.height, ALPHA).apply { mask(mask.toIntMatrix(255)) }
-      sketch.image(image, 0f, 0f)
+  private fun drawAdditiveCircle(circle: Circ, add: Boolean) =
+    alphaMask?.withStyle(getFillStyle(add, intensity)) {
+      alphaMask?.circle(circle)
     }
 
-    val brush = getBrushCirc(sketch)
+  private fun applyStroke(circle: Circ) = when (brushType) {
+    Brush -> drawAdditiveCircle(circle, add = true)
+    Eraser -> drawAdditiveCircle(circle, add = false)
+    Bucket -> alphaMask?.background(intensity.toFloat())
+  }
 
-    if (sketch.isMouseHovering()) {
-      sketch.circle(brush)
+  fun drawInteractive(
+    sketch: BaseSketch,
+    graphics: PGraphics = sketch.interactiveGraphicsLayer
+  ) = graphics.withStyle(
+    Style(
+      color = Color.white.withAlpha(128),
+      noFill = true,
+      weight = VeryThick,
+    ),
+  ) {
+    val alphaMask = getNonNullAlphaMask(sketch)
+
+    val brush = getBrushCirc(sketch)
+    graphics.withDraw {
+      if (showMask) {
+        latestMaskImage?.let { image(it, 0f, 0f) }
+      }
+
+      if (sketch.isMouseHovering()) circle(brush)
     }
 
     if (sketch.mousePressed) {
-      applyStroke(brush)
+      alphaMask.withDraw {
+        applyStroke(brush)
+        latestMaskImage = alphaMask.get()
+      }
+    }
+  }
+
+
+  private fun getBrushCirc(sketch: BaseSketch) = Circ(sketch.mouseLocation(), size)
+
+  private fun getNonNullAlphaMask(sketch: BaseSketch): PGraphics {
+    val alphaMask = this.alphaMask ?: initAlphaMask(sketch)
+    checkAlphaMaskSize(sketch)
+    return alphaMask
+  }
+
+  private fun initAlphaMask(sketch: BaseSketch): PGraphics {
+    val newAlphaMask = sketch.createGraphics(sketch.size, RGBA)
+    alphaMask = newAlphaMask
+    return newAlphaMask
+  }
+
+  private fun checkAlphaMaskSize(sketch: BaseSketch) {
+    val alphaMask = alphaMask ?: initAlphaMask(sketch)
+    if (alphaMask.width != sketch.width || alphaMask.height != sketch.height) {
+      alphaMask.setSize(sketch.width, sketch.height)
     }
   }
 }

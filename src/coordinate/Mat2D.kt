@@ -7,6 +7,7 @@ import mikera.matrixx.impl.AStridedMatrix
 import util.ceilInt
 import util.io.serialization.MatrixSerializer
 import util.iterators.mapArray
+import java.awt.Color
 
 fun Matrix.bounds(offset: Point = Point.Zero) = BoundRect(offset, sizeX, sizeY)
 
@@ -28,10 +29,10 @@ fun Matrix.croppedToSize(sizeX: Int, sizeY: Int): Matrix =
   Matrix(sizeX, sizeY).also { it.setElements(toDoubleArray(), 0) }
 
 fun Matrix.subMatrix(rect: BoundRect): AStridedMatrix = subMatrix(
-  rect.left.toInt(),
-  rect.width.toInt(),
   rect.top.toInt(),
   rect.height.toInt(),
+  rect.left.toInt(),
+  rect.width.toInt(),
 )
 
 fun Matrix.subMatrix(offset: Point, size: Matrix) =
@@ -87,9 +88,9 @@ class Mat2D private constructor(@Serializable(with = MatrixSerializer::class) va
   fun subMatrixCopy(rect: BoundRect) = backingArr.subMatrixCopy(rect)
 
   fun addCentered(centerPoint: Point, values: Mat2D) {
-    val offset = backingArr.bounds().recentered(centerPoint).topLeft
+    val topLeftInParent = centerPoint - Point(values.width / 2, values.height / 2)
 
-    backingArr.addi(offset, values.backingArr)
+    backingArr.addi(topLeftInParent, values.backingArr)
   }
 
   fun subtractCentered(centerPoint: Point, values: Mat2D) {
@@ -103,8 +104,13 @@ class Mat2D private constructor(@Serializable(with = MatrixSerializer::class) va
     }
   }
 
-  fun toIntMatrix(scale: Int = 1): IntArray =
-    backingArr.array.mapArray { (it * scale).toInt() }.toIntArray()
+  fun toAlphaMatrix(): IntArray =
+    backingArr.array.mapArray {
+      (it * 255).toInt()
+    }.toIntArray()
+
+  fun toRGB(): Array<Color> =
+    backingArr.array.mapArray { Color((it * 255).toInt(), (it * 255).toInt(), (it * 255).toInt()) }
 
   fun clear() {
     backingArr = Matrix(backingArr.rowCount(), backingArr.columnCount())
@@ -113,12 +119,13 @@ class Mat2D private constructor(@Serializable(with = MatrixSerializer::class) va
   companion object {
     fun createCircle(c: Circ, intensity: Double, feather: Double = 0.0): Mat2D {
       val diameter = c.diameter
+      val matCenter = Point(c.radius, c.radius)
+      val centeredC = Circ(matCenter, c.radius)
       return Mat2D(
         Matrix.create(
           Array(diameter.ceilInt()) { xIndex ->
             DoubleArray(diameter.ceilInt()) { yIndex ->
-              val p = Point(xIndex + c.origin.x, yIndex + c.origin.y)
-              if (c.contains(p)) intensity else 0.0
+              if (centeredC.contains(Point(xIndex, yIndex))) intensity else 0.0
             }
           },
         ),

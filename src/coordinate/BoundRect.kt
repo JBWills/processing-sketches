@@ -1,8 +1,7 @@
 package coordinate
 
 import appletExtensions.PAppletExt
-import appletExtensions.withFillNonNull
-import appletExtensions.withStrokeNonNull
+import appletExtensions.draw.rect
 import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
 import geomerativefork.src.RRectangle
@@ -10,7 +9,6 @@ import geomerativefork.src.RShape
 import interfaces.shape.Maskable
 import interfaces.shape.Walkable
 import kotlinx.serialization.Serializable
-import processing.core.PApplet
 import util.atAmountAlong
 import util.equalsZero
 import util.geomutil.toPoint
@@ -19,7 +17,6 @@ import util.iterators.mapWithNextCyclical
 import util.min
 import util.pointsAndLines.polyLine.PolyLine
 import util.step
-import java.awt.Color
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -248,17 +245,5 @@ data class BoundRect(
     fun centeredRect(center: Point, size: Point) = centeredRect(center, size.x, size.y)
 
     fun RRectangle.toBoundRect(): BoundRect = BoundRect(topLeft.toPoint(), bottomRight.toPoint())
-
-    fun PApplet.drawRect(boundRect: BoundRect, stroke: Color? = null, fill: Color? = null) =
-      withStrokeNonNull(stroke) {
-        withFillNonNull(fill) {
-          rect(
-            boundRect.left.toFloat(),
-            boundRect.top.toFloat(),
-            boundRect.width.toFloat(),
-            boundRect.height.toFloat(),
-          )
-        }
-      }
   }
 }

@@ -24,3 +24,7 @@ inline fun <reified T> ifOrNull(conditional: Boolean, item: T): T? =
 inline fun <reified T> Array<T?>.filterNotNull(): Array<T> = mapNotNull { it }.toTypedArray()
 inline fun <T, reified K> Array<T>.mapArrayNotNull(block: (i: T) -> K?): Array<K> =
   mapNotNull { block(it) }.toTypedArray()
+
+inline fun IntArray.mapIntArray(block: (index: Int, value: Int) -> Int): IntArray =
+  IntArray(size) { block(it, get(it)) }
+

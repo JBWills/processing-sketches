@@ -2,6 +2,7 @@ package sketches.base
 
 import BaseSketch
 import LayerConfig
+import appletExtensions.draw.rect
 import appletExtensions.withStyle
 import controls.panels.Panelable
 import controls.props.types.CanvasProp
@@ -21,10 +22,6 @@ abstract class CanvasSketch(
 ) {
 
   val boundRect get() = canvasProps.boundRect
-
-  init {
-    markDirty()
-  }
 
   override fun getFilenameSuffix(): String = canvasProps.paper.name
 

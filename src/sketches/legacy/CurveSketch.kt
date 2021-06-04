@@ -2,6 +2,7 @@ package sketches.legacy
 
 import BaseSketch
 import LayerConfig
+import appletExtensions.draw.rect
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
 import controls.panels.panelext.button

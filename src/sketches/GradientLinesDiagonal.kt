@@ -1,6 +1,7 @@
 package sketches
 
 import LayerConfig
+import appletExtensions.draw.rect
 import appletExtensions.drawParallelLinesInBound
 import coordinate.Deg
 import coordinate.Point
