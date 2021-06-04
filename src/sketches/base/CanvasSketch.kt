@@ -7,8 +7,8 @@ import appletExtensions.withStyle
 import controls.panels.Panelable
 import controls.props.types.CanvasProp
 import util.darkened
-import util.print.StrokeWeight.Thick
 import util.print.Style
+import util.print.Thick
 import java.awt.Color
 
 abstract class CanvasSketch(
@@ -38,7 +38,7 @@ abstract class CanvasSketch(
       .applyOverrides(layerConfig.style)
       .applyOverrides(
         Style(
-          weight = if (isRecording) Thick else null,
+          weight = if (isRecording) Thick() else null,
           color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5f) else null,
         ),
       )

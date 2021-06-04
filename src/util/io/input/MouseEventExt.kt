@@ -1,5 +1,6 @@
 package util.io.input
 
+import coordinate.Point
 import processing.event.MouseEvent
 
 
@@ -21,3 +22,5 @@ enum class MouseEventType(val action: Int) {
 }
 
 val MouseEvent.type: MouseEventType get() = MouseEventType.getType(action)!!
+
+val MouseEvent.point: Point get() = Point(x, y)

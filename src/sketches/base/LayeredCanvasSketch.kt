@@ -6,6 +6,7 @@ import controls.panels.ControlTab.Companion.tab
 import controls.panels.panelext.button
 import controls.panels.panelext.dropdown
 import controls.panels.panelext.intSlider
+import controls.panels.panelext.listDropdown
 import controls.panels.panelext.textInput
 import controls.props.LayerAndGlobalProps
 import controls.props.LayerAndGlobalProps.Companion.props
@@ -20,8 +21,8 @@ import util.constants.getLayerColors
 import util.iterators.mapArrayIndexed
 import util.print.Pen
 import util.print.StrokeWeight
-import util.print.StrokeWeight.Thick
 import util.print.Style
+import util.print.Thick
 import java.awt.Color
 
 abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabValues : PropData<TabValues>>(
@@ -43,7 +44,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
 
   /* controlled props */
   private var currentPreset: String = DEFAULT_PRESET_NAME
-  private var weightOverride: StrokeWeight? = null
+  private var weightOverride: StrokeWeight = Thick()
   var numLayers: Int = maxLayers
   /* end of controlled props */
 
@@ -71,7 +72,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
 
   override fun getLayers(): List<LayerConfig> =
     getLayerColors(numLayers)
-      .map { LayerConfig(Style(Thick, it).applyOverrides(Style(weightOverride))) }
+      .map { LayerConfig(Style(Thick(), it).applyOverrides(Style(weightOverride))) }
       .plus(LayerConfig(Pen.ThickGellyWhite.style))
 
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
@@ -94,7 +95,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
     tab(CANVAS_TAB_NAME) {
       +layerAndGlobalProps.canvasControls
       intSlider(::numLayers, range = 0..maxLayers)
-      dropdown(::weightOverride, StrokeWeight.values())
+      listDropdown(::weightOverride, StrokeWeight.values())
     },
     *layerAndGlobalProps.globalControlTabs,
     *layerAndGlobalProps.layerControlTabs.mapArrayIndexed { index, tab ->
@@ -148,7 +149,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
     updateControls()
   }
 
-  private fun coloredLayer(c: Color) = LayerConfig(Style(Thick, c))
+  private fun coloredLayer(c: Color) = LayerConfig(Style(Thick(), c))
 
   open inner class DrawInfo(
     val canvasValues: CanvasProp,

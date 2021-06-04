@@ -20,9 +20,9 @@ import processing.core.PImage
 import processing.event.MouseEvent
 import util.combineDrawLayersIntoSVG
 import util.lineLimit
-import util.print.StrokeWeight.Thick
 import util.print.Style
 import util.print.TextAlign.CenterVertical
+import util.print.Thick
 import util.window.BaseSketchWindow
 import java.awt.Color
 import java.io.File
@@ -51,7 +51,7 @@ abstract class BaseSketch(
 
   val interactiveGraphicsLayer: PGraphics by lazy { createGraphics(size, ARGB) }
 
-  val mouseListeners: MutableList<MouseListener> = mutableListOf()
+  private val mouseListeners: MutableSet<MouseListener> = mutableSetOf()
 
   fun fileSelected(block: (File?) -> Unit, f: File?) {
     kotlin.io.println("file selected: $f")
@@ -80,7 +80,7 @@ abstract class BaseSketch(
     runSketch()
   }
 
-  open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(Thick, strokeColor)))
+  open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(Thick(), strokeColor)))
 
   abstract fun drawOnce(layer: Int, layerConfig: LayerConfig)
 

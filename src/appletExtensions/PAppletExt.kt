@@ -9,6 +9,8 @@ import appletExtensions.draw.drawPoint
 import appletExtensions.draw.drawPoints
 import appletExtensions.draw.line
 import appletExtensions.draw.rect
+import appletExtensions.draw.shape
+import appletExtensions.draw.shapes
 import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
@@ -18,7 +20,6 @@ import coordinate.Point
 import coordinate.Segment
 import fastnoise.Noise
 import geomerativefork.src.RPath
-import geomerativefork.src.RPoint
 import geomerativefork.src.util.boundMin
 import interfaces.shape.Maskable
 import processing.core.PApplet
@@ -70,44 +71,6 @@ open class PAppletExt : PApplet() {
   fun noiseXY(p: Point) = Point(NOISE.GetNoise(p.xf, p.yf, 0f), NOISE.GetNoise(p.xf, p.yf, 100f))
   fun noiseXY(x: Number, y: Number) = noiseXY(Point(x, y))
 
-  fun vertex(p: Point) = vertex(p.xf, p.yf)
-
-  fun shape(vertices: List<Point>) {
-    beginShape()
-    vertices.normalizeForPrint().forEach { vertex ->
-      vertex(vertex)
-    }
-    endShape()
-  }
-
-  private fun shapes(lines: List<List<Point>>, debug: Boolean = false) =
-    lines.forEachIndexed { lineIndex, vertices ->
-      if (debug) {
-        pushStyle()
-        stroke(if (lineIndex % 2 == 0) Color.RED else Color.GREEN)
-      }
-      beginShape()
-      vertices.forEach { vertex -> vertex(vertex) }
-      endShape()
-      if (debug) popStyle()
-    }
-
-  fun shape(vertices: Array<RPoint>) {
-    beginShape()
-    vertices.forEach { vertex(it.x, it.y) }
-    endShape()
-  }
-
-  fun shapeSegments(segments: List<Segment>) {
-    beginShape()
-    segments.forEachIndexed { index, segment ->
-      vertex(segment.p1)
-      if (index == segments.size - 1) {
-        vertex(segment.p2)
-      }
-    }
-    endShape()
-  }
 
   fun List<Point>.toSegments(): List<Segment> = mapWithNext { curr, next -> Segment(curr, next) }
   fun List<Segment>.toVertices(): List<Point> = map { it.p1 }.addNotNull(lastOrNull()?.p2)

@@ -3,6 +3,7 @@ package controls.props.types
 import BaseSketch
 import appletExtensions.createGraphics
 import appletExtensions.draw.circle
+import appletExtensions.draw.shape
 import appletExtensions.isMouseHovering
 import appletExtensions.mouseLocation
 import appletExtensions.withDraw
@@ -19,13 +20,16 @@ import controls.props.types.BrushType.Bucket
 import controls.props.types.BrushType.Eraser
 import coordinate.Circ
 import geomerativefork.src.util.toRGBInt
+import interfaces.listeners.MouseDragListener
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import processing.core.PGraphics
 import processing.core.PImage
 import processing.opengl.PGL.RGBA
-import util.print.StrokeWeight.VeryThick
+import util.print.CustomPx
+import util.print.StrokeJoin
 import util.print.Style
+import util.print.VeryThick
 import util.withAlpha
 import java.awt.Color
 
@@ -51,6 +55,11 @@ data class BrushProp(
   @Contextual
   var latestMaskImage: PImage? = null
 
+  @Contextual
+  val mouseDragListener = MouseDragListener()
+
+  @Contextual
+  var hasBoundDragListener = false
 
   constructor(
     s: BrushProp,
@@ -69,7 +78,7 @@ data class BrushProp(
 
   override fun toSerializer() = serializer()
 
-  override fun clone() = BrushProp(this)
+  override fun clone() = copy()
 
   override fun bind(): List<ControlTab> = singleTab("SpiralProp") {
     row {
@@ -87,21 +96,13 @@ data class BrushProp(
     }
   }
 
-  private fun getFillStyle(add: Boolean, alpha: Double) = Style(
-    fillColor = (if (add) Color.WHITE else Color.BLACK).withAlpha(alpha.toRGBInt()),
-    noStroke = true,
-  )
-
-  private fun drawAdditiveCircle(circle: Circ, add: Boolean) =
-    alphaMask?.withStyle(getFillStyle(add, intensity)) {
-      alphaMask?.circle(circle)
-    }
-
-  private fun applyStroke(circle: Circ) = when (brushType) {
-    Brush -> drawAdditiveCircle(circle, add = true)
-    Eraser -> drawAdditiveCircle(circle, add = false)
-    Bucket -> alphaMask?.background(intensity.toFloat())
-  }
+  val brushStyle: Style
+    get() = Style(
+      color = (if (brushType == Brush) Color.WHITE else Color.BLACK).withAlpha(intensity.toRGBInt()),
+      weight = CustomPx(size),
+      join = StrokeJoin.Round,
+      noFill = true,
+    )
 
   fun drawInteractive(
     sketch: BaseSketch,
@@ -110,9 +111,13 @@ data class BrushProp(
     Style(
       color = Color.white.withAlpha(128),
       noFill = true,
-      weight = VeryThick,
+      weight = VeryThick(),
     ),
   ) {
+    if (!hasBoundDragListener) {
+      sketch.addMouseEventListener(mouseDragListener)
+    }
+
     val alphaMask = getNonNullAlphaMask(sketch)
 
     val brush = getBrushCirc(sketch)
@@ -124,14 +129,22 @@ data class BrushProp(
       if (sketch.isMouseHovering()) circle(brush)
     }
 
-    if (sketch.mousePressed) {
+    val mouseDrags = mouseDragListener.popDrags()
+    if (mouseDrags.isNotEmpty()) {
       alphaMask.withDraw {
-        applyStroke(brush)
+        when (brushType) {
+          Brush,
+          Eraser -> alphaMask.withStyle(brushStyle) {
+            mouseDrags.forEach {
+              alphaMask.shape(it)
+            }
+          }
+          Bucket -> alphaMask.background(intensity.toFloat())
+        }
         latestMaskImage = alphaMask.get()
       }
     }
   }
-
 
   private fun getBrushCirc(sketch: BaseSketch) = Circ(sketch.mouseLocation(), size)
 
