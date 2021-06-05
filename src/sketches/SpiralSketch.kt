@@ -3,6 +3,7 @@ package sketches
 import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
+import appletExtensions.draw.rect
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.intSlider
 import controls.panels.panelext.noisePanel

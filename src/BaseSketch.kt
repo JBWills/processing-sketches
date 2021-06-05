@@ -1,6 +1,9 @@
 import RecordMode.NoRecord
 import RecordMode.RecordSVG
 import appletExtensions.PAppletExt
+import appletExtensions.createGraphics
+import appletExtensions.displayOnParent
+import appletExtensions.withDraw
 import appletExtensions.withStyle
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlTab
@@ -11,12 +14,15 @@ import controls.panels.panelext.button
 import controls.panels.panelext.toggle
 import coordinate.Point
 import geomerativefork.src.RG
+import interfaces.listeners.MouseListener
+import processing.core.PGraphics
+import processing.core.PImage
 import processing.event.MouseEvent
 import util.combineDrawLayersIntoSVG
 import util.lineLimit
-import util.print.StrokeWeight.Thick
 import util.print.Style
 import util.print.TextAlign.CenterVertical
+import util.print.Thick
 import util.window.BaseSketchWindow
 import java.awt.Color
 import java.io.File
@@ -41,6 +47,12 @@ abstract class BaseSketch(
 
   var isDebugMode: Boolean = false
 
+  var lastDrawImage: PImage? = null
+
+  val interactiveGraphicsLayer: PGraphics by lazy { createGraphics(size, ARGB) }
+
+  private val mouseListeners: MutableSet<MouseListener> = mutableSetOf()
+
   fun fileSelected(block: (File?) -> Unit, f: File?) {
     kotlin.io.println("file selected: $f")
     block(f)
@@ -49,6 +61,7 @@ abstract class BaseSketch(
   fun updateSize(newSize: Point) {
     size = newSize
     setSurfaceSize(newSize)
+    interactiveGraphicsLayer.setSize(size.xi, size.yi)
   }
 
   val center get() = Point(size.x / 2, size.y / 2)
@@ -67,7 +80,7 @@ abstract class BaseSketch(
     runSketch()
   }
 
-  open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(Thick, strokeColor)))
+  open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(Thick(), strokeColor)))
 
   abstract fun drawOnce(layer: Int, layerConfig: LayerConfig)
 
@@ -85,6 +98,12 @@ abstract class BaseSketch(
    * your drawing before actually drawing anything.
    */
   open fun drawSetup() {}
+
+  /**
+   * This function is for drawing UI elements on top of the image. This is good for showing your
+   * cursor if you're using a tool or something.
+   */
+  open fun drawInteractive() {}
 
   override fun draw() {
     onlyRunIfDirty {
@@ -117,16 +136,30 @@ abstract class BaseSketch(
       }
 
       window.setLoadingEnded()
+      lastDrawImage = get()
     }
+
+    interactiveGraphicsLayer.withDraw { interactiveGraphicsLayer.background(lastDrawImage) }
+    drawInteractive()
+    interactiveGraphicsLayer.displayOnParent()
   }
 
-  fun markDirty() {
+  open fun markDirty() {
     dirty = true
   }
 
   private fun MouseEvent?.run(f: (Point) -> Unit) = this?.let { f(Point(it.x, it.y)) } ?: Unit
   override fun mouseClicked(event: MouseEvent?) = event.run { p -> mouseClicked(p) }
   override fun mousePressed(event: MouseEvent?) = event.run { p -> mousePressed(p) }
+  final override fun handleMouseEvent(event: MouseEvent?) {
+    super.handleMouseEvent(event)
+    event ?: return
+    mouseListeners.forEach { listener -> listener.onEvent(event) }
+  }
+
+  fun addMouseEventListener(listener: MouseListener) = mouseListeners.add(listener)
+  fun removeMouseEventListener(listener: MouseListener) = mouseListeners.remove(listener)
+
   open fun mousePressed(p: Point) {}
   open fun mouseClicked(p: Point) {}
 
@@ -155,13 +188,15 @@ abstract class BaseSketch(
   override fun setup() {
     RG.init(this)
     RG.setPolygonizer(RG.ADAPTATIVE)
+    frameRate(30f)
 
     surface.setResizable(true)
     updateControls()
 
     randomSeed(0)
 
-    colorMode(RGB, 255f, 255f, 255f, 255f)
+    colorMode(ARGB, 255f, 255f, 255f, 255f)
+    markDirty()
   }
 }
 

@@ -1,6 +1,7 @@
 package appletExtensions
 
 import BaseSketch
+import appletExtensions.draw.line
 import arrow.core.memoize
 import coordinate.BoundRect
 import coordinate.Deg

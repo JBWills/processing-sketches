@@ -1,21 +1,37 @@
 package appletExtensions
 
 import processing.core.PApplet
+import processing.core.PGraphics
 import util.print.Style
 import java.awt.Color
 
-fun PApplet.stroke(c: Color) = stroke(c.rgb)
+fun PApplet.stroke(c: Color) = stroke(c.rgb, c.alpha.toFloat())
+fun PGraphics.stroke(c: Color) = stroke(c.rgb, c.alpha.toFloat())
 
-fun PApplet.withStroke(c: Int, block: () -> Unit) {
+fun PApplet.withStroke(c: Int, alpha: Int? = null, block: () -> Unit) {
   pushStyle()
-  stroke(c)
+  stroke(c, alpha?.toFloat() ?: 255f)
   block()
   popStyle()
 }
 
-fun PApplet.withFill(c: Int, block: () -> Unit) {
+fun PGraphics.withStroke(c: Int, alpha: Int? = null, block: () -> Unit) {
   pushStyle()
-  fill(c)
+  stroke(c, alpha?.toFloat() ?: 255f)
+  block()
+  popStyle()
+}
+
+fun PApplet.withFill(c: Int, alpha: Int = 255, block: () -> Unit) {
+  pushStyle()
+  fill(c, alpha.toFloat())
+  block()
+  popStyle()
+}
+
+fun PGraphics.withFill(c: Int, alpha: Int = 255, block: () -> Unit) {
+  pushStyle()
+  fill(c, alpha.toFloat())
   block()
   popStyle()
 }
@@ -25,10 +41,19 @@ fun PApplet.withFill(c: Int, block: () -> Unit) {
  * last styling.
  */
 fun PApplet.withStroke(c: Color, block: () -> Unit) =
-  withStroke(c.rgb, block)
+  withStroke(c.rgb, c.alpha, block)
 
 fun PApplet.withFill(c: Color, block: () -> Unit) =
-  withFill(c.rgb, block)
+  withFill(c.rgb, c.alpha, block)
+
+fun PGraphics.withStroke(c: Color, block: () -> Unit) =
+  withStroke(c.rgb, c.alpha, block)
+
+fun PGraphics.applyWithStroke(c: Color, block: PGraphics.() -> Unit) =
+  withStroke(c.rgb, c.alpha) { this.block() }
+
+fun PGraphics.withFill(c: Color, block: () -> Unit) =
+  withFill(c.rgb, c.alpha, block)
 
 /**
  * Run the block after applying stroke color, then switch back to
@@ -48,6 +73,13 @@ fun PApplet.withStyle(s: Style, block: () -> Unit) {
   pushStyle()
   s.apply(this)
 
+  block()
+  popStyle()
+}
+
+fun PGraphics.withStyle(s: Style, block: PGraphics.() -> Unit) {
+  pushStyle()
+  s.apply(this)
   block()
   popStyle()
 }

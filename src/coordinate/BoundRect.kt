@@ -1,8 +1,7 @@
 package coordinate
 
 import appletExtensions.PAppletExt
-import appletExtensions.withFillNonNull
-import appletExtensions.withStrokeNonNull
+import appletExtensions.draw.rect
 import geomerativefork.src.RPath
 import geomerativefork.src.RPoint
 import geomerativefork.src.RRectangle
@@ -10,7 +9,6 @@ import geomerativefork.src.RShape
 import interfaces.shape.Maskable
 import interfaces.shape.Walkable
 import kotlinx.serialization.Serializable
-import processing.core.PApplet
 import util.atAmountAlong
 import util.equalsZero
 import util.geomutil.toPoint
@@ -19,8 +17,8 @@ import util.iterators.mapWithNextCyclical
 import util.min
 import util.pointsAndLines.polyLine.PolyLine
 import util.step
-import java.awt.Color
 import kotlin.math.abs
+import kotlin.math.max
 
 @Serializable
 data class BoundRect(
@@ -84,6 +82,18 @@ data class BoundRect(
   fun isRight(line: Line) = line.origin.x == right && line.slope.isVertical()
 
   fun asPolyLine() = listOf(topLeft, topRight, bottomRight, bottomLeft, topLeft)
+
+  fun boundsIntersection(other: BoundRect): BoundRect? {
+    if (right <= other.left || other.right <= left) return null
+    if (bottom <= other.top || other.bottom <= top) return null
+
+    val maxLeft = max(left, other.left)
+    val maxTop = max(top, other.top)
+    val minRight = min(right, other.right)
+    val minBottom = min(bottom, other.bottom)
+
+    return BoundRect(Point(maxLeft, maxTop), Point(minRight, minBottom))
+  }
 
   fun expand(amountX: Number, amountY: Number) = BoundRect(
     topLeft - Point(amountX, amountY),
@@ -219,6 +229,9 @@ data class BoundRect(
     return "BoundRect(top=$top, left=$left, bottom=$bottom, right=$right)"
   }
 
+  operator fun minus(p: Point): BoundRect = BoundRect(topLeft - p, width, height)
+  operator fun plus(p: Point): BoundRect = BoundRect(topLeft + p, width, height)
+
   companion object {
     fun Point.mappedOnto(r: BoundRect) = Point(r.left + (x * r.width), r.top + (y * r.height))
 
@@ -232,17 +245,5 @@ data class BoundRect(
     fun centeredRect(center: Point, size: Point) = centeredRect(center, size.x, size.y)
 
     fun RRectangle.toBoundRect(): BoundRect = BoundRect(topLeft.toPoint(), bottomRight.toPoint())
-
-    fun PApplet.drawRect(boundRect: BoundRect, stroke: Color? = null, fill: Color? = null) =
-      withStrokeNonNull(stroke) {
-        withFillNonNull(fill) {
-          rect(
-            boundRect.left.toFloat(),
-            boundRect.top.toFloat(),
-            boundRect.width.toFloat(),
-            boundRect.height.toFloat(),
-          )
-        }
-      }
   }
 }

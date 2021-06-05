@@ -1,6 +1,7 @@
 package util
 
 import geomerativefork.src.util.boundInt
+import geomerativefork.src.util.toRGBInt
 import util.iterators.endPointPair
 import util.iterators.getLerpIndices
 import util.iterators.mapPercentToIndex
@@ -39,6 +40,9 @@ fun Color.withColorSet(colorVal: Int, rgbIndex: Int) =
 fun Color.withRed(v: Int) = withColorSet(v, 0)
 fun Color.withGreen(v: Int) = withColorSet(v, 1)
 fun Color.withBlue(v: Int) = withColorSet(v, 2)
+fun Color.withAlpha(v: Int) = Color(red, green, blue, v)
+fun Color.withAlphaFloat(v: Float) = Color(red, green, blue, v.toRGBInt())
+fun Color.withAlphaDouble(v: Double) = Color(red, green, blue, v.toRGBInt())
 
 /**
  * Redval must be between 0 and 1

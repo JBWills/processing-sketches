@@ -22,8 +22,8 @@ enum class DPI(private val dpiVal: Int) {
   InkScape(96),
   High(300);
 
-  fun toPixels(inches: Number) = (dpiVal * inches.toDouble()).toInt()
-  fun toPixelsFromMm(mm: Number) = toPixels(mm.toDouble() / 25.4)
+  fun toPixels(inches: Number): Double = (dpiVal * inches.toDouble())
+  fun toPixelsFromMm(mm: Number): Double = toPixels(mm.toDouble() / 25.4)
 }
 
 @Suppress("unused")
@@ -47,7 +47,8 @@ enum class Paper(
 
   val defaultStyle: Style = Style(color = defaultStrokeColor)
 
-  private fun sidePx(sideInches: Double, dpi: DPI = InkScape) = dpi.toPixels(sideInches)
+  private fun sidePx(sideInches: Double, dpi: DPI = InkScape): Int =
+    dpi.toPixels(sideInches).toInt()
 
   fun px(orientation: Orientation, dpi: DPI = InkScape) =
     Point(

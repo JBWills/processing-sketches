@@ -1,6 +1,7 @@
 package coordinate
 
 import appletExtensions.PAppletExt
+import appletExtensions.draw.circle
 import coordinate.BoundRect.Companion.centeredRect
 import geomerativefork.src.RShape
 import interfaces.shape.Maskable

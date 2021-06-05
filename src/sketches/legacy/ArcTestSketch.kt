@@ -2,6 +2,9 @@ package sketches.legacy
 
 import BaseSketch
 import LayerConfig
+import appletExtensions.draw.arc
+import appletExtensions.draw.circle
+import appletExtensions.draw.rect
 import appletExtensions.intersection
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable

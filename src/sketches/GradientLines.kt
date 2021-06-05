@@ -2,6 +2,7 @@ package sketches
 
 import BaseSketch
 import LayerConfig
+import appletExtensions.draw.rect
 import appletExtensions.drawParallelLinesInBound
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable

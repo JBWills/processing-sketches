@@ -4,6 +4,7 @@ import util.DoubleRange
 import kotlin.math.max
 import kotlin.math.min
 
+fun Number.toRGBInt() = (bound(0f, 1f) * 255).toInt()
 
 fun minAll(vararg floats: Float) = floats.reduce { acc, item -> kotlin.math.min(acc, item) }
 

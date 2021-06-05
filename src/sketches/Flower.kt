@@ -1,6 +1,7 @@
 package sketches
 
 import FastNoiseLite.NoiseType.ValueCubic
+import appletExtensions.draw.shape
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.intSlider

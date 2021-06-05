@@ -92,6 +92,9 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
   val xf = x.toFloat()
   val yf = y.toFloat()
 
+  val xl = x.toLong()
+  val yl = y.toLong()
+
   val xi = x.toInt()
   val yi = y.toInt()
 
