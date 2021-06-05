@@ -50,4 +50,6 @@ class MouseDragListener : MouseListener {
     mouseDragsSinceLastDraw.clear()
     return dragsCopy
   }
+
+  fun peekCurrentDrags(): List<Point> = currentMouseDrag.copy()
 }

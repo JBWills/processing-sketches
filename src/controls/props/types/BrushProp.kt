@@ -26,6 +26,7 @@ import kotlinx.serialization.Serializable
 import processing.core.PGraphics
 import processing.core.PImage
 import processing.opengl.PGL.RGBA
+import util.pointsAndLines.polyLine.PolyLine
 import util.print.CustomPx
 import util.print.StrokeJoin
 import util.print.Style
@@ -104,6 +105,10 @@ data class BrushProp(
       noFill = true,
     )
 
+  fun drawBrush(g: PGraphics, line: PolyLine) = g.withStyle(brushStyle) {
+    shape(line)
+  }
+
   fun drawInteractive(
     sketch: BaseSketch,
     graphics: PGraphics = sketch.interactiveGraphicsLayer
@@ -127,6 +132,9 @@ data class BrushProp(
       }
 
       if (sketch.isMouseHovering()) circle(brush)
+
+      val mouseDrags = mouseDragListener.peekCurrentDrags()
+      if (mouseDrags.isNotEmpty()) drawBrush(this, mouseDrags)
     }
 
     val mouseDrags = mouseDragListener.popDrags()
@@ -134,11 +142,7 @@ data class BrushProp(
       alphaMask.withDraw {
         when (brushType) {
           Brush,
-          Eraser -> alphaMask.withStyle(brushStyle) {
-            mouseDrags.forEach {
-              alphaMask.shape(it)
-            }
-          }
+          Eraser -> mouseDrags.forEach { drawBrush(alphaMask, it) }
           Bucket -> alphaMask.background(intensity.toFloat())
         }
         latestMaskImage = alphaMask.get()
