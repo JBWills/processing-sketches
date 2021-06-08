@@ -2,13 +2,47 @@ package appletExtensions
 
 import coordinate.BoundRect
 import coordinate.Point
+import processing.core.PConstants.ADD
 import processing.core.PConstants.ARGB
+import processing.core.PConstants.BLEND
+import processing.core.PConstants.BURN
+import processing.core.PConstants.DARKEST
+import processing.core.PConstants.DIFFERENCE
+import processing.core.PConstants.DODGE
+import processing.core.PConstants.EXCLUSION
+import processing.core.PConstants.HARD_LIGHT
 import processing.core.PConstants.JAVA2D
+import processing.core.PConstants.LIGHTEST
+import processing.core.PConstants.MULTIPLY
+import processing.core.PConstants.OVERLAY
+import processing.core.PConstants.REPLACE
+import processing.core.PConstants.SCREEN
+import processing.core.PConstants.SOFT_LIGHT
+import processing.core.PConstants.SUBTRACT
 import processing.core.PGraphics
 import processing.core.PImage
 import util.print.Style
 import util.withAlpha
 import java.awt.Color
+
+enum class BlendMode(val modeInt: Int) {
+  Replace(REPLACE),
+  Blend(BLEND),
+  Add(ADD),
+  Subtract(SUBTRACT),
+  Lightest(LIGHTEST),
+  Darkest(DARKEST),
+  Difference(DIFFERENCE),
+  Exclusion(EXCLUSION),
+  Multiply(MULTIPLY),
+  Screen(SCREEN),
+  Overlay(OVERLAY),
+  HardLight(HARD_LIGHT),
+  SoftLight(SOFT_LIGHT),
+  Dodge(DODGE),
+  Burn(BURN),
+  ;
+}
 
 fun PAppletExt.createGraphics(
   size: Point,
@@ -19,22 +53,25 @@ fun PAppletExt.createGraphics(
     .also { it.init(size.xi, size.yi, colorMode) }
 
 private var isDrawing: Boolean = false
-fun PGraphics.withDraw(style: Style? = null, block: () -> Unit): PGraphics {
+fun <R> PGraphics.withDraw(style: Style? = null, block: PGraphics.() -> R): R {
   if (isDrawing) {
     throw Exception("Tried to call beginDraw when a draw call already in effect.")
   }
   beginDraw()
   isDrawing = true
-  style?.let { withStyle(style) { block() } } ?: block()
+  val result = withStyle(style) { block() }
   endDraw()
   isDrawing = false
-  return this
+  return result
 }
 
 
 fun PGraphics.displayOnParent(offset: Point = Point.Zero) = parent.image(this, offset.xf, offset.yf)
 
 fun PImage.getBounds() = BoundRect(Point.Zero, width - 1, height - 1)
+
+fun PGraphics.blend(src: PImage, mode: BlendMode) =
+  blend(0, 0, src.width, src.height, 0, 0, width, height, mode.modeInt)
 
 fun PGraphics.blend(
   mode: Int,

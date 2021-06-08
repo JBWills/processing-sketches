@@ -19,20 +19,23 @@ import controls.props.types.BrushType.Brush
 import controls.props.types.BrushType.Bucket
 import controls.props.types.BrushType.Eraser
 import coordinate.Circ
+import coordinate.Point
 import geomerativefork.src.util.toRGBInt
 import interfaces.listeners.MouseDragListener
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import processing.core.PConstants.RGB
 import processing.core.PGraphics
 import processing.core.PImage
-import processing.opengl.PGL.RGBA
+import util.image.overlay
+import util.image.quickBlur
 import util.pointsAndLines.polyLine.PolyLine
 import util.print.CustomPx
 import util.print.StrokeJoin
 import util.print.Style
-import util.print.VeryThick
 import util.withAlpha
 import java.awt.Color
+import kotlin.math.max
 
 enum class BrushType {
   Brush,
@@ -52,6 +55,9 @@ data class BrushProp(
 
   @Contextual
   var alphaMask: PGraphics? = null
+
+  @Contextual
+  var lastBrushMask: PImage? = null
 
   @Contextual
   var latestMaskImage: PImage? = null
@@ -91,66 +97,100 @@ data class BrushProp(
 
       col {
         slider(::size, 0.0..200.0)
-        slider(::feather, 0.0..1.0)
+        slider(::feather, 0.0..100.0)
         slider(::intensity, 0.0..1.0)
       }
     }
   }
 
-  val brushStyle: Style
+  private val brushStyle: Style
     get() = Style(
-      color = (if (brushType == Brush) Color.WHITE else Color.BLACK).withAlpha(intensity.toRGBInt()),
+      color = Color.WHITE.withAlpha(intensity.toRGBInt()),
       weight = CustomPx(size),
       join = StrokeJoin.Round,
       noFill = true,
     )
 
-  fun drawBrush(g: PGraphics, line: PolyLine) = g.withStyle(brushStyle) {
-    shape(line)
-  }
+  private val eraserStyle: Style
+    get() = brushStyle.applyOverrides(Style(color = Color.BLACK.withAlpha(intensity.toRGBInt())))
+
+  private val brushCursorStyle: Style
+    get() = Style(
+      color = Color.white.withAlpha(128),
+      noFill = true,
+      weight = CustomPx(3),
+    )
+
+  private val brushFeatherCursorStyle: Style
+    get() = Style(
+      color = Color.white.withAlpha(100),
+      weight = CustomPx(1.5),
+      noFill = true,
+    )
+
+  private fun PGraphics.drawBrushStrokes(lines: List<PolyLine>) =
+    withStyle(if (brushType == Eraser) eraserStyle else brushStyle) { lines.forEach(this::shape) }
 
   fun drawInteractive(
     sketch: BaseSketch,
     graphics: PGraphics = sketch.interactiveGraphicsLayer
-  ) = graphics.withStyle(
-    Style(
-      color = Color.white.withAlpha(128),
-      noFill = true,
-      weight = VeryThick(),
-    ),
   ) {
-    if (!hasBoundDragListener) {
-      sketch.addMouseEventListener(mouseDragListener)
-    }
+    if (!hasBoundDragListener) sketch.addMouseEventListener(mouseDragListener)
 
     val alphaMask = getNonNullAlphaMask(sketch)
 
-    val brush = getBrushCirc(sketch)
     graphics.withDraw {
       if (showMask) {
         latestMaskImage?.let { image(it, 0f, 0f) }
       }
 
-      if (sketch.isMouseHovering()) circle(brush)
+      if (sketch.isMouseHovering()) drawBrushCursor(sketch.mouseLocation())
 
-      val mouseDrags = mouseDragListener.peekCurrentDrags()
-      if (mouseDrags.isNotEmpty()) drawBrush(this, mouseDrags)
+      val currentMouseDragPath = mouseDragListener.peekCurrentDrags()
+      if (currentMouseDragPath.isNotEmpty() && brushType != Bucket) drawBrushStrokes(
+        listOf(currentMouseDragPath),
+      )
     }
 
     val mouseDrags = mouseDragListener.popDrags()
     if (mouseDrags.isNotEmpty()) {
-      alphaMask.withDraw {
-        when (brushType) {
-          Brush,
-          Eraser -> mouseDrags.forEach { drawBrush(alphaMask, it) }
-          Bucket -> alphaMask.background(intensity.toFloat())
+      val brushMaskImage: PImage = sketch.createGraphics(sketch.size, RGB)
+        .withDraw {
+          background(Color.BLACK.rgb)
+          fun drawBrushAndBlur() = drawBrushStrokes(mouseDrags).also { quickBlur(feather) }
+
+          when (brushType) {
+            Brush -> drawBrushAndBlur()
+            Eraser -> drawBrushAndBlur()
+            Bucket -> background(intensity.toFloat())
+          }
+
+          get()
         }
-        latestMaskImage = alphaMask.get()
+
+      latestMaskImage = alphaMask.withDraw {
+        overlay(brushMaskImage)
+        get()
       }
     }
   }
 
-  private fun getBrushCirc(sketch: BaseSketch) = Circ(sketch.mouseLocation(), size)
+  private fun PGraphics.drawBrushCursor(location: Point) {
+    val minToShowFeatherBounds = 2.0
+    val showFeatherBounds = feather >= minToShowFeatherBounds
+    val showCursor = !(minToShowFeatherBounds..5.0).contains(feather)
+
+    if (showFeatherBounds) withStyle(brushFeatherCursorStyle) {
+      val minDiameter = max(0.0, size - (feather * 2))
+      val maxDiameter = size + (feather * 2)
+      circle(Circ(location, minDiameter / 2))
+      circle(Circ(location, maxDiameter / 2))
+    }
+
+    if (showCursor) withStyle(brushCursorStyle) {
+      circle(Circ(location, size / 2))
+    }
+  }
 
   private fun getNonNullAlphaMask(sketch: BaseSketch): PGraphics {
     val alphaMask = this.alphaMask ?: initAlphaMask(sketch)
@@ -159,7 +199,10 @@ data class BrushProp(
   }
 
   private fun initAlphaMask(sketch: BaseSketch): PGraphics {
-    val newAlphaMask = sketch.createGraphics(sketch.size, RGBA)
+    val newAlphaMask =
+      sketch.createGraphics(sketch.size, RGB)
+        .apply { withDraw { background(Color.black.rgb) } }
+
     alphaMask = newAlphaMask
     return newAlphaMask
   }

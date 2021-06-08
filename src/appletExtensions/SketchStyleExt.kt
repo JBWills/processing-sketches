@@ -8,78 +8,87 @@ import java.awt.Color
 fun PApplet.stroke(c: Color) = stroke(c.rgb, c.alpha.toFloat())
 fun PGraphics.stroke(c: Color) = stroke(c.rgb, c.alpha.toFloat())
 
-fun PApplet.withStroke(c: Int, alpha: Int? = null, block: () -> Unit) {
+fun <R> PApplet.withStroke(c: Int, alpha: Int? = null, block: PApplet.() -> R): R {
   pushStyle()
   stroke(c, alpha?.toFloat() ?: 255f)
-  block()
+  val result = block()
   popStyle()
+  return result
 }
 
-fun PGraphics.withStroke(c: Int, alpha: Int? = null, block: () -> Unit) {
+fun <R> PGraphics.withStroke(c: Int, alpha: Int? = null, block: PGraphics.() -> R): R {
   pushStyle()
   stroke(c, alpha?.toFloat() ?: 255f)
-  block()
+  val result = block()
   popStyle()
+  return result
 }
 
-fun PApplet.withFill(c: Int, alpha: Int = 255, block: () -> Unit) {
+fun <R> PApplet.withFill(c: Int, alpha: Int = 255, block: PApplet.() -> R): R {
   pushStyle()
   fill(c, alpha.toFloat())
-  block()
+  val result = block()
   popStyle()
+  return result
 }
 
-fun PGraphics.withFill(c: Int, alpha: Int = 255, block: () -> Unit) {
+fun <R> PGraphics.withFill(c: Int, alpha: Int = 255, block: PGraphics.() -> R): R {
   pushStyle()
   fill(c, alpha.toFloat())
-  block()
+  val result = block()
   popStyle()
+  return result
 }
 
 /**
  * Run the block after applying stroke color, then switch back to
  * last styling.
  */
-fun PApplet.withStroke(c: Color, block: () -> Unit) =
+fun <R> PApplet.withStroke(c: Color, block: PApplet.() -> R): R =
   withStroke(c.rgb, c.alpha, block)
 
-fun PApplet.withFill(c: Color, block: () -> Unit) =
+fun <R> PApplet.withFill(c: Color, block: PApplet.() -> R): R =
   withFill(c.rgb, c.alpha, block)
 
-fun PGraphics.withStroke(c: Color, block: () -> Unit) =
+fun <R> PGraphics.withStroke(c: Color, block: PGraphics.() -> R): R =
   withStroke(c.rgb, c.alpha, block)
 
-fun PGraphics.applyWithStroke(c: Color, block: PGraphics.() -> Unit) =
+fun <R> PGraphics.applyWithStroke(c: Color, block: PGraphics.() -> R): R =
   withStroke(c.rgb, c.alpha) { this.block() }
 
-fun PGraphics.withFill(c: Color, block: () -> Unit) =
+fun <R> PGraphics.withFill(c: Color, block: PGraphics.() -> R): R =
   withFill(c.rgb, c.alpha, block)
 
 /**
  * Run the block after applying stroke color, then switch back to
  * last styling.
  */
-fun PApplet.withStrokeNonNull(c: Color?, block: () -> Unit) =
+fun <R> PApplet.withStrokeNonNull(c: Color?, block: PApplet.() -> R): R =
   if (c != null) withStroke(c, block) else block()
 
-fun PApplet.withFillNonNull(fill: Color?, block: () -> Unit) =
+fun <R> PApplet.withFillNonNull(fill: Color?, block: PApplet.() -> R): R =
   if (fill != null) withFill(fill, block) else block()
 
 /**
  * Run the block after applying stroke color, then switch back to
  * last styling.
  */
-fun PApplet.withStyle(s: Style, block: () -> Unit) {
-  pushStyle()
-  s.apply(this)
-
-  block()
-  popStyle()
+fun <R> PApplet.withStyle(s: Style?, block: PApplet.() -> R): R {
+  s?.let {
+    pushStyle()
+    s.apply(this)
+  }
+  val result = block()
+  s?.let { popStyle() }
+  return result
 }
 
-fun PGraphics.withStyle(s: Style, block: PGraphics.() -> Unit) {
-  pushStyle()
-  s.apply(this)
-  block()
-  popStyle()
+fun <R> PGraphics.withStyle(s: Style?, block: PGraphics.() -> R): R {
+  s?.let {
+    pushStyle()
+    s.apply(this)
+  }
+  val result = block()
+  s?.let { popStyle() }
+  return result
 }

@@ -28,3 +28,7 @@ inline fun <T, reified K> Array<T>.mapArrayNotNull(block: (i: T) -> K?): Array<K
 inline fun IntArray.mapIntArray(block: (index: Int, value: Int) -> Int): IntArray =
   IntArray(size) { block(it, get(it)) }
 
+@JvmName("mapArrayOfInts")
+inline fun <reified T> IntArray.mapArray(block: (index: Int, value: Int) -> T): Array<T> =
+  Array(size) { block(it, get(it)) }
+

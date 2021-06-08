@@ -33,6 +33,7 @@ dependencies {
     implementation group: 'controlp5', name: 'controlp5', version: '2.2.4'
     implementation group: 'ca.pjer', name: 'ekmeans', version: '2.0.0'
     implementation group: 'javax.vecmath', name: 'vecmath', version: '1.5.2'
+    implementation group: 'org.openpnp', name: 'opencv', version: '3.4.2-0'
     implementation "io.arrow-kt:arrow-core:$arrow_version"
     implementation "org.deeplearning4j:deeplearning4j-core:1.0.0-M1"
     implementation "org.nd4j:nd4j-native-platform:1.0.0-M1"

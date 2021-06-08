@@ -44,21 +44,28 @@ data class Style(
   val textSize: Number? = null,
   val noStroke: Boolean? = null,
   val noFill: Boolean? = null,
+  val alphaOnly: Boolean? = null,
   val dpi: DPI = DPI.InkScape,
 ) {
   constructor(
     weight: StrokeWeight? = null,
     colorInt: Int,
     dpi: DPI = DPI.InkScape,
-  ) : this(weight, Color(colorInt), null, null, null, null, null, null, dpi)
+  ) : this(weight, Color(colorInt), null, null, null, null, null, null, null, dpi)
 
   val weightPx: Px? = weight?.toPx(dpi)
 
   fun apply(sketch: PApplet) {
     if (weightPx != null) sketch.strokeWeight(weightPx.toFloat())
     if (join != null) sketch.strokeJoin(join.joinInt)
-    if (color != null) sketch.stroke(color.rgb, sketch.alpha(color.rgb))
-    if (fillColor != null) sketch.fill(fillColor.rgb, sketch.alpha(fillColor.rgb))
+    if (color != null) {
+      val colorAlpha = sketch.alpha(color.rgb)
+      if (alphaOnly == true) sketch.stroke(colorAlpha) else sketch.stroke(color.rgb, colorAlpha)
+    }
+    if (fillColor != null) {
+      val colorAlpha = sketch.alpha(fillColor.rgb)
+      if (alphaOnly == true) sketch.fill(colorAlpha) else sketch.fill(fillColor.rgb, colorAlpha)
+    }
     if (noStroke == true) sketch.noStroke()
     if (noFill == true) sketch.noFill()
     textAlign?.apply(sketch)
@@ -68,8 +75,14 @@ data class Style(
   fun apply(g: PGraphics) {
     if (weightPx != null) g.strokeWeight(weightPx.toFloat())
     if (join != null) g.strokeJoin(join.joinInt)
-    if (color != null) g.stroke(color.rgb)
-    if (fillColor != null) g.fill(fillColor.rgb)
+    if (color != null) {
+      val colorAlpha = g.alpha(color.rgb)
+      if (alphaOnly == true) g.stroke(colorAlpha) else g.stroke(color.rgb, colorAlpha)
+    }
+    if (fillColor != null) {
+      val colorAlpha = g.alpha(fillColor.rgb)
+      if (alphaOnly == true) g.fill(colorAlpha) else g.fill(fillColor.rgb, colorAlpha)
+    }
     if (noStroke == true) g.noStroke()
     if (noFill == true) g.noFill()
     textAlign?.apply(g)
@@ -85,6 +98,7 @@ data class Style(
     overrides.textSize ?: textSize,
     overrides.noStroke ?: noStroke,
     overrides.noFill ?: noFill,
+    overrides.alphaOnly ?: alphaOnly,
     overrides.dpi,
   )
 
