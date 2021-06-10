@@ -34,11 +34,17 @@ fun Mat.gaussianBlurAlpha(radius: Int, fillColor: Color, sigma: Double = radius 
   return this
 }
 
+fun Mat.luminanceToAlpha(fillColor: Color): Mat =
+  converted(ARGB, Gray).asDisplayAlpha(fillColor)
 
-fun Mat.luminanceToAlpha(fillColor: Color): Mat {
+fun Mat.asDisplayAlpha(fillColor: Color): Mat {
+  if (channels() != 1) {
+    throw Exception("Trying to use non-single channel Mat as alpha mat. Expected channel: 1. Actual channels: ${channels()}")
+  }
+
   val maxAlpha = fillColor.alpha / 255.0
-  val gray = converted(ARGB, Gray) * maxAlpha
-  val redMat = createMat(rows(), cols(), RGB, fillColor)
+  val newAlpha = this * maxAlpha
 
-  return (listOf(gray) + redMat.split()).merge(ARGB)
+  val fillMat = createMat(rows(), cols(), RGB, fillColor)
+  return (listOf(newAlpha) + fillMat.split()).merge(ARGB)
 }

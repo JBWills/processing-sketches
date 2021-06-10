@@ -1,9 +1,9 @@
 package controls.props.types
 
 import BaseSketch
-import appletExtensions.copyAndEditAsMat
 import appletExtensions.createGraphicsAndDraw
 import appletExtensions.createImage
+import appletExtensions.draw
 import appletExtensions.draw.circle
 import appletExtensions.draw.shape
 import appletExtensions.isMouseHovering
@@ -24,15 +24,21 @@ import controls.props.types.BrushType.Eraser
 import coordinate.Circ
 import coordinate.Point
 import interfaces.listeners.MouseDragListener
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import org.opencv.core.Mat
 import processing.core.PGraphics
 import processing.core.PImage
-import util.image.ImageFormat
+import util.image.ImageFormat.ARGB
+import util.image.ImageFormat.Gray
 import util.image.ImageFormat.RGB
+import util.image.asDisplayAlpha
 import util.image.blurAlpha
-import util.image.luminanceToAlpha
+import util.image.converted
 import util.image.overlay
+import util.image.toMat
+import util.image.toPImage
+import util.io.serialization.MatSerializer
 import util.lerp
 import util.pointsAndLines.polyLine.PolyLine
 import util.print.CustomPx
@@ -58,16 +64,19 @@ data class BrushProp(
   var brushType: BrushType = Brush,
 ) : PropData<BrushProp> {
 
-  @Contextual
+  @Serializable(with = MatSerializer::class)
+  var latestAlphaMat: Mat? = null
+
+  @Transient
+  var latestMaskDisplay: PImage? = null
+
+  @Transient
   var alphaMask: PGraphics? = null
 
-  @Contextual
-  var latestMaskImage: PImage? = null
-
-  @Contextual
+  @Transient
   val mouseDragListener = MouseDragListener()
 
-  @Contextual
+  @Transient
   var hasBoundDragListener = false
 
   constructor(
@@ -98,7 +107,7 @@ data class BrushProp(
       }
 
       col {
-        slider(::size, 0.0..200.0)
+        slider(::size, 0.0..700.0)
         slider(::feather, 0.0..1.0)
         slider(::intensity, 0.0..1.0)
       }
@@ -151,11 +160,7 @@ data class BrushProp(
     val alphaMask = getNonNullAlphaMask(sketch)
 
     graphics.withDraw {
-      if (showMask) {
-        latestMaskImage
-          ?.copyAndEditAsMat { luminanceToAlpha(Color.RED.withAlphaDouble(0.5)) }
-          ?.also { image(it, 0f, 0f) }
-      }
+      if (showMask) latestMaskDisplay?.draw(this)
 
       if (sketch.isMouseHovering()) drawBrushCursor(sketch.mouseLocation())
 
@@ -167,7 +172,7 @@ data class BrushProp(
 
     val mouseDrags = mouseDragListener.popDrags()
     if (mouseDrags.isNotEmpty()) {
-      val brushMaskImage: PImage = sketch.createImage(format = ImageFormat.ARGB) {
+      val brushMaskImage: PImage = sketch.createImage(format = ARGB) {
         fun drawBrushAndBlur() = drawBrushStrokes(mouseDrags, applyFeather = true)
 
         when (brushType) {
@@ -177,7 +182,9 @@ data class BrushProp(
         }
       }
 
-      latestMaskImage = alphaMask.withDrawToImage { overlay(brushMaskImage) }
+      latestAlphaMat =
+        alphaMask.withDrawToImage { overlay(brushMaskImage) }.toMat().converted(ARGB, Gray)
+      updateMaskDisplay()
     }
   }
 
@@ -207,10 +214,18 @@ data class BrushProp(
   private fun initAlphaMask(sketch: BaseSketch): PGraphics {
     val newAlphaMask = sketch.createGraphicsAndDraw(sketch.size, RGB) {
       background(Color.black.rgb)
+
+      latestAlphaMat?.asDisplayAlpha(Color.WHITE)?.draw(this)
     }
+
+    updateMaskDisplay()
 
     alphaMask = newAlphaMask
     return newAlphaMask
+  }
+
+  private fun updateMaskDisplay() {
+    latestMaskDisplay = latestAlphaMat?.asDisplayAlpha(Color.RED.withAlphaDouble(0.5))?.toPImage()
   }
 
   private fun checkAlphaMaskSize(sketch: BaseSketch) {

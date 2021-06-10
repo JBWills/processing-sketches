@@ -37,6 +37,12 @@ fun PImage.toEmptyOpenCVMat(): Mat = Mat(height, width, opencv_core.CV_8UC4)
 fun PImage.toOpenCVRGB(): Mat = Mat(height, width, opencv_core.CV_8UC3)
   .apply { put(0, 0, pixels) }
 
+fun ByteArray.toMat(width: Int, height: Int, format: ImageFormat): Mat =
+  Mat(height, width, format.openCVFormat)
+    .also { mat -> mat.put(0, 0, this) }
+
+fun Mat.toByteArray(): ByteArray = getByteArray()
+
 fun PImage.toMat(): Mat {
   loadPixels()
   val bArray = ByteArray(pixels.size * 4)

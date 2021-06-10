@@ -55,9 +55,7 @@ fun List<Mat>.merge(format: ImageFormat): Mat {
 fun Mat.splitArray(): Array<Mat> = split().toTypedArray()
 
 fun Mat.getByteArray(): ByteArray = ByteArray(width() * height() * channels())
-  .also {
-    get(0, 0, it)
-  }
+  .also { get(0, 0, it) }
 
 fun Mat.setChannels(vararg channels: Mat) {
   Core.merge(channels.toList(), this)

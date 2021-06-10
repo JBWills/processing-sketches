@@ -44,6 +44,11 @@ abstract class BaseSketch(
   val svgBaseFileName: String = "output",
   var size: Point = Point(1000, 1000),
 ) : PAppletExt() {
+  init {
+    // This has to happen before setup() so native methods work for deserialization.
+    OpenCV.loadLocally()
+  }
+
   private val window by lazy { BaseSketchWindow(svgBaseFileName, surface) }
   val sketchSize get() = Point(size.x, size.y)
 
@@ -190,7 +195,6 @@ abstract class BaseSketch(
   override fun setup() {
     RG.init(this)
     RG.setPolygonizer(RG.ADAPTATIVE)
-    OpenCV.loadLocally()
     frameRate(30f)
 
     surface.setResizable(true)

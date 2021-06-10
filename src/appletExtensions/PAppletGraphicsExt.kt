@@ -46,6 +46,15 @@ enum class BlendMode(val modeInt: Int) {
   ;
 }
 
+fun PGraphics.image(image: PImage, topLeft: Point = Point(0, 0)) =
+  image(image, topLeft.xf, topLeft.yf)
+
+fun PGraphics.image(image: Mat, topLeft: Point = Point(0, 0)) =
+  image(image.toPImage(), topLeft.xf, topLeft.yf)
+
+fun Mat.draw(g: PGraphics, topLeft: Point = Point(0, 0)) = g.image(this, topLeft)
+fun PImage.draw(g: PGraphics, topLeft: Point = Point(0, 0)) = g.image(this, topLeft)
+
 fun PAppletExt.createGraphics(
   size: Point,
   format: ImageFormat = ImageFormat.ARGB,
