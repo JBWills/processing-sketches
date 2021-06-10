@@ -6,6 +6,7 @@ import controls.Control.EnumDropdown
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
 import controls.props.GenericProp
+import interfaces.NamedObject
 import kotlin.reflect.KMutableProperty0
 
 fun PanelBuilder.dropdown(
@@ -47,6 +48,27 @@ fun <E : Enum<E>> PanelBuilder.dropdown(
       val newValue =
         if (selectedOption == noneOption) null
         else values.find { it.name == selectedOption }
+
+      ref.set(newValue)
+      markDirty()
+      onChange()
+    }
+  }
+}
+
+fun <E : NamedObject> PanelBuilder.listDropdown(
+  ref: KMutableProperty0<E>,
+  values: List<E>,
+  style: ControlStyle? = null,
+  onChange: BaseSketch.() -> Unit = {},
+) = addNewPanel(style) {
+  GenericProp(ref) {
+    Dropdown(
+      text = ref.name,
+      options = values.map { it.name },
+      defaultValue = ref.get().name,
+    ) { selectedOption ->
+      val newValue = values.find { it.name == selectedOption } ?: ref.get()
 
       ref.set(newValue)
       markDirty()

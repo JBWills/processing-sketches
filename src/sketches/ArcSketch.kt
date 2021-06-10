@@ -2,6 +2,8 @@ package sketches
 
 import BaseSketch
 import LayerConfig
+import appletExtensions.draw.boundArc
+import appletExtensions.draw.rect
 import appletExtensions.intersection
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable

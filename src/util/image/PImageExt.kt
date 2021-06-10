@@ -63,8 +63,8 @@ fun PImage.scaleAndCrop(cropType: ImageCrop, container: BoundRect) =
   _scaleAndCrop(this, cropType, container)
 
 private val _pasteOnTopCentered = { p1: PImage, p2: PImage ->
-  val toPaste = PImage(p1.image)
-  val containerImage = PImage(p2.image)
+  val toPaste = p1.get()
+  val containerImage = p2.get()
   if (toPaste.width > containerImage.width || toPaste.height > containerImage.height) {
     toPaste.scaleAndCrop(Crop, containerImage.bounds)
   }
