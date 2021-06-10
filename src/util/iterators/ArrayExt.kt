@@ -32,3 +32,7 @@ inline fun IntArray.mapIntArray(block: (index: Int, value: Int) -> Int): IntArra
 inline fun <reified T> IntArray.mapArray(block: (index: Int, value: Int) -> T): Array<T> =
   Array(size) { block(it, get(it)) }
 
+// from https://gist.github.com/yuhki50/ca8363c0bee588cd79ad6637edfaedf3
+fun IntArray.toByteArray(): ByteArray =
+  foldIndexed(ByteArray(size)) { i, a, v -> a.apply { set(i, v.toByte()) } }
+

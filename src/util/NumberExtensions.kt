@@ -1,6 +1,7 @@
 package util
 
 import coordinate.Point
+import geomerativefork.src.util.reduceTo
 import java.lang.Math.toDegrees
 import java.lang.Math.toRadians
 import kotlin.math.abs
@@ -11,7 +12,7 @@ import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.tan
 
-val EPSILON = 0.00001
+const val EPSILON = 0.00001
 
 fun forEachPoint(w: Double, h: Double, step: Double, block: (p: Point) -> Unit) =
   (0.0..h step step).forEach { y ->
@@ -23,6 +24,32 @@ fun forEachPoint(w: Double, h: Double, step: Double, block: (p: Point) -> Unit) 
 fun <R> Int.map(f: (Int) -> R) = (0 until this).map(f)
 
 fun Int.times(f: (Int) -> Unit) = (0 until this).forEach(f)
+
+fun sum(vararg numbers: Number): Double =
+  numbers.reduceTo(0.0) { acc, value -> acc + value.toDouble() }
+
+fun mean(vararg numbers: Number): Double = sum(*numbers) / numbers.size
+
+val Int.odd: Boolean get() = !even
+val Int.even: Boolean get() = this % 2 == 0
+
+fun Number.coerceOdd(roundUp: Boolean = true): Int {
+  val numberInt = toDouble().floorInt()
+  if (numberInt.even) {
+    return if (roundUp) numberInt + 1 else numberInt - 1
+  }
+  
+  return numberInt
+}
+
+fun Number.coerceEven(roundUp: Boolean = true): Int {
+  val numberInt = toDouble().floorInt()
+  if (numberInt.odd) {
+    return if (roundUp) numberInt + 1 else numberInt - 1
+  }
+
+  return numberInt
+}
 
 fun Double.floorInt(): Int = floor(this).toInt()
 fun Double.ceilInt(): Int = ceil(this).toInt()

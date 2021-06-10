@@ -4,10 +4,6 @@ import arrow.core.memoize
 import coordinate.BoundRect
 import coordinate.Point
 import coordinate.Point.Companion.minXY
-import org.bytedeco.opencv.global.opencv_core.CV_8UC3
-import org.bytedeco.opencv.global.opencv_core.CV_8UC4
-import org.opencv.core.Mat
-import processing.core.PConstants.ARGB
 import processing.core.PConstants.RGB
 import processing.core.PGraphics
 import processing.core.PImage
@@ -29,25 +25,6 @@ private val _resized = { image: PImage, p: Point ->
 }.memoize()
 
 fun PImage.resized(p: Point): PImage = _resized(this, p)
-
-fun PImage.toOpenCV(): Mat = Mat(height, width, CV_8UC4)
-  .apply {
-    loadPixels()
-    put(0, 0, pixels)
-  }
-
-fun PImage.toEmptyOpenCVMat(): Mat = Mat(height, width, CV_8UC4)
-
-fun PImage.toOpenCVRGB(): Mat = Mat(height, width, CV_8UC3)
-  .apply { put(0, 0, pixels) }
-
-fun Mat.toPImage(): PImage {
-  val hasAlpha = type() == CV_8UC4
-  return PImage(width(), height(), if (hasAlpha) RGB else ARGB).also {
-    it.loadPixels()
-    get(0, 0, it.pixels)
-  }
-}
 
 private val _get = { image: PImage, topLeft: Point, size: Point ->
   image.get(topLeft.xi, topLeft.yi, size.xi, size.yi)
