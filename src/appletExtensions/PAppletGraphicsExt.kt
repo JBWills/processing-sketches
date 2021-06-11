@@ -3,22 +3,7 @@ package appletExtensions
 import coordinate.BoundRect
 import coordinate.Point
 import org.opencv.core.Mat
-import processing.core.PConstants.ADD
-import processing.core.PConstants.BLEND
-import processing.core.PConstants.BURN
-import processing.core.PConstants.DARKEST
-import processing.core.PConstants.DIFFERENCE
-import processing.core.PConstants.DODGE
-import processing.core.PConstants.EXCLUSION
-import processing.core.PConstants.HARD_LIGHT
 import processing.core.PConstants.JAVA2D
-import processing.core.PConstants.LIGHTEST
-import processing.core.PConstants.MULTIPLY
-import processing.core.PConstants.OVERLAY
-import processing.core.PConstants.REPLACE
-import processing.core.PConstants.SCREEN
-import processing.core.PConstants.SOFT_LIGHT
-import processing.core.PConstants.SUBTRACT
 import processing.core.PGraphics
 import processing.core.PImage
 import util.image.ImageFormat
@@ -26,25 +11,6 @@ import util.image.copyTo
 import util.image.toMat
 import util.image.toPImage
 import util.print.Style
-
-enum class BlendMode(val modeInt: Int) {
-  Replace(REPLACE),
-  Blend(BLEND),
-  Add(ADD),
-  Subtract(SUBTRACT),
-  Lightest(LIGHTEST),
-  Darkest(DARKEST),
-  Difference(DIFFERENCE),
-  Exclusion(EXCLUSION),
-  Multiply(MULTIPLY),
-  Screen(SCREEN),
-  Overlay(OVERLAY),
-  HardLight(HARD_LIGHT),
-  SoftLight(SOFT_LIGHT),
-  Dodge(DODGE),
-  Burn(BURN),
-  ;
-}
 
 fun PGraphics.image(image: PImage, topLeft: Point = Point(0, 0)) =
   image(image, topLeft.xf, topLeft.yf)
