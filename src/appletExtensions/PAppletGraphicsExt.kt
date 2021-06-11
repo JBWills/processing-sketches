@@ -2,125 +2,120 @@ package appletExtensions
 
 import coordinate.BoundRect
 import coordinate.Point
-import processing.core.PConstants.ARGB
+import org.opencv.core.Mat
+import processing.core.PConstants.ADD
+import processing.core.PConstants.BLEND
+import processing.core.PConstants.BURN
+import processing.core.PConstants.DARKEST
+import processing.core.PConstants.DIFFERENCE
+import processing.core.PConstants.DODGE
+import processing.core.PConstants.EXCLUSION
+import processing.core.PConstants.HARD_LIGHT
 import processing.core.PConstants.JAVA2D
+import processing.core.PConstants.LIGHTEST
+import processing.core.PConstants.MULTIPLY
+import processing.core.PConstants.OVERLAY
+import processing.core.PConstants.REPLACE
+import processing.core.PConstants.SCREEN
+import processing.core.PConstants.SOFT_LIGHT
+import processing.core.PConstants.SUBTRACT
 import processing.core.PGraphics
 import processing.core.PImage
+import util.image.ImageFormat
+import util.image.copyTo
+import util.image.toMat
+import util.image.toPImage
 import util.print.Style
-import util.withAlpha
-import java.awt.Color
+
+enum class BlendMode(val modeInt: Int) {
+  Replace(REPLACE),
+  Blend(BLEND),
+  Add(ADD),
+  Subtract(SUBTRACT),
+  Lightest(LIGHTEST),
+  Darkest(DARKEST),
+  Difference(DIFFERENCE),
+  Exclusion(EXCLUSION),
+  Multiply(MULTIPLY),
+  Screen(SCREEN),
+  Overlay(OVERLAY),
+  HardLight(HARD_LIGHT),
+  SoftLight(SOFT_LIGHT),
+  Dodge(DODGE),
+  Burn(BURN),
+  ;
+}
+
+fun PGraphics.image(image: PImage, topLeft: Point = Point(0, 0)) =
+  image(image, topLeft.xf, topLeft.yf)
+
+fun PGraphics.image(image: Mat, topLeft: Point = Point(0, 0)) =
+  image(image.toPImage(), topLeft.xf, topLeft.yf)
+
+fun Mat.draw(g: PGraphics, topLeft: Point = Point(0, 0)) = g.image(this, topLeft)
+fun PImage.draw(g: PGraphics, topLeft: Point = Point(0, 0)) = g.image(this, topLeft)
 
 fun PAppletExt.createGraphics(
   size: Point,
-  colorMode: Int = ARGB,
+  format: ImageFormat = ImageFormat.ARGB,
   renderer: String = JAVA2D,
-): PGraphics =
-  createGraphics(size.xi, size.yi, renderer)
-    .also { it.init(size.xi, size.yi, colorMode) }
+): PGraphics = createGraphics(size.xi, size.yi, renderer)
+  .also { it.init(size.xi, size.yi, format.pImageFormat) }
+
+fun PAppletExt.createGraphicsAndDraw(
+  size: Point,
+  format: ImageFormat = ImageFormat.ARGB,
+  renderer: String = JAVA2D,
+  block: PGraphics.() -> Unit
+): PGraphics = createGraphics(size, format, renderer).withDraw {
+  block()
+  this
+}
+
+fun PAppletExt.createImage(
+  size: Point = Point(width, height),
+  format: ImageFormat = ImageFormat.ARGB,
+  renderer: String = JAVA2D,
+  style: Style? = null,
+  block: PGraphics.() -> Unit
+): PImage = createGraphics(size, format, renderer).withDraw(style) {
+  block()
+  get()
+}
 
 private var isDrawing: Boolean = false
-fun PGraphics.withDraw(style: Style? = null, block: () -> Unit): PGraphics {
+fun <R> PGraphics.withDraw(style: Style? = null, block: PGraphics.() -> R): R {
   if (isDrawing) {
     throw Exception("Tried to call beginDraw when a draw call already in effect.")
   }
   beginDraw()
   isDrawing = true
-  style?.let { withStyle(style) { block() } } ?: block()
+  val result = withStyle(style) { block() }
   endDraw()
   isDrawing = false
-  return this
+  return result
 }
+
+fun PGraphics.withDrawToImage(style: Style? = null, block: PGraphics.() -> Unit): PImage =
+  withDraw(style) {
+    block()
+    get()
+  }
 
 
 fun PGraphics.displayOnParent(offset: Point = Point.Zero) = parent.image(this, offset.xf, offset.yf)
 
 fun PImage.getBounds() = BoundRect(Point.Zero, width - 1, height - 1)
 
-fun PGraphics.blend(
-  mode: Int,
-  other: PGraphics,
-  offsetOnDest: Point,
-  blendFunc: (srcValue: Int, destValue: Int) -> Int
-) {
-  other.loadPixels()
+fun PImage.editAsMat(block: Mat.() -> Mat): PImage {
+  toMat()
+    .block()
+    .copyTo(this)
 
-  filterPixels(BoundRect(offsetOnDest, other.width, other.height)) { x, y, value ->
-    val otherX = x - offsetOnDest.xi
-    val otherY = y - offsetOnDest.yi
-
-    val otherIndex = otherY * other.width + otherX
-    val otherValue = other.pixels[otherIndex]
-
-    blendFunc(otherValue, value)
-  }
+  return this
 }
 
-//fun PImage.add(other: PImage, offset: Point) =
-//  filterPixels(BoundRect(offset, other.width, other.height)) { x, y, value ->
-//    val otherValue = other.pixels[]
-//  }
-
-//fun PImage.subtract(other: PImage, offset: Point) = blend(SUBTRACT, other, offset)
-//fun PImage.multiply(other: PImage, offset: Point) = blend(MULTIPLY, other, offset)
-//fun PImage.lightest(other: PImage, offset: Point) = blend(LIGHTEST, other, offset)
-//fun PImage.darkest(other: PImage, offset: Point) = blend(DARKEST, other, offset)
-
-
-fun PImage.filterByRow(block: (rowIndex: Int, values: IntArray) -> IntArray) {
-  (0 until height).forEach { rowNum ->
-    block(rowNum, pixels.sliceArray(0 until width))
-      .copyInto(pixels, rowNum * width)
-  }
-
-  setModified()
-}
-
-fun PImage.setPixels(c: Color, alpha: Int = 255) {
-  val cRGB = c.withAlpha(alpha).rgb
-  pixels = IntArray(pixels.size) { cRGB }
-}
-
-fun PImage.filterPixels(
-  bound: BoundRect = getBounds(),
-  block: (x: Int, y: Int, value: Int) -> Int
-) {
-  bound.boundsIntersection(getBounds())?.forEachGrid { p ->
-    val index = p.yi * width + p.xi
-    pixels[index] = block(p.xi, p.yi, pixels[index])
-  }
-
-  setModified()
-}
-
-fun PGraphics.mapPixels(
-  bound: BoundRect = getBounds(),
-  newColorMode: Int = colorMode,
-  block: (x: Int, y: Int, value: Int) -> Int
-): PGraphics {
-  loadPixels()
-  val newGraphics = PGraphics().also {
-    it.setSize(width, height)
-    it.pixels = pixels
-    it.filterPixels(bound, block)
-    it.colorMode = newColorMode
-  }
-
-  return newGraphics
-}
-
-fun PGraphics.mapPixelValues(
-  bound: BoundRect = getBounds(),
-  newColorMode: Int = colorMode,
-  block: (value: Int) -> Int
-): PGraphics {
-  loadPixels()
-  val newGraphics = PGraphics().also {
-    it.setSize(width, height)
-    it.pixels = pixels
-    it.filterPixels(bound) { _, _, v -> block(v) }
-    it.colorMode = newColorMode
-  }
-
-  return newGraphics
-}
+fun PImage.copyAndEditAsMat(block: Mat.() -> Mat): PImage = toMat()
+  .block()
+  .toPImage()
 

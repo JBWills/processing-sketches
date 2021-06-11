@@ -5,6 +5,7 @@ import coordinate.BoundRect
 import coordinate.Point
 import coordinate.Point.Companion.minXY
 import processing.core.PConstants.RGB
+import processing.core.PGraphics
 import processing.core.PImage
 import util.image.ImageCrop.Crop
 import util.luminance
@@ -62,9 +63,10 @@ private val _scaleAndCrop = { image: PImage, cropType: ImageCrop, container: Bou
 fun PImage.scaleAndCrop(cropType: ImageCrop, container: BoundRect) =
   _scaleAndCrop(this, cropType, container)
 
-private val _pasteOnTopCentered = { p1: PImage, p2: PImage ->
-  val toPaste = p1.get()
-  val containerImage = p2.get()
+
+fun PImage.pasteOnTopCentered(other: PImage): PImage {
+  val toPaste = get()
+  val containerImage = other.get()
   if (toPaste.width > containerImage.width || toPaste.height > containerImage.height) {
     toPaste.scaleAndCrop(Crop, containerImage.bounds)
   }
@@ -72,10 +74,10 @@ private val _pasteOnTopCentered = { p1: PImage, p2: PImage ->
   val newImageBounds = toPaste.bounds.recentered(containerImage.bounds.center)
   containerImage.set(newImageBounds.topLeft.xi, newImageBounds.topLeft.yi, toPaste)
 
-  containerImage
-}.memoize()
+  return containerImage
+}
 
-fun PImage.pasteOnTopCentered(other: PImage): PImage = _pasteOnTopCentered(this, other)
+fun PGraphics.overlay(src: PImage) = image(src, 0f, 0f)
 
 fun solidColorPImage(size: Point, c: Color) = PImage(size.xi, size.yi, RGB).apply {
   val colorRgb = c.rgb

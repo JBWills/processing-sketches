@@ -17,9 +17,9 @@ import util.iterators.copy
 class MouseDragListener : MouseListener {
   var isDragging = false
 
-  val currentMouseDrag = mutableListOf<Point>()
+  private val currentMouseDrag = mutableListOf<Point>()
 
-  val mouseDragsSinceLastDraw: MutableList<List<Point>> = mutableListOf()
+  private val mouseDragsSinceLastDraw: MutableList<List<Point>> = mutableListOf()
 
   override fun onEvent(e: MouseEvent) {
     when (e.type) {

@@ -37,10 +37,7 @@ fun <T> List<T>.getLerpIndices(lerpAmt: Double): List<Int> {
   val lowerIndex = mappedToIndex.floorInt()
   val upperIndex = mappedToIndex.ceilInt()
 
-  return listOf(
-    lowerIndex,
-    upperIndex,
-  )
+  return listOf(lowerIndex, upperIndex)
 }
 
 fun <K, V> MutableMap<K, V>.replaceKey(oldKey: K, newKey: K) {

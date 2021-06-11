@@ -43,7 +43,7 @@ enum class Paper(
   A4White(11.69, 8.27, WHITE, BLACK),
   A4Black(12, 9, BLACK, WHITE),
   SquareBlack(7.87, 7.87, BLACK, WHITE),
-  ColoredPaper(12.5, 9.5, RED.lightened(1f), WHITE);
+  ColoredPaper(12.5, 9.5, RED.lightened(1.0), WHITE);
 
   val defaultStyle: Style = Style(color = defaultStrokeColor)
 

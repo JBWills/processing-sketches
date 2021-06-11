@@ -1,12 +1,23 @@
 package util
 
+import geomerativefork.src.util.bound
 import geomerativefork.src.util.boundInt
-import geomerativefork.src.util.toRGBInt
+import org.opencv.core.Scalar
 import util.iterators.endPointPair
 import util.iterators.getLerpIndices
 import util.iterators.mapPercentToIndex
 import util.iterators.zip
 import java.awt.Color
+
+fun Number.toRGBInt() = (bound(0f, 1f) * 255).toInt()
+
+fun Color.toRGBScalar() = Scalar(red.toDouble(), blue.toDouble(), green.toDouble())
+fun Color.toARGBScalar() =
+  Scalar(alpha.toDouble(), red.toDouble(), blue.toDouble(), green.toDouble())
+
+val Color.luminance get() = luminance()
+val Color.alphaDouble get() = alpha / 255.0
+val Color.gray get() = mean(red, green, blue) * alphaDouble
 
 fun List<Color>.lerp(amt: Double): Color {
   val lerpIndices = getLerpIndices(amt)
@@ -17,11 +28,10 @@ fun List<Color>.lerp(amt: Double): Color {
     .lerp(mapPercentToIndex(amt) - lerpIndices.first())
 }
 
+fun Color.luminance(): Double = (0.3 * red + 0.59 * green + 0.11 * blue) * alphaDouble
 
-fun Color.luminance(): Double = 0.3 * red + 0.59 * green + 0.11 * blue
-
-fun Pair<Color, Color>.lerp(amt: Double) = (first.rgbList() to second.rgbList())
-  .zip { rgb1, rgb2 -> (rgb1 + rgb2) / 2 }
+fun Pair<Color, Color>.lerp(amt: Double): Color = (first.rgbList() to second.rgbList())
+  .zip { rgb1, rgb2 -> (rgb1 + ((rgb2 - rgb1) * amt)).toInt() }
   .toColor()
 
 fun String.toColor(): Color? = Color.decode(this)
@@ -41,15 +51,26 @@ fun Color.withRed(v: Int) = withColorSet(v, 0)
 fun Color.withGreen(v: Int) = withColorSet(v, 1)
 fun Color.withBlue(v: Int) = withColorSet(v, 2)
 fun Color.withAlpha(v: Int) = Color(red, green, blue, v)
-fun Color.withAlphaFloat(v: Float) = Color(red, green, blue, v.toRGBInt())
-fun Color.withAlphaDouble(v: Double) = Color(red, green, blue, v.toRGBInt())
+fun Color.withAlphaFloat(v: Float) = withAlpha(v.toRGBInt())
+fun Color.withAlphaDouble(v: Double) = withAlpha(v.toRGBInt())
 
 /**
- * Redval must be between 0 and 1
+ * create new Color with red value as double
+ * @param v between 0 and 1
  */
-fun Color.withRed(v: Float) = withRed((v * 255).toInt())
-fun Color.withGreen(v: Float) = withGreen((v * 255).toInt())
-fun Color.withBlue(v: Float) = withBlue((v * 255).toInt())
+fun Color.withRed(v: Double) = withRed((v.toRGBInt()))
+
+/**
+ * create new Color with green value as double
+ * @param v between 0 and 1
+ */
+fun Color.withGreen(v: Double) = withGreen((v.toRGBInt()))
+
+/**
+ * create new Color with blue value as double
+ * @param v between 0 and 1
+ */
+fun Color.withBlue(v: Double) = withBlue((v.toRGBInt()))
 
 fun Color.map(block: (Int) -> Int) = rgbList()
   .map { block(it) }
@@ -58,11 +79,11 @@ fun Color.map(block: (Int) -> Int) = rgbList()
 /**
  * @param percent is between 0 and 1
  */
-fun Color.darkened(percent: Float) =
+fun Color.darkened(percent: Double) =
   map { (it * (1 - percent)).boundInt(0, (255 * (1 - percent)).toInt()) }
 
 /**
  * @param percent is between 0 and 1
  */
-fun Color.lightened(percent: Float) =
+fun Color.lightened(percent: Double) =
   map { (it * (1 + percent)).boundInt((percent * 255).toInt(), 255) }

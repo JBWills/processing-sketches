@@ -11,3 +11,18 @@ fun String.splitCamelCase() = replace(
 )
 
 fun String.lineLimit(limit: Int): String = lines().joinToString(separator = "\n", limit = limit)
+
+fun String.isAllUniqueChars(): Boolean = uniqueChars() == this
+
+fun String.uniqueChars(): String {
+  val charsSeen = mutableSetOf<Char>()
+
+  return buildString {
+    this@uniqueChars.forEach { char ->
+      if (!charsSeen.contains(char)) {
+        charsSeen.add(char)
+        append(char)
+      }
+    }
+  }
+}
