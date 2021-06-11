@@ -39,7 +39,7 @@ abstract class CanvasSketch(
       .applyOverrides(
         Style(
           weight = if (isRecording) Thick() else null,
-          color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5f) else null,
+          color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5) else null,
         ),
       )
 

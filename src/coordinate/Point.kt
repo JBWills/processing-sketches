@@ -6,6 +6,7 @@ import geomerativefork.src.RPoint
 import geomerativefork.src.util.bound
 import interfaces.math.Mathable
 import kotlinx.serialization.Serializable
+import org.opencv.core.Size
 import util.DoubleRange
 import util.equalsDelta
 import util.equalsZero
@@ -179,6 +180,7 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
   }
 
   fun toRPoint(): RPoint = RPoint(xf, yf)
+  fun toSize(): Size = Size(x, y)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

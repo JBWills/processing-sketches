@@ -15,10 +15,12 @@ import controls.panels.panelext.toggle
 import coordinate.Point
 import geomerativefork.src.RG
 import interfaces.listeners.MouseListener
+import nu.pattern.OpenCV
 import processing.core.PGraphics
 import processing.core.PImage
 import processing.event.MouseEvent
 import util.combineDrawLayersIntoSVG
+import util.image.ImageFormat
 import util.lineLimit
 import util.print.Style
 import util.print.TextAlign.CenterVertical
@@ -42,6 +44,11 @@ abstract class BaseSketch(
   val svgBaseFileName: String = "output",
   var size: Point = Point(1000, 1000),
 ) : PAppletExt() {
+  init {
+    // This has to happen before setup() so native methods work for deserialization.
+    OpenCV.loadLocally()
+  }
+
   private val window by lazy { BaseSketchWindow(svgBaseFileName, surface) }
   val sketchSize get() = Point(size.x, size.y)
 
@@ -49,7 +56,7 @@ abstract class BaseSketch(
 
   var lastDrawImage: PImage? = null
 
-  val interactiveGraphicsLayer: PGraphics by lazy { createGraphics(size, ARGB) }
+  val interactiveGraphicsLayer: PGraphics by lazy { createGraphics(size, ImageFormat.ARGB) }
 
   private val mouseListeners: MutableSet<MouseListener> = mutableSetOf()
 

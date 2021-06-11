@@ -4,11 +4,9 @@ import util.DoubleRange
 import kotlin.math.max
 import kotlin.math.min
 
-fun Number.toRGBInt() = (bound(0f, 1f) * 255).toInt()
+fun minAll(vararg floats: Float) = floats.reduce { acc, item -> min(acc, item) }
 
-fun minAll(vararg floats: Float) = floats.reduce { acc, item -> kotlin.math.min(acc, item) }
-
-fun maxAll(vararg floats: Float) = floats.reduce { acc, item -> kotlin.math.max(acc, item) }
+fun maxAll(vararg floats: Float) = floats.reduce { acc, item -> max(acc, item) }
 
 fun Double.bound(range: DoubleRange): Double = when {
   this < range.start -> range.start
