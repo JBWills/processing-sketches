@@ -11,6 +11,7 @@ import util.image.copyTo
 import util.image.toMat
 import util.image.toPImage
 import util.print.Style
+import java.awt.Color
 
 fun PGraphics.image(image: PImage, topLeft: Point = Point(0, 0)) =
   image(image, topLeft.xf, topLeft.yf)
@@ -85,3 +86,4 @@ fun PImage.copyAndEditAsMat(block: Mat.() -> Mat): PImage = toMat()
   .block()
   .toPImage()
 
+fun PGraphics.background(color: Color) = background(color.rgb)

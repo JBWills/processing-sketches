@@ -90,7 +90,12 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
         savePreset(it)
       }
 
-      dropdown("Load Preset", presets.keys.sorted(), ::currentPreset) { onSwitchCanvas(it) }
+      dropdown(
+        "Load Preset",
+        presets.keys.sorted(),
+        ::currentPreset,
+        shouldMarkDirty = false,
+      ) { onSwitchCanvas(it) }
     },
     tab(CANVAS_TAB_NAME) {
       +layerAndGlobalProps.canvasControls

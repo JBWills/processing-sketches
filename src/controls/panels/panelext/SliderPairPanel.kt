@@ -15,7 +15,14 @@ fun PanelBuilder.sliderPair(
   range: DoubleRange,
   withLockToggle: Boolean = false,
   defaultLocked: Boolean = false,
-) = sliderPair(ref, range to range, withLockToggle, defaultLocked)
+  shouldMarkDirty: Boolean = true,
+) = sliderPair(
+  ref,
+  range to range,
+  withLockToggle,
+  defaultLocked,
+  shouldMarkDirty = shouldMarkDirty,
+)
 
 fun PanelBuilder.sliderPair(
   ref: KMutableProperty0<Point>,
@@ -23,6 +30,7 @@ fun PanelBuilder.sliderPair(
   withLockToggle: Boolean = false,
   defaultLocked: Boolean = false,
   style: ControlStyle? = null,
+  shouldMarkDirty: Boolean = true,
 ) = addNewPanel(style) {
   GenericProp(ref) {
     var locked: Boolean = defaultLocked && ref.get().x == ref.get().y
@@ -35,7 +43,7 @@ fun PanelBuilder.sliderPair(
         ref.set(Point(it, ref.get().y))
         if (locked) ctrlY?.refValue = it.toFloat()
       },
-    ) { markDirty() }
+    ) { markDirtyIf(shouldMarkDirty) }
 
     ctrlY = Slider(
       "${ref.name} Y",
@@ -45,14 +53,14 @@ fun PanelBuilder.sliderPair(
         ref.set(Point(ref.get().x, it))
         if (locked) ctrlX.refValue = it.toFloat()
       },
-    ) { markDirty() }
+    ) { markDirtyIf(shouldMarkDirty) }
 
     val ctrlToggle = Toggle(
       text = "Lock ${ref.name}",
       defaultValue = locked,
     ) {
       locked = it
-      markDirty()
+      markDirtyIf(shouldMarkDirty)
     }.withWidth(0.5)
 
     row(ref.name) {

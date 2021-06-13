@@ -8,7 +8,8 @@ import kotlin.reflect.KMutableProperty0
 
 fun PanelBuilder.toggle(
   ref: KMutableProperty0<Boolean>,
-  style: ControlStyle? = null
+  style: ControlStyle? = null,
+  shouldMarkDirty: Boolean = true,
 ) = addNewPanel(style) {
-  GenericProp(ref) { Toggle(ref, text = ref.name) { markDirty() } }
+  GenericProp(ref) { Toggle(ref, text = ref.name) { markDirtyIf(shouldMarkDirty) } }
 }

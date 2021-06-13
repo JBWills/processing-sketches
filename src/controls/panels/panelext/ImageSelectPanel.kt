@@ -12,11 +12,12 @@ fun PanelBuilder.imageSelect(
   ref: KMutableProperty0<String>,
   style: ControlStyle? = null,
   thumbnailCrop: ImageCrop = Fill,
+  shouldMarkDirty: Boolean = true,
 ) = addNewPanel(style) {
   GenericProp(ref) {
     ImageFile(ref.name, ref.get(), thumbnailCrop) {
       ref.set(it ?: "")
-      markDirty()
+      markDirtyIf(shouldMarkDirty)
     }
   }
 }

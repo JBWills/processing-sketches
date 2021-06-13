@@ -1,12 +1,17 @@
 package sketches
 
+import appletExtensions.getParallelLinesInBoundMemo
+import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.intSlider
+import controls.panels.panelext.slider
 import controls.props.PropData
 import controls.props.types.BrushProp
+import coordinate.Deg
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
+import util.image.getValue
 
 /**
  * Starter sketch that uses all of the latest bells and whistles.
@@ -21,14 +26,20 @@ class InteractiveLines : LayeredCanvasSketch<InteractiveLinesData, InteractiveLi
   override fun drawSetup(layerInfo: DrawInfo) {}
 
   override fun drawInteractive(layerInfo: DrawInfo) {
-    val (brush) = layerInfo.globalValues
-    brush.drawInteractive(this)
+    layerInfo.globalValues.brush.drawInteractive(this)
   }
 
   override fun drawOnce(values: LayerInfo) {
-    val (brush) = values.globalValues
+    val (distanceBetweenLines, brush) = values.globalValues
     val (exampleTabField) = values.tabValues
 
+
+    getParallelLinesInBoundMemo(boundRect, Deg.HORIZONTAL, distanceBetweenLines)
+      .forEach { segment ->
+        segment.walk(1.0) {
+          it.addY(brush.latestAlphaMat?.getValue(it) ?: 0)
+        }.draw(boundRect)
+      }
   }
 }
 
@@ -46,10 +57,12 @@ data class InteractiveLinesLayerData(
 
 @Serializable
 data class InteractiveLinesData(
+  var distanceBetweenLines: Double = 5.0,
   var brush: BrushProp = BrushProp(),
 ) : PropData<InteractiveLinesData> {
   override fun bind() = singleTab("Global") {
-    panel(::brush)
+    slider(::distanceBetweenLines, 1..500)
+    panel(::brush, style = ControlStyle.Red)
   }
 
   override fun clone() = copy()

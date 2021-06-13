@@ -1,6 +1,7 @@
 package controls.props.types
 
 import BaseSketch
+import appletExtensions.background
 import appletExtensions.createGraphicsAndDraw
 import appletExtensions.createImage
 import appletExtensions.draw
@@ -21,6 +22,8 @@ import controls.props.PropData
 import controls.props.types.BrushType.Brush
 import controls.props.types.BrushType.Bucket
 import controls.props.types.BrushType.Eraser
+import controls.props.types.BrushType.Gradient
+import controls.props.types.BrushType.Line
 import coordinate.Circ
 import coordinate.Point
 import interfaces.listeners.MouseDragListener
@@ -44,6 +47,7 @@ import util.pointsAndLines.polyLine.PolyLine
 import util.print.CustomPx
 import util.print.StrokeJoin
 import util.print.Style
+import util.with
 import util.withAlpha
 import util.withAlphaDouble
 import java.awt.Color
@@ -52,6 +56,8 @@ enum class BrushType {
   Brush,
   Eraser,
   Bucket,
+  Gradient,
+  Line,
   ;
 }
 
@@ -101,15 +107,19 @@ data class BrushProp(
   override fun bind(): List<ControlTab> = singleTab("SpiralProp") {
     row {
       col {
-        button("Clear") { alphaMask?.clear(); markDirty() }
-        toggle(::showMask)
-        dropdown(::brushType)
+        button("Clear") {
+          getNonNullAlphaMask(this)
+            .overlayARGBImage(createImage(format = ARGB) { background(Color.black) })
+          markDirty()
+        }
+        toggle(::showMask, shouldMarkDirty = false)
+        dropdown(::brushType, shouldMarkDirty = false)
       }
 
       col {
-        slider(::size, 0.0..700.0)
-        slider(::feather, 0.0..1.0)
-        slider(::intensity, 0.0..1.0)
+        slider(::size, 0.0..700.0, shouldMarkDirty = false)
+        slider(::feather, 0.0..1.0, shouldMarkDirty = false)
+        slider(::intensity, 0.0..1.0, shouldMarkDirty = false)
       }
     }
   }
@@ -121,6 +131,8 @@ data class BrushProp(
       Brush -> Color.WHITE.withAlphaDouble(intensity)
       Eraser -> Color.BLACK.withAlphaDouble(intensity)
       Bucket -> listOf(Color.BLACK, Color.WHITE).lerp(intensity)
+      Gradient -> listOf(Color.BLACK, Color.WHITE).lerp(intensity)
+      Line -> Color.WHITE.withAlphaDouble(intensity)
     }
 
   private val brushStyle: Style
@@ -179,13 +191,24 @@ data class BrushProp(
           Brush -> drawBrushAndBlur()
           Eraser -> drawBrushAndBlur()
           Bucket -> background(brushColor.rgb)
+          Gradient -> TODO()
+          Line -> drawBrushStrokes(
+            listOf(mouseDrags.first(), mouseDrags.last()),
+            applyFeather = true,
+          )
         }
       }
 
-      latestAlphaMat =
-        alphaMask.withDrawToImage { overlay(brushMaskImage) }.toMat().converted(ARGB, Gray)
-      updateMaskDisplay()
+      getNonNullAlphaMask(sketch).overlayARGBImage(brushMaskImage)
+      sketch.markDirty()
     }
+  }
+
+  private fun PGraphics.overlayARGBImage(image: PImage) {
+    latestAlphaMat = withDrawToImage { overlay(image) }
+      .toMat()
+      .converted(ARGB, Gray)
+    updateMaskDisplay()
   }
 
   private fun PGraphics.drawBrushCursor(location: Point) {
@@ -225,13 +248,15 @@ data class BrushProp(
   }
 
   private fun updateMaskDisplay() {
-    latestMaskDisplay = latestAlphaMat?.asDisplayAlpha(Color.RED.withAlphaDouble(0.5))?.toPImage()
+    latestMaskDisplay = latestAlphaMat
+      ?.asDisplayAlpha(Color.RED)
+      ?.toPImage()
   }
 
-  private fun checkAlphaMaskSize(sketch: BaseSketch) {
-    val alphaMask = alphaMask ?: initAlphaMask(sketch)
-    if (alphaMask.width != sketch.width || alphaMask.height != sketch.height) {
-      alphaMask.setSize(sketch.width, sketch.height)
+  private fun checkAlphaMaskSize(sketch: BaseSketch) =
+    getNonNullAlphaMask(sketch).with {
+      if (width != sketch.width || height != sketch.height) {
+        setSize(sketch.width, sketch.height)
+      }
     }
-  }
 }

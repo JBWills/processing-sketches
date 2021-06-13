@@ -22,6 +22,7 @@ import processing.event.MouseEvent
 import util.combineDrawLayersIntoSVG
 import util.image.ImageFormat
 import util.lineLimit
+import util.print.StrokeJoin
 import util.print.Style
 import util.print.TextAlign.CenterVertical
 import util.print.Thick
@@ -196,6 +197,7 @@ abstract class BaseSketch(
     RG.init(this)
     RG.setPolygonizer(RG.ADAPTATIVE)
     frameRate(30f)
+    strokeJoin(StrokeJoin.Round.joinInt)
 
     surface.setResizable(true)
     updateControls()

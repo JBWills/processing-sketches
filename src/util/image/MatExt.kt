@@ -1,8 +1,10 @@
 package util.image
 
+import coordinate.Point
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.Scalar
+import util.image.ImageFormat.Companion.getFormat
 import util.isAllUniqueChars
 import util.tuple.Pair3
 import util.tuple.Pair4
@@ -51,6 +53,10 @@ fun List<Mat>.merge(format: ImageFormat): Mat {
     Core.merge(this, newMat)
   }
 }
+
+fun Mat.getByteArray(p: Point) = ByteArray(channels()).also { get(p.yi, p.xi, it) }
+
+fun Mat.getValue(p: Point): Int = getFormat().toIntValue(getByteArray(p))
 
 fun Mat.splitArray(): Array<Mat> = split().toTypedArray()
 

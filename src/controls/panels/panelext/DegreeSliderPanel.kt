@@ -11,10 +11,11 @@ import kotlin.reflect.KMutableProperty0
 private fun degreeSliderProp(
   ref: KMutableProperty0<Deg>,
   range: DoubleRange = 0.0..360.0,
+  shouldMarkDirty: Boolean = true,
 ) = GenericProp(ref) {
   Slider(ref.name, range, ref.get().value) {
     ref.set(Deg(it))
-    markDirty()
+    markDirtyIf(shouldMarkDirty)
   }
 }
 
@@ -22,4 +23,5 @@ fun PanelBuilder.degreeSlider(
   ref: KMutableProperty0<Deg>,
   range: DoubleRange = 0.0..360.0,
   style: ControlStyle? = null,
-) = addNewPanel(style) { degreeSliderProp(ref, range) }
+  shouldMarkDirty: Boolean = true,
+) = addNewPanel(style) { degreeSliderProp(ref, range, shouldMarkDirty) }

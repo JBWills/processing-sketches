@@ -14,21 +14,24 @@ fun PanelBuilder.dropdown(
   options: List<String>,
   ref: KMutableProperty0<String>,
   style: ControlStyle? = null,
+  shouldMarkDirty: Boolean = true,
   onChange: BaseSketch.(String) -> Unit = {},
 ) = addNewPanel(style) {
   Dropdown(text = name, options = options, defaultValue = ref.get()) {
     ref.set(it)
     onChange(it)
+    markDirtyIf(shouldMarkDirty)
   }
 }
 
 fun <E : Enum<E>> PanelBuilder.dropdown(
   ref: KMutableProperty0<E>,
   style: ControlStyle? = null,
+  shouldMarkDirty: Boolean = true,
   onChange: BaseSketch.() -> Unit = {},
 ) = addNewPanel(style) {
   GenericProp(ref) {
-    EnumDropdown(ref, text = ref.name) { onChange(); markDirty() }
+    EnumDropdown(ref, text = ref.name) { onChange(); markDirtyIf(shouldMarkDirty) }
   }
 }
 
@@ -36,6 +39,7 @@ fun <E : Enum<E>> PanelBuilder.dropdown(
   ref: KMutableProperty0<E?>,
   values: Array<E>,
   style: ControlStyle? = null,
+  shouldMarkDirty: Boolean = true,
   onChange: BaseSketch.() -> Unit = {},
 ) = addNewPanel(style) {
   GenericProp(ref) {
@@ -50,8 +54,8 @@ fun <E : Enum<E>> PanelBuilder.dropdown(
         else values.find { it.name == selectedOption }
 
       ref.set(newValue)
-      markDirty()
       onChange()
+      markDirtyIf(shouldMarkDirty)
     }
   }
 }
@@ -60,6 +64,7 @@ fun <E : NamedObject> PanelBuilder.listDropdown(
   ref: KMutableProperty0<E>,
   values: List<E>,
   style: ControlStyle? = null,
+  shouldMarkDirty: Boolean = true,
   onChange: BaseSketch.() -> Unit = {},
 ) = addNewPanel(style) {
   GenericProp(ref) {
@@ -71,8 +76,8 @@ fun <E : NamedObject> PanelBuilder.listDropdown(
       val newValue = values.find { it.name == selectedOption } ?: ref.get()
 
       ref.set(newValue)
-      markDirty()
       onChange()
+      markDirtyIf(shouldMarkDirty)
     }
   }
 }

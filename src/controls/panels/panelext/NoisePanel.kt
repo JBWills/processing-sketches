@@ -19,20 +19,22 @@ fun PanelBuilder.noisePanel(
   showStrengthSliders: Boolean = true,
   style: ControlStyle = ControlStyle.Orange.withColor(
     frameBackground = Color(50, 20, 0),
-  )
+  ),
+  shouldMarkDirty: Boolean = true,
 ) = addNewPanel(style) {
   GenericProp(ref) {
-    noiseControls(ref, showStrengthSliders)
+    noiseControls(ref, showStrengthSliders, shouldMarkDirty)
   }
 }
 
 private fun noiseControls(
   noiseProp: KMutableProperty0<Noise>,
   showStrengthSliders: Boolean = true,
+  shouldMarkDirty: Boolean = true,
 ): ControlPanel {
   fun BaseSketch.updateNoiseField(fn: Noise.() -> (Noise)) {
     noiseProp.set(noiseProp.get().fn())
-    markDirty()
+    markDirtyIf(shouldMarkDirty)
   }
 
   val noise = noiseProp.get()

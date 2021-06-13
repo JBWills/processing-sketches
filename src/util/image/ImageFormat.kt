@@ -26,6 +26,16 @@ enum class ImageFormat(val openCVFormat: Int, val pImageFormat: Int, val numChan
     Alpha -> Scalar(c.alpha.toDouble())
   }
 
+  fun toIntValue(arr: ByteArray): Int {
+    val ints = arr.map { it.toInt() }
+    return when (this) {
+      ARGB -> Color(ints[1], ints[2], ints[3], ints[0]).rgb
+      RGB -> Color(ints[0], ints[1], ints[2]).rgb
+      Gray,
+      Alpha -> ints[0]
+    }
+  }
+
   companion object {
     fun Mat.getFormat() = when (type()) {
       CV_8UC4 -> ARGB
