@@ -104,7 +104,7 @@ data class BrushProp(
 
   override fun clone() = copy()
 
-  override fun bind(): List<ControlTab> = singleTab("SpiralProp") {
+  override fun bind(): List<ControlTab> = singleTab("BrushProp") {
     row {
       col {
         button("Clear") {
