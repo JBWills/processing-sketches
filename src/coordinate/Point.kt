@@ -2,10 +2,13 @@
 
 package coordinate
 
+import coordinate.iterators.PointProgression
 import geomerativefork.src.RPoint
 import geomerativefork.src.util.bound
 import interfaces.math.Mathable
+import interfaces.shape.Transformable
 import kotlinx.serialization.Serializable
+import org.locationtech.jts.geom.Coordinate
 import org.opencv.core.Size
 import util.DoubleRange
 import util.equalsDelta
@@ -22,92 +25,43 @@ import kotlin.math.sqrt
 
 operator fun Number.times(p: Point) = p * this
 operator fun Number.plus(p: Point) = p + this
-
-class PointIterator(
-  private val start: Point,
-  private val endInclusive: Point,
-  step: Double,
-) : Iterator<Point> {
-
-  private val unitVector = (endInclusive - start).normalized
-
-  private val stepVector = unitVector * step
-  private var curr: Point? = null
-
-  private fun getNext(c: Point?): Point {
-    if (c == null) return start
-
-    val next = c + stepVector
-    if (isPastEnd(next)) {
-      return endInclusive
-    }
-
-    return next
-  }
-
-  private fun getNext(): Point = getNext(curr)
-
-  private fun isPastEnd(p: Point) =
-    (start == endInclusive && p != start) || start.dist(endInclusive) < start.dist(p)
-
-  override fun hasNext() =
-    curr == null || (start != endInclusive && start.dist(endInclusive) > start.dist(curr!!))
-
-  override fun next(): Point {
-    val next = getNext()
-    curr = next
-    return next
-  }
-}
-
-class PointProgression(
-  override val start: Point,
-  override val endInclusive: Point,
-  private val step: Double = 1.0,
-) : Iterable<Point>, ClosedRange<Point> {
-
-  val segment: Segment get() = Segment(start, endInclusive)
-
-  constructor(s: Segment, step: Double = 1.0) : this(s.p1, s.p2, step)
-
-  override fun iterator(): Iterator<Point> =
-    if (step > 0) PointIterator(start, endInclusive, step)
-    else PointIterator(endInclusive, start, -step)
-
-  infix fun step(moveAmount: Double) = PointProgression(start, endInclusive, moveAmount)
-
-  fun expand(amt: Number) = PointProgression(segment.expand(amt), step)
-}
+operator fun Number.div(p: Point) = Point(this.toDouble() / p.x, this.toDouble() / p.y)
+operator fun Number.minus(p: Point) = Point(this.toDouble() - p.x, this.toDouble() - p.y)
 
 @Serializable
-data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Point> {
+data class Point(val x: Double, val y: Double) :
+  Comparable<Point>,
+  Mathable<Point>,
+  Transformable<Point> {
   init {
     if (x.isNaN() || y.isNaN()) throw Exception("Can't create a point with nan values. x=$x, y=$y")
   }
 
+  constructor(p: Number) : this(p, p)
   constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
   constructor(p: Point) : this(p.x, p.y)
 
   fun toPixelPoint() = PixelPoint(x.toInt(), y.toInt())
 
-  val xf = x.toFloat()
-  val yf = y.toFloat()
+  val xf get() = x.toFloat()
+  val yf get() = y.toFloat()
 
-  val xl = x.toLong()
-  val yl = y.toLong()
+  val xl get() = x.toLong()
+  val yl get() = y.toLong()
 
-  val xi = x.toInt()
-  val yi = y.toInt()
+  val xi get() = x.toInt()
+  val yi get() = y.toInt()
 
-  val magnitude by lazy { sqrt(magnitudeSquared) }
+  val magnitude get() = sqrt(magnitudeSquared)
 
   // useful when you don't want to do expensive sqrt() calcs
-  val magnitudeSquared by lazy { x.squared() + y.squared() }
+  val magnitudeSquared get() = x.squared() + y.squared()
 
-  val normalized: Point by lazy {
-    if (magnitudeSquared == 0.0) Point(1, 0)
-    else Point(x / magnitude, y / magnitude)
-  }
+  val normalized: Point
+    get() =
+      if (magnitudeSquared == 0.0) Point(1, 0)
+      else Point(x / magnitude, y / magnitude)
+
 
   fun dist(other: Point) = (this - other).magnitude
 
@@ -131,7 +85,10 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
   fun boundX(range: DoubleRange) = Point(x.bound(range), y)
   fun boundY(range: DoubleRange) = Point(x, y.bound(range))
 
-  fun bound(xRange: DoubleRange, yRange: DoubleRange) = boundX(xRange).boundY(yRange)
+  fun bound(xRange: DoubleRange, yRange: DoubleRange) = Point(x.bound(xRange), y.bound(yRange))
+
+  fun bound(minPoint: Point, maxPoint: Point) =
+    bound(minPoint.x..maxPoint.x, minPoint.y..maxPoint.y)
 
   fun addX(amt: Number) = Point(x + amt.toDouble(), y)
   fun addY(amt: Number) = Point(x, y + amt.toDouble())
@@ -175,12 +132,20 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
 
   fun forEach2D(block: (Point) -> Unit) = (Zero..this).forEach2D(block)
 
+  fun toRPoint(): RPoint = RPoint(xf, yf)
+  fun toSize(): Size = Size(x, y)
+
+  override fun scaled(scale: Point, anchor: Point): Point {
+    val diffVector = minus(anchor)
+    val scaledDiffVector = diffVector * scale
+    return anchor + scaledDiffVector
+  }
+
+  override fun translated(translate: Point) = plus(translate)
+
   override fun toString(): String {
     return "Point(x=${x.roundedString(5)}, y=${y.roundedString(5)})"
   }
-
-  fun toRPoint(): RPoint = RPoint(xf, yf)
-  fun toSize(): Size = Size(x, y)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -209,6 +174,8 @@ data class Point(val x: Double, val y: Double) : Comparable<Point>, Mathable<Poi
     operator fun Number.minus(p: Point) = p - toDouble()
     operator fun Number.plus(p: Point) = p + toDouble()
     operator fun Number.div(p: Point) = p / toDouble()
+
+    fun Coordinate.toPoint() = Point(x, y)
 
     fun List<Point>.move(amount: Point): List<Point> = map { it + amount }
     fun List<Point>.plusIf(p: Point?): List<Point> = if (p != null) this.plusElement(p) else this

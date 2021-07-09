@@ -6,7 +6,6 @@ import LayerConfig
 import appletExtensions.draw.rect
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.slider
 import controls.panels.panelext.slider2D
@@ -57,7 +56,7 @@ open class DebugMeasureSketch(
 
   override fun getControls(): Panelable = col {
     row {
-      intSlider(::numCircles, range = 1..1000)
+      slider(::numCircles, range = 1..1000)
       slider(::circleSpacing, range = 0.001..50.0)
     }
 

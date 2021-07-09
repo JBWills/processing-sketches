@@ -1,9 +1,11 @@
 package util.io
 
+import util.assertions.checkExists
 import java.io.File
+import java.io.InputStream
 
 val IGNORED_FILE_NAMES = setOf(
-  ".DS_Store"
+  ".DS_Store",
 )
 
 fun File.save(s: String) = printWriter().use {
@@ -47,4 +49,15 @@ fun getAllFilesInPath(
     }
     .sortedBy { it.nameWithoutExtension }
     .toList()
+}
+
+fun File.streamFile(f: (InputStream) -> Unit): Unit {
+  checkExists()
+  val inputStream = inputStream()
+  try {
+    f(inputStream)
+  } catch (e: Exception) {
+    inputStream.close()
+    throw e
+  }
 }

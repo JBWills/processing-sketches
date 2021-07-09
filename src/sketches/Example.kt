@@ -2,7 +2,7 @@ package sketches
 
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.intSlider
+import controls.panels.panelext.slider
 import controls.props.PropData
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
@@ -19,9 +19,9 @@ class Example : LayeredCanvasSketch<ExampleData, ExampleLayerData>(
 ) {
   override fun drawSetup(layerInfo: DrawInfo) {}
 
-  override fun drawOnce(values: LayerInfo) {
-    val (exampleGlobalField) = values.globalValues
-    val (exampleTabField) = values.tabValues
+  override fun drawOnce(layerInfo: LayerInfo) {
+    val (exampleGlobalField) = layerInfo.globalValues
+    val (exampleTabField) = layerInfo.tabValues
   }
 }
 
@@ -30,7 +30,7 @@ data class ExampleLayerData(
   var exampleTabField: Int = 1,
 ) : PropData<ExampleLayerData> {
   override fun bind() = layerTab {
-    intSlider(::exampleTabField, 0..10)
+    slider(::exampleTabField, 0..10)
   }
 
   override fun clone() = copy()
@@ -42,7 +42,7 @@ data class ExampleData(
   var exampleGlobalField: Int = 1,
 ) : PropData<ExampleData> {
   override fun bind() = singleTab("Global") {
-    intSlider(::exampleGlobalField, 0..10)
+    slider(::exampleGlobalField, 0..10)
   }
 
   override fun clone() = copy()

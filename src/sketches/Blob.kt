@@ -7,7 +7,6 @@ import controls.panels.ControlStyle.Companion.Red
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.degreeSlider
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.slider
 import controls.panels.panelext.toggle
@@ -23,7 +22,7 @@ import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.ZeroToOne
 import util.algorithms.chaikin
-import util.algorithms.contouring.getNoiseContour
+import util.algorithms.contouring.getNoiseContourMemo
 import util.algorithms.contouring.mergeSegments
 import util.algorithms.contouring.walkThreshold
 import util.algorithms.douglassPeucker
@@ -47,7 +46,7 @@ class Blob : LayeredCanvasSketch<BlobData, BlobLayerData>(
 
   override fun drawSetup(layerInfo: DrawInfo) {}
 
-  override fun drawOnce(values: LayerInfo) {
+  override fun drawOnce(layerInfo: LayerInfo) {
     val (
       noise,
       gridStep,
@@ -59,7 +58,7 @@ class Blob : LayeredCanvasSketch<BlobData, BlobLayerData>(
       shouldSmooth,
       smoothEpsilon,
       chaikinTimes,
-    ) = values.tabValues
+    ) = layerInfo.tabValues
 
     val (
       shape,
@@ -68,7 +67,7 @@ class Blob : LayeredCanvasSketch<BlobData, BlobLayerData>(
       lineNoise,
       lineDensity,
       lineOffset,
-    ) = values.globalValues
+    ) = layerInfo.globalValues
 
     val distanceBetweenLines = (50.0..0.5).atAmountAlong(lineDensity)
     val lines: List<Segment> = getParallelLinesInBoundMemo(
@@ -79,13 +78,13 @@ class Blob : LayeredCanvasSketch<BlobData, BlobLayerData>(
     )
 
     if (drawBlob) {
-      getNoiseContour(
+      getNoiseContourMemo(
         (thresholdStart..thresholdEnd numSteps numThresholds).toList(),
         contourShape.roughBounds(boundRect),
         gridStep,
         noise,
-      ).forEach { (threshold, line) ->
-        line
+      ).forEach { (_, lineSegments) ->
+        lineSegments
           .mergeSegments()
           .map { line ->
             val smoothedLine = if (shouldSmooth)
@@ -138,14 +137,14 @@ data class BlobLayerData(
       slider(::thresholdEnd, ZeroToOne)
     }
 
-    intSlider(::numThresholds, 1..200)
+    slider(::numThresholds, 1..200)
 
     row {
       style = Red
 
       toggle(::shouldSmooth)
       slider(::smoothEpsilon, 0.25..20.0)
-      intSlider(::chaikinTimes, 0..5)
+      slider(::chaikinTimes, 0..5)
     }
   }
 

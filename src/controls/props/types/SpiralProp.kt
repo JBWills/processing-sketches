@@ -2,7 +2,6 @@ package controls.props.types
 
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.slider
 import controls.panels.panelext.slider2D
 import controls.panels.panelext.sliderPair
@@ -55,7 +54,7 @@ data class SpiralProp(
     sliderPair(::sizeEnd, 0.0..1000.0, defaultLocked = true, withLockToggle = true)
 
     row {
-      intSlider(::numRotations, 1..100)
+      slider(::numRotations, 1..100)
       slider(::numRotationsFine, 0.0..1.0).withWidth(0.5)
     }
 

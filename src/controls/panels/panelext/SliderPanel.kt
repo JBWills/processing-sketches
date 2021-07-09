@@ -15,8 +15,10 @@ import util.xRange
 import util.yRange
 import kotlin.reflect.KMutableProperty0
 
-fun PanelBuilder.intSlider(
-  ref: KMutableProperty0<Int>, range: IntRange,
+@JvmName("intSlider")
+fun PanelBuilder.slider(
+  ref: KMutableProperty0<Int>,
+  range: IntRange,
   style: ControlStyle? = null,
   shouldMarkDirty: Boolean = true,
 ) = addNewPanel(style) {
@@ -37,7 +39,7 @@ fun PanelBuilder.slider(
   range: IntRange,
   style: ControlStyle = ControlStyle.EmptyStyle,
   shouldMarkDirty: Boolean = true,
-) = slider(ref, range.toDoubleRange(), style)
+) = slider(ref, range.toDoubleRange(), style, shouldMarkDirty)
 
 fun PanelBuilder.slider2D(
   ref: KMutableProperty0<Point>,

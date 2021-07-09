@@ -32,9 +32,9 @@ fun Float.bound(start: Float = 0f, end: Float = 1f): Float = when {
   else -> this
 }
 
-fun Double.bound(start: Double = 0.0, end: Double = 1.0): Double = when {
-  this < start -> start
-  this > end -> end
+fun Double.bound(start: Number = 0.0, end: Number = 1.0): Double = when {
+  this < start.toDouble() -> start.toDouble()
+  this > end.toDouble() -> end.toDouble()
   else -> this
 }
 

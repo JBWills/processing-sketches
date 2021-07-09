@@ -1,5 +1,6 @@
 package coordinate
 
+import interfaces.shape.Transformable
 import kotlinx.serialization.Serializable
 import util.equalsZero
 import java.awt.geom.Line2D
@@ -8,7 +9,7 @@ import java.awt.geom.Line2D
 open class Line(
   val origin: Point,
   val slope: Deg,
-) {
+) : Transformable<Line> {
   fun getPointAtDist(dist: Double) = origin + (slope.unitVector * dist)
 
   fun normal(clockWise: Boolean = true): Line {
@@ -62,6 +63,10 @@ open class Line(
 
     return Point(intersectX, intersectY)
   }
+
+  override fun scaled(scale: Point, anchor: Point): Line = Line(origin.scaled(scale, anchor), slope)
+
+  override fun translated(translate: Point): Line = Line(origin.translated(translate), slope)
 
   override fun toString(): String {
     return "Line(crossesThrough=$origin, slope=$slope)"

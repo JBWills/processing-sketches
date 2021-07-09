@@ -7,7 +7,7 @@ import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.degreeSlider
 import controls.panels.panelext.dropdown
-import controls.panels.panelext.intSlider
+import controls.panels.panelext.slider
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import controls.props.types.PhotoProp
@@ -42,9 +42,8 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
 ) {
   override fun drawSetup(layerInfo: DrawInfo) {}
 
-  override fun drawOnce(values: LayerInfo) {
-    val (photo, sampleRate, filterType, objectSize, baseRotation, filterSize) = values.globalValues
-    val (PhotoFilterTabField) = values.tabValues
+  override fun drawOnce(layerInfo: LayerInfo) {
+    val (photo, sampleRate, filterType, objectSize, baseRotation, filterSize) = layerInfo.globalValues
 
     val image = photo.loadMemoized(this) ?: return
 
@@ -137,7 +136,7 @@ data class PhotoFilterLayerData(
   var PhotoFilterTabField: Int = 1,
 ) : PropData<PhotoFilterLayerData> {
   override fun bind() = layerTab {
-    intSlider(::PhotoFilterTabField, 0..10)
+    slider(::PhotoFilterTabField, 0..10)
   }
 
   override fun clone() = copy()
@@ -174,7 +173,7 @@ data class PhotoFilterData(
       sliderPair(::sampleRate, 2.0..50.0, withLockToggle = true)
       sliderPair(::objectSize, 0.0..20.0 and 2.0..30.0)
       degreeSlider(::baseRotation)
-      intSlider(::filterSize, 1..100)
+      slider(::filterSize, 1..100)
     }
   }
 

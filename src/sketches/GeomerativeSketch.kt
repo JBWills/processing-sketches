@@ -4,7 +4,6 @@ import FastNoiseLite.NoiseType.Perlin
 import appletExtensions.draw.shape
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.slider
 import controls.props.PropData
@@ -104,7 +103,7 @@ data class GeomLayerData(
   var numInternalCircles: Int = 1,
 ) : PropData<GeomLayerData> {
   override fun bind() = layerTab {
-    intSlider(::numInternalCircles, 1..20)
+    slider(::numInternalCircles, 1..20)
   }
 
   override fun clone() = copy()
@@ -128,13 +127,13 @@ data class GeomData(
   ),
 ) : PropData<GeomData> {
   override fun bind() = singleTab("Geom") {
-    intSlider(::numCircles, 1..40)
+    slider(::numCircles, 1..40)
     row {
       slider(::maxRad, 100.0..2000.0)
       slider(::minRad, 0.0..400.0)
     }
     slider(::distBetweenNoisePerCircle, 0.0..150.0)
-    intSlider(::numExtraStrokesToDraw, 0..100)
+    slider(::numExtraStrokesToDraw, 0..100)
     noisePanel(::noise)
   }
 

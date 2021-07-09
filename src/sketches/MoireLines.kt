@@ -42,8 +42,7 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
 
   override fun drawSetup(layerInfo: DrawInfo) {}
 
-  override fun drawOnce(values: LayerInfo) {
-    val (baseData) = values.globalValues
+  override fun drawOnce(layerInfo: LayerInfo) {
     val (
       shape,
       lineDensity,
@@ -53,7 +52,7 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
       shapeCenter,
       shapeRotation,
       noise
-    ) = values.tabValues
+    ) = layerInfo.tabValues
 
     val centerPoint = boundRect.pointAt(shapeCenter.x, shapeCenter.y)
 

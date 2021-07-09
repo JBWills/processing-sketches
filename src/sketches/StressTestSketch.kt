@@ -5,7 +5,6 @@ import FastNoiseLite.NoiseType.ValueCubic
 import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.button
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.slider
 import controls.panels.panelext.slider2D
@@ -30,10 +29,7 @@ class StressTest : LayeredCanvasSketch<StressTestData, StressTestLayerData>(
 ) {
   override fun drawSetup(layerInfo: DrawInfo) {}
 
-  override fun drawOnce(values: LayerInfo) {
-    val (noiseGlobal, noiseGlobal2, pointGlobal, doubleGlobal, intGlobal, shapeGlobal, shapeGlobal2, shapeGlobal3, shapeGlobal4) = values.globalValues
-    val (noise, noise2, point, double, int, shape, shape2, shape3, shape4) = values.tabValues
-  }
+  override fun drawOnce(layerInfo: LayerInfo) {}
 }
 
 @Serializable
@@ -77,7 +73,7 @@ data class StressTestLayerData(
             println("Button clicked")
           }
 
-          intSlider(::int, 0..1)
+          slider(::int, 0..1)
 
           panel(::shape)
           panel(::shape2, style = ControlStyle.Green)
@@ -137,7 +133,7 @@ data class StressTestData(
             println("Button clicked")
           }
 
-          intSlider(::intGlobal, 0..1)
+          slider(::intGlobal, 0..1)
 
           panel(::shapeGlobal)
           panel(::shapeGlobal2, style = ControlStyle.Green)

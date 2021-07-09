@@ -107,7 +107,7 @@ class RCommand(
    */
   constructor(c: RCommand, sp: RPoint? = null, ep: RPoint? = null) : this(
     sp ?: c.startPoint,
-    ep ?: c.endPoint, c.controlPoints.clone(), c.type
+    ep ?: c.endPoint, c.controlPoints.clone(), c.type,
   )
 
   /**
@@ -529,7 +529,7 @@ class RCommand(
 
     return arrayOf(
       createBezier4(startPoint, triangleMatrix[1][0], triangleMatrix[2][0], triangleMatrix[3][0]),
-      createBezier4(triangleMatrix[3][0], triangleMatrix[2][1], triangleMatrix[1][2], endPoint)
+      createBezier4(triangleMatrix[3][0], triangleMatrix[2][1], triangleMatrix[1][2], endPoint),
     )
   }
 
@@ -554,7 +554,7 @@ class RCommand(
 
     return arrayOf(
       createBezier3(startPoint, triangleMatrix[1][0], triangleMatrix[2][0]),
-      createBezier3(triangleMatrix[2][0], triangleMatrix[1][1], endPoint)
+      createBezier3(triangleMatrix[2][0], triangleMatrix[1][1], endPoint),
     )
   }
 
@@ -579,7 +579,7 @@ class RCommand(
 
     return arrayOf(
       createLine(startPoint, triangleMatrix[1][0]),
-      createLine(triangleMatrix[1][0], endPoint)
+      createLine(triangleMatrix[1][0], endPoint),
     )
   }
 
@@ -697,7 +697,7 @@ class RCommand(
       0 ->         // All collinear OR p1==p4
         //----------------------
         if (abs(x1 + x3 - x2 - x2) + abs(y1 + y3 - y2 - y2) + abs(x2 + x4 - x3 - x3) + abs(
-            y2 + y4 - y3 - y3
+            y2 + y4 - y3 - y3,
           ) <= segmentDistTolMnhttn
         ) {
           addCurvePoint(RPoint(x1234, y1234))
@@ -829,7 +829,7 @@ class RCommand(
       val dy3 = endPoint.y - controlPoints[1].y
       val len =
         sqrt((dx1 * dx1 + dy1 * dy1)) + sqrt((dx2 * dx2 + dy2 * dy2)) + sqrt(
-          (dx3 * dx3 + dy3 * dy3)
+          (dx3 * dx3 + dy3 * dy3),
         )
       steps = (len * 0.25).toInt()
       if (steps < 4) {
@@ -1291,6 +1291,30 @@ class RCommand(
     return "RCommand(startPoint=$startPoint, endPoint=$endPoint, controlPoints=${controlPoints.contentToString()}, type=$type, curvePoints=${curvePoints.contentToString()})"
   }
 
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as RCommand
+
+    if (startPoint != other.startPoint) return false
+    if (endPoint != other.endPoint) return false
+    if (!controlPoints.contentEquals(other.controlPoints)) return false
+    if (type != other.type) return false
+    if (!curvePoints.contentEquals(other.curvePoints)) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = startPoint.hashCode()
+    result = 31 * result + endPoint.hashCode()
+    result = 31 * result + controlPoints.contentHashCode()
+    result = 31 * result + type
+    result = 31 * result + curvePoints.contentHashCode()
+    return result
+  }
+
   companion object {
     // TODO: Convert these to enums
     const val LINETO = 0
@@ -1348,7 +1372,7 @@ class RCommand(
     ): RCommand =
       createBezier4(
         RPoint(startx, starty), RPoint(cp1x, cp1y), RPoint(cp2x, cp2y),
-        RPoint(endx, endy)
+        RPoint(endx, endy),
       )
 
     /**
@@ -1552,4 +1576,6 @@ class RCommand(
       return RClosest()
     }
   }
+
+
 }

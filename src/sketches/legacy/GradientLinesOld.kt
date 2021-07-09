@@ -6,7 +6,7 @@ import appletExtensions.draw.line
 import appletExtensions.draw.rect
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.panels.panelext.intSlider
+import controls.panels.panelext.slider
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
@@ -29,7 +29,7 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
   )
 
   override fun getControls(): Panelable = col {
-    intSlider(::lineDegrees, 0..360)
+    slider(::lineDegrees, 0..360)
   }
 
   override fun drawOnce(layer: Int, layerConfig: LayerConfig) {

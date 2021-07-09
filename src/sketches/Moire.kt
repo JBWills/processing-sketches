@@ -31,15 +31,15 @@ class Moire : LayeredCanvasSketch<MoireData, MoireLayerData>(
 
   override fun drawSetup(layerInfo: DrawInfo) {}
 
-  override fun drawOnce(values: LayerInfo) {
-    val (baseData) = values.globalValues
+  override fun drawOnce(layerInfo: LayerInfo) {
+    val (baseData) = layerInfo.globalValues
     val (
       noise,
-      numRotations,
+      _,
       centerPoint,
       startRad,
       endRad,
-    ) = values.tabValues
+    ) = layerInfo.tabValues
 
     val cp = baseData.centerPoint + centerPoint
     val spiralPoint = boundRect.pointAt(cp.x, cp.y)

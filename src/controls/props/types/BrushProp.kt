@@ -168,9 +168,7 @@ data class BrushProp(
     graphics: PGraphics = sketch.interactiveGraphicsLayer
   ) {
     if (!hasBoundDragListener) sketch.addMouseEventListener(mouseDragListener)
-
-    val alphaMask = getNonNullAlphaMask(sketch)
-
+    
     graphics.withDraw {
       if (showMask) latestMaskDisplay?.draw(this)
 

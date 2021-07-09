@@ -6,7 +6,6 @@ import appletExtensions.draw.rect
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
 import controls.panels.panelext.button
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.slider
 import controls.panels.panelext.slider2D
 import controls.panels.panelext.toggle
@@ -50,10 +49,10 @@ open class CurveSketch(
     slider(::xMidpointVal)
     toggle(::withHorizontalLines)
     slider(::quality)
-    intSlider(::numLines, range = 1..100)
+    slider(::numLines, range = 1..100)
     slider(::lineSpacing, range = 0.0..200.0)
-    intSlider(::noiseScale, range = 1..100)
-    intSlider(::moveAmount, range = 0..2000)
+    slider(::noiseScale, range = 1..100)
+    slider(::moveAmount, range = 0..2000)
     slider2D(::noiseOffset, 1.0..100.0 and 1.0..10.0)
   }
 

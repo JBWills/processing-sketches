@@ -2,6 +2,9 @@ package util.pointsAndLines.polyLine
 
 import coordinate.Point
 import coordinate.Segment
+import coordinate.ShapeTransform
+import geomerativefork.src.util.deepMap
+import interfaces.shape.transform
 import util.iterators.forEachWithNext
 import util.iterators.mapWithNext
 
@@ -27,3 +30,8 @@ fun <R> PolyLine.mapBySegment(block: (Segment) -> R): List<R> =
 
 fun PolyLine.flatMapSegments(block: (Segment) -> List<Segment>): List<Segment> =
   mapBySegment(block).flatten()
+
+fun PolyLine.transform(t: ShapeTransform): PolyLine = map { it.transform(t) }
+
+@JvmName("transformPolyLineList")
+fun List<PolyLine>.transform(t: ShapeTransform): List<PolyLine> = deepMap { it.transform(t) }

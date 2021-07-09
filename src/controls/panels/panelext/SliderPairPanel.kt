@@ -4,11 +4,48 @@ import controls.Control.Slider
 import controls.Control.Toggle
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
+import controls.panels.panelext.util.RefWrapper
+import controls.panels.panelext.util.pointWrapped
+import controls.panels.panelext.util.wrapSelf
 import controls.props.GenericProp
 import coordinate.Point
 import util.DoubleRange
 import util.tuple.and
 import kotlin.reflect.KMutableProperty0
+
+@JvmName("sliderPairDoubleRange")
+fun PanelBuilder.sliderPair(
+  ref: KMutableProperty0<DoubleRange>,
+  range: DoubleRange = (0.0..1.0),
+  withLockToggle: Boolean = false,
+  defaultLocked: Boolean = false,
+  style: ControlStyle? = null,
+  shouldMarkDirty: Boolean = true,
+) = sliderPairPanel(
+  ref.pointWrapped(),
+  range to range,
+  withLockToggle,
+  defaultLocked,
+  style,
+  shouldMarkDirty,
+)
+
+@JvmName("sliderPairDoublePair")
+fun PanelBuilder.sliderPair(
+  ref: KMutableProperty0<Pair<Double, Double>>,
+  range: DoubleRange = (0.0..1.0),
+  withLockToggle: Boolean = false,
+  defaultLocked: Boolean = false,
+  style: ControlStyle? = null,
+  shouldMarkDirty: Boolean = true,
+) = sliderPairPanel(
+  ref.pointWrapped(),
+  range to range,
+  withLockToggle,
+  defaultLocked,
+  style,
+  shouldMarkDirty,
+)
 
 fun PanelBuilder.sliderPair(
   ref: KMutableProperty0<Point>,
@@ -31,8 +68,24 @@ fun PanelBuilder.sliderPair(
   defaultLocked: Boolean = false,
   style: ControlStyle? = null,
   shouldMarkDirty: Boolean = true,
+) = sliderPairPanel(
+  ref.wrapSelf(),
+  ranges,
+  withLockToggle,
+  defaultLocked,
+  style,
+  shouldMarkDirty,
+)
+
+private fun PanelBuilder.sliderPairPanel(
+  ref: RefWrapper<*, Point>,
+  ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0),
+  withLockToggle: Boolean = false,
+  defaultLocked: Boolean = false,
+  style: ControlStyle? = null,
+  shouldMarkDirty: Boolean = true,
 ) = addNewPanel(style) {
-  GenericProp(ref) {
+  GenericProp(ref.backingRef) {
     var locked: Boolean = defaultLocked && ref.get().x == ref.get().y
     var ctrlY: Slider? = null
     val ctrlX = Slider(
@@ -40,8 +93,12 @@ fun PanelBuilder.sliderPair(
       range = ranges.first,
       getter = { ref.get().x },
       setter = {
-        ref.set(Point(it, ref.get().y))
-        if (locked) ctrlY?.refValue = it.toFloat()
+        if (locked) {
+          ref.set(Point(it, it))
+          ctrlY?.refValue = it.toFloat()
+        } else {
+          ref.set(ref.get().withX(it))
+        }
       },
     ) { markDirtyIf(shouldMarkDirty) }
 
@@ -50,8 +107,12 @@ fun PanelBuilder.sliderPair(
       range = ranges.second,
       getter = { ref.get().y },
       setter = {
-        ref.set(Point(ref.get().x, it))
-        if (locked) ctrlX.refValue = it.toFloat()
+        if (locked) {
+          ref.set(Point(it, it))
+          ctrlX.refValue = it.toFloat()
+        } else {
+          ref.set(ref.get().withY(it))
+        }
       },
     ) { markDirtyIf(shouldMarkDirty) }
 
@@ -63,10 +124,11 @@ fun PanelBuilder.sliderPair(
       markDirtyIf(shouldMarkDirty)
     }.withWidth(0.5)
 
-    row(ref.name) {
+    row(name) {
       +ctrlX
       +ctrlY
       if (withLockToggle) +ctrlToggle
     }
   }
 }
+

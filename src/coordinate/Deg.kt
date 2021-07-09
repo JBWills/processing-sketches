@@ -48,6 +48,8 @@ data class Deg(private val inputValue: Double) {
   val unitVector get() = Point(rad.cos(), -rad.sin())
   val unitSegment get() = Segment(Point.Zero, Point(rad.cos(), -rad.sin()))
 
+  val perpendicular: Deg get() = plus(Quarter)
+
   fun rotatedTowards(amt: Deg, dir: RotationDirection = Clockwise): Deg {
     val signedAmt = if (dir == Clockwise) amt.value else -(amt.value)
     return Deg(value + signedAmt)

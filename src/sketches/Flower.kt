@@ -4,7 +4,6 @@ import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.draw.shape
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.slider
 import controls.panels.panelext.toggle
@@ -37,8 +36,8 @@ class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
     unionShape = null
   }
 
-  override fun drawOnce(values: LayerInfo) {
-    val layerIndex = values.layerIndex
+  override fun drawOnce(layerInfo: LayerInfo) {
+    val layerIndex = layerInfo.layerIndex
     val (
       clipToBounds,
       noise,
@@ -47,12 +46,12 @@ class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
       minRad,
       baseNumInternalCircles,
       distBetweenNoisePerCircle,
-    ) = values.globalValues
+    ) = layerInfo.globalValues
 
     val (
       distBetweenInternalCircles,
       numInternalCircles,
-    ) = values.tabValues
+    ) = layerInfo.tabValues
 
     if (layerIndex > numCircles) return
 
@@ -128,7 +127,7 @@ data class FlowerLayerData(
 ) : PropData<FlowerLayerData> {
   override fun bind() = layerTab {
     slider(::distBetweenInternalCircles, 1.0..200.0)
-    intSlider(::numInternalCircles, 0..200)
+    slider(::numInternalCircles, 0..200)
   }
 
   override fun clone() = copy()
@@ -157,12 +156,12 @@ data class FlowerData(
 ) : PropData<FlowerData> {
   override fun bind() = singleTab("Flower") {
     toggle(::clipToBounds)
-    intSlider(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS)
+    slider(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS)
     row {
       slider(::maxRad, 100.0..2000.0)
       slider(::minRad, 0.0..400.0)
     }
-    intSlider(::baseNumInternalCircles, 1..100)
+    slider(::baseNumInternalCircles, 1..100)
     slider(::distBetweenNoisePerCircle, 0.0..150.0)
 
     noisePanel(::noise)

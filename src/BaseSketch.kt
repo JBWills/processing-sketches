@@ -21,6 +21,7 @@ import processing.core.PImage
 import processing.event.MouseEvent
 import util.combineDrawLayersIntoSVG
 import util.image.ImageFormat
+import util.image.size
 import util.lineLimit
 import util.print.StrokeJoin
 import util.print.Style
@@ -68,8 +69,8 @@ abstract class BaseSketch(
 
   fun updateSize(newSize: Point) {
     size = newSize
-    setSurfaceSize(newSize)
     interactiveGraphicsLayer.setSize(size.xi, size.yi)
+    setSurfaceSize(newSize)
   }
 
   val center get() = Point(size.x / 2, size.y / 2)
@@ -147,7 +148,10 @@ abstract class BaseSketch(
       lastDrawImage = get()
     }
 
-    interactiveGraphicsLayer.withDraw { interactiveGraphicsLayer.background(lastDrawImage) }
+    interactiveGraphicsLayer.withDraw {
+      if (lastDrawImage?.size == interactiveGraphicsLayer.size)
+        interactiveGraphicsLayer.background(lastDrawImage)
+    }
     drawInteractive()
     interactiveGraphicsLayer.displayOnParent()
   }

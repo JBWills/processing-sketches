@@ -2,6 +2,11 @@ package geomerativefork.src.util
 
 import kotlin.math.max
 
+fun <T, R> List<List<T>>.deepMap(block: (T) -> R): List<List<R>> = map { list -> list.map(block) }
+
+fun <A> Iterable<A>.mapIf(predicate: Boolean, block: (A) -> A): List<A> =
+  if (predicate) map(block) else this.toList()
+
 fun <T, K> Array<K>.reduceTo(initialAcc: T, reducer: (T, K) -> T): T {
   var acc = initialAcc
 

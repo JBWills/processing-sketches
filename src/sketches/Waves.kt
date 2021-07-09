@@ -3,7 +3,6 @@ package sketches
 import FastNoiseLite.NoiseType.ValueCubic
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.slider
 import controls.props.PropData
@@ -119,12 +118,12 @@ data class WaveGlobal(
   var distBetweenNoisePerCircle: Double = 150.0,
 ) : PropData<WaveGlobal> {
   override fun bind() = singleTab("Waves") {
-    intSlider(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS)
+    slider(::numCircles, 1..LayeredCanvasSketch.MAX_LAYERS)
     row {
       slider(::maxHeight, 100.0..2000.0)
       slider(::minHeight, -400.0..400.0)
     }
-    intSlider(::baseNumInternalCircles, 1..100)
+    slider(::baseNumInternalCircles, 1..100)
     slider(::distBetweenNoisePerCircle, 0.0..150.0)
     noisePanel(::noise)
   }

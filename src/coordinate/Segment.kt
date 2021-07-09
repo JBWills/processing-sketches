@@ -1,5 +1,6 @@
 package coordinate
 
+import coordinate.iterators.PointProgression
 import geomerativefork.src.RShape
 import interfaces.shape.Walkable
 import util.equalsZero
@@ -40,20 +41,20 @@ class Segment(
   constructor(p1: Point, len: Number, slope: Deg)
     : this(p1, slope, len.toDouble())
 
-  val length: Double by lazy { p1.dist(p2) }
-  val center: Point by lazy { p1 + slope.unitVector * (length / 2) }
+  val length: Double get() = p1.dist(p2)
+  val center: Point get() = p1 + slope.unitVector * (length / 2)
   val p1: Point get() = origin
 
   fun getPointAtPercent(percent: Double) = origin + (slope.unitVector * (length * percent))
 
   fun toRShape() = RShape.createLine(p1.xf, p1.yf, p2.xf, p2.yf)
 
-  val points: Array<Point> by lazy { arrayOf(p1, p2) }
-  val asPolyLine: List<Point> by lazy { listOf(p1, p2) }
+  val points: Array<Point> get() = arrayOf(p1, p2)
+  val asPolyLine: List<Point> get() = listOf(p1, p2)
 
-  val unitVector by lazy { slope.unitVector }
+  val unitVector get() = slope.unitVector
 
-  val midPoint by lazy { p1 + unitVector * (length / 2) }
+  val midPoint get() = p1 + unitVector * (length / 2)
 
   fun splitAtMidpoint() = Pair(Segment(p1, midPoint), Segment(midPoint, p2))
 
@@ -107,6 +108,12 @@ class Segment(
 
     return Segment(p1, other.p2)
   }
+
+  override fun scaled(scale: Point, anchor: Point): Segment =
+    Segment(p1.scaled(scale, anchor), p2.scaled(scale, anchor))
+
+  override fun translated(translate: Point): Segment =
+    Segment(p1.translated(translate), p2.translated(translate))
 
   override fun walk(step: Double) = (p1..p2 step step).toList()
 

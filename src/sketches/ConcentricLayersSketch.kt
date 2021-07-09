@@ -2,7 +2,6 @@ package sketches
 
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.slider
 import controls.props.PropData
 import coordinate.Arc
@@ -71,12 +70,12 @@ class ConcentricLayersSketch : LayeredCanvasSketch<CircleGlobalData, CircleLayer
   }
 
   override fun drawOnce(
-    values: LayerInfo,
-  ) = getArcsForLayer(values.layerIndex, values.tabValues, values.globalValues)
+    layerInfo: LayerInfo,
+  ) = getArcsForLayer(layerInfo.layerIndex, layerInfo.tabValues, layerInfo.globalValues)
     .flatMapIndexed { circleIndex, layerArc ->
       layerArc.minusAll(
-        getArcsAtIndex(circleIndex, values.layerIndex + 1)
-          .mapIf({ !it.isSizeZero }) { it.expandPixels(values.globalValues.spacing) },
+        getArcsAtIndex(circleIndex, layerInfo.layerIndex + 1)
+          .mapIf({ !it.isSizeZero }) { it.expandPixels(layerInfo.globalValues.spacing) },
       )
     }.forEach {
       it
@@ -99,8 +98,8 @@ data class CircleLayerData(
     slider(::angleLengthDelta, negToPos(16))
     slider(::startAngle, negToPos(360))
     slider(::startLength, zeroTo(360))
-    intSlider(::startCircle, 0..100)
-    intSlider(::endCircle, 0..100)
+    slider(::startCircle, 0..100)
+    slider(::endCircle, 0..100)
   }
 
   override fun clone() = copy()
@@ -115,7 +114,7 @@ data class CircleGlobalData(
   var spacing: Double = 5.0,
 ) : PropData<CircleGlobalData> {
   override fun bind() = singleTab("Global") {
-    intSlider(::numCircles, 1..100)
+    slider(::numCircles, 1..100)
 
     row {
       slider(::startRad, zeroTo(500))

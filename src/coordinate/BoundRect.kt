@@ -7,8 +7,10 @@ import geomerativefork.src.RPoint
 import geomerativefork.src.RRectangle
 import geomerativefork.src.RShape
 import interfaces.shape.Maskable
+import interfaces.shape.Transformable
 import interfaces.shape.Walkable
 import kotlinx.serialization.Serializable
+import org.opengis.geometry.BoundingBox
 import util.atAmountAlong
 import util.equalsZero
 import util.geomutil.toPoint
@@ -25,7 +27,7 @@ data class BoundRect(
   val topLeft: Point,
   val width: Double,
   val height: Double,
-) : Walkable, Maskable {
+) : Walkable, Maskable, Transformable<BoundRect> {
   val size: Point
     get() = Point(width, height)
 
@@ -51,30 +53,37 @@ data class BoundRect(
     }
   }
 
-  val top: Double by lazy { topLeft.y }
-  val left: Double by lazy { topLeft.x }
-  val bottom: Double by lazy { topLeft.y + height }
-  val right: Double by lazy { topLeft.x + width }
-  val bottomRight by lazy { Point(right, bottom) }
-  val topRight by lazy { Point(right, top) }
-  val bottomLeft by lazy { Point(left, bottom) }
+  val top: Double get() = topLeft.y
+  val left: Double get() = topLeft.x
+  val bottom: Double get() = topLeft.y + height
+  val right: Double get() = topLeft.x + width
+  val bottomRight get() = Point(right, bottom)
+  val topRight get() = Point(right, top)
+  val bottomLeft get() = Point(left, bottom)
+  val xRange get() = left..right
+  val yRange get() = top..bottom
 
-  val xPixels: Iterable<Int> by lazy { left.toInt()..right.toInt() }
-  val yPixels: Iterable<Int> by lazy { top.toInt()..bottom.toInt() }
+  val xPixels: Iterable<Int> get() = left.toInt()..right.toInt()
+  val yPixels: Iterable<Int> get() = top.toInt()..bottom.toInt()
 
-  val topSegment by lazy { Segment(topLeft, topRight) }
-  val bottomSegment by lazy { Segment(bottomLeft, bottomRight) }
-  val leftSegment by lazy { Segment(topLeft, bottomLeft) }
-  val rightSegment by lazy { Segment(topRight, bottomRight) }
+  val topSegment get() = Segment(topLeft, topRight)
+  val bottomSegment get() = Segment(bottomLeft, bottomRight)
+  val leftSegment get() = Segment(topLeft, bottomLeft)
+  val rightSegment get() = Segment(topRight, bottomRight)
 
-  val points: List<Point> by lazy { listOf(topLeft, topRight, bottomRight, bottomLeft, topLeft) }
-  val rPoints: Array<RPoint> by lazy { points.mapArray { it.toRPoint() } }
+  val points: List<Point> get() = listOf(topLeft, topRight, bottomRight, bottomLeft, topLeft)
+  val rPoints: Array<RPoint> get() = points.mapArray { it.toRPoint() }
 
-  val center by lazy { Point(left + width / 2, top + height / 2) }
+  val center get() = Point(left + width / 2, top + height / 2)
 
-  val pointsClockwise by lazy { listOf(topLeft, topRight, bottomRight, bottomLeft) }
+  val pointsClockwise get() = listOf(topLeft, topRight, bottomRight, bottomLeft)
 
-  val segments by lazy { listOf(topSegment, bottomSegment, leftSegment, rightSegment) }
+  val segments get() = listOf(topSegment, bottomSegment, leftSegment, rightSegment)
+
+  fun unionBound(other: BoundRect) = BoundRect(
+    Point.minXY(this.topLeft, other.topLeft),
+    Point.maxXY(this.bottomRight, other.bottomRight),
+  )
 
   fun isTop(line: Line) = line.origin.y == top && line.slope.isHorizontal()
   fun isBottom(line: Line) = line.origin.y == bottom && line.slope.isHorizontal()
@@ -107,6 +116,11 @@ data class BoundRect(
   fun shrink(amountX: Number, amountY: Number) = expand(-amountX.toDouble(), -amountY.toDouble())
   fun shrink(amount: Number) = expand(-amount.toDouble())
   fun shrink(amount: Point) = expand(-amount)
+
+  override fun scaled(scale: Point, anchor: Point) =
+    BoundRect(topLeft.scaled(scale, anchor), width * scale.x, height * scale.y)
+
+  override fun translated(translate: Point) = plus(translate)
 
   fun resizeCentered(newSize: Point): BoundRect =
     BoundRect(center - (newSize / 2), newSize.x, newSize.y)
@@ -231,6 +245,8 @@ data class BoundRect(
 
   operator fun minus(p: Point): BoundRect = BoundRect(topLeft - p, width, height)
   operator fun plus(p: Point): BoundRect = BoundRect(topLeft + p, width, height)
+  operator fun times(p: Point): BoundRect = BoundRect(topLeft * p, bottomRight * p)
+  operator fun div(p: Point): BoundRect = BoundRect(topLeft / p, bottomRight / p)
 
   companion object {
     fun Point.mappedOnto(r: BoundRect) = Point(r.left + (x * r.width), r.top + (y * r.height))
@@ -245,5 +261,6 @@ data class BoundRect(
     fun centeredRect(center: Point, size: Point) = centeredRect(center, size.x, size.y)
 
     fun RRectangle.toBoundRect(): BoundRect = BoundRect(topLeft.toPoint(), bottomRight.toPoint())
+    fun BoundingBox.toBoundRect(): BoundRect = BoundRect(Point(minX, minY), Point(maxX, maxY))
   }
 }

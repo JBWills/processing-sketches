@@ -5,8 +5,8 @@ import controls.panels.ControlTab
 import controls.panels.ControlTab.Companion.tab
 import controls.panels.panelext.button
 import controls.panels.panelext.dropdown
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.listDropdown
+import controls.panels.panelext.slider
 import controls.panels.panelext.textInput
 import controls.props.LayerAndGlobalProps
 import controls.props.LayerAndGlobalProps.Companion.props
@@ -65,7 +65,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
     onSwitchCanvas(DEFAULT_PRESET_NAME)
   }
 
-  abstract fun drawOnce(values: LayerInfo)
+  abstract fun drawOnce(layerInfo: LayerInfo)
 
   open fun drawSetup(layerInfo: DrawInfo) {}
   open fun drawInteractive(layerInfo: DrawInfo) {}
@@ -99,7 +99,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
     },
     tab(CANVAS_TAB_NAME) {
       +layerAndGlobalProps.canvasControls
-      intSlider(::numLayers, range = 0..maxLayers)
+      slider(::numLayers, range = 0..maxLayers)
       listDropdown(::weightOverride, StrokeWeight.values())
     },
     *layerAndGlobalProps.globalControlTabs,

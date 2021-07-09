@@ -5,6 +5,7 @@ import appletExtensions.draw.circle
 import coordinate.BoundRect.Companion.centeredRect
 import geomerativefork.src.RShape
 import interfaces.shape.Maskable
+import interfaces.shape.Transformable
 import interfaces.shape.Walkable
 import util.atAmountAlong
 import util.circleintersection.LCircle
@@ -26,15 +27,18 @@ fun Point.isInCircle(c: Circ) = c.isInCircle(this)
 
 fun Point.toLVector() = LVector2(x, y)
 
-open class Circ(val origin: Point, val radius: Double) : Walkable, Maskable {
+open class Circ(val origin: Point, val radius: Double) :
+  Walkable,
+  Maskable,
+  Transformable<Circ> {
   constructor(origin: Point, radius: Number) : this(origin, radius.toDouble())
   constructor(radius: Number) : this(Point.Zero, radius.toDouble())
   constructor(c: Circ) : this(c.origin, c.radius)
 
-  val diameter by lazy { 2 * radius }
-  val circumference: Double by lazy { 2 * PI * radius }
-  val bounds: BoundRect by lazy { centeredRect(origin, diameter, diameter) }
-  val radiusSquared: Double by lazy { radius.squared() }
+  val diameter get() = 2 * radius
+  val circumference: Double get() = 2 * PI * radius
+  val bounds: BoundRect get() = centeredRect(origin, diameter, diameter)
+  val radiusSquared: Double get() = radius.squared()
 
   init {
     if (radius < 0) {
@@ -43,8 +47,6 @@ open class Circ(val origin: Point, val radius: Double) : Walkable, Maskable {
   }
 
   fun toLCircle(): LCircle = LCircle(origin.toLVector(), radius)
-
-  fun moved(amt: Point) = Circ(origin + amt, radius)
 
   fun angleAtPoint(p: Point): Deg = (p - origin).angle()
 
@@ -73,11 +75,15 @@ open class Circ(val origin: Point, val radius: Double) : Walkable, Maskable {
   override fun intersection(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
     ContinuousMaskedShape(polyLine, this).toBoundPoints(true)
 
-
   override fun diff(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
     ContinuousMaskedShape(polyLine, this).toBoundPoints(false)
 
   override fun draw(sketch: PAppletExt) = sketch.circle(this)
+
+  override fun scaled(scale: Point, anchor: Point): Circ =
+    Circ(origin.scaled(scale, anchor), radius * scale.x)
+
+  override fun translated(translate: Point): Circ = Circ(origin.translated(translate), radius)
 
   fun toRShape() = RShape.createCircle(origin.toRPoint(), diameter)
 

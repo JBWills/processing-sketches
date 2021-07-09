@@ -1,5 +1,6 @@
 package util.image
 
+import coordinate.BoundRect
 import coordinate.Point
 import org.opencv.core.Core
 import org.opencv.core.Mat
@@ -12,6 +13,10 @@ import java.awt.Color
 import java.nio.ByteBuffer
 import java.nio.IntBuffer
 
+val Mat.size: Point get() = Point(cols(), rows())
+val Mat.bounds: BoundRect get() = BoundRect(Point.Zero, size - 1)
+
+fun Mat.get(p: Point, band: Int = 0): Double = get(p.y.toInt(), p.x.toInt())[band]
 fun createMat(rows: Int, cols: Int, format: ImageFormat, baseColor: Color) =
   Mat(rows, cols, format.openCVFormat, format.colorToScalar(baseColor))
 

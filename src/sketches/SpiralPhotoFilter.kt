@@ -4,7 +4,6 @@ import controls.panels.ControlStyle
 import controls.panels.TabStyle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.slider
 import controls.props.PropData
 import controls.props.types.PhotoProp
@@ -29,9 +28,8 @@ class SpiralPhotoFilter : LayeredCanvasSketch<SpiralPhotoFilterData, SpiralPhoto
 ) {
   override fun drawSetup(layerInfo: DrawInfo) {}
 
-  override fun drawOnce(values: LayerInfo) {
-    val (photo, spiral, spiralFreq, spiralAmp, skew) = values.globalValues
-    val (SpiralPhotoFilterTabField) = values.tabValues
+  override fun drawOnce(layerInfo: LayerInfo) {
+    val (photo, spiral, spiralFreq, spiralAmp, _) = layerInfo.globalValues
 
     val image = photo.loadMemoized(this) ?: return
 
@@ -42,7 +40,7 @@ class SpiralPhotoFilter : LayeredCanvasSketch<SpiralPhotoFilterData, SpiralPhoto
     if (photo.drawImage)
       image(image, imageBounds.topLeft.xf, imageBounds.topLeft.yf)
 
-    spiral.spiral(boundRect) { t, percent, deg, p ->
+    spiral.spiral(boundRect) { _, _, _, p ->
       p
     }.mapWithLength { point, length ->
       val imagePoint =
@@ -51,7 +49,6 @@ class SpiralPhotoFilter : LayeredCanvasSketch<SpiralPhotoFilterData, SpiralPhoto
       val lumAtP = imagePoint?.let { image.get(it).red / 255.0 } ?: 0.0
       val degTwo = Deg((length / spiralFreq))
       point + degTwo.unitVector * spiralAmp * lumAtP
-
     }.draw()
   }
 }
@@ -61,7 +58,7 @@ data class SpiralPhotoFilterLayerData(
   var SpiralPhotoFilterTabField: Int = 1,
 ) : PropData<SpiralPhotoFilterLayerData> {
   override fun bind() = layerTab {
-    intSlider(::SpiralPhotoFilterTabField, 0..10)
+    slider(::SpiralPhotoFilterTabField, 0..10)
   }
 
   override fun clone() = copy()

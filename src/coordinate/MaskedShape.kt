@@ -17,9 +17,6 @@ data class ContinuousPoints(val isInBound: Boolean, val points: MutableList<Poin
     ContinuousPoints(isInBound, (points + o.points).toMutableList())
 
   companion object {
-    val List<ContinuousPoints>.firstPoint get() = first().first
-    val List<ContinuousPoints>.lastPoint get() = last().last
-
     fun Maskable.splitInBounds(points: List<Point>): List<ContinuousPoints> {
       if (points.size < 2) return listOf()
 
@@ -54,7 +51,7 @@ class ContinuousMaskedShape(allPoints: List<Point>, val bound: Maskable) {
   val first = lazy { points.firstOrNull()?.first }
   val last = lazy { points.lastOrNull()?.last }
 
-  val isCyclical get() = first == last
+  private val isCyclical get() = first == last
 
   fun toBoundPoints(boundInside: Boolean): List<List<Point>> {
     val result: MutableList<List<Point>> = mutableListOf()

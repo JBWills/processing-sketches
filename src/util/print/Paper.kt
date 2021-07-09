@@ -11,10 +11,10 @@ import java.awt.Color.BLACK
 import java.awt.Color.RED
 import java.awt.Color.WHITE
 
-val MAX_VERTICAL_IN = 13.75
+const val MAX_VERTICAL_IN = 13.75
 
 // not so sure about max horizontal in
-val MAX_HORIZONTAL_IN = 17.0
+const val MAX_HORIZONTAL_IN = 17.0
 
 @Suppress("unused")
 enum class DPI(private val dpiVal: Int) {
@@ -50,11 +50,10 @@ enum class Paper(
   private fun sidePx(sideInches: Double, dpi: DPI = InkScape): Int =
     dpi.toPixels(sideInches).toInt()
 
-  fun px(orientation: Orientation, dpi: DPI = InkScape) =
-    Point(
-      sidePx(longSideInches, dpi),
-      sidePx(shortSideInches, dpi),
-    ).doIf(orientation == Portrait) { it.swapXY() }
+  fun px(orientation: Orientation, dpi: DPI = InkScape) = Point(
+    sidePx(longSideInches, dpi),
+    sidePx(shortSideInches, dpi),
+  ).doIf(orientation == Portrait) { it.swapXY() }
 
   fun horizontalPx(orientation: Orientation, dpi: DPI = InkScape) =
     px(orientation, dpi).x
@@ -70,11 +69,10 @@ enum class Paper(
     shortSideInches: Number,
     defaultBackgroundColor: Color,
     defaultStrokeColor: Color,
-  ) :
-    this(
-      longSideInches.toDouble(),
-      shortSideInches.toDouble(),
-      defaultBackgroundColor,
-      defaultStrokeColor,
-    )
+  ) : this(
+    longSideInches.toDouble(),
+    shortSideInches.toDouble(),
+    defaultBackgroundColor,
+    defaultStrokeColor,
+  )
 }

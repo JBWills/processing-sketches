@@ -1,7 +1,7 @@
 package util
 
 import interfaces.math.Addable
-import interfaces.math.Scalable
+import interfaces.math.NumScalable
 import interfaces.math.Subtractable
 
 fun IntRange.toDoubleRange() = first.toDouble()..last.toDouble()
@@ -10,7 +10,7 @@ fun ClosedRange<Int>.toIntRange(): IntRange = start..endInclusive
 
 operator fun <T> ClosedRange<T>.times(
   other: Number,
-): ClosedRange<T> where T : Scalable<T>, T : Comparable<T> =
+): ClosedRange<T> where T : NumScalable<T>, T : Comparable<T> =
   (start * other)..(endInclusive * other)
 
 operator fun <T> ClosedRange<T>.plus(

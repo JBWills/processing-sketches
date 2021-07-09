@@ -41,20 +41,20 @@ class Arc(
     }
   }
 
-  val angleBisector: Deg by lazy { startDeg + (lengthClockwise / 2) }
-  val pointAtBisector: Point by lazy { pointAtAngle(angleBisector) }
-  val endDeg: Deg by lazy { startDeg + lengthClockwise }
+  val angleBisector: Deg get() = startDeg + (lengthClockwise / 2)
+  val pointAtBisector: Point get() = pointAtAngle(angleBisector)
+  val endDeg: Deg get() = startDeg + lengthClockwise
 
-  val startPoint by lazy { circle.pointAtAngle(startDeg) }
-  val endPoint by lazy { circle.pointAtAngle(endDeg) }
+  val startPoint get() = pointAtAngle(startDeg)
+  val endPoint get() = pointAtAngle(endDeg)
 
   val arcLength: Double = (startDeg.rotation(endDeg, Clockwise) / 360.0) * circumference
 
-  val endDegUnbound: Double by lazy { startDeg.value + lengthClockwise }
+  val endDegUnbound: Double get() = startDeg.value + lengthClockwise
 
-  val crossesZero by lazy { endDegUnbound > 360.0 }
+  val crossesZero get() = endDegUnbound > 360.0
 
-  val isSizeZero by lazy { lengthClockwise == 0.0 }
+  val isSizeZero get() = lengthClockwise == 0.0
 
   fun rotated(amt: Double) = Arc(startDeg + amt, lengthClockwise, Circ(origin, radius))
 
@@ -187,6 +187,12 @@ class Arc(
       Arc(other.endDeg, other.startDeg, this),
     )
   }.filterNot { it.lengthClockwise.equalsZero() }
+
+  override fun scaled(scale: Point, anchor: Point): Arc =
+    Arc(startDeg, lengthClockwise, super.scaled(scale, anchor))
+
+  override fun translated(translate: Point): Arc =
+    Arc(startDeg, lengthClockwise, super.translated(translate))
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

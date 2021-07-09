@@ -1,5 +1,6 @@
 package util
 
+import util.interpolation.interpolate
 import kotlin.math.abs
 
 typealias DoubleRange = ClosedRange<Double>
@@ -15,6 +16,18 @@ operator fun DoubleRange.minus(other: Number) =
 
 operator fun DoubleRange.div(other: Number) =
   (start / other.toDouble())..(endInclusive / other.toDouble())
+
+fun Pair<Double, Double>.toRange(): DoubleRange = first..second
+
+fun DoubleRange.select(num: Int, easingFunction: (Double) -> Double = { it }): List<Double> {
+  val linearSteps: List<Double> = when (num) {
+    0 -> listOf()
+    1 -> listOf(0.0)
+    else -> (0.0..1.0 numSteps num).toList()
+  }
+
+  return linearSteps.map { interpolate(it, easingFunction) }
+}
 
 class DoubleProgression(
   startNumber: Number,

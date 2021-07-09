@@ -8,39 +8,6 @@ import fastnoise.Noise
 import util.DoubleRange
 import util.iterators.zipNullPadded
 import util.step
-import kotlin.math.sign
-
-/**
- * From https://wordsandbuttons.online/the_simplest_possible_smooth_contouring_algorithm.html
- */
-fun getJaggedContour(
-  step: Double,
-  xRange: DoubleRange,
-  yRange: DoubleRange,
-  valueFunction: (Double, Double) -> Double
-): List<Segment> {
-  val points: MutableList<Segment> = mutableListOf()
-  (yRange step step).forEach { y ->
-    (xRange step step).forEach { x ->
-      val d_in_square = valueFunction(x + step / 2, y + step / 2)
-      val d_in_square_on_the_left = valueFunction(x - step / 2, y + step / 2)
-      val d_in_square_above = valueFunction(x + step / 2, y - step / 2)
-      val currPoint = Point(x, y)
-
-      // draw a horizontal piece if there is a sign change
-      if (d_in_square.sign != d_in_square_above.sign && x != xRange.endInclusive) {
-        points.add(Segment(currPoint, currPoint.addX(step).boundX(xRange)))
-      }
-
-      // draw a vertical piece if there is a sign change
-      if (d_in_square.sign != d_in_square_on_the_left.sign && y != xRange.endInclusive) {
-        points.add(Segment(currPoint, currPoint.addY(step).boundY(yRange)))
-      }
-    }
-  }
-
-  return points
-}
 
 private fun bools(
   all: Boolean? = null,
@@ -64,14 +31,6 @@ private typealias MidpointsToSegments = (
   boundBox: BoundRect,
 ) -> List<Segment>
 
-private fun sWithCommonPointOrDirection(s1: Segment, s2: Segment): Pair<Segment, Segment> =
-  when {
-    s1.p1 == s2.p2 -> s1 to s2.flip()
-    s1.p2 == s2.p1 -> s1.flip() to s2
-    s1.isParallel(s2) -> s1.withReorientedDirection(s2) to s2
-    else -> s1 to s2
-  }
-
 private fun shouldFlipDirection(s1: Segment, s2: Segment): Pair<Boolean, Boolean> =
   when {
     s1.p1 == s2.p2 -> false to true
@@ -87,51 +46,42 @@ private fun s(s1: Segment, s2: Segment, f: (Point) -> Boolean): List<Segment> {
   val s2Points = if (s2ShouldFlip) s2.pointsAtThreshold(f).reversed() else s2.pointsAtThreshold(f)
 
   return (s1Points to s2Points)
-    .zipNullPadded { p1, p2 ->
-      Segment(
-        p1 ?: s1Points.last(),
-        p2 ?: s2Points.last(),
-      )
-    }
+    .zipNullPadded { p1, p2 -> Segment(p1 ?: s1Points.last(), p2 ?: s2Points.last()) }
 }
 
 private val LOOKUP_TABLE: Map<List<Boolean>, MidpointsToSegments> = mapOf(
   bools(all = false)
-    to { f, bound -> listOf() },
+    to { _, _ -> listOf() },
   bools(all = true)
-    to { f, bound -> listOf() },
+    to { _, _ -> listOf() },
   bools(bottomLeft = true)
-    to { f, bound -> s(bound.leftSegment, bound.bottomSegment, f) },
+    to { f, b -> s(b.leftSegment, b.bottomSegment, f) },
   bools(all = true, bottomLeft = false)
-    to { f, bound -> s(bound.leftSegment, bound.bottomSegment, f) },
+    to { f, b -> s(b.leftSegment, b.bottomSegment, f) },
   bools(bottomRight = true)
-    to { f, bound -> s(bound.rightSegment, bound.bottomSegment, f) },
+    to { f, b -> s(b.rightSegment, b.bottomSegment, f) },
   bools(all = true, bottomRight = false)
-    to { f, bound -> s(bound.rightSegment, bound.bottomSegment, f) },
+    to { f, b -> s(b.rightSegment, b.bottomSegment, f) },
   bools(topRight = true)
-    to { f, bound -> s(bound.topSegment, bound.rightSegment, f) },
+    to { f, b -> s(b.topSegment, b.rightSegment, f) },
   bools(all = true, topRight = false)
-    to { f, bound -> s(bound.topSegment, bound.rightSegment, f) },
+    to { f, b -> s(b.topSegment, b.rightSegment, f) },
   bools(topLeft = true)
-    to { f, bound -> s(bound.topSegment, bound.leftSegment, f) },
+    to { f, b -> s(b.topSegment, b.leftSegment, f) },
   bools(all = true, topLeft = false)
-    to { f, bound -> s(bound.topSegment, bound.leftSegment, f) },
+    to { f, b -> s(b.topSegment, b.leftSegment, f) },
   bools(top = true)
-    to { f, bound -> s(bound.leftSegment, bound.rightSegment, f) },
+    to { f, b -> s(b.leftSegment, b.rightSegment, f) },
   bools(bottom = true)
-    to { f, bound -> s(bound.leftSegment, bound.rightSegment, f) },
+    to { f, b -> s(b.leftSegment, b.rightSegment, f) },
   bools(left = true)
-    to { f, bound -> s(bound.topSegment, bound.bottomSegment, f) },
+    to { f, b -> s(b.topSegment, b.bottomSegment, f) },
   bools(right = true)
-    to { f, bound -> s(bound.topSegment, bound.bottomSegment, f) },
+    to { f, b -> s(b.topSegment, b.bottomSegment, f) },
   bools(topRight = true, bottomLeft = true)
-    to { f, bound ->
-    s(bound.topSegment, bound.leftSegment, f) + s(bound.rightSegment, bound.bottomSegment, f)
-  },
+    to { f, b -> s(b.topSegment, b.leftSegment, f) + s(b.rightSegment, b.bottomSegment, f) },
   bools(topLeft = true, bottomRight = true)
-    to { f, bound ->
-    s(bound.topSegment, bound.rightSegment, f) + s(bound.leftSegment, bound.bottomSegment, f)
-  },
+    to { f, b -> s(b.topSegment, b.rightSegment, f) + s(b.leftSegment, b.bottomSegment, f) },
 )
 
 /**
@@ -145,7 +95,7 @@ fun getContour(
   vF: (Double, Double) -> Double,
 ): Map<Double, List<Segment>> {
   val points: MutableMap<Double, MutableList<Segment>> =
-    thresholds.map { it to mutableListOf<Segment>() }.toMap().toMutableMap()
+    thresholds.associateWith { mutableListOf<Segment>() }.toMutableMap()
 
   fun vF(p: Point) = vF(p.x, p.y)
 
@@ -181,22 +131,30 @@ fun getContour(
   return points
 }
 
-
 /**
- * @param step the sample rate along bound.
+ * @param thresholds the list of thresholds to get contours for
+ * @param bound the bounds to sample in
+ * @param step the sample rate along bound
+ * @param noise the noise function to sample
  */
-val getNoiseContour = {
-    thresholds: List<Double>,
-    bound: BoundRect,
-    step: Double,
-    noise: Noise,
-  ->
-  getContour(
-    thresholds,
-    step,
-    xRange = bound.left..bound.right,
-    yRange = bound.top..bound.bottom,
-  ) { x, y ->
-    (noise.get(x, y) + 0.5)
-  }
-}.memoize()
+fun getNoiseContour(
+  thresholds: List<Double>,
+  bound: BoundRect,
+  step: Double,
+  noise: Noise,
+): Map<Double, List<Segment>> = getContour(
+  thresholds,
+  step,
+  xRange = bound.left..bound.right,
+  yRange = bound.top..bound.bottom,
+) { x, y ->
+  (noise.get(x, y) + 0.5)
+}
+
+
+val getNoiseContourMemo: (
+  thresholds: List<Double>,
+  bound: BoundRect,
+  step: Double,
+  noise: Noise,
+) -> Map<Double, List<Segment>> = (::getNoiseContour).memoize()

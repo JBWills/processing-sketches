@@ -30,7 +30,11 @@ import geomerativefork.src.util.toArrayString
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PGraphics
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * RShape is a reduced interface for creating, holding and drawing complex shapes. Shapes are groups of one or more paths (RPath).  Shapes can be selfintersecting and can contain holes.  This interface also allows you to transform shapes into polygons by segmenting the curves forming the shape.
@@ -1128,8 +1132,33 @@ open class RShape() : RGeomElem() {
     g.endShape(if (closed) PConstants.CLOSE else PConstants.OPEN)
   }
 
+
   override fun toString(): String {
     return "RShape(\n" + "  paths (${paths.size}): ${paths.toArrayString()},\n" + "  children (${children.size}): ${children.toArrayString()},\n" + ")"
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as RShape
+
+    if (type != other.type) return false
+    if (!paths.contentEquals(other.paths)) return false
+    if (currentPath != other.currentPath) return false
+    if (!children.contentEquals(other.children)) return false
+    if (currentChild != other.currentChild) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = type
+    result = 31 * result + paths.contentHashCode()
+    result = 31 * result + currentPath
+    result = 31 * result + children.contentHashCode()
+    result = 31 * result + currentChild
+    return result
   }
 
   companion object {

@@ -140,4 +140,20 @@ internal class RectTest {
     assertEquals(null, disconnectedY.boundsIntersection(rZero))
     assertEquals(null, rZero.boundsIntersection(disconnectedY))
   }
+
+  @Test
+  fun testScaled() {
+    assertEquals(
+      BoundRect(Point.Zero, Point(4)),
+      BoundRect(Point.Zero, Point.One).scaled(Point(4), Point.Zero),
+    )
+    assertEquals(
+      BoundRect(Point(-3), Point.One),
+      BoundRect(Point.Zero, Point.One).scaled(Point(4), Point.One),
+    )
+    assertEquals(
+      BoundRect(Point(-1.5), Point(2.5)),
+      BoundRect(Point.Zero, Point.One).scaled(Point(4), Point(0.5)),
+    )
+  }
 }

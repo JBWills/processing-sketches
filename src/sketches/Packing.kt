@@ -4,7 +4,6 @@ import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.slider
 import controls.panels.panelext.sliderPair
@@ -35,7 +34,7 @@ class Packing : LayeredCanvasSketch<PackingData, PackingLayerData>(
     numLayers = 1
   }
 
-  override fun drawOnce(layer: LayerInfo) {
+  override fun drawOnce(layerInfo: LayerInfo) {
     val (
       centroidNoise,
       dotNoise,
@@ -47,7 +46,7 @@ class Packing : LayeredCanvasSketch<PackingData, PackingLayerData>(
       equalCardinality,
       circleSize,
       circleOffset,
-    ) = layer.globalValues
+    ) = layerInfo.globalValues
 
     randomSeed(centroidNoise.seed.toLong())
 
@@ -83,7 +82,7 @@ data class PackingLayerData(
   var PackingField: Int = 1,
 ) : PropData<PackingLayerData> {
   override fun bind() = layerTab {
-    intSlider(::PackingField, 1..100)
+    slider(::PackingField, 1..100)
   }
 
   override fun clone(): PackingLayerData = copy()
@@ -127,10 +126,10 @@ data class PackingData(
       toggle(::boundDotsToCircle)
     }
     row {
-      intSlider(::numDots, 0..100_000)
-      intSlider(::numCentroids, 1..10_000)
+      slider(::numDots, 0..100_000)
+      slider(::numCentroids, 1..10_000)
     }
-    intSlider(::iterations, 1..32)
+    slider(::iterations, 1..32)
     toggle(::equalCardinality)
     slider(::circleSize, 50.0..800.0)
     sliderPair(::circleOffset, NegativeOneToOne * 500 to NegativeOneToOne * 500)

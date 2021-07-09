@@ -6,7 +6,6 @@ import controls.panels.ControlStyle
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.imageSelect
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.slider
 import controls.panels.panelext.slider2D
 import controls.panels.panelext.toggle
@@ -91,8 +90,8 @@ data class PhotoProp(
 
     row {
       style = ControlStyle.Gray
-      intSlider(::imageBlackPoint, 0..255)
-      intSlider(::imageWhitePoint, 0..255)
+      slider(::imageBlackPoint, 0..255)
+      slider(::imageWhitePoint, 0..255)
       toggle(::invert, style = ControlStyle.Black)
     }
 

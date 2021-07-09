@@ -9,13 +9,10 @@ group 'org.example'
 version '1.0-SNAPSHOT'
 
 repositories {
+    maven { url "https://repo.osgeo.org/repository/release" }
     mavenCentral()
-    maven {
-        url 'https://jcenter.bintray.com/'
-    }
-    maven {
-        url 'https://jitpack.io'
-    }
+    maven { url 'https://jcenter.bintray.com/' }
+    maven { url 'https://jitpack.io' }
     flatDir {
         dirs 'third-party', 'third-party-java/svg-lib'
     }
@@ -38,6 +35,15 @@ dependencies {
     implementation "org.deeplearning4j:deeplearning4j-core:1.0.0-M1"
     implementation "org.nd4j:nd4j-native-platform:1.0.0-M1"
     implementation group: 'net.mikera', name: 'vectorz', version: '0.66.0'
+    // https://mvnrepository.com/artifact/org.geotools/gt-geojson
+    implementation group: 'org.geotools', name: 'gt-referencing', version: '25.1'
+    // https://mvnrepository.com/artifact/org.geotools/gt-geojson
+    implementation group: 'org.geotools', name: 'gt-epsg-hsql', version: '25.1'
+    // https://mvnrepository.com/artifact/org.geotools/gt-geojson
+    implementation group: 'org.geotools', name: 'gt-geojson', version: '25.1'
+    // https://mvnrepository.com/artifact/org.geotools/gt-geotiff
+    implementation group: 'org.geotools', name: 'gt-geotiff', version: '25.1'
+
     // https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-java
     compileOnly group: 'org.apache.flink', name: 'flink-streaming-java_2.12', version: '1.13.1'
     implementation files(
@@ -54,6 +60,7 @@ dependencies {
             'org.junit.jupiter:junit-jupiter-api:5.4.2'
     )
     testRuntime('org.junit.jupiter:junit-jupiter-engine:5.4.2')
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.31"
 }
 
 sourceSets {

@@ -4,7 +4,6 @@ import appletExtensions.getParallelLinesInBoundMemo
 import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.slider
 import controls.props.PropData
 import controls.props.types.BrushProp
@@ -29,9 +28,8 @@ class InteractiveLines : LayeredCanvasSketch<InteractiveLinesData, InteractiveLi
     layerInfo.globalValues.brush.drawInteractive(this)
   }
 
-  override fun drawOnce(values: LayerInfo) {
-    val (distanceBetweenLines, brush) = values.globalValues
-    val (exampleTabField) = values.tabValues
+  override fun drawOnce(layerInfo: LayerInfo) {
+    val (distanceBetweenLines, brush) = layerInfo.globalValues
 
 
     getParallelLinesInBoundMemo(boundRect, Deg.HORIZONTAL, distanceBetweenLines)
@@ -48,7 +46,7 @@ data class InteractiveLinesLayerData(
   var layerInt: Int = 0,
 ) : PropData<InteractiveLinesLayerData> {
   override fun bind() = layerTab {
-    intSlider(::layerInt, 0..10)
+    slider(::layerInt, 0..10)
   }
 
   override fun clone() = copy()

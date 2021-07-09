@@ -294,8 +294,8 @@ class RPath() : RGeomElem() {
           splitPaths.add(
             RPath(
               commands.sliceArray(lastIndex until commands.size) +
-                commands.sliceArray(0..curr.commandIndex)
-            )
+                commands.sliceArray(0..curr.commandIndex),
+            ),
           )
         } else {
           splitPaths.add(RPath(commands.sliceArray(lastIndex..curr.commandIndex)))
@@ -334,8 +334,8 @@ class RPath() : RGeomElem() {
           splitPaths.add(
             RPath(
               commands.sliceArray(lastIndex until commands.size) +
-                commands.sliceArray(0..curr.commandIndex)
-            )
+                commands.sliceArray(0..curr.commandIndex),
+            ),
           )
         } else {
           splitPaths.add(RPath(commands.sliceArray(lastIndex..curr.commandIndex)))
@@ -853,7 +853,7 @@ class RPath() : RGeomElem() {
 
     if (i > commands.size) {
       throw RuntimeException(
-        "Index out of the bounds.  You are trying to insert an element with an index higher than the number of commands in the group."
+        "Index out of the bounds.  You are trying to insert an element with an index higher than the number of commands in the group.",
       )
     }
     commands += newcommand
@@ -869,7 +869,7 @@ class RPath() : RGeomElem() {
     }
     if (i > commands.size - 1) {
       throw RuntimeException(
-        "Index out of the bounds of the group.  You are trying to erase an element with an index higher than the number of commands in the group."
+        "Index out of the bounds of the group.  You are trying to erase an element with an index higher than the number of commands in the group.",
       )
     }
     commands = when {
@@ -885,4 +885,26 @@ class RPath() : RGeomElem() {
   }
 
   fun clone() = RPath(this)
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as RPath
+
+    if (type != other.type) return false
+    if (!commands.contentEquals(other.commands)) return false
+    if (lastPoint != other.lastPoint) return false
+    if (closed != other.closed) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = type
+    result = 31 * result + commands.contentHashCode()
+    result = 31 * result + (lastPoint?.hashCode() ?: 0)
+    result = 31 * result + closed.hashCode()
+    return result
+  }
 }

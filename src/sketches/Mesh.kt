@@ -4,8 +4,8 @@ import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.noisePanel
+import controls.panels.panelext.slider
 import controls.panels.panelext.sliderPair
 import controls.panels.panelext.toggle
 import controls.props.PropData
@@ -39,7 +39,7 @@ class Mesh : LayeredCanvasSketch<MeshData, MeshLayerData>(
   override fun drawSetup(layerInfo: DrawInfo) {
   }
 
-  override fun drawOnce(values: LayerInfo) {
+  override fun drawOnce(layerInfo: LayerInfo) {
     val (
       noise,
       numDots,
@@ -49,10 +49,9 @@ class Mesh : LayeredCanvasSketch<MeshData, MeshLayerData>(
       showDiagonalsUp,
       showVerticals,
       showHorizontals,
-    ) = values.globalValues
+    ) = layerInfo.globalValues
 
     val (numDotsX, numDotsY) = (numDots.x to numDots.y).map { it.toInt() }
-    val (MeshTabField) = values.tabValues
 
     val dotBound = boundRect.scale(size, boundRect.pointAt(dotRectCenter.x, dotRectCenter.y))
 
@@ -122,7 +121,7 @@ data class MeshLayerData(
   var MeshTabField: Int = 1,
 ) : PropData<MeshLayerData> {
   override fun bind() = layerTab {
-    intSlider(::MeshTabField, 0..10)
+    slider(::MeshTabField, 0..10)
   }
 
   override fun clone() = copy()

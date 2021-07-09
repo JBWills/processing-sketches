@@ -5,6 +5,7 @@ import coordinate.Deg
 import coordinate.Point
 import coordinate.isInCircle
 import coordinate.isOnCircle
+import geomerativefork.src.RShape.Companion
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import util.times
@@ -28,6 +29,34 @@ internal class CircTest {
   fun testConstructorWithoutOrigin() {
     assertEquals(Point.Zero, Circ(1).origin)
     assertEquals(1.0, Circ(1).radius)
+  }
+
+  @Test
+  fun testRadius() {
+    assertEquals(0.0, Circ(0).radius)
+    assertEquals(1.0, Circ(1).radius)
+    assertEquals(100.5, Circ(100.5).radius)
+  }
+
+  @Test
+  fun testDiameter() {
+    assertEquals(0.0, Circ(0).diameter)
+    assertEquals(2.0, Circ(1).diameter)
+    assertEquals(201.0, Circ(100.5).diameter)
+  }
+
+  @Test
+  fun testRadiusSquared() {
+    assertEquals(0.0, Circ(0).radiusSquared)
+    assertEquals(1.0, Circ(1).radiusSquared)
+    assertEquals(4.0, Circ(2).radiusSquared)
+    assertEquals(10100.25, Circ(100.5).radiusSquared)
+  }
+
+  @Test
+  fun testToRShape() {
+    val res = Circ(Point.Zero, 2).toRShape()
+    assertEquals(Companion.createCircle(Point.Zero.toRPoint(), 4), res)
   }
 
   @Test
@@ -185,5 +214,26 @@ internal class CircTest {
   fun testIsInCircleWhenCircleSizeZero() {
     val circ = Circ(Point(3, -3), 0)
     assertFalse { circ.isInCircle(Point(3, -3)) }
+  }
+
+  @Test
+  fun testScaled() {
+    // scaling around center
+    assertEquals(Circ(4), Circ(2).scaled(Point(2), Point.Zero))
+    assertEquals(Circ(2), Circ(2).scaled(Point(1), Point.Zero))
+    assertEquals(Circ(1), Circ(2).scaled(Point(0.5), Point.Zero))
+
+    // scaling around point in bottom right
+    assertEquals(Circ(Point(-1), 4), Circ(2).scaled(Point(2), Point.One))
+    assertEquals(Circ(2), Circ(2).scaled(Point(1), Point.One))
+    assertEquals(Circ(Point(0.5), 1), Circ(2).scaled(Point(0.5), Point.One))
+  }
+
+  @Test
+  fun testTranslated() {
+    // scaling around center
+    assertEquals(Circ(Point(2), 2), Circ(2).translated(Point(2)))
+    assertEquals(Circ(Point(1), 2), Circ(2).translated(Point(1)))
+    assertEquals(Circ(Point(0.5), 2), Circ(2).translated(Point(0.5)))
   }
 }

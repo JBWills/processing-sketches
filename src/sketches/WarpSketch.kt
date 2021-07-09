@@ -9,7 +9,6 @@ import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
 import controls.panels.panelext.button
 import controls.panels.panelext.dropdown
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.slider
 import controls.panels.panelext.slider2D
 import controls.panels.panelext.toggle
@@ -66,18 +65,18 @@ open class WarpSketch(
     slider(::quality)
 
     row {
-      intSlider(::numLines, range = 1..100)
+      slider(::numLines, range = 1..100)
       slider(::lineSpacing, range = 0.001..200.0)
     }
 
-    intSlider(::noiseScale, range = 1..100)
+    slider(::noiseScale, range = 1..100)
 
     row {
-      intSlider(::moveAmountX, range = 0..2000)
-      intSlider(::moveAmountY, range = 0..2000)
+      slider(::moveAmountX, range = 0..2000)
+      slider(::moveAmountY, range = 0..2000)
     }
 
-    intSlider(::seed, range = 0..2000)
+    slider(::seed, range = 0..2000)
 
     row {
       heightRatio = 3

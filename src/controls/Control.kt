@@ -110,6 +110,32 @@ sealed class Control<T : Controller<T>>(
     },
   )
 
+  class FileName(
+    fieldName: String,
+    defaultPath: String?,
+    onChange: BaseSketch.(String?) -> Unit,
+  ) : Control<controlP5.Button>(
+    fieldName,
+    ControlP5::addButton,
+    { sketch ->
+      fun updateLabel(path: String?) {
+        val noFileSelected = path == null || path.isEmpty()
+        label = if (noFileSelected) "Select File" else path
+        setCaptionLabel(if (noFileSelected) "Select File" else path)
+        isLabelVisible = true
+      }
+
+      updateLabel(defaultPath)
+      onClick {
+        sketch.selectFile { file ->
+          val path = file?.path
+          updateLabel(path)
+          sketch.onChange(path)
+        }
+      }
+    },
+  )
+
   class TextInput(
     fieldName: String,
     defaultValue: String = "",

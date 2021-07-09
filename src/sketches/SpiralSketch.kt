@@ -5,7 +5,6 @@ import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import appletExtensions.draw.rect
 import controls.panels.TabsBuilder.Companion.tabs
-import controls.panels.panelext.intSlider
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.slider
 import controls.panels.panelext.slider2D
@@ -67,7 +66,7 @@ open class SpiralSketch(
   override fun getControlTabs() = tabs {
     tab("Spiral") {
       row {
-        intSlider(::numCircles, range = 1..1000)
+        slider(::numCircles, range = 1..1000)
         slider(::circleSpacing, range = 0.001..50.0)
       }
 
@@ -120,20 +119,20 @@ open class SpiralSketch(
     val c = Circ(origin, moveAmountY)
 
     val outerSpiral = Spiral(
-      { t, percentAlong, deg ->
+      { _, percentAlong, _ ->
         origin + c.pointAtRad(Deg(percentAlong * 360).rad)
       },
-      { t, percentAlong, deg ->
+      { t, _, _ ->
         spiralSpacing * t.squared()
       },
       spiralStartAngle..(spiralRotations + spiralStartAngle),
     )
 
     var finalSpiral = Spiral(
-      { t, percentAlong, deg ->
+      { _, percentAlong, _ ->
         outerSpiral.pointAt(percentAlong)
       },
-      { t, percentAlong, deg ->
+      { _, percentAlong, _ ->
         moveAmountX * (-(-sin(2 * PI * percentAlong * 14) - 1) / 2) + 5
         moveAmountX * (percentAlong * 10).squared()
       },
