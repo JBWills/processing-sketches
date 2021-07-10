@@ -16,6 +16,8 @@ import java.nio.IntBuffer
 val Mat.size: Point get() = Point(cols(), rows())
 val Mat.bounds: BoundRect get() = BoundRect(Point.Zero, size - 1)
 
+fun Mat.contains(p: Point) = bounds.contains(p)
+
 fun Mat.get(p: Point, band: Int = 0): Double = get(p.y.toInt(), p.x.toInt())[band]
 fun createMat(rows: Int, cols: Int, format: ImageFormat, baseColor: Color) =
   Mat(rows, cols, format.openCVFormat, format.colorToScalar(baseColor))

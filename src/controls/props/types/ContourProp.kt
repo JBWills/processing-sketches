@@ -22,7 +22,6 @@ import util.until
 
 @Serializable
 data class ContourProp(
-  val thresholdRangeMinMax: Pair<Double, Double> = -0.0 to 1500.0,
   var thresholdRange: Pair<Double, Double> = 0.4 to 0.9,
   var numThresholds: Int = 1,
   var thresholdEaseInOut: Pair<Double, Double> = 1.0 to 1.0,
@@ -41,7 +40,6 @@ data class ContourProp(
     smoothEpsilon: Double? = null,
     chaikinTimes: Int? = null,
   ) : this(
-    thresholdRangeMinMax = base.thresholdRangeMinMax,
     thresholdRange = thresholdRange ?: base.thresholdRange,
     numThresholds = numThresholds ?: base.numThresholds,
     thresholdEaseInOut = thresholdEaseInOut ?: base.thresholdEaseInOut,
@@ -51,7 +49,7 @@ data class ContourProp(
     chaikinTimes = chaikinTimes ?: base.chaikinTimes,
   )
 
-  private fun getThresholds(): List<Double> = thresholdRange
+  fun getThresholds(): List<Double> = thresholdRange
     .toRange()
     .select(numThresholds) { t ->
       (t.pow(thresholdEaseInOut.first)..(1 - (1 - t).pow(thresholdEaseInOut.second)))
@@ -61,9 +59,10 @@ data class ContourProp(
   fun contour(
     bounds: BoundRect,
     gridStepOverride: Double = gridStep,
+    thresholds: List<Double> = listOf(),
     vF: (Point) -> Double
   ): Map<Double, List<Segment>> = getContour(
-    getThresholds().also { debugLog(it) },
+    thresholds.also { debugLog(it) },
     gridStepOverride,
     bounds.left until bounds.right,
     bounds.top until bounds.bottom,
@@ -74,7 +73,7 @@ data class ContourProp(
   override fun clone() = ContourProp(this)
 
   override fun bind(): List<ControlTab> = singleTab(this::class.simpleName!!) {
-    sliderPair(::thresholdRange, range = thresholdRangeMinMax.toRange())
+    sliderPair(::thresholdRange, range = 0.0..5000.0)
     slider(::numThresholds, 1..100)
 
     sliderPair(::thresholdEaseInOut, range = -1.0..5.0)
@@ -85,7 +84,7 @@ data class ContourProp(
       toggle(::shouldSmooth)
 
       slider(::gridStep, 1..5)
-      slider(::smoothEpsilon, 0.25..10.0)
+      slider(::smoothEpsilon, 0.25..2.0)
       slider(::chaikinTimes, 0..5)
     }
   }

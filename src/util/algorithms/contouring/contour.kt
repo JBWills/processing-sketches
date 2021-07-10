@@ -94,6 +94,7 @@ fun getContour(
   yRange: DoubleRange,
   vF: (Double, Double) -> Double,
 ): Map<Double, List<Segment>> {
+  if (thresholds.isEmpty()) return mapOf()
   val points: MutableMap<Double, MutableList<Segment>> =
     thresholds.associateWith { mutableListOf<Segment>() }.toMutableMap()
 

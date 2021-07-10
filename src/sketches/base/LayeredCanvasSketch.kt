@@ -6,6 +6,7 @@ import controls.panels.ControlTab.Companion.tab
 import controls.panels.panelext.button
 import controls.panels.panelext.dropdown
 import controls.panels.panelext.listDropdown
+import controls.panels.panelext.markDirtyIf
 import controls.panels.panelext.slider
 import controls.panels.panelext.textInput
 import controls.props.LayerAndGlobalProps
@@ -56,6 +57,17 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
     set(value) {
       layerAndGlobalProps = LayerAndGlobalProps(layerAndGlobalProps, canvasData = value)
     }
+
+  /**
+   * Update the props directly (as in, not through the control panel.
+   * This is useful if you need to listen to mouse or other UI events.
+   *
+   * @param block block to modify the parent props in-place. Return true if the sketch should be marked dirty.
+   */
+  final fun modifyPropsDirectly(
+    block: (mutableProps: LayerAndGlobalProps<TabValues, GlobalValues>) -> Boolean
+  ) =
+    markDirtyIf(block(layerAndGlobalProps))
 
   final override fun setup() {
     super.setup()
