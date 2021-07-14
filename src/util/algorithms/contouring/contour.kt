@@ -5,7 +5,6 @@ import coordinate.BoundRect
 import coordinate.Point
 import coordinate.Segment
 import fastnoise.Noise
-import util.DoubleRange
 import util.iterators.zipNullPadded
 import util.step
 
@@ -90,8 +89,7 @@ private val LOOKUP_TABLE: Map<List<Boolean>, MidpointsToSegments> = mapOf(
 fun getContour(
   thresholds: List<Double>,
   grd_size: Double,
-  xRange: DoubleRange,
-  yRange: DoubleRange,
+  bounds: BoundRect,
   vF: (Double, Double) -> Double,
 ): Map<Double, List<Segment>> {
   if (thresholds.isEmpty()) return mapOf()
@@ -100,8 +98,8 @@ fun getContour(
 
   fun vF(p: Point) = vF(p.x, p.y)
 
-  (yRange step grd_size).forEach { y ->
-    (xRange step grd_size).forEach { x ->
+  (bounds.yRange step grd_size).forEach { y ->
+    (bounds.xRange step grd_size).forEach { x ->
       val p = Point(x, y)
 
       val topLeft = p + Point(-(grd_size / 2), -(grd_size / 2))
@@ -143,12 +141,7 @@ fun getNoiseContour(
   bound: BoundRect,
   step: Double,
   noise: Noise,
-): Map<Double, List<Segment>> = getContour(
-  thresholds,
-  step,
-  xRange = bound.left..bound.right,
-  yRange = bound.top..bound.bottom,
-) { x, y ->
+): Map<Double, List<Segment>> = getContour(thresholds, step, bound) { x, y ->
   (noise.get(x, y) + 0.5)
 }
 

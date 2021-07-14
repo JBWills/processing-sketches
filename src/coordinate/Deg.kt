@@ -94,7 +94,8 @@ data class Deg(private val inputValue: Double) {
   fun isParallelWith(other: Number, relaxed: Boolean = true) = isParallelWith(Deg(other), relaxed)
   fun isParallelWith(other: Line, relaxed: Boolean = true) = isParallelWith(other.slope, relaxed)
 
-  fun equalsRelaxed(other: Deg): Boolean = value.equalsDelta(other.value, 0.1)
+  fun equalsRelaxed(other: Deg): Boolean =
+    rotation(other, EitherDirection) < 0.1
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

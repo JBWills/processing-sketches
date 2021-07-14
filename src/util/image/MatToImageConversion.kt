@@ -26,6 +26,8 @@ fun Mat.toPImage(): PImage {
   return PImage(width(), height(), format.pImageFormat).also { copyTo(it) }
 }
 
+fun Mat.cloneEmpty(format: ImageFormat = getFormat()) = Mat(rows(), cols(), format.openCVFormat)
+
 fun Mat.toEmptyPImage(format: ImageFormat = getFormat()): PImage =
   PImage(cols(), rows(), format.pImageFormat)
 

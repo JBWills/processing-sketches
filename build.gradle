@@ -35,6 +35,10 @@ dependencies {
     implementation "org.deeplearning4j:deeplearning4j-core:1.0.0-M1"
     implementation "org.nd4j:nd4j-native-platform:1.0.0-M1"
     implementation group: 'net.mikera', name: 'vectorz', version: '0.66.0'
+    // https://mvnrepository.com/artifact/org.geotools/gt-process
+    implementation group: 'org.geotools', name: 'gt-process', version: '25.1'
+    // https://mvnrepository.com/artifact/org.geotools/gt-process-raster
+    implementation group: 'org.geotools', name: 'gt-process-raster', version: '25.1'
     // https://mvnrepository.com/artifact/org.geotools/gt-geojson
     implementation group: 'org.geotools', name: 'gt-referencing', version: '25.1'
     // https://mvnrepository.com/artifact/org.geotools/gt-geojson

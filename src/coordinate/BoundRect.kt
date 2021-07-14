@@ -18,6 +18,7 @@ import util.iterators.mapArray
 import util.iterators.mapWithNextCyclical
 import util.min
 import util.pointsAndLines.polyLine.PolyLine
+import util.pointsAndLines.polyLine.transform
 import util.step
 import kotlin.math.abs
 import kotlin.math.max
@@ -117,6 +118,9 @@ data class BoundRect(
   fun shrink(amount: Number) = expand(-amount.toDouble())
   fun shrink(amount: Point) = expand(-amount)
 
+  fun scaled(scaleFactor: Double) = scaled(Point(scaleFactor), center)
+  fun scaled(scaleFactor: Point) = scaled(scaleFactor, center)
+
   override fun scaled(scale: Point, anchor: Point) =
     BoundRect(topLeft.scaled(scale, anchor), width * scale.x, height * scale.y)
 
@@ -150,6 +154,7 @@ data class BoundRect(
 
   fun scaleY(scaleFactor: Double) = centeredRect(center, width, height * scaleFactor)
 
+  fun mapped(transformGroup: ShapeTransform) = points.transform(transformGroup)
   fun scale(scaleFactor: Point, newCenter: Point = center) =
     centeredRect(newCenter, width * scaleFactor.x, height * scaleFactor.y)
 
@@ -251,16 +256,25 @@ data class BoundRect(
   companion object {
     fun Point.mappedOnto(r: BoundRect) = Point(r.left + (x * r.width), r.top + (y * r.height))
 
-    fun centeredRect(center: Point, width: Number, height: Number) =
-      BoundRect(
-        Point(center) - Point(width.toDouble() / 2.0, height.toDouble() / 2.0),
-        width,
-        height,
-      )
+    fun centeredRect(center: Point, width: Number, height: Number) = BoundRect(
+      Point(center) - Point(width.toDouble() / 2.0, height.toDouble() / 2.0),
+      width,
+      height,
+    )
 
     fun centeredRect(center: Point, size: Point) = centeredRect(center, size.x, size.y)
 
     fun RRectangle.toBoundRect(): BoundRect = BoundRect(topLeft.toPoint(), bottomRight.toPoint())
-    fun BoundingBox.toBoundRect(): BoundRect = BoundRect(Point(minX, minY), Point(maxX, maxY))
+    fun BoundingBox.toBoundRect(): BoundRect =
+      BoundRect(Point(minX, minY), Point(max(minX, maxX), max(minY, maxY)))
+
+    val PolyLine.bounds: BoundRect
+      get() {
+        val (min, max) = fold(initial = Point.MAX_VALUE to Point.MIN_VALUE) { acc, value ->
+          Point.minXY(acc.first, value) to Point.maxXY(acc.second, value)
+        }
+
+        return BoundRect(min, max)
+      }
   }
 }

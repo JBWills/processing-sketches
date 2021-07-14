@@ -12,3 +12,10 @@ fun <F : Feature> FeatureIterator<F>.toIterator(): Iterator<F> = object : Iterat
 fun <F : Feature> FeatureCollection<*, F>.toSequence(): Sequence<F> =
   features().toIterator().asSequence()
 
+
+fun <F : Feature, R> FeatureCollection<*, F>.map(block: (F) -> R): Sequence<R> =
+  toSequence().map(block)
+
+
+fun <F : Feature> FeatureCollection<*, F>.forEach(block: (F) -> Unit): Unit =
+  toSequence().forEach(block)

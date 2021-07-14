@@ -150,7 +150,7 @@ class Segment(
 
   fun getOverlapWith(other: Segment): Segment? {
     if (!slope.isParallelWith(other) && this.length.notEqualsZero() && other.length.notEqualsZero()) {
-      throw Exception("Trying to get overlap with non parallel line. \n $this\n $other")
+      throw Exception("Trying to get overlap with non parallel line. \n this: $this\n other: $other")
     }
 
     val otherReoriented = other.withReorientedDirection(this)

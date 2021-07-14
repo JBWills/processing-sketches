@@ -31,6 +31,7 @@ import util.lerp
 import util.pointsAndLines.polyLine.forEachSegment
 import util.pointsAndLines.polyLine.normalizeForPrint
 import util.pointsAndLines.polyLine.toPolyLine
+import util.randomColor
 import java.awt.Color
 
 /**
@@ -106,8 +107,18 @@ open class PAppletExt : PApplet() {
   }
 
   @JvmName("drawLines")
-  fun List<List<Point>>.draw(bound: BoundRect, boundInside: Boolean = true) = forEach {
+  fun List<List<Point>>.draw(
+    bound: BoundRect,
+    boundInside: Boolean = true,
+    randomColors: Boolean = false
+  ) = forEach {
+    if (randomColors) {
+      pushStyle()
+      stroke(randomColor())
+    }
     shape(it, bound, boundInside)
+
+    if (randomColors) popStyle()
   }
 
   /**

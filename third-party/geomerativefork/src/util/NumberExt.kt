@@ -59,3 +59,7 @@ fun Int.boundMin(min: Int = 0): Int = max(min, this)
 fun Int.boundMax(max: Int = 1): Int = min(this, max)
 fun Float.boundMin(min: Float = 0f): Float = max(min, this)
 fun Float.boundMax(max: Float = 1f): Float = min(this, max)
+
+fun Number.toDoubleArray() = doubleArrayOf(toDouble())
+fun Number.toFloatArray() = floatArrayOf(toFloat())
+fun Number.toIntArray() = intArrayOf(toInt())

@@ -35,17 +35,23 @@ fun Feature.getStringProperty(name: String): String {
 fun Feature.getDoubleProperty(name: String): Double {
   val prop: Property? = getProperty(name)
   prop ?: throw Exception("Property with name: $name doesn't exist on Feature.")
-  when (prop.type.binding) {
-    Double::class.java -> return prop.value as Double
+  return when (prop.type.binding) {
+    java.lang.Double::class.java,
+    Double::class.java -> prop.value as Double
+    java.lang.String::class.java,
     String::class.java -> {
       val stringVal = (prop.value as String)
-      return stringVal.toDoubleOrNull()
+      stringVal.toDoubleOrNull()
         ?: throw Exception("Could convert prop name: $name string value: $stringVal to double.")
     }
-    Int::class.java -> return (prop.value as Int).toDouble()
-    Float::class.java -> return (prop.value as Float).toDouble()
-    Short::class.java -> return (prop.value as Short).toDouble()
-    Long::class.java -> return (prop.value as Long).toDouble()
+    java.lang.Integer::class.java,
+    Int::class.java -> (prop.value as Int).toDouble()
+    java.lang.Float::class.java,
+    Float::class.java -> (prop.value as Float).toDouble()
+    java.lang.Short::class.java,
+    Short::class.java -> (prop.value as Short).toDouble()
+    java.lang.Long::class.java,
+    Long::class.java -> (prop.value as Long).toDouble()
     else -> {
       throw Exception("Trying to get feature property: $name as double when actual type is: ${prop.type.binding}")
     }

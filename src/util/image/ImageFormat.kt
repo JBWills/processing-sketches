@@ -51,5 +51,20 @@ enum class ImageFormat(val openCVFormat: Int, val pImageFormat: Int, val numChan
       PConstants.ALPHA -> Alpha
       else -> Alpha
     }
+
+    fun fromOpenCVInt(i: Int): ImageFormat? = when (i) {
+      CV_8UC4 -> ARGB
+      CV_8UC3 -> RGB
+      CV_8UC1 -> Gray
+      else -> null
+    }
+
+    fun fromProcessingInt(i: Int): ImageFormat? = when (i) {
+      PConstants.ARGB -> ARGB
+      PConstants.RGB -> RGB
+      PConstants.GRAY -> Gray
+      PConstants.ALPHA -> Alpha
+      else -> null
+    }
   }
 }

@@ -11,7 +11,6 @@ import coordinate.BoundRect
 import coordinate.Point
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.debugLog
 import util.geo.GeoContourLine
 import util.geo.GeoContourLine.Companion.toContourLine
 import util.io.geoJson.readGeoJsonCollection
@@ -53,7 +52,6 @@ class MapSketch2 : LayeredCanvasSketch<MapData2, MapLayerData2>(
     geoJsonFile ?: return
 
     if (coordFile != geoJsonFile) {
-      debugLog("recalculating")
       coordsByElevation = populateCoords(geoJsonFile)
       coordFile = geoJsonFile
     }

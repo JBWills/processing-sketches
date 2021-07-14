@@ -115,28 +115,26 @@ internal class DegTest {
   @Test
   fun isParallelWith() {
     fun t(expected: Boolean, d1: Number, d2: Number) {
-      if (expected) {
-        assertEquals(
-          expected,
-          Deg(d1).isParallelWith(d2),
-          "expected Deg($d1).isParallelWith($d2) to be $expected",
-        )
-        assertEquals(
-          expected,
-          Deg(d1).isParallelWith(Deg(d2)),
-          "expected Deg($d1).isParallelWith(Deg($d2)) to be $expected",
-        )
-        assertEquals(
-          expected,
-          Deg(d2).isParallelWith(d1),
-          "expected Deg($d2).isParallelWith($d1) to be $expected",
-        )
-        assertEquals(
-          expected,
-          Deg(d2).isParallelWith(Deg(d1)),
-          "expected Deg($d2).isParallelWith(Deg($d1)) to be $expected",
-        )
-      }
+      assertEquals(
+        expected,
+        Deg(d1).isParallelWith(d2),
+        "expected Deg($d1).isParallelWith($d2) to be $expected",
+      )
+      assertEquals(
+        expected,
+        Deg(d1).isParallelWith(Deg(d2)),
+        "expected Deg($d1).isParallelWith(Deg($d2)) to be $expected",
+      )
+      assertEquals(
+        expected,
+        Deg(d2).isParallelWith(d1),
+        "expected Deg($d2).isParallelWith($d1) to be $expected",
+      )
+      assertEquals(
+        expected,
+        Deg(d2).isParallelWith(Deg(d1)),
+        "expected Deg($d2).isParallelWith(Deg($d1)) to be $expected",
+      )
     }
 
     t(true, 90, 90)
@@ -158,5 +156,29 @@ internal class DegTest {
     t(false, 90, 180)
     t(false, 180, 90)
     t(false, 180, 270)
+    t(true, 180, 359.999)
+    t(true, 180, 0.0001)
+    t(true, 0, 0.0001)
+    t(true, 359.9999, 0.0001)
+  }
+
+  @Test
+  fun testEqualsRelaxed() {
+    fun t(expected: Boolean, d1: Number, d2: Number) {
+      assertEquals(
+        expected,
+        Deg(d1).equalsRelaxed(Deg(d2)),
+        "expected Deg($d1).equalsRelaxed($d2) to be $expected",
+      )
+    }
+
+    t(true, 0, 0)
+    t(true, 10, 10)
+    t(true, 359.999999, 0)
+    t(true, 0, 0.001)
+    t(true, 0, 0.01)
+    t(false, 0, 0.1)
+    t(false, 0, 10)
+    t(false, 9.9, 10)
   }
 }

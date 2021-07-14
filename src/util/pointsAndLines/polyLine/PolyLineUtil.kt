@@ -5,6 +5,8 @@ import coordinate.BoundRect
 import coordinate.ContinuousMaskedShape
 import coordinate.Point
 import coordinate.Segment
+import org.opencv.core.MatOfPoint
+import util.mean
 import util.pointsAndLines.mutablePolyLine.MutablePolyLine
 
 private val _bound = { list: PolyLine, bound: BoundRect ->
@@ -21,6 +23,11 @@ private val _translated = { list: List<Point>, p: Point ->
 
 fun PolyLine.bound(bound: BoundRect): List<PolyLine> = _bound(this, bound)
 
+fun PolyLine.closed(maxDistance: Double = Double.MAX_VALUE) = when {
+  isEmpty() || isClosed() -> this
+  else -> this + first().copy()
+}
+
 @JvmName("boundLines")
 fun List<PolyLine>.bound(bound: BoundRect): List<PolyLine> = flatMap { _bound(it, bound) }
 
@@ -30,3 +37,8 @@ fun List<Segment>.translated(p: Point) = _translatedSegments(this, p)
 fun PolyLine.translated(p: Point): PolyLine = _translated(this, p)
 
 fun MutablePolyLine.translatedInPlace(p: Point): Unit = indices.forEach { this[it] += p }
+
+fun MatOfPoint.toPolyLine(): PolyLine =
+  toArray()
+    .map { Point(it.x, it.y) }
+    .closed(maxDistance = mean(rows(), cols()) / 10)

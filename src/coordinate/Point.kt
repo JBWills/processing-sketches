@@ -209,5 +209,7 @@ data class Point(val x: Double, val y: Double) :
     val Right = Point(1, 0)
     val One = Point(1, 1)
     val Unit = Point(1, 0)
+    val MIN_VALUE = Point(Double.MIN_VALUE, Double.MIN_VALUE)
+    val MAX_VALUE = Point(Double.MAX_VALUE, Double.MAX_VALUE)
   }
 }
