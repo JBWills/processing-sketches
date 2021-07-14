@@ -3,17 +3,17 @@ package coordinate
 import coordinate.ContinuousPoints.Companion.splitInBounds
 import coordinate.Point.Companion.addIf
 import interfaces.shape.Maskable
-import util.iterators.forEachWithSurrounding
 import util.iterators.forEachWithSurroundingCyclical
 import util.pointsAndLines.mutablePolyLine.MutablePolyLine
 import util.pointsAndLines.polyLine.PolyLine
+import util.pointsAndLines.polyLine.connectWith
 import util.pointsAndLines.polyLine.isClosed
 
 data class ContinuousPoints(val isInBound: Boolean, val points: MutablePolyLine) :
   MutablePolyLine by points {
 
   fun combineWith(o: ContinuousPoints) =
-    ContinuousPoints(isInBound, (points + o.points).toMutableList())
+    ContinuousPoints(isInBound, points.connectWith(o.points).toMutableList())
 
   companion object {
     fun Maskable.splitInBounds(points: PolyLine): List<ContinuousPoints> {
@@ -21,16 +21,12 @@ data class ContinuousPoints(val isInBound: Boolean, val points: MutablePolyLine)
 
       val res = mutableListOf<ContinuousPoints>()
 
-      points.forEachWithSurrounding { prev, p, _ ->
-        val prevMaybeCyclical = prev ?: if (points.isClosed()) points.last() else null
-
-        if (prevMaybeCyclical != p) {
-          val currInBound = contains(p)
-          if (res.isEmpty() || res.last().isInBound != currInBound) {
-            res.add(ContinuousPoints(currInBound, mutableListOf(p)))
-          } else {
-            res.last().points.add(p)
-          }
+      points.forEach { p ->
+        val currInBound = contains(p)
+        if (res.isEmpty() || res.last().isInBound != currInBound) {
+          res.add(ContinuousPoints(currInBound, mutableListOf(p)))
+        } else {
+          res.last().points.add(p)
         }
       }
 

@@ -4,7 +4,6 @@ import arrow.core.memoize
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
 import org.opencv.imgproc.Imgproc
-import util.alsoDebugLog
 import util.image.ChannelDepth
 import util.image.ContourApproximationModes.Tc89L1
 import util.image.ContourRetrievalModes.ListMode
@@ -41,7 +40,7 @@ fun Mat.findContours(): List<PolyLine> =
     .also { contours ->
       Imgproc.findContours(this, contours, cloneEmpty(), ListMode.typeVal, Tc89L1.typeVal)
     }
-    .map { it.toPolyLine().alsoDebugLog() }
+    .map { it.toPolyLine() }
     .filter { it.size > 2 }
 
 fun Mat.contour(thresholds: List<Double>): Map<Double, List<PolyLine>> =

@@ -42,3 +42,10 @@ fun MatOfPoint.toPolyLine(): PolyLine =
   toArray()
     .map { Point(it.x, it.y) }
     .closed(maxDistance = mean(rows(), cols()) / 10)
+
+fun PolyLine.connectWith(other: PolyLine): PolyLine = when {
+  last() == other.first() -> this + other
+  last() == other.last() -> this + other.reversed()
+  first() == other.first() -> other.reversed() + this
+  else -> other + this
+}

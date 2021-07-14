@@ -82,9 +82,7 @@ open class PAppletExt : PApplet() {
     ContinuousMaskedShape(unboundLine, bound).toBoundPoints(boundInside)
 
   fun shape(vertices: List<Point>, bound: BoundRect, boundInside: Boolean = true) {
-    getBoundLines(vertices, bound, boundInside).map { shapeList ->
-      shape(shapeList)
-    }
+    getBoundLines(vertices, bound, boundInside).draw(debug = true)
   }
 
   fun shape(path: RPath, bound: BoundRect, boundInside: Boolean = true) {

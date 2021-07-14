@@ -1,6 +1,7 @@
 package appletExtensions.draw
 
 import appletExtensions.stroke
+import appletExtensions.withStrokeIf
 import coordinate.Point
 import coordinate.Segment
 import geomerativefork.src.RPoint
@@ -21,14 +22,11 @@ fun PApplet.shape(vertices: List<Point>) {
 
 fun PApplet.shapes(lines: List<List<Point>>, debug: Boolean = false) =
   lines.forEachIndexed { lineIndex, vertices ->
-    if (debug) {
-      pushStyle()
-      stroke(if (lineIndex % 2 == 0) Color.RED else Color.GREEN)
+    withStrokeIf(debug, if (lineIndex % 2 == 0) Color.RED else Color.GREEN) {
+      beginShape()
+      vertices.forEach { vertex -> vertex(vertex) }
+      endShape()
     }
-    beginShape()
-    vertices.forEach { vertex -> vertex(vertex) }
-    endShape()
-    if (debug) popStyle()
   }
 
 fun PApplet.shape(vertices: Array<RPoint>) {

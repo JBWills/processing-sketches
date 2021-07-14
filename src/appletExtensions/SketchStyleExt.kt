@@ -40,6 +40,13 @@ fun <R> PGraphics.withFill(c: Int, alpha: Int = 255, block: PGraphics.() -> R): 
   return result
 }
 
+fun <R> PApplet.withStrokeIf(predicate: Boolean, c: Color, block: PApplet.() -> R): R =
+  if (predicate) {
+    withStroke(c, block)
+  } else {
+    block()
+  }
+
 /**
  * Run the block after applying stroke color, then switch back to
  * last styling.
