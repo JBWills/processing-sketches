@@ -148,13 +148,16 @@ abstract class BaseSketch(
       lastDrawImage = get()
     }
 
-    // TODO: this breaks large canvases
-    interactiveGraphicsLayer.withDraw {
-      if (lastDrawImage?.size == interactiveGraphicsLayer.size)
+    // TODO: large canvases can't have uielements on small screens because of this
+    // Processing shrinks the screen size if it can't fit on your screen which is what causes the
+    // discrepancy between the graphics layer and the surface size.
+    if (lastDrawImage?.size == interactiveGraphicsLayer.size) {
+      interactiveGraphicsLayer.withDraw {
         interactiveGraphicsLayer.background(lastDrawImage)
+      }
+      drawInteractive()
+      interactiveGraphicsLayer.displayOnParent()
     }
-    drawInteractive()
-    interactiveGraphicsLayer.displayOnParent()
   }
 
   open fun markDirty() {

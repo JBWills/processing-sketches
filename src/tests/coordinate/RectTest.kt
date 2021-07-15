@@ -156,4 +156,18 @@ internal class RectTest {
       BoundRect(Point.Zero, Point.One).scaled(Point(4), Point(0.5)),
     )
   }
+
+  @Test
+  fun testExpandToInclude() {
+    val b0 = BoundRect(Point.Zero, Point.Zero)
+    val b1 = BoundRect(Point.Zero, Point(10, 20))
+    assertEquals(b0, b0.expandToInclude(Point.Zero))
+    assertEquals(BoundRect(Point.Zero, Point(10, 20)), b0.expandToInclude(Point(10, 20)))
+    assertEquals(BoundRect(Point(-1, 0), Point(0, 20)), b0.expandToInclude(Point(-1, 20)))
+    assertEquals(b1, b1.expandToInclude(Point(10, 20)))
+    assertEquals(BoundRect(Point.Zero, Point(11, 20)), b1.expandToInclude(Point(11, 20)))
+    assertEquals(BoundRect(Point.Zero, Point(11, 21)), b1.expandToInclude(Point(11, 21)))
+    assertEquals(BoundRect(Point.Zero, Point(10, 21)), b1.expandToInclude(Point(9, 21)))
+    assertEquals(BoundRect(Point(0, -21), Point(10, 20)), b1.expandToInclude(Point(9, -21)))
+  }
 }

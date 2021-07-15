@@ -25,7 +25,11 @@ import kotlin.math.sqrt
 
 operator fun Number.times(p: Point) = p * this
 operator fun Number.plus(p: Point) = p + this
-operator fun Number.div(p: Point) = Point(this.toDouble() / p.x, this.toDouble() / p.y)
+operator fun Number.div(p: Point) = Point(
+  this.toDouble() / if (p.x == 0.0) 0.001 else p.x,
+  this.toDouble() / if (p.y == 0.0) 0.001 else p.y,
+)
+
 operator fun Number.minus(p: Point) = Point(this.toDouble() - p.x, this.toDouble() - p.y)
 
 @Serializable
@@ -192,6 +196,9 @@ data class Point(val x: Double, val y: Double) :
 
     fun minXY(p1: Point, p2: Point) = Point(min(p1.x, p2.x), min(p1.y, p2.y))
     fun maxXY(p1: Point, p2: Point) = Point(max(p1.x, p2.x), max(p1.y, p2.y))
+
+    fun Iterable<Point>.maxXY() = reduce { p1, p2 -> maxXY(p1, p2) }
+    fun Iterable<Point>.minXY() = reduce { p1, p2 -> minXY(p1, p2) }
 
     fun PointProgression.forEach2D(block: (Point) -> Unit) =
       (start.x..endInclusive.x step 1.0).forEach { x ->

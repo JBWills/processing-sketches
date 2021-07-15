@@ -7,6 +7,7 @@ import org.opencv.core.Mat
 import org.opencv.core.Scalar
 import util.image.ImageFormat.Companion.getFormat
 import util.isAllUniqueChars
+import util.map
 import util.tuple.Pair3
 import util.tuple.Pair4
 import java.awt.Color
@@ -16,9 +17,22 @@ import java.nio.IntBuffer
 val Mat.size: Point get() = Point(cols(), rows())
 val Mat.bounds: BoundRect get() = BoundRect(Point.Zero, size - 1)
 
+fun Mat.toDoubleArray(bandIndex: Int = 0): Array<DoubleArray> = Array(rows()) { rowIndex ->
+  cols()
+    .map { colIndex -> get(rowIndex, colIndex)[bandIndex] }
+    .toDoubleArray()
+}
+
+fun Mat.toIntArray(bandIndex: Int = 0): Array<IntArray> = Array(rows()) { rowIndex ->
+  cols()
+    .map { colIndex -> get(rowIndex, colIndex)[bandIndex].toInt() }
+    .toIntArray()
+}
+
+
 fun Mat.contains(p: Point) = bounds.contains(p)
 
-fun Mat.get(p: Point, band: Int = 0): Double = get(p.y.toInt(), p.x.toInt())[band]
+fun Mat.get(p: Point, band: Int = 0): Double? = get(p.y.toInt(), p.x.toInt())?.get(band)
 fun createMat(rows: Int, cols: Int, format: ImageFormat, baseColor: Color) =
   Mat(rows, cols, format.openCVFormat, format.colorToScalar(baseColor))
 

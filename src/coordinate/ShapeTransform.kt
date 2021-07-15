@@ -1,6 +1,7 @@
 package coordinate
 
 import interfaces.shape.Transformable
+import util.iterators.copy
 
 sealed class ShapeTransform {
   abstract fun <T : Transformable<T>> transform(t: T): T
@@ -25,6 +26,10 @@ class ShapeTransformGroup() : ShapeTransform() {
     apply { transforms.addAll(transform) }
 
   fun addAll(transforms: List<ShapeTransform>) = add(*transforms.toTypedArray())
+
+  fun copyAndAdd(vararg transform: ShapeTransform): ShapeTransform = ShapeTransformGroup(
+    transforms.copy(),
+  ).add(*transform)
 
   fun clearTransforms(): ShapeTransform = apply { transforms.clear() }
 

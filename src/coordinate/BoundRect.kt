@@ -40,8 +40,8 @@ data class BoundRect(
 
   constructor(topLeft: Point, bottomRight: Point) : this(
     topLeft,
-    (bottomRight - topLeft).x,
-    (bottomRight - topLeft).y,
+    if (bottomRight == topLeft) 0 else (bottomRight - topLeft).x,
+    if (bottomRight == topLeft) 0 else (bottomRight - topLeft).y,
   )
 
   constructor(width: Number, height: Number) : this(Point.Zero, width, height)
@@ -63,6 +63,16 @@ data class BoundRect(
   val bottomLeft get() = Point(left, bottom)
   val xRange get() = left..right
   val yRange get() = top..bottom
+
+  val area get() = width * height
+
+  val minMax: Pair<Point, Point> get() = topLeft to bottomRight
+
+  val leftPx: Int get() = left.toInt()
+  val topPx: Int get() = top.toInt()
+
+  val widthPx: Int get() = width.toInt()
+  val heightPx: Int get() = height.toInt()
 
   val xPixels: Iterable<Int> get() = left.toInt()..right.toInt()
   val yPixels: Iterable<Int> get() = top.toInt()..bottom.toInt()
@@ -113,6 +123,31 @@ data class BoundRect(
 
   fun expand(amount: Number) = expand(amount, amount)
   fun expand(amount: Point) = expand(amount.x, amount.y)
+
+  /**
+   * Move the top left corner without changing the bottom right corner.
+   *
+   * If this intersects the bottom right corner, the new top right will
+   * instead be the bottom left of the bounds.
+   *
+   * @param delta the amount to move the topLeft coord
+   */
+  fun moveTopLeft(delta: Point) = createBoundRectSafe(topLeft + delta, bottomRight)
+
+  /**
+   * Move the top left corner without changing the bottom right corner.
+   *
+   * If this intersects the bottom right corner, the new top right will
+   * instead be the bottom left of the bounds.
+   *
+   * @param delta the amount to move the topLeft coord
+   */
+  fun moveBottomRight(delta: Point) = createBoundRectSafe(topLeft, bottomRight + delta)
+
+  fun expandToInclude(p: Point): BoundRect {
+    if (contains(p)) return this.copy()
+    return BoundRect(Point.minXY(p, topLeft), Point.maxXY(p, bottomRight))
+  }
 
   fun shrink(amountX: Number, amountY: Number) = expand(-amountX.toDouble(), -amountY.toDouble())
   fun shrink(amount: Number) = expand(-amount.toDouble())
@@ -253,6 +288,27 @@ data class BoundRect(
   operator fun times(p: Point): BoundRect = BoundRect(topLeft * p, bottomRight * p)
   operator fun div(p: Point): BoundRect = BoundRect(topLeft / p, bottomRight / p)
 
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as BoundRect
+
+    if (topLeft != other.topLeft) return false
+    if (width != other.width) return false
+    if (height != other.height) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = topLeft.hashCode()
+    result = 31 * result + width.hashCode()
+    result = 31 * result + height.hashCode()
+    return result
+  }
+
+
   companion object {
     fun Point.mappedOnto(r: BoundRect) = Point(r.left + (x * r.width), r.top + (y * r.height))
 
@@ -268,13 +324,17 @@ data class BoundRect(
     fun BoundingBox.toBoundRect(): BoundRect =
       BoundRect(Point(minX, minY), Point(max(minX, maxX), max(minY, maxY)))
 
-    val PolyLine.bounds: BoundRect
-      get() {
-        val (min, max) = fold(initial = Point.MAX_VALUE to Point.MIN_VALUE) { acc, value ->
-          Point.minXY(acc.first, value) to Point.maxXY(acc.second, value)
-        }
-
-        return BoundRect(min, max)
-      }
+    /**
+     * Try to create the rect with the given topleft and bottomRight points, but if it would result
+     * in a negative width or height, switch the points so no matter what it will make a valid rect.
+     *
+     * Note that a rect with width or height 0 is valid, but negative height is not.
+     *
+     * @param topLeft The top left coordinate of the rectangle assuming coordinates go down as you
+     *   move up and to the left.
+     * @param bottomRight The bottom right coordinate of the rectangle
+     */
+    fun createBoundRectSafe(topLeft: Point, bottomRight: Point) =
+      BoundRect(Point.minXY(topLeft, bottomRight), Point.maxXY(topLeft, bottomRight))
   }
 }

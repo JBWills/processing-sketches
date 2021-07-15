@@ -13,7 +13,6 @@ import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opengis.parameter.GeneralParameterValue
 import util.asCollection
-import util.debugLog
 import util.geo.getSampleDouble
 import util.iterators.groupValuesBy
 import util.pointsAndLines.polyLine.PolyLine
@@ -27,9 +26,9 @@ val loadGeoDataMemo: (String) -> GridCoverage2D =
 
 val loadGeoMatMemo: (String) -> Mat =
   { filename: String ->
-    debugLog("Reading file: $filename")
+    println("Reading file: $filename")
     File(filename).readGeoTiff().toMat()
-  }
+  }.memoize()
 
 val getGeoContoursMemo = ::loadAndGetGeoContours.memoize()
 val loadGeoImageMemo = ::loadGeoImage.memoize()

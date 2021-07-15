@@ -4,6 +4,8 @@ import arrow.core.memoize
 import coordinate.BoundRect
 import coordinate.ContinuousMaskedShape
 import coordinate.Point
+import coordinate.Point.Companion.maxXY
+import coordinate.Point.Companion.minXY
 import coordinate.Segment
 import org.opencv.core.MatOfPoint
 import util.mean
@@ -49,3 +51,11 @@ fun PolyLine.connectWith(other: PolyLine): PolyLine = when {
   first() == other.first() -> other.reversed() + this
   else -> other + this
 }
+
+val Iterable<Point>.bounds: BoundRect
+  get() = minMax.let { (topLeft, bottomRight) -> BoundRect(topLeft, bottomRight) }
+
+val Iterable<Point>.minMax: Pair<Point, Point>
+  get() = fold(initial = Point.MAX_VALUE to Point.MIN_VALUE) { (min, max), value ->
+    minXY(min, value) to maxXY(max, value)
+  }
