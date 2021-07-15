@@ -148,6 +148,7 @@ abstract class BaseSketch(
       lastDrawImage = get()
     }
 
+    // TODO: this breaks large canvases
     interactiveGraphicsLayer.withDraw {
       if (lastDrawImage?.size == interactiveGraphicsLayer.size)
         interactiveGraphicsLayer.background(lastDrawImage)

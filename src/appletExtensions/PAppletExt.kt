@@ -72,20 +72,19 @@ open class PAppletExt : PApplet() {
   fun noiseXY(p: Point) = Point(NOISE.GetNoise(p.xf, p.yf, 0f), NOISE.GetNoise(p.xf, p.yf, 100f))
   fun noiseXY(x: Number, y: Number) = noiseXY(Point(x, y))
 
-
   fun List<Point>.toSegments(): List<Segment> = mapWithNext { curr, next -> Segment(curr, next) }
   fun List<Segment>.toVertices(): List<Point> = map { it.p1 }.addNotNull(lastOrNull()?.p2)
 
   fun getBoundLines(
-    unboundLine: List<Point>, bound: BoundRect, boundInside: Boolean,
-  ): List<List<Point>> =
-    ContinuousMaskedShape(unboundLine, bound).toBoundPoints(boundInside)
+    unboundLine: List<Point>,
+    bound: BoundRect,
+    boundInside: Boolean,
+  ): List<List<Point>> = ContinuousMaskedShape(unboundLine, bound).toBoundPoints(boundInside)
 
-  fun shape(vertices: List<Point>, bound: BoundRect, boundInside: Boolean = true) {
-    getBoundLines(vertices, bound, boundInside).draw(debug = true)
-  }
+  fun shape(vertices: List<Point>, bound: BoundRect, boundInside: Boolean = true) =
+    getBoundLines(vertices, bound, boundInside).draw()
 
-  fun shape(path: RPath, bound: BoundRect, boundInside: Boolean = true) {
+  fun shape(path: RPath, bound: BoundRect, boundInside: Boolean = true) =
     getBoundLines(
       path.points.map { Point(it.x, it.y) }.normalizeForPrint(),
       bound,
@@ -93,7 +92,6 @@ open class PAppletExt : PApplet() {
     ).map { shapeList ->
       shape(shapeList)
     }
-  }
 
   fun List<Point>.draw(bound: BoundRect, boundInside: Boolean = true) {
     shape(this, bound, boundInside)
@@ -109,14 +107,8 @@ open class PAppletExt : PApplet() {
     bound: BoundRect,
     boundInside: Boolean = true,
     randomColors: Boolean = false
-  ) = forEach {
-    if (randomColors) {
-      pushStyle()
-      stroke(randomColor())
-    }
-    shape(it, bound, boundInside)
-
-    if (randomColors) popStyle()
+  ) = withStrokeIf(randomColors, randomColor()) {
+    forEach { shape(it, bound, boundInside) }
   }
 
   /**

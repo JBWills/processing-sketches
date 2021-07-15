@@ -11,7 +11,7 @@ import controls.props.PropData
 import controls.props.types.ContourProp
 import coordinate.BoundRect
 import coordinate.Point
-import coordinate.coordSystems.getTransformToMapCoord
+import coordinate.coordSystems.getCoordinateMap
 import interfaces.shape.transform
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
@@ -42,7 +42,7 @@ class MapSketch : LayeredCanvasSketch<MapData, MapLayerData>(
     contourBounds: BoundRect,
     mapScale: Double,
     mapCenter: Point
-  ) = getTransformToMapCoord(
+  ) = getCoordinateMap(
     contourBounds,
     boundRect
       .scaled(mapScale).let { it.translated(mapCenter * it.size - (it.size / 2)) },
@@ -60,7 +60,7 @@ class MapSketch : LayeredCanvasSketch<MapData, MapLayerData>(
       .boundsIntersection(mat.bounds.transform(scaleAndMove)) ?: return
 
     contours.forEach { (_, lines) ->
-      lines.transform(scaleAndMove).draw(bound, randomColors = true)
+      lines.transform(scaleAndMove).draw(bound)
     }
   }
 }
