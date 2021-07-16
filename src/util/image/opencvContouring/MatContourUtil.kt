@@ -6,7 +6,7 @@ import coordinate.Point
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
 import org.opencv.imgproc.Imgproc
-import util.image.ContourApproximationModes.Simple
+import util.image.ContourApproximationModes.Tc89L1
 import util.image.ContourRetrievalModes.ListMode
 import util.image.ImageFormat.Gray
 import util.image.bounds
@@ -22,7 +22,7 @@ const val CannyRatio = 3
 fun Mat.findContours(): List<PolyLine> =
   arrayListOf<MatOfPoint>()
     .also { contours ->
-      Imgproc.findContours(this, contours, cloneEmpty(), ListMode.typeVal, Simple.typeVal)
+      Imgproc.findContours(this, contours, cloneEmpty(), ListMode.typeVal, Tc89L1.typeVal)
     }
     .map { it.toPolyLine() }
     .filter { it.size > 2 }
@@ -41,6 +41,7 @@ fun loadAndContour(
 data class ContourData(
   val threshold: Double,
   val binaryImage: Mat,
+  val binaryMinusNext: Mat?,
   val contours: List<PolyLine>
 )
 
@@ -49,6 +50,7 @@ data class MatContourResponse(
   val baseMatBoundsInUnionRect: BoundRect,
   val contours: List<ContourData>,
 )
+
 
 fun loadAndContourWithOffset(
   filename: String,
@@ -70,20 +72,26 @@ fun loadAndContourWithOffset(
     Mat.zeros(combinedBounds.height.toInt(), combinedBounds.width.toInt(), Gray.openCVFormat)
 
   val thresholdsLargestToSmallest = thresholdsToOffset.entries.sortedBy { it.key }.reversed()
-  val thresholdToUnionMats = thresholdsLargestToSmallest.associate { (threshold, offset) ->
+  val contourDatas = thresholdsLargestToSmallest.map { (threshold, offset) ->
     val thresholdMat = mat
       .threshold(threshold)
       .copyTo(emptyMat, offset - combinedBounds.topLeft)
+    val binaryMinusUnion = thresholdMat.subtract(rollingUnionMat)
+    val contours = thresholdMat.findContours()
     rollingUnionMat = rollingUnionMat.bitwiseOr(thresholdMat)
-    threshold to (thresholdMat.findContours() to rollingUnionMat)
+
+    ContourData(
+      threshold,
+      rollingUnionMat,
+      binaryMinusUnion,
+      contours,
+    )
   }
 
   return MatContourResponse(
     mat,
     mat.bounds - combinedBounds.topLeft,
-    thresholdToUnionMats.map { (threshold, contoursToMat) ->
-      ContourData(threshold, contoursToMat.second, contoursToMat.first)
-    }.sortedBy { it.threshold },
+    contourDatas.sortedBy { it.threshold },
   )
 }
 

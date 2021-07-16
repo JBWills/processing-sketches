@@ -15,7 +15,6 @@ import coordinate.coordSystems.getCoordinateMap
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.image.opencvContouring.contourMemo
-import util.image.opencvContouring.findContours
 import util.percentAlong
 import util.pointsAndLines.polyLine.transform
 
@@ -68,14 +67,14 @@ class MapSketch : LayeredCanvasSketch<MapData, MapLayerData>(
 
     contourResponse.contours.forEachIndexed { index, contourData ->
       val lines = contourData.contours
-      val higherElevationsBinaryImage = contourResponse
-        .contours
-        .getOrNull(index + 1)
-        ?.binaryImage
+//      val higherElevationsBinaryImage = contourResponse
+//        .contours
+//        .getOrNull(index + 1)
+//        ?.binaryImage
+//
+//      val thresholdedLines = higherElevationsBinaryImage?.findContours() ?: lines
 
-      val thresholdedLines = higherElevationsBinaryImage?.findContours() ?: lines
-
-      thresholdedLines.transform(scaleAndMove).draw(boundRect)
+      lines.transform(scaleAndMove).draw(boundRect)
     }
   }
 }

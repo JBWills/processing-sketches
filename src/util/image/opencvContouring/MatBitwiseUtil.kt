@@ -3,6 +3,7 @@ package util.image.opencvContouring
 import coordinate.Point
 import org.opencv.core.Core
 import org.opencv.core.Mat
+import org.opencv.core.Scalar
 import util.image.bounds
 
 fun Mat.bitwiseOr(other: Mat): Mat = applyWithDest { src, dest ->
@@ -15,6 +16,14 @@ fun Mat.bitwiseAnd(other: Mat): Mat = applyWithDest { src, dest ->
 
 fun Mat.bitwiseNot(other: Mat): Mat = applyWithDest { src, dest ->
   Core.bitwise_not(src, other, dest)
+}
+
+fun Mat.subtract(other: Mat): Mat = applyWithDest { src, dest ->
+  Core.subtract(src, other, dest)
+}
+
+fun Mat.subtract(value: Double): Mat = applyWithDest { src, dest ->
+  Core.subtract(src, Scalar(value), dest)
 }
 
 fun Mat.bitwiseNot(): Mat = applyWithDest { src, dest ->
