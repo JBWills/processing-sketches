@@ -22,8 +22,12 @@ import fastnoise.Noise
 import geomerativefork.src.RPath
 import geomerativefork.src.util.boundMin
 import interfaces.shape.Maskable
+import org.opencv.core.Mat
 import processing.core.PApplet
+import processing.core.PImage
 import util.atAmountAlong
+import util.image.scale
+import util.image.toPImage
 import util.iterators.addNotNull
 import util.iterators.forEach2D
 import util.iterators.mapWithNext
@@ -151,4 +155,10 @@ open class PAppletExt : PApplet() {
   fun Maskable.draw() = draw(this@PAppletExt)
   fun Point.draw(radius: Number = 2) = drawPoint(this, radius)
   fun Iterable<Point>.drawPoints(radius: Number = 2) = drawPoints(this, radius)
+
+  fun PImage.draw(topLeft: Point) = image(this, topLeft.xf, topLeft.yf)
+  fun PImage.draw(bound: BoundRect) = scale(bound.size).draw(bound.topLeft)
+  fun Mat.draw(offset: Point) =
+    toPImage()
+      .draw(offset)
 }

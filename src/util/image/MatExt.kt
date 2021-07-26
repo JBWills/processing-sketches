@@ -5,8 +5,12 @@ import coordinate.Point
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.Scalar
+import org.opencv.imgproc.Imgproc
 import util.image.ImageFormat.Companion.getFormat
+import util.image.opencvContouring.applyWithDest
+import util.image.opencvContouring.submat
 import util.isAllUniqueChars
+import util.letWith
 import util.map
 import util.tuple.Pair3
 import util.tuple.Pair4
@@ -16,6 +20,9 @@ import java.nio.IntBuffer
 
 val Mat.size: Point get() = Point(cols(), rows())
 val Mat.bounds: BoundRect get() = BoundRect(Point.Zero, size - 1)
+val Mat.min: Double get() = minMax.first
+val Mat.minMax: Pair<Double, Double> get() = Core.minMaxLoc(this).letWith { minVal to maxVal }
+val Mat.max: Double get() = minMax.second
 
 fun Mat.toDoubleArray(bandIndex: Int = 0): Array<DoubleArray> = Array(rows()) { rowIndex ->
   cols()
@@ -33,8 +40,11 @@ fun Mat.toIntArray(bandIndex: Int = 0): Array<IntArray> = Array(rows()) { rowInd
 fun Mat.contains(p: Point) = bounds.contains(p)
 
 fun Mat.get(p: Point, band: Int = 0): Double? = get(p.y.toInt(), p.x.toInt())?.get(band)
+fun Mat.getOr(p: Point, default: Double, band: Int = 0): Double = get(p, band) ?: default
 fun createMat(rows: Int, cols: Int, format: ImageFormat, baseColor: Color) =
   Mat(rows, cols, format.openCVFormat, format.colorToScalar(baseColor))
+
+fun BoundRect.toEmptyMat(type: ImageFormat) = Mat(heightPx, widthPx, type.openCVFormat)
 
 fun ByteArray.toBuffer(): ByteBuffer = ByteBuffer.wrap(this)
 fun ByteArray.asIntBuffer(): IntBuffer = toBuffer().asIntBuffer()
@@ -125,3 +135,16 @@ fun List<Mat>.shuffle(currOrder: String, newOrder: String, newFormat: ImageForma
 
 fun Mat.shuffle(currOrder: String, newOrder: String, newFormat: ImageFormat) =
   split().shuffle(currOrder, newOrder, newFormat)
+
+fun Mat.crop(crop: BoundRect) = submat(crop)
+
+fun Mat.scale(amount: Point) = resize(size * amount)
+
+fun Mat.resize(newSize: Point) =
+  if (newSize == size) this
+  else Mat(newSize.yi, newSize.xi, getFormat().openCVFormat).apply {
+    if (empty()) return@apply
+    Imgproc.resize(this@resize, this, this.size())
+  }
+
+fun Mat.copy() = applyWithDest { src, dest -> src.copyTo(dest) }

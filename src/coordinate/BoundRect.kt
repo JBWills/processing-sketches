@@ -159,6 +159,18 @@ data class BoundRect(
   override fun scaled(scale: Point, anchor: Point) =
     BoundRect(topLeft.scaled(scale, anchor), width * scale.x, height * scale.y)
 
+  fun scaleByHeight(newHeight: Number): BoundRect {
+    val ratio = newHeight.toDouble() / height
+    val newWidth = ratio * width
+    return BoundRect(topLeft, newWidth, newHeight)
+  }
+
+  fun scaleByWidth(newWidth: Number): BoundRect {
+    val ratio = newWidth.toDouble() / width
+    val newHeight = ratio * height
+    return BoundRect(topLeft, newWidth, newHeight)
+  }
+
   override fun translated(translate: Point) = plus(translate)
 
   fun resizeCentered(newSize: Point): BoundRect =

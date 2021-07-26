@@ -2,6 +2,30 @@ package geomerativefork.src.util
 
 import kotlin.math.max
 
+
+/**
+ * Iterate over list, evaluating each item as in predicate or not, if it is not, split the list and
+ * discard the unmatched elements.
+ *
+ * @param T The type of the list
+ * @param predicate true if the item should be in the result
+ * @return a list of lists whos summed size is no larger than the original list
+ */
+fun <T> Iterable<T>.chunkFilter(predicate: (T) -> Boolean): List<List<T>> {
+  var lastInside: Boolean? = null
+
+  val result = mutableListOf<MutableList<T>>()
+  forEach {
+    val inside = predicate(it)
+    if (inside != lastInside) result.add(mutableListOf())
+    if (inside) result.last().add(it)
+
+    lastInside = inside
+  }
+
+  return result
+}
+
 fun <T, R> List<List<T>>.deepMap(block: (T) -> R): List<List<R>> = map { list -> list.map(block) }
 
 fun <A> Iterable<A>.mapIf(predicate: Boolean, block: (A) -> A): List<A> =

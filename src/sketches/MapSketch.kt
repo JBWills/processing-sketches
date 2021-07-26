@@ -7,6 +7,7 @@ import controls.panels.panelext.button
 import controls.panels.panelext.fileSelect
 import controls.panels.panelext.slider
 import controls.panels.panelext.slider2D
+import controls.panels.panelext.toggle
 import controls.props.PropData
 import controls.props.types.ContourProp
 import coordinate.BoundRect
@@ -15,6 +16,7 @@ import coordinate.coordSystems.getCoordinateMap
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.image.opencvContouring.contourMemo
+import util.image.opencvContouring.geoTiffToGray
 import util.percentAlong
 import util.pointsAndLines.polyLine.transform
 
@@ -47,7 +49,10 @@ class MapSketch : LayeredCanvasSketch<MapData, MapLayerData>(
       .scaled(mapScale).let { it.translated(mapCenter * it.size - (it.size / 2)) },
   )
 
-  fun getThresholdToOffset(allThresholds: List<Double>, layerMove: Point): Map<Double, Point> =
+  private fun getThresholdToOffset(
+    allThresholds: List<Double>,
+    layerMove: Point
+  ): Map<Double, Point> =
     allThresholds.associateWith { threshold ->
       val thresholdPercent = (allThresholds.first()..allThresholds.last()).percentAlong(threshold)
       if (thresholdPercent.isNaN()) Point(0)
@@ -55,7 +60,7 @@ class MapSketch : LayeredCanvasSketch<MapData, MapLayerData>(
     }
 
   override fun drawOnce(layerInfo: LayerInfo) {
-    val (geoTiffFile, mapCenter, mapScale, contourProp, layerMove) = layerInfo.globalValues
+    val (geoTiffFile, drawMap, mapCenter, mapScale, contourProp, layerMove) = layerInfo.globalValues
     geoTiffFile ?: return
 
     val allThresholds = contourProp.getThresholds()
@@ -65,14 +70,13 @@ class MapSketch : LayeredCanvasSketch<MapData, MapLayerData>(
     val scaleAndMove =
       getTiffToScreenTransform(contourResponse.baseMatBoundsInUnionRect, mapScale, mapCenter)
 
+    if (drawMap) {
+      contourResponse.contours.first().binaryImage.draw(boundRect.topLeft)
+      contourResponse.baseMat.geoTiffToGray().draw(boundRect.topLeft)
+    }
+
     contourResponse.contours.forEachIndexed { index, contourData ->
       val lines = contourData.contours
-//      val higherElevationsBinaryImage = contourResponse
-//        .contours
-//        .getOrNull(index + 1)
-//        ?.binaryImage
-//
-//      val thresholdedLines = higherElevationsBinaryImage?.findContours() ?: lines
 
       lines.transform(scaleAndMove).draw(boundRect)
     }
@@ -94,6 +98,7 @@ data class MapLayerData(
 @Serializable
 data class MapData(
   var geoTiffFile: String? = null,
+  var drawMap: Boolean = false,
   var mapCenter: Point = Point.Zero,
   var mapScale: Double = 1.0,
   var contourProp: ContourProp = ContourProp(),
@@ -102,7 +107,10 @@ data class MapData(
 ) : PropData<MapData> {
   override fun bind() = tabs {
     tab("Map") {
-      fileSelect(::geoTiffFile)
+      row {
+        fileSelect(::geoTiffFile)
+        toggle(::drawMap).withWidth(0.5)
+      }
 
       row {
         heightRatio = 5
