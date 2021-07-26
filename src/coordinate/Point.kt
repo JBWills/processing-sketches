@@ -5,15 +5,13 @@ package coordinate
 import coordinate.iterators.PointProgression
 import geomerativefork.src.RPoint
 import geomerativefork.src.util.bound
-import interfaces.math.Mathable
-import interfaces.shape.Transformable
+import interfaces.shape.Scalar
 import kotlinx.serialization.Serializable
 import org.locationtech.jts.geom.Coordinate
 import org.opencv.core.Size
 import util.DoubleRange
 import util.equalsDelta
 import util.equalsZero
-import util.roundedString
 import util.squared
 import util.step
 import util.toDegrees
@@ -33,19 +31,8 @@ operator fun Number.div(p: Point) = Point(
 operator fun Number.minus(p: Point) = Point(this.toDouble() - p.x, this.toDouble() - p.y)
 
 @Serializable
-data class Point(val x: Double, val y: Double) :
-  Comparable<Point>,
-  Mathable<Point>,
-  Transformable<Point> {
-  init {
-    if (x.isNaN() || y.isNaN()) throw Exception("Can't create a point with nan values. x=$x, y=$y")
-  }
-
-  constructor(p: Number) : this(p, p)
-  constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
-  constructor(p: Point) : this(p.x, p.y)
-
-  fun toPixelPoint() = PixelPoint(x.toInt(), y.toInt())
+data class Point(val x: Double, val y: Double) : Scalar<Point> {
+  override val values: List<Double> = listOf(x, y)
 
   val xf get() = x.toFloat()
   val yf get() = y.toFloat()
@@ -56,20 +43,18 @@ data class Point(val x: Double, val y: Double) :
   val xi get() = x.toInt()
   val yi get() = y.toInt()
 
-  val magnitude get() = sqrt(magnitudeSquared)
+  init {
+    if (x.isNaN() || y.isNaN()) throw Exception("Can't create a point with nan values. x=$x, y=$y")
+  }
 
-  // useful when you don't want to do expensive sqrt() calcs
-  val magnitudeSquared get() = x.squared() + y.squared()
+  constructor(p: Number) : this(p, p)
+  constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
+  constructor(p: Point) : this(p.x, p.y)
+  constructor(p: Point3) : this(p.x, p.y)
 
-  val normalized: Point
-    get() =
-      if (magnitudeSquared == 0.0) Point(1, 0)
-      else Point(x / magnitude, y / magnitude)
+  fun toPixelPoint() = PixelPoint(x.toInt(), y.toInt())
 
-
-  fun dist(other: Point) = (this - other).magnitude
-
-  fun distSquared(other: Point) = (this - other).magnitudeSquared
+  override fun fromValues(values: List<Double>) = Point(values[0], values[1])
 
   fun flipX() = Point(-x, y)
   fun flipY() = Point(x, -y)
@@ -77,10 +62,6 @@ data class Point(val x: Double, val y: Double) :
   fun swapXY() = Point(y, x)
 
   fun angle(): Deg = Deg(atan2(y, x).toDegrees())
-
-  override operator fun unaryMinus() = Point(-x, -y)
-
-  override operator fun unaryPlus() = Point(+x, +y)
 
   fun squared() = Point(x.squared(), y.squared())
 
@@ -100,21 +81,6 @@ data class Point(val x: Double, val y: Double) :
   fun withY(amt: Number) = Point(x, amt)
   fun zeroX() = Point(0, y)
   fun zeroY() = Point(x, 0)
-
-  operator fun plus(other: Point) = Point(x + other.x, y + other.y)
-  operator fun plus(other: List<Point>) = listOf(this) + other
-  override operator fun plus(other: Number) = Point(x + other.toDouble(), y + other.toDouble())
-  operator fun minus(other: Point) = this + -other
-  override operator fun minus(other: Number) = this + -other.toDouble()
-  operator fun div(other: Point) = Point(x / other.x, y / other.y)
-  override operator fun div(other: Number) = this / Point(other, other)
-
-  override operator fun times(other: Number) = this * Point(other, other)
-  operator fun times(other: Point) = Point(x * other.x, y * other.y)
-
-  override operator fun compareTo(other: Point): Int =
-    if (x != other.x) x.compareTo(other.x)
-    else y.compareTo(other.y)
 
   operator fun rangeTo(other: Point) = PointProgression(this, other)
 
@@ -136,6 +102,7 @@ data class Point(val x: Double, val y: Double) :
 
   fun forEach2D(block: (Point) -> Unit) = (Zero..this).forEach2D(block)
 
+  fun toPoint3D(): Point3 = Point3(this)
   fun toRPoint(): RPoint = RPoint(xf, yf)
   fun toSize(): Size = Size(x, y)
 
@@ -145,11 +112,19 @@ data class Point(val x: Double, val y: Double) :
     return anchor + scaledDiffVector
   }
 
-  override fun translated(translate: Point) = plus(translate)
-
-  override fun toString(): String {
-    return "Point(x=${x.roundedString(5)}, y=${y.roundedString(5)})"
+  @Suppress("NAME_SHADOWING")
+  override fun scaled3(scale: Point3, anchor: Point3): Point {
+    val anchor = anchor.toPoint()
+    val scale = scale.toPoint()
+    val diffVector = minus(anchor)
+    val scaledDiffVector = diffVector * scale
+    return anchor + scaledDiffVector
   }
+
+  override fun translated(translate: Point) = plus(translate)
+  override fun translated3(translate: Point3) = plus(translate.toPoint())
+
+  override fun toString(): String = toString("Point", decimalPrecision = 5)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

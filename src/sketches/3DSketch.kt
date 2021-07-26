@@ -12,23 +12,25 @@ import sketches.base.LayeredCanvasSketch
  *
  * Copy and paste this to create a new sketch.
  */
-class Example : LayeredCanvasSketch<ExampleData, ExampleLayerData>(
-  "Example",
-  defaultGlobal = ExampleData(),
-  layerToDefaultTab = { ExampleLayerData() },
+class ThreeD : LayeredCanvasSketch<ThreeDData, ThreeDLayerData>(
+  "ThreeD",
+  defaultGlobal = ThreeDData(),
+  layerToDefaultTab = { ThreeDLayerData() },
 ) {
   override fun drawSetup(layerInfo: DrawInfo) {}
 
   override fun drawOnce(layerInfo: LayerInfo) {
     val (exampleGlobalField) = layerInfo.globalValues
     val (exampleTabField) = layerInfo.tabValues
+
+
   }
 }
 
 @Serializable
-data class ExampleLayerData(
+data class ThreeDLayerData(
   var exampleTabField: Int = 1,
-) : PropData<ExampleLayerData> {
+) : PropData<ThreeDLayerData> {
   override fun bind() = layerTab {
     slider(::exampleTabField, 0..10)
   }
@@ -38,9 +40,9 @@ data class ExampleLayerData(
 }
 
 @Serializable
-data class ExampleData(
+data class ThreeDData(
   var exampleGlobalField: Int = 1,
-) : PropData<ExampleData> {
+) : PropData<ThreeDData> {
   override fun bind() = singleTab("Global") {
     slider(::exampleGlobalField, 0..10)
   }
@@ -50,4 +52,4 @@ data class ExampleData(
   override fun toSerializer() = serializer()
 }
 
-fun main() = Example().run()
+fun main() = ThreeD().run()
