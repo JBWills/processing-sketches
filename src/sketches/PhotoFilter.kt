@@ -5,7 +5,6 @@ import controls.panels.ControlStyle
 import controls.panels.TabStyle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
-import controls.panels.panelext.degreeSlider
 import controls.panels.panelext.dropdown
 import controls.panels.panelext.slider
 import controls.panels.panelext.sliderPair
@@ -172,7 +171,7 @@ data class PhotoFilterData(
       dropdown(::filterType, style = ControlStyle.Gray)
       sliderPair(::sampleRate, 2.0..50.0, withLockToggle = true)
       sliderPair(::objectSize, 0.0..20.0 and 2.0..30.0)
-      degreeSlider(::baseRotation)
+      slider(::baseRotation)
       slider(::filterSize, 1..100)
     }
   }

@@ -22,9 +22,7 @@ import util.pointsAndLines.polyLine.transform
 
 
 /**
- * Starter sketch that uses all of the latest bells and whistles.
- *
- * Copy and paste this to create a new sketch.
+ * Draws a map with topology that can be offset to create a 3d effect.
  */
 class MapSketch : LayeredCanvasSketch<MapData, MapLayerData>(
   "MapSketch",

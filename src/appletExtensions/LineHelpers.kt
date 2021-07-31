@@ -3,11 +3,15 @@ package appletExtensions
 import BaseSketch
 import appletExtensions.draw.line
 import arrow.core.memoize
+import controls.props.types.CrossHatchProp
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
 import coordinate.Point
 import coordinate.Segment
+import util.DoubleRange
+import util.atAmountAlong
+import util.reversed
 import java.awt.Color
 
 typealias Sketch = BaseSketch
@@ -119,6 +123,17 @@ fun getParallelLinesInBoundMemo(
   distanceBetween: Number,
   offset: Number = 0.0,
 ): List<Segment> = getParallelLinesInBoundBaseMemoized(bound, deg, distanceBetween, offset)
+
+fun getParallelLinesInBoundMemo(
+  bound: BoundRect,
+  crossHatch: CrossHatchProp,
+  minMaxDistance: DoubleRange,
+): List<Segment> = getParallelLinesInBoundBaseMemoized(
+  bound,
+  crossHatch.lineAngle,
+  minMaxDistance.reversed().atAmountAlong(crossHatch.lineDensity),
+  minMaxDistance.atAmountAlong(crossHatch.lineOffset),
+)
 
 fun Sketch.drawParallelLinesInBound(
   bound: BoundRect,

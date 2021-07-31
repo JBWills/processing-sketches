@@ -112,6 +112,8 @@ data class Point(val x: Double, val y: Double) :
   override operator fun times(other: Number) = this * Point(other, other)
   operator fun times(other: Point) = Point(x * other.x, y * other.y)
 
+  fun abs() = Point(abs(x), abs(y))
+
   override operator fun compareTo(other: Point): Int =
     if (x != other.x) x.compareTo(other.x)
     else y.compareTo(other.y)

@@ -5,6 +5,9 @@ import kotlin.math.abs
 
 typealias DoubleRange = ClosedRange<Double>
 
+
+fun DoubleRange.reversed() = endInclusive..start
+
 operator fun DoubleRange.times(other: Number) =
   (start * other.toDouble())..(endInclusive * other.toDouble())
 

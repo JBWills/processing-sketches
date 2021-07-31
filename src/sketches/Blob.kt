@@ -6,7 +6,6 @@ import controls.panels.ControlStyle.Companion.Green
 import controls.panels.ControlStyle.Companion.Red
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
-import controls.panels.panelext.degreeSlider
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.slider
 import controls.panels.panelext.toggle
@@ -181,7 +180,7 @@ data class BlobData(
         slider(::lineDensity, ZeroToOne)
         slider(::lineOffset, ZeroToOne)
       }
-      degreeSlider(::lineAngle)
+      slider(::lineAngle)
       noisePanel(::lineNoise)
     }
   }

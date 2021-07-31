@@ -89,7 +89,7 @@ data class BoundRect(
 
   val pointsClockwise get() = listOf(topLeft, topRight, bottomRight, bottomLeft)
 
-  val segments get() = listOf(topSegment, bottomSegment, leftSegment, rightSegment)
+  val segments get() = setOf(topSegment, bottomSegment, leftSegment, rightSegment)
 
   fun unionBound(other: BoundRect) = BoundRect(
     Point.minXY(this.topLeft, other.topLeft),

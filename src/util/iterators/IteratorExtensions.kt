@@ -205,6 +205,11 @@ fun <T, R> List<T>.mapWithNext(block: (T, T) -> R) = mapWithSurrounding { _, cur
   next?.let { block(curr, next) }
 }.filterNotNull()
 
+fun <T, R> List<T>.mapWithNextIndexed(block: (Int, T, T) -> R) =
+  mapWithSurrounding { _, curr, next, index ->
+    next?.let { block(index, curr, next) }
+  }.filterNotNull()
+
 fun <T, R> List<T>.reduceGeneral(initial: R, block: (R, T) -> R): R {
   var r = initial
   forEach { r = block(r, it) }

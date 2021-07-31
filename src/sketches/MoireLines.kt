@@ -4,7 +4,6 @@ import FastNoiseLite.NoiseType.Perlin
 import appletExtensions.getParallelLinesInBound
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.degreeSlider
 import controls.panels.panelext.dropdown
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.slider
@@ -107,12 +106,12 @@ data class MoireLinesLayerData(
     dropdown(::shape)
     row {
       slider(::lineDensity, 0.5..1.0)
-      degreeSlider(::lineAngle, 0.0..90.0)
+      slider(::lineAngle, 0.0..90.0)
     }
     slider(::lineOffset, 0.0..1.0)
     sliderPair(::shapeSize, 0.0..2.0, withLockToggle = true, defaultLocked = true)
     sliderPair(::shapeCenter, -0.5..1.5)
-    degreeSlider(::shapeRotation, 0.0..90.0)
+    slider(::shapeRotation, 0.0..90.0)
     noisePanel(::noise)
   }
 

@@ -40,6 +40,19 @@ fun PolyLine.translated(p: Point): PolyLine = _translated(this, p)
 
 fun MutablePolyLine.translatedInPlace(p: Point): Unit = indices.forEach { this[it] += p }
 
+fun MutablePolyLine.appendSegmentOrStartNewLine(s: Segment): MutablePolyLine? = when {
+  isEmpty() -> {
+    add(s.p1)
+    add(s.p2)
+    null
+  }
+  last() == s.p1 -> {
+    add(s.p2)
+    null
+  }
+  else -> mutableListOf(s.p1, s.p2)
+}
+
 fun MatOfPoint.toPolyLine(): PolyLine =
   toArray()
     .map { Point(it.x, it.y) }
