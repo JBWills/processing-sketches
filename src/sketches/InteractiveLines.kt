@@ -10,7 +10,7 @@ import controls.props.types.BrushProp
 import coordinate.Deg
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.image.getValue
+import util.image.opencvMat.getValue
 
 /**
  * Starter sketch that uses all of the latest bells and whistles.

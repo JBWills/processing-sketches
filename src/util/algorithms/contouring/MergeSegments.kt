@@ -3,9 +3,9 @@ package util.algorithms.contouring
 import coordinate.Point
 import coordinate.Segment
 import util.iterators.get
-import util.pointsAndLines.mutablePolyLine.attach
-import util.pointsAndLines.polyLine.PolyLine
-import util.pointsAndLines.polyLine.isClosed
+import util.polylines.attach
+import util.polylines.polyLine.PolyLine
+import util.polylines.polyLine.isClosed
 
 /**
  * Merge an unordered list of segments into a set of polylines.

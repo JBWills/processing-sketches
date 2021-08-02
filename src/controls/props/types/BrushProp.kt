@@ -35,15 +35,15 @@ import processing.core.PImage
 import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Gray
 import util.image.ImageFormat.RGB
-import util.image.asDisplayAlpha
 import util.image.blurAlpha
 import util.image.converted
-import util.image.overlay
-import util.image.toMat
-import util.image.toPImage
+import util.image.opencvMat.asDisplayAlpha
+import util.image.opencvMat.toMat
+import util.image.opencvMat.toPImage
+import util.image.pimage.overlay
 import util.io.serialization.MatSerializer
 import util.lerp
-import util.pointsAndLines.polyLine.PolyLine
+import util.polylines.polyLine.PolyLine
 import util.print.CustomPx
 import util.print.StrokeJoin
 import util.print.Style
@@ -84,21 +84,6 @@ data class BrushProp(
 
   @Transient
   var hasBoundDragListener = false
-
-  constructor(
-    s: BrushProp,
-    size: Double? = null,
-    feather: Double? = null,
-    intensity: Double? = null,
-    showMask: Boolean? = null,
-    brushType: BrushType? = null,
-  ) : this(
-    size ?: s.size,
-    feather ?: s.feather,
-    intensity ?: s.intensity,
-    showMask ?: s.showMask,
-    brushType ?: s.brushType,
-  )
 
   override fun toSerializer() = serializer()
 
@@ -168,7 +153,7 @@ data class BrushProp(
     graphics: PGraphics = sketch.interactiveGraphicsLayer
   ) {
     if (!hasBoundDragListener) sketch.addMouseEventListener(mouseDragListener)
-    
+
     graphics.withDraw {
       if (showMask) latestMaskDisplay?.draw(this)
 

@@ -8,6 +8,11 @@ import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Alpha
 import util.image.ImageFormat.Gray
 import util.image.ImageFormat.RGB
+import util.image.opencvMat.asBlankMat
+import util.image.opencvMat.createMat
+import util.image.opencvMat.merge
+import util.image.opencvMat.split
+import util.image.opencvMat.toPImage
 import java.awt.Color
 
 fun Mat.toArgbPImage(from: ImageFormat): PImage = converted(from, ARGB).toPImage()

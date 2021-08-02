@@ -1,4 +1,4 @@
-package util.image
+package util.image.pimage
 
 import arrow.core.memoize
 import coordinate.BoundRect
@@ -7,16 +7,15 @@ import coordinate.Point.Companion.minXY
 import processing.core.PConstants.RGB
 import processing.core.PGraphics
 import processing.core.PImage
+import util.image.ImageCrop
 import util.image.ImageCrop.Crop
 import util.luminance
 import java.awt.Color
 
-val PImage.bounds: BoundRect
-  get() = BoundRect(Point.Zero, width, height)
-
-val PImage.size: Point get() = Point(width, height)
-
 val PImage.aspect: Double get() = width.toDouble() / height
+val PImage.bounds: BoundRect get() = BoundRect(width, height)
+val PImage.center: Point get() = Point(width / 2, height / 2)
+val PImage.size: Point get() = Point(width, height)
 
 fun PImage.get(p: Point): Color = Color(get(p.xi, p.yi))
 

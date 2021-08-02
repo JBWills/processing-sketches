@@ -1,4 +1,4 @@
-package util.pointsAndLines.polyLine
+package util.polylines
 
 import coordinate.Point
 import coordinate.Segment
@@ -7,6 +7,7 @@ import geomerativefork.src.util.deepMap
 import interfaces.shape.transform
 import util.iterators.forEachWithNext
 import util.iterators.mapWithNext
+import util.polylines.polyLine.PolyLine
 
 fun PolyLine.mapWithLength(block: (point: Point, length: Double) -> Point): PolyLine {
   if (isEmpty()) return emptyList()

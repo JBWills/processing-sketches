@@ -18,7 +18,7 @@ import util.doIf
 import util.image.blurred
 import util.image.inverted
 import util.image.luminance
-import util.image.scaleByLargestDimension
+import util.image.pimage.scaleByLargestDimension
 import util.image.threshold
 import util.io.loadImageMemo
 import util.tuple.and

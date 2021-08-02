@@ -8,7 +8,6 @@ import controls.panels.Panelable
 import controls.props.types.CanvasProp
 import util.darkened
 import util.print.Style
-import util.print.Thick
 import java.awt.Color
 
 abstract class CanvasSketch(
@@ -37,10 +36,7 @@ abstract class CanvasSketch(
     val style = canvasProps.paper.defaultStyle
       .applyOverrides(layerConfig.style)
       .applyOverrides(
-        Style(
-          weight = if (isRecording) Thick() else null,
-          color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5) else null,
-        ),
+        Style(color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5) else null),
       )
 
     withStyle(style) {

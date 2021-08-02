@@ -1,8 +1,8 @@
-package util.pointsAndLines.mutablePolyLine
+package util.polylines
 
 import coordinate.Point
 import coordinate.Segment
-import util.pointsAndLines.polyLine.isClosed
+import util.polylines.polyLine.isClosed
 
 typealias  MutablePolyLine = MutableList<Point>
 

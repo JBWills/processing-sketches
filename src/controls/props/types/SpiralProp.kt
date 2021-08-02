@@ -12,7 +12,7 @@ import coordinate.Point
 import coordinate.PointSpiral
 import kotlinx.serialization.Serializable
 import util.ZeroToOne
-import util.pointsAndLines.polyLine.normalizeDistances
+import util.polylines.polyLine.normalizeDistances
 
 
 @Serializable

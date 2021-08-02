@@ -17,8 +17,8 @@ import util.geomutil.toPoint
 import util.iterators.mapArray
 import util.iterators.mapWithNextCyclical
 import util.min
-import util.pointsAndLines.polyLine.PolyLine
-import util.pointsAndLines.polyLine.transform
+import util.polylines.polyLine.PolyLine
+import util.polylines.transform
 import util.step
 import kotlin.math.abs
 import kotlin.math.max

@@ -72,11 +72,7 @@ class Arc(
       return Arc(startDeg + lengthClockwise / 2, 0.0, this)
     }
 
-    return Arc(
-      startDeg - amt,
-      endDeg + amt,
-      this,
-    )
+    return Arc(startDeg - amt, endDeg + amt, this)
   }
 
   fun contains(deg: Number) = contains(Deg(deg.toDouble()))

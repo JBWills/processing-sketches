@@ -23,9 +23,9 @@ import sketches.FilterType.Lines
 import sketches.FilterType.Squares
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
-import util.image.bounds
-import util.image.get
-import util.image.gradientAt
+import util.image.pimage.bounds
+import util.image.pimage.get
+import util.image.pimage.gradientAt
 import util.tuple.and
 
 /**

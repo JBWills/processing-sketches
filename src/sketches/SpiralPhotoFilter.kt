@@ -11,9 +11,9 @@ import controls.props.types.SpiralProp
 import coordinate.Deg
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.image.bounds
-import util.image.get
-import util.pointsAndLines.polyLine.mapWithLength
+import util.image.pimage.bounds
+import util.image.pimage.get
+import util.polylines.mapWithLength
 
 /**
  * Starter sketch that uses all of the latest bells and whistles.

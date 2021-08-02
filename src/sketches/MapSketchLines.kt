@@ -19,18 +19,18 @@ import kotlinx.serialization.Serializable
 import org.opencv.core.Mat
 import sketches.base.LayeredCanvasSketch
 import util.image.ImageFormat
-import util.image.bounds
-import util.image.fillPoly
-import util.image.get
-import util.image.opencvContouring.findContours
-import util.image.opencvContouring.maskContours
-import util.image.opencvContouring.threshold
+import util.image.opencvMat.bounds
+import util.image.opencvMat.fillPoly
+import util.image.opencvMat.findContours
+import util.image.opencvMat.get
+import util.image.opencvMat.maskedByImage
+import util.image.opencvMat.threshold
 import util.io.geoJson.loadGeoMatMemo
 import util.percentAlong
-import util.pointsAndLines.polyLine.bound
-import util.pointsAndLines.polyLine.expandEndpointsToMakeMask
-import util.pointsAndLines.polyLine.transform
-import util.pointsAndLines.polyLine.translated
+import util.polylines.bound
+import util.polylines.expandEndpointsToMakeMask
+import util.polylines.transform
+import util.polylines.translated
 
 /**
  * Draws a map with topology that can be offset to create a 3d effect.
@@ -63,7 +63,7 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
   )
 
   override fun drawOnce(layerInfo: LayerInfo) {
-    val (geoTiffFile, drawMap, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, showHorizontalLines, showVerticalLines, drawMinElevationOutline, drawUnionMat) = layerInfo.globalValues
+    val (geoTiffFile, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, showHorizontalLines, showVerticalLines, drawMinElevationOutline, drawUnionMat) = layerInfo.globalValues
     geoTiffFile ?: return
 
     val elevationRange = minElevation..maxElevation
@@ -92,18 +92,17 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
       pointTransformFunc = { pointLocation, _, _ ->
         pointLocation + (elevationMoveAmount * elevationPercent(pointLocation))
       },
-      pointVisibleFunc = { pointLocation, _, x, y ->
+      pointVisibleFunc = { pointLocation, _, _, _ ->
         isPointVisible(pointLocation)
       },
     ).toLinesByIndex()
 
     val unionMat = Mat.zeros(boundRect.size.toSize(), ImageFormat.Gray.openCVFormat)
-    horizontalLines.reversed().forEachIndexed { index, lineAtIndex ->
-
+    horizontalLines.reversed().forEachIndexed { _, lineAtIndex ->
       val lineOnMat = lineAtIndex.bound(boundRect).translated(-boundRect.topLeft)
 
       lineOnMat
-        .maskContours(unionMat, inverted = true)
+        .maskedByImage(unionMat, inverted = true)
         .translated(boundRect.topLeft).draw()
       unionMat.fillPoly(lineOnMat.map { it.expandEndpointsToMakeMask(unionMat.rows().toDouble()) })
     }
@@ -143,7 +142,6 @@ data class MapLinesLayerData(
 @Serializable
 data class MapLinesData(
   var geoTiffFile: String? = null,
-  var drawMap: Boolean = false,
   var mapCenter: Point = Point.Zero,
   var mapScale: Double = 1.0,
   var minElevation: Double = 0.0,
@@ -159,7 +157,6 @@ data class MapLinesData(
     tab("Map") {
       row {
         fileSelect(::geoTiffFile)
-        toggle(::drawMap).withWidth(0.5)
       }
 
       row {

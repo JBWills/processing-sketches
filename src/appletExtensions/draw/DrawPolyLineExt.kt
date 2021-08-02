@@ -7,7 +7,7 @@ import coordinate.Segment
 import geomerativefork.src.RPoint
 import processing.core.PApplet
 import processing.core.PGraphics
-import util.pointsAndLines.polyLine.normalizeForPrint
+import util.polylines.polyLine.normalizeForPrint
 import java.awt.Color
 
 fun PApplet.vertex(p: Point) = vertex(p.xf, p.yf)

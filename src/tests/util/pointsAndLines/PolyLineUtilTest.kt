@@ -2,7 +2,7 @@ package tests.util.pointsAndLines
 
 import coordinate.Point
 import org.junit.Test
-import util.pointsAndLines.polyLine.normalizeDistances
+import util.polylines.polyLine.normalizeDistances
 import kotlin.test.assertEquals
 
 internal class PolyLineUtilTest {

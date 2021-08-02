@@ -42,14 +42,14 @@ fun <T> List<T>.getLerpIndices(lerpAmt: Double): List<Int> {
 
 fun <K, V> MutableMap<K, V>.replaceKey(oldKey: K, newKey: K) {
   val value = get(oldKey) ?: return
+  if (oldKey == newKey) return
   put(newKey, value)
+  remove(oldKey)
 }
 
-fun Iterable<Point>.sumPointsIndexed(block: (Int, Point) -> Point): Point {
-  var sum = Point.Zero
-  forEachIndexed { index, item -> sum += block(index, item) }
-  return sum
-}
+fun Iterable<Point>.sumPointsIndexed(block: (Int, Point) -> Point): Point =
+  mapIndexed(block)
+    .reduceGeneral(Point.Zero) { acc, p -> acc + p }
 
 fun <T> Iterable<T>.sumByDoubleIndexed(block: (Int, T) -> Double): Double {
   var sum = 0.0
@@ -108,18 +108,13 @@ fun <T> List<T>.extendCyclical(num: Int): List<T> {
   return List(num) { this[it % size] }
 }
 
-fun <T, K> List<List<T>>.map2DIndexed(block: (T, Int, Int) -> K) = mapIndexed { xIndex, list ->
-  list.mapIndexed { yIndex, elem ->
-    block(elem, xIndex, yIndex)
-  }
-}
-
 fun <T> times(iterations: Int, block: (i: Int) -> T): List<T> = (0 until iterations).map(block)
 
 fun <T> List<T>.limit(i: Int) = filterIndexed { index, _ -> index < i }
 
 fun <T> List<T?>.filterNotNull(): List<T> = mapNotNull { it }
 
+@Suppress("unused")
 fun <T> Iterable<T>.pEach() = println(map { it.toString() })
 
 fun <T> List<T>.forEachWithSurrounding(block: (T?, T, T?, Int) -> Unit) =
@@ -159,19 +154,17 @@ fun <T> List<T>.addIf(predicate: () -> Boolean, item: () -> T) =
   if (predicate()) this + item() else this.copy()
 
 
-fun <T> List<T>.prependIf(condition: Boolean, item: () -> T): List<T> =
-  if (condition) listOf(item()) + this else this
+fun <T> List<T>.prependIf(condition: Boolean, getItem: () -> T): List<T> =
+  if (condition) listOf(getItem()) + this else this
+
+fun <T> List<T>.prependIf(condition: Boolean, item: T): List<T> =
+  prependIf(condition) { item }
 
 fun <T> List<T>.addIf(condition: Boolean, item: () -> T) = this.addIf({ condition }, item)
+fun <T> List<T>.addIf(condition: Boolean, item: T): List<T> =
+  addIf(condition) { item }
+
 fun <T> List<T>.addNotNull(item: T?) = item?.let { this + it } ?: this.copy()
-
-fun <T, R> List<T>.mapWithLast(block: (T, Boolean) -> R) = mapIndexed { index, item ->
-  block(item, index == size - 1)
-}
-
-fun <T, R> List<T>.mapWithFirst(block: (T, Boolean) -> R) = mapIndexed { index, item ->
-  block(item, index == 0)
-}
 
 fun <T, R> List<T>.mapWithSurrounding(block: (T?, T, T?, Int) -> R) = mapIndexed { index, item ->
   val prevItem = if (index == 0) null else this[index - 1]
@@ -216,7 +209,7 @@ fun <T, R> List<T>.reduceGeneral(initial: R, block: (R, T) -> R): R {
   return r
 }
 
-fun <T> List<T>.zipWithSiblings() =
+fun <T> List<T>.zipWithSiblings(): List<Triple<T?, T, T?>> =
   mapWithSurrounding { prev, curr, next -> Triple(prev, curr, next) }
 
 fun <T> List<T>.zipWithNext(): List<Pair<T, T>> = mapWithNext { curr, next -> Pair(curr, next) }

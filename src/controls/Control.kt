@@ -16,9 +16,9 @@ import util.DoubleRange
 import util.PointRange
 import util.bounds
 import util.image.ImageCrop
-import util.image.pasteOnTopCentered
-import util.image.scaleAndCrop
-import util.image.solidColorPImage
+import util.image.pimage.pasteOnTopCentered
+import util.image.pimage.scaleAndCrop
+import util.image.pimage.solidColorPImage
 import util.io.loadImageMemo
 import util.io.noImageSelectedFilepath
 import util.positionAndSize

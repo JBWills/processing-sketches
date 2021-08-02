@@ -15,10 +15,10 @@ import coordinate.Point
 import coordinate.coordSystems.getCoordinateMap
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.image.opencvContouring.contourMemo
-import util.image.opencvContouring.geoTiffToGray
+import util.image.opencvMat.contourMemo
+import util.image.opencvMat.geoTiffToGray
 import util.percentAlong
-import util.pointsAndLines.polyLine.transform
+import util.polylines.transform
 
 
 /**
@@ -73,7 +73,7 @@ class MapSketch : LayeredCanvasSketch<MapData, MapLayerData>(
       contourResponse.baseMat.geoTiffToGray().draw(boundRect.topLeft)
     }
 
-    contourResponse.contours.forEachIndexed { index, contourData ->
+    contourResponse.contours.forEachIndexed { _, contourData ->
       val lines = contourData.contours
 
       lines.transform(scaleAndMove).draw(boundRect)

@@ -1,10 +1,9 @@
-package util.image.opencvContouring
+package util.image.opencvMat
 
 import coordinate.Point
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.Scalar
-import util.image.bounds
 
 fun Mat.bitwiseOr(other: Mat): Mat = applyWithDest { src, dest ->
   Core.bitwise_or(src, other, dest)

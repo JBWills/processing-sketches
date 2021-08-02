@@ -21,7 +21,7 @@ import processing.core.PImage
 import processing.event.MouseEvent
 import util.combineDrawLayersIntoSVG
 import util.image.ImageFormat
-import util.image.size
+import util.image.pimage.size
 import util.lineLimit
 import util.print.StrokeJoin
 import util.print.Style
@@ -56,14 +56,14 @@ abstract class BaseSketch(
 
   var isDebugMode: Boolean = false
 
-  var lastDrawImage: PImage? = null
+  private var lastDrawImage: PImage? = null
 
   val interactiveGraphicsLayer: PGraphics by lazy { createGraphics(size, ImageFormat.ARGB) }
 
   private val mouseListeners: MutableSet<MouseListener> = mutableSetOf()
 
   fun fileSelected(block: (File?) -> Unit, f: File?) {
-    kotlin.io.println("file selected: $f")
+    println("file selected: $f")
     block(f)
   }
 
@@ -148,7 +148,7 @@ abstract class BaseSketch(
       lastDrawImage = get()
     }
 
-    // TODO: large canvases can't have uielements on small screens because of this
+    // TODO: large canvases can't have ui elements on small screens because of this
     // Processing shrinks the screen size if it can't fit on your screen which is what causes the
     // discrepancy between the graphics layer and the surface size.
     if (lastDrawImage?.size == interactiveGraphicsLayer.size) {

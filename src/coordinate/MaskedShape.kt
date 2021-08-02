@@ -4,10 +4,10 @@ import coordinate.ContinuousPoints.Companion.splitInBounds
 import coordinate.Point.Companion.addIf
 import interfaces.shape.Maskable
 import util.iterators.forEachWithSurroundingCyclical
-import util.pointsAndLines.mutablePolyLine.MutablePolyLine
-import util.pointsAndLines.polyLine.PolyLine
-import util.pointsAndLines.polyLine.connectWith
-import util.pointsAndLines.polyLine.isClosed
+import util.polylines.MutablePolyLine
+import util.polylines.connectWith
+import util.polylines.polyLine.PolyLine
+import util.polylines.polyLine.isClosed
 
 data class ContinuousPoints(val isInBound: Boolean, val points: MutablePolyLine) :
   MutablePolyLine by points {

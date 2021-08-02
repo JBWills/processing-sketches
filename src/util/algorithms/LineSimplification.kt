@@ -2,8 +2,8 @@ package util.algorithms
 
 import coordinate.Point
 import coordinate.Segment
-import util.pointsAndLines.polyLine.PolyLine
-import util.pointsAndLines.polyLine.mapBySegment
+import util.polylines.mapBySegment
+import util.polylines.polyLine.PolyLine
 import util.times
 import util.tuple.map
 import java.util.LinkedList

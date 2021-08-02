@@ -5,11 +5,15 @@ import coordinate.Point
 import org.opencv.core.Mat
 import util.atAmountAlong
 import util.image.ImageFormat.Companion.getFormat
-import util.image.bounds
-import util.image.crop
-import util.image.opencvContouring.copyTo
-import util.image.resize
-import util.image.toEmptyMat
+import util.image.opencvMat.bounds
+import util.image.opencvMat.copyTo
+import util.image.opencvMat.crop
+import util.image.opencvMat.resize
+import util.image.opencvMat.toEmptyMat
+
+/*
+ * TODO DELETE THIS FILE (or delete AspectRatioUtils)
+ */
 
 sealed class AnchorType(val percent: Double)
 class Start : AnchorType(0.0)
@@ -68,13 +72,13 @@ class Anchored(val anchor: Anchor, val scale: Point = Point(1, 1)) : BoxScale(
   },
 )
 
-class Centered() : BoxScale(
+class Centered : BoxScale(
   getCrop = { from, to ->
     Crop(from, Anchor.Center.moveAndScale(from, to, Point(1, 1)))
   },
 )
 
-class CenterFit() : BoxScale(
+class CenterFit : BoxScale(
   getCrop = { from, to ->
     val sizeRatio = from.size / to.size
     val tallerAspectRatioThanContainer = sizeRatio.y >= sizeRatio.x

@@ -1,10 +1,12 @@
-package util.image
+package util.image.opencvMat
 
 import org.bytedeco.opencv.global.opencv_core
 import org.opencv.core.Mat
 import processing.core.PImage
+import util.image.ImageFormat
 import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Companion.getFormat
+import util.image.converted
 import java.nio.ByteBuffer
 
 fun Mat.asIntBuffer(fromFormat: ImageFormat = getFormat()) =

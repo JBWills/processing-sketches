@@ -6,9 +6,9 @@ import nu.pattern.OpenCV
 import org.junit.jupiter.api.Test
 import org.opencv.core.Mat
 import util.image.ImageFormat.Gray
-import util.image.opencvContouring.copyTo
-import util.image.opencvContouring.submat
-import util.image.toIntArray
+import util.image.opencvMat.copyTo
+import util.image.opencvMat.submat
+import util.image.opencvMat.toIntArray
 import kotlin.test.assertEquals
 
 internal class MatFiltersTest {

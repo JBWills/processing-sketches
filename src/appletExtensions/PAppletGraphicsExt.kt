@@ -7,9 +7,9 @@ import processing.core.PConstants.JAVA2D
 import processing.core.PGraphics
 import processing.core.PImage
 import util.image.ImageFormat
-import util.image.copyTo
-import util.image.toMat
-import util.image.toPImage
+import util.image.opencvMat.copyTo
+import util.image.opencvMat.toMat
+import util.image.opencvMat.toPImage
 import util.print.Style
 import java.awt.Color
 

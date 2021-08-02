@@ -1,60 +1,55 @@
-package util.image.opencvContouring
+package util.image.opencvMat
 
 import arrow.core.memoize
 import coordinate.BoundRect
 import coordinate.Point
-import geomerativefork.src.util.chunkFilter
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
 import org.opencv.imgproc.Imgproc
-import util.debugLog
-import util.image.ChannelDepth
-import util.image.ContourApproximationModes.TC89KCOS
-import util.image.ContourRetrievalModes.ListMode
 import util.image.ImageFormat.Gray
-import util.image.bounds
-import util.image.cloneEmpty
-import util.image.copy
-import util.image.getOr
-import util.image.minMax
+import util.image.opencvMat.ContourApproximationModes.TC89KCOS
+import util.image.opencvMat.ContourRetrievalModes.ListMode
 import util.io.geoJson.loadGeoMatMemo
-import util.pointsAndLines.polyLine.PolyLine
-import util.pointsAndLines.polyLine.bounds
-import util.pointsAndLines.polyLine.toPolyLine
+import util.polylines.bounds
+import util.polylines.polyLine.PolyLine
 import kotlin.math.max
 
 
 const val CannyRatio = 3
 
+/**
+ * Get the contour values as MatOfPoint objects
+ */
 fun Mat.findRawContours(): List<MatOfPoint> = arrayListOf<MatOfPoint>()
   .also { contours ->
     Imgproc.findContours(this, contours, cloneEmpty(), ListMode.typeVal, TC89KCOS.typeVal)
   }
 
+/**
+ * Get contours and process them as PolyLines. Note that this will do some filtering based on the
+ * length of the polylines.
+ *
+ * @return a list of PolyLines
+ */
 fun Mat.findContours(): List<PolyLine> =
   findRawContours()
     .map { it.toPolyLine() }
     .filter { it.size > 2 }
 
+/**
+ * Covert a GeoTiff file to a gray openCV Mat.
+ *
+ * @return a single channel mat with 8 bit depth
+ */
 fun Mat.geoTiffToGray(): Mat = applyWithDest(Gray) { src, dest ->
   val (min, max) = src.minMax
   val actualMin = max(0.0, min)
-
-  debugLog(actualMin, max)
 
   copy()
     .subtract(actualMin, false)
     .divide(max - actualMin, false)
     .convertTo(ChannelDepth.CV_8U, dest, alpha = 255.0)
 }
-
-fun List<PolyLine>.maskContours(mask: Mat, inverted: Boolean = false): List<PolyLine> =
-  flatMap { contour ->
-    contour.chunkFilter {
-      val inMask = mask.getOr(it, 0.0) > 128.0
-      if (inverted) !inMask else inMask
-    }
-  }
 
 fun Mat.contour(thresholds: List<Double>): Map<Double, List<PolyLine>> =
   thresholds.associateWith { thresholdValue ->
@@ -78,7 +73,6 @@ data class MatContourResponse(
   val baseMatBoundsInUnionRect: BoundRect,
   val contours: List<ContourData>,
 )
-
 
 fun loadAndContourWithOffset(
   filename: String,
@@ -106,7 +100,7 @@ fun loadAndContourWithOffset(
       .copyTo(emptyMat, offset - combinedBounds.topLeft)
 
     val thresholdEdges = thresholdMat.findContours()
-    val maskedEdges = thresholdEdges.maskContours(rollingUnionMat, inverted = true)
+    val maskedEdges = thresholdEdges.maskedByImage(rollingUnionMat, inverted = true)
 
     rollingUnionMat = rollingUnionMat.bitwiseOr(thresholdMat)
 

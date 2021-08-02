@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package util.print
 
 import interfaces.NamedObject

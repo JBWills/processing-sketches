@@ -23,7 +23,7 @@ import util.geomutil.diff
 import util.geomutil.ellipse
 import util.geomutil.intersection
 import util.geomutil.rotated
-import util.pointsAndLines.polyLine.PolyLine
+import util.polylines.polyLine.PolyLine
 
 enum class ShapeType {
   Ellipse,

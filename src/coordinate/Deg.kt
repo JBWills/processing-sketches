@@ -46,7 +46,6 @@ data class Deg(private val inputValue: Double) {
   val rad get() = value.toRadians()
 
   val unitVector get() = Point(rad.cos(), -rad.sin())
-  val unitSegment get() = Segment(Point.Zero, Point(rad.cos(), -rad.sin()))
 
   val perpendicular: Deg get() = plus(Quarter)
 

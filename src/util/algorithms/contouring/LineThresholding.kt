@@ -12,12 +12,12 @@ import util.algorithms.contouring.SegmentContourStatus.InOutIn
 import util.algorithms.contouring.SegmentContourStatus.Inside
 import util.algorithms.contouring.SegmentContourStatus.OutInOut
 import util.algorithms.contouring.SegmentContourStatus.Outside
-import util.image.get
-import util.pointsAndLines.mutablePolyLine.addPoints
-import util.pointsAndLines.polyLine.PolyLine
-import util.pointsAndLines.polyLine.forEachSegment
+import util.image.opencvMat.get
+import util.polylines.addPoints
+import util.polylines.forEachSegment
+import util.polylines.polyLine.PolyLine
 
-val MIN_SEGMENT_LENGTH = 1
+const val MIN_SEGMENT_LENGTH = 1
 
 private fun Point.belowThreshold(noise: Noise, threshold: Double) =
   noise.getPositive(x, y) < threshold
@@ -127,6 +127,6 @@ fun PolyLine.walkThreshold(noise: Noise, threshold: Double): List<PolyLine> = wa
 
 fun PolyLine.walkThreshold(mat: Mat, threshold: Double, band: Int = 0): List<PolyLine> =
   walkThreshold {
-    val value = mat.get(it, band) ?: threshold + 1
+    val value = mat.get(it, band) ?: (threshold + 1)
     value < threshold
   }

@@ -2,6 +2,11 @@ package util.image
 
 import coordinate.BoundRect
 import processing.core.PImage
+import util.image.pimage.cropCentered
+import util.image.pimage.scale
+import util.image.pimage.scaleByHeight
+import util.image.pimage.scaleByWidth
+import util.image.pimage.size
 
 enum class ImageCrop {
   Fill,

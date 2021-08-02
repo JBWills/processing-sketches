@@ -1,4 +1,4 @@
-package util.pointsAndLines.polyLine
+package util.polylines
 
 import arrow.core.memoize
 import coordinate.BoundRect
@@ -7,9 +7,8 @@ import coordinate.Point
 import coordinate.Point.Companion.maxXY
 import coordinate.Point.Companion.minXY
 import coordinate.Segment
-import org.opencv.core.MatOfPoint
-import util.mean
-import util.pointsAndLines.mutablePolyLine.MutablePolyLine
+import util.polylines.polyLine.PolyLine
+import util.polylines.polyLine.isClosed
 
 private val _bound = { list: PolyLine, bound: BoundRect ->
   ContinuousMaskedShape(list, bound).toBoundPoints(true)
@@ -19,15 +18,11 @@ private val _translatedSegments = { list: List<Segment>, p: Point ->
   list.map { it + p }
 }.memoize()
 
-private val _translated = { list: List<Point>, p: Point ->
-  list.map { it + p }
-}.memoize()
-
 fun PolyLine.bound(bound: BoundRect): List<PolyLine> = _bound(this, bound)
 
-fun PolyLine.closed(maxDistance: Double = Double.MAX_VALUE) = when {
+fun PolyLine.closed() = when {
   isEmpty() || isClosed() -> this
-  else -> this + first().copy()
+  else -> this + first()
 }
 
 @JvmName("boundLines")
@@ -37,21 +32,15 @@ fun List<PolyLine>.bound(bound: BoundRect): List<PolyLine> = flatMap { _bound(it
 fun List<Segment>.translated(p: Point) = _translatedSegments(this, p)
 
 @JvmName("translatedLine")
-fun PolyLine.translated(p: Point): PolyLine = _translated(this, p)
+fun PolyLine.translated(p: Point): PolyLine = map { it + p }
 
-fun List<PolyLine>.translated(p: Point): List<PolyLine> = map { _translated(it, p) }
+fun List<PolyLine>.translated(p: Point): List<PolyLine> = map { it.translated(p) }
 
 fun PolyLine.expandEndpointsToMakeMask(
   newBottom: Double = (maxByOrNull { it.y }?.y ?: firstOrNull()?.y ?: 0.0)
-): PolyLine {
-  if (size < 2) return this
-  val start = first()
-  val end = last()
-
-  val midpoint = start.x + (end.x - start.x) / 2
-
-  return Point(start.x, newBottom) + this + Point(end.x, newBottom)
-}
+): PolyLine =
+  if (size < 2) this
+  else Point(first().x, newBottom) + this + Point(last().x, newBottom)
 
 fun MutablePolyLine.translatedInPlace(p: Point): Unit = indices.forEach { this[it] += p }
 
@@ -68,11 +57,6 @@ fun MutablePolyLine.appendSegmentOrStartNewLine(s: Segment): MutablePolyLine? = 
   else -> mutableListOf(s.p1, s.p2)
 }
 
-fun MatOfPoint.toPolyLine(): PolyLine =
-  toArray()
-    .map { Point(it.x, it.y) }
-    .closed(maxDistance = mean(rows(), cols()) / 10)
-
 fun PolyLine.connectWith(other: PolyLine): PolyLine = when {
   last() == other.first() -> this + other
   last() == other.last() -> this + other.reversed()
@@ -87,8 +71,3 @@ val Iterable<Point>.minMax: Pair<Point, Point>
   get() = fold(initial = Point.MAX_VALUE to Point.MIN_VALUE) { (min, max), value ->
     minXY(min, value) to maxXY(max, value)
   }
-
-fun List<PolyLine>.toMatOfPointList() = map { it.toMatOfPoint() }
-
-fun PolyLine.toMatOfPoint(): MatOfPoint =
-  MatOfPoint().also { it.fromList(map(Point::toOpenCvPoint)) }

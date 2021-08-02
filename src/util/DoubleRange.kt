@@ -5,7 +5,6 @@ import kotlin.math.abs
 
 typealias DoubleRange = ClosedRange<Double>
 
-
 fun DoubleRange.reversed() = endInclusive..start
 
 operator fun DoubleRange.times(other: Number) =
@@ -90,15 +89,3 @@ infix fun DoubleRange.numSteps(numSteps: Number) =
   step((endInclusive - start) / (numSteps.toDouble() - 1))
 
 infix fun Double.until(s: Double) = DoubleProgression(this, s - 1)
-
-fun DoubleRange.atAmountAlong(amountAlong: Double = 0.0) =
-  start + ((endInclusive - start) * amountAlong)
-
-fun PointRange.atAmountAlong(amountAlong: Double = 0.0) =
-  start + ((endInclusive - start) * amountAlong)
-
-fun IntRange.atAmountAlong(amountAlong: Double = 0.0) =
-  start + ((endInclusive - start) * amountAlong)
-
-fun DoubleRange.percentAlong(num: Number) = (num.toDouble() - start) / (endInclusive - start)
-fun IntRange.percentAlong(num: Number) = (num.toDouble() - start) / (endInclusive - start)

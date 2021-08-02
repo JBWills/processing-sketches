@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package util.image
+package util.image.opencvMat
 
 import org.bytedeco.opencv.global.opencv_core
 import org.opencv.imgproc.Imgproc

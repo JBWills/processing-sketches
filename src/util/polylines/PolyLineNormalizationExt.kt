@@ -1,8 +1,9 @@
-package util.pointsAndLines.polyLine
+package util.polylines.polyLine
 
 import coordinate.Segment
 import geomerativefork.src.util.boundMin
 import util.DoubleRange
+import util.polylines.forEachSegment
 
 fun PolyLine.normalizeForPrint() = normalizeDistances(1.5..1000.0)
 

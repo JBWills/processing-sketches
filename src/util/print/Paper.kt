@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package util.print
 
 import coordinate.BoundRect
@@ -16,22 +18,6 @@ const val MAX_VERTICAL_IN = 13.75
 // not so sure about max horizontal in
 const val MAX_HORIZONTAL_IN = 17.0
 
-@Suppress("unused")
-enum class DPI(private val dpiVal: Int) {
-  Reg(72),
-  InkScape(96),
-  High(300);
-
-  fun toPixels(inches: Number): Double = (dpiVal * inches.toDouble())
-  fun toPixelsFromMm(mm: Number): Double = toPixels(mm.toDouble() / 25.4)
-}
-
-@Suppress("unused")
-enum class Orientation {
-  Portrait,
-  Landscape
-}
-
 enum class Paper(
   private val longSideInches: Double,
   private val shortSideInches: Double,
@@ -42,6 +28,7 @@ enum class Paper(
   LargeBlack(18, 12, BLACK, WHITE),
   A4White(11.69, 8.27, WHITE, BLACK),
   A4Black(12, 9, BLACK, WHITE),
+  A4Thick(11.125, 8.5, BLACK, WHITE),
   SquareBlack(7.87, 7.87, BLACK, WHITE),
   ColoredPaper(12.5, 9.5, RED.lightened(1.0), WHITE);
 
@@ -55,10 +42,10 @@ enum class Paper(
     sidePx(shortSideInches, dpi),
   ).doIf(orientation == Portrait) { it.swapXY() }
 
-  fun horizontalPx(orientation: Orientation, dpi: DPI = InkScape) =
+  private fun horizontalPx(orientation: Orientation, dpi: DPI = InkScape) =
     px(orientation, dpi).x
 
-  fun verticalPx(orientation: Orientation, dpi: DPI = InkScape) =
+  private fun verticalPx(orientation: Orientation, dpi: DPI = InkScape) =
     px(orientation, dpi).y
 
   fun toBoundRect(orientation: Orientation, dpi: DPI = InkScape) =

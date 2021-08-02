@@ -4,7 +4,7 @@ import coordinate.BoundRect
 import coordinate.Point
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import util.pointsAndLines.polyLine.bounds
+import util.polylines.bounds
 
 internal class PointTest {
 

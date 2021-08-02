@@ -14,9 +14,9 @@ import org.opencv.core.Mat
 import org.opengis.parameter.GeneralParameterValue
 import util.asCollection
 import util.debugLog
-import util.geo.getSampleDouble
+import util.image.raster.getSampleDouble
 import util.iterators.groupValuesBy
-import util.pointsAndLines.polyLine.PolyLine
+import util.polylines.polyLine.PolyLine
 import java.awt.image.DataBufferFloat
 import java.awt.image.Raster
 import java.awt.image.RenderedImage

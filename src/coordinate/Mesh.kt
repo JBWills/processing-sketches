@@ -6,9 +6,9 @@ import util.iterators.mapWithNext
 import util.iterators.mapWithNextIndexed
 import util.map
 import util.percentAlong
-import util.pointsAndLines.mutablePolyLine.MutablePolyLine
-import util.pointsAndLines.polyLine.PolyLine
-import util.pointsAndLines.polyLine.appendSegmentOrStartNewLine
+import util.polylines.MutablePolyLine
+import util.polylines.appendSegmentOrStartNewLine
+import util.polylines.polyLine.PolyLine
 import util.tuple.map
 
 typealias PointTransformFunc = (pointLocation: Point, xIndex: Int, yIndex: Int) -> Point

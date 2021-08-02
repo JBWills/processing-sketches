@@ -26,15 +26,15 @@ import org.opencv.core.Mat
 import processing.core.PApplet
 import processing.core.PImage
 import util.atAmountAlong
-import util.image.scale
-import util.image.toPImage
+import util.image.opencvMat.toPImage
+import util.image.pimage.scale
 import util.iterators.addNotNull
 import util.iterators.forEach2D
 import util.iterators.mapWithNext
 import util.lerp
-import util.pointsAndLines.polyLine.forEachSegment
-import util.pointsAndLines.polyLine.normalizeForPrint
-import util.pointsAndLines.polyLine.toPolyLine
+import util.polylines.forEachSegment
+import util.polylines.polyLine.normalizeForPrint
+import util.polylines.polyLine.toPolyLine
 import util.randomColor
 import java.awt.Color
 
@@ -52,7 +52,7 @@ open class PAppletExt : PApplet() {
   fun fill(c: Color) = fill(c.rgb)
   fun setSurfaceSize(p: Point) = surface.setSize(p.xi, p.yi)
 
-  fun getNoise(type: NoiseType = Perlin): FastNoiseLite =
+  private fun getNoise(type: NoiseType = Perlin): FastNoiseLite =
     FastNoiseLite().also { it.SetNoiseType(type) }
 
   fun Noise.color(
@@ -157,7 +157,7 @@ open class PAppletExt : PApplet() {
   fun Iterable<Point>.drawPoints(radius: Number = 2) = drawPoints(this, radius)
 
   fun PImage.draw(topLeft: Point) = image(this, topLeft.xf, topLeft.yf)
-  fun PImage.draw(bound: BoundRect) = scale(bound.size).draw(bound.topLeft)
+  fun PImage.draw(bound: BoundRect) = this.scale(bound.size).draw(bound.topLeft)
   fun Mat.draw(offset: Point) =
     toPImage()
       .draw(offset)

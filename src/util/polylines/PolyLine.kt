@@ -1,9 +1,9 @@
-package util.pointsAndLines.polyLine
+package util.polylines.polyLine
 
 import coordinate.Point
 import coordinate.Point.Companion.plusIf
 import coordinate.Segment
-
+import util.polylines.mapBySegment
 
 typealias PolyLine = List<Point>
 
