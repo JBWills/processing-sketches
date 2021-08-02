@@ -36,7 +36,22 @@ fun List<PolyLine>.bound(bound: BoundRect): List<PolyLine> = flatMap { _bound(it
 @JvmName("ShiftSegments")
 fun List<Segment>.translated(p: Point) = _translatedSegments(this, p)
 
+@JvmName("translatedLine")
 fun PolyLine.translated(p: Point): PolyLine = _translated(this, p)
+
+fun List<PolyLine>.translated(p: Point): List<PolyLine> = map { _translated(it, p) }
+
+fun PolyLine.expandEndpointsToMakeMask(
+  newBottom: Double = (maxByOrNull { it.y }?.y ?: firstOrNull()?.y ?: 0.0)
+): PolyLine {
+  if (size < 2) return this
+  val start = first()
+  val end = last()
+
+  val midpoint = start.x + (end.x - start.x) / 2
+
+  return Point(start.x, newBottom) + this + Point(end.x, newBottom)
+}
 
 fun MutablePolyLine.translatedInPlace(p: Point): Unit = indices.forEach { this[it] += p }
 
@@ -72,3 +87,8 @@ val Iterable<Point>.minMax: Pair<Point, Point>
   get() = fold(initial = Point.MAX_VALUE to Point.MIN_VALUE) { (min, max), value ->
     minXY(min, value) to maxXY(max, value)
   }
+
+fun List<PolyLine>.toMatOfPointList() = map { it.toMatOfPoint() }
+
+fun PolyLine.toMatOfPoint(): MatOfPoint =
+  MatOfPoint().also { it.fromList(map(Point::toOpenCvPoint)) }

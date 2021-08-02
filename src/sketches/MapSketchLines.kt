@@ -16,12 +16,21 @@ import coordinate.coordSystems.getCoordinateMap
 import geomerativefork.src.util.bound
 import interfaces.shape.transform
 import kotlinx.serialization.Serializable
+import org.opencv.core.Mat
 import sketches.base.LayeredCanvasSketch
+import util.image.ImageFormat
 import util.image.bounds
+import util.image.fillPoly
 import util.image.get
+import util.image.opencvContouring.findContours
+import util.image.opencvContouring.maskContours
+import util.image.opencvContouring.threshold
 import util.io.geoJson.loadGeoMatMemo
 import util.percentAlong
-
+import util.pointsAndLines.polyLine.bound
+import util.pointsAndLines.polyLine.expandEndpointsToMakeMask
+import util.pointsAndLines.polyLine.transform
+import util.pointsAndLines.polyLine.translated
 
 /**
  * Draws a map with topology that can be offset to create a 3d effect.
@@ -32,8 +41,9 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
   layerToDefaultTab = { MapLinesLayerData() },
 ) {
 
-  val MaxDisBetweenLines = 300
   val MaxMoveAmount = 300
+
+  var currMat: Mat? = null
 
   init {
     numLayers = 1
@@ -52,25 +62,16 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
       .scaled(mapScale).let { it.translated(mapCenter * it.size - (it.size / 2)) },
   )
 
-  private fun getThresholdToOffset(
-    allThresholds: List<Double>,
-    layerMove: Point
-  ): Map<Double, Point> =
-    allThresholds.associateWith { threshold ->
-      val thresholdPercent = (allThresholds.first()..allThresholds.last()).percentAlong(threshold)
-      if (thresholdPercent.isNaN()) Point(0)
-      else layerMove * thresholdPercent
-    }
-
   override fun drawOnce(layerInfo: LayerInfo) {
-    val (geoTiffFile, drawMap, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, showHorizontalLines, showVerticalLines) = layerInfo.globalValues
+    val (geoTiffFile, drawMap, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, showHorizontalLines, showVerticalLines, drawMinElevationOutline, drawUnionMat) = layerInfo.globalValues
     geoTiffFile ?: return
 
     val elevationRange = minElevation..maxElevation
     val elevationMoveAmount = elevationMoveVector.scaledVector(MaxMoveAmount)
 
-    val mat = loadGeoMatMemo(geoTiffFile)
-    
+    currMat = loadGeoMatMemo(geoTiffFile)
+    val mat = currMat ?: return
+
     val scaleAndMove = getTiffToScreenTransform(mat.bounds, mapScale, mapCenter)
     val scaleAndMoveInverted = scaleAndMove.inverted()
 
@@ -91,13 +92,39 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
       pointTransformFunc = { pointLocation, _, _ ->
         pointLocation + (elevationMoveAmount * elevationPercent(pointLocation))
       },
-      pointVisibleFunc = { pointLocation, transformedPointLocation, x, y ->
+      pointVisibleFunc = { pointLocation, _, x, y ->
         isPointVisible(pointLocation)
       },
-    ).toLines()
+    ).toLinesByIndex()
 
-    if (showHorizontalLines) horizontalLines.draw(boundRect)
-    if (showVerticalLines) verticalLines.draw(boundRect)
+    val unionMat = Mat.zeros(boundRect.size.toSize(), ImageFormat.Gray.openCVFormat)
+    horizontalLines.reversed().forEachIndexed { index, lineAtIndex ->
+
+      val lineOnMat = lineAtIndex.bound(boundRect).translated(-boundRect.topLeft)
+
+      lineOnMat
+        .maskContours(unionMat, inverted = true)
+        .translated(boundRect.topLeft).draw()
+      unionMat.fillPoly(lineOnMat.map { it.expandEndpointsToMakeMask(unionMat.rows().toDouble()) })
+    }
+
+    if (drawUnionMat) {
+      unionMat.draw(boundRect.topLeft)
+    }
+
+    if (drawMinElevationOutline) {
+      mat.threshold(minElevation)
+        .findContours()
+        .transform(scaleAndMove)
+        .draw(boundRect)
+    }
+
+    unionMat.release()
+
+//    if (showHorizontalLines)
+//      horizontalLines.map { it.draw(boundRect) }
+
+    if (showVerticalLines) verticalLines.map { it.draw(boundRect) }
   }
 }
 
@@ -125,6 +152,8 @@ data class MapLinesData(
   var samplePointsXY: Point = Point(2, 2),
   var showHorizontalLines: Boolean = true,
   var showVerticalLines: Boolean = true,
+  var drawMinElevationOutline: Boolean = true,
+  var drawUnionMat: Boolean = true,
 ) : PropData<MapLinesData> {
   override fun bind() = tabs {
     tab("Map") {
@@ -141,12 +170,14 @@ data class MapLinesData(
     }
 
     tab("Lines") {
+      toggle(::drawUnionMat)
+      toggle(::drawMinElevationOutline)
       row {
         slider(::minElevation, 0..5000)
         slider(::maxElevation, 0..5000)
       }
       panel(::elevationMoveVector)
-      sliderPair(::samplePointsXY, 1.0..500.0)
+      sliderPair(::samplePointsXY, 1.0..3000.0)
       row {
         toggle(::showHorizontalLines)
         toggle(::showVerticalLines)

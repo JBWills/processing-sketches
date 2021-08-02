@@ -2,13 +2,26 @@ package util.image
 
 import coordinate.Point
 import org.opencv.core.Mat
+import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import util.coerceOdd
 import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Companion.getFormat
 import util.image.ImageFormat.Gray
 import util.image.ImageFormat.RGB
+import util.pointsAndLines.polyLine.PolyLine
+import util.pointsAndLines.polyLine.toMatOfPointList
 import java.awt.Color
+
+@JvmName("fillPolyMulti")
+fun Mat.fillPoly(polys: List<PolyLine>, color: Scalar = Scalar(255.0)) =
+  Imgproc.fillPoly(this, polys.toMatOfPointList(), color)
+
+@JvmName("fillPolyMultiMulti")
+fun Mat.fillPoly(polys: List<List<PolyLine>>, color: Scalar = Scalar(255.0)) =
+  fillPoly(polys.flatten(), color)
+
+fun Mat.fillPoly(poly: PolyLine, color: Scalar = Scalar(255.0)) = fillPoly(listOf(poly), color)
 
 fun Mat.gaussianBlur(radius: Point, sigma: Double = radius.magnitude / 2.0): Mat {
   val destMat = asBlankMat()

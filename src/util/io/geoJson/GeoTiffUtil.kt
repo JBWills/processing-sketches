@@ -13,6 +13,7 @@ import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opengis.parameter.GeneralParameterValue
 import util.asCollection
+import util.debugLog
 import util.geo.getSampleDouble
 import util.iterators.groupValuesBy
 import util.pointsAndLines.polyLine.PolyLine
@@ -27,7 +28,10 @@ val loadGeoDataMemo: (String) -> GridCoverage2D =
 val loadGeoMatMemo: (String) -> Mat =
   { filename: String ->
     println("Reading file: $filename")
-    File(filename).readGeoTiff().toMat()
+    val geotiff = File(filename).readGeoTiff()
+
+    println("Reading tif completed")
+    geotiff.toMat()
   }.memoize()
 
 val getGeoContoursMemo = ::loadAndGetGeoContours.memoize()
@@ -81,7 +85,10 @@ fun loadAndGetGeoContours(
 fun GridCoverage2D.toMat(): Mat {
   val image = renderedImage
   val pixels: FloatArray = (image.data.dataBuffer as DataBufferFloat).data
-  return Mat(image.height, image.width, CvType.CV_32F).apply { put(0, 0, pixels) }
+  return Mat(image.height, image.width, CvType.CV_32F).apply {
+    debugLog("putting pixels:", pixels.size, this.size())
+    put(0, 0, pixels)
+  }
 }
 
 fun File.readGeoTiff(): GridCoverage2D =

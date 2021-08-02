@@ -83,7 +83,7 @@ data class Mesh(
    *
    * @return Pair from horizontal lines to vertical lines
    */
-  fun toLines(): Pair<List<PolyLine>, List<PolyLine>> {
+  fun toLinesByIndex(): Pair<List<List<PolyLine>>, List<List<PolyLine>>> {
     val inBoxes: MutableSet<Segment> = mutableSetOf()
     val xIndices = (0 until xPoints).toList()
     val yIndices = (0 until yPoints).toList()
@@ -112,7 +112,7 @@ data class Mesh(
       if (inBoxes.contains(s)) last().appendSegmentOrStartNewLine(s)?.let { add(it) }
     }
 
-    // Then we loop over all of the segments and merge them into horizontal and vertical lines.
+    // Then we loop over all the segments and merge them into horizontal and vertical lines.
     xIndices.mapWithNextIndexed { xIndex, x, nextX ->
       val verticalLineList = verticalLines[x]
       val isLastCol = xIndex == xIndices.last()
@@ -136,7 +136,9 @@ data class Mesh(
       }
     }
 
-    return (horizontalLines to verticalLines)
-      .map { it.flatten().map { line -> line.mapIndicesToScreenPoints() } }
+    return (horizontalLines to verticalLines).map { it.map { lines -> lines.map { line -> line.mapIndicesToScreenPoints() } } }
   }
+
+  fun toLines(): Pair<List<PolyLine>, List<PolyLine>> = toLinesByIndex()
+    .map { it.flatten() }
 }

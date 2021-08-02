@@ -139,6 +139,7 @@ data class Point(val x: Double, val y: Double) :
   fun forEach2D(block: (Point) -> Unit) = (Zero..this).forEach2D(block)
 
   fun toRPoint(): RPoint = RPoint(xf, yf)
+  fun toOpenCvPoint(): org.opencv.core.Point = org.opencv.core.Point(x, y)
   fun toSize(): Size = Size(x, y)
 
   override fun scaled(scale: Point, anchor: Point): Point {
