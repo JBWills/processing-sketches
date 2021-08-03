@@ -1,5 +1,6 @@
 package sketches
 
+import appletExtensions.withStroke
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.fileSelect
@@ -31,6 +32,7 @@ import util.polylines.bound
 import util.polylines.expandEndpointsToMakeMask
 import util.polylines.transform
 import util.polylines.translated
+import java.awt.Color
 
 /**
  * Draws a map with topology that can be offset to create a 3d effect.
@@ -62,7 +64,9 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
       .scaled(mapScale).let { it.translated(mapCenter * it.size - (it.size / 2)) },
   )
 
-  override fun drawOnce(layerInfo: LayerInfo) {
+  override fun drawOnce(layerInfo: LayerInfo) {}
+
+  override suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {
     val (geoTiffFile, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, showHorizontalLines, showVerticalLines, drawMinElevationOutline, drawUnionMat, occludeLines) = layerInfo.globalValues
     geoTiffFile ?: return
 
@@ -137,6 +141,10 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
 
     if (showHorizontalLines && !occludeLines) horizontalLines.map { it.draw(boundRect) }
     if (showVerticalLines) verticalLines.map { it.draw(boundRect) }
+
+    yield(Unit)
+
+    withStroke(Color.GREEN) { boundRect.shrink(10).draw() }
   }
 }
 

@@ -2,8 +2,6 @@ import RecordMode.NoRecord
 import RecordMode.RecordSVG
 import appletExtensions.PAppletExt
 import appletExtensions.createGraphics
-import appletExtensions.displayOnParent
-import appletExtensions.withDraw
 import appletExtensions.withStyle
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlTab
@@ -19,9 +17,9 @@ import nu.pattern.OpenCV
 import processing.core.PGraphics
 import processing.core.PImage
 import processing.event.MouseEvent
-import util.combineDrawLayersIntoSVG
+import util.drawLayeredSvg
 import util.image.ImageFormat
-import util.image.pimage.size
+import util.iterators.iterate
 import util.lineLimit
 import util.print.StrokeJoin
 import util.print.Style
@@ -39,6 +37,8 @@ enum class RecordMode {
 }
 
 val CONTROL_PANEL_SIZE = Point(400, 800)
+
+typealias StartNewLayerFn = () -> Unit
 
 abstract class BaseSketch(
   var backgroundColor: Color = Color.white,
@@ -91,7 +91,7 @@ abstract class BaseSketch(
 
   open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(Thick(), strokeColor)))
 
-  abstract fun drawOnce(layer: Int, layerConfig: LayerConfig)
+  abstract suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig)
 
   open fun getFilenameSuffix(): String = ""
 
@@ -115,26 +115,29 @@ abstract class BaseSketch(
   open fun drawInteractive() {}
 
   override fun draw() {
-    onlyRunIfDirty {
+    fun getLayerSequence() = sequence {
       val layers = getLayers()
+      layers.forEachIndexed { index, layer ->
+        drawOnce(index, layer)
+        yield(Unit)
+      }
+    }
+
+    onlyRunIfDirty {
       background(backgroundColor.rgb)
       window.setLoadingStarted()
       try {
         drawSetup()
         if (recordMode == RecordSVG) {
-          combineDrawLayersIntoSVG(
+          drawLayeredSvg(
             svgBaseFileName,
             getFilenameSuffix(),
-            layers.size,
-          ) { layerIndex ->
-            drawOnce(layerIndex, layers[layerIndex])
-          }
+            getLayerSequence(),
+          )
 
           recordMode = NoRecord
         } else {
-          layers.forEachIndexed { index, layer ->
-            drawOnce(index, layer)
-          }
+          getLayerSequence().iterate()
         }
       } catch (e: Exception) {
         e.printStackTrace()
@@ -151,13 +154,13 @@ abstract class BaseSketch(
     // TODO: large canvases can't have ui elements on small screens because of this
     // Processing shrinks the screen size if it can't fit on your screen which is what causes the
     // discrepancy between the graphics layer and the surface size.
-    if (lastDrawImage?.size == interactiveGraphicsLayer.size) {
-      interactiveGraphicsLayer.withDraw {
-        interactiveGraphicsLayer.background(lastDrawImage)
-      }
-      drawInteractive()
-      interactiveGraphicsLayer.displayOnParent()
-    }
+//    if (lastDrawImage?.size == interactiveGraphicsLayer.size) {
+//      interactiveGraphicsLayer.withDraw {
+//        interactiveGraphicsLayer.background(lastDrawImage)
+//      }
+//      drawInteractive()
+//      interactiveGraphicsLayer.displayOnParent()
+//    }
   }
 
   open fun markDirty() {
@@ -167,7 +170,7 @@ abstract class BaseSketch(
   private fun MouseEvent?.run(f: (Point) -> Unit) = this?.let { f(Point(it.x, it.y)) } ?: Unit
   override fun mouseClicked(event: MouseEvent?) = event.run { p -> mouseClicked(p) }
   override fun mousePressed(event: MouseEvent?) = event.run { p -> mousePressed(p) }
-  final override fun handleMouseEvent(event: MouseEvent?) {
+  override fun handleMouseEvent(event: MouseEvent?) {
     super.handleMouseEvent(event)
     event ?: return
     mouseListeners.forEach { listener -> listener.onEvent(event) }

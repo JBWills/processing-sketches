@@ -32,7 +32,7 @@ enum class Paper(
   SquareBlack(7.87, 7.87, BLACK, WHITE),
   ColoredPaper(12.5, 9.5, RED.lightened(1.0), WHITE);
 
-  val defaultStyle: Style = Style(color = defaultStrokeColor)
+  val defaultStyle: Style = Style(color = defaultStrokeColor, noFill = true)
 
   private fun sidePx(sideInches: Double, dpi: DPI = InkScape): Int =
     dpi.toPixels(sideInches).toInt()

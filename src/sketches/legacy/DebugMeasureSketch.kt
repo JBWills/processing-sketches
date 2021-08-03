@@ -83,7 +83,7 @@ open class DebugMeasureSketch(
     }
   }
 
-  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.BLACK.rgb)

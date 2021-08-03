@@ -32,7 +32,7 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
     slider(::lineDegrees, 0..360)
   }
 
-  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
     fun getPointsLinesShouldCrossThrough(
       bound: BoundRect, deg: Deg, numLines: Int,
     ): Iterable<Point> {

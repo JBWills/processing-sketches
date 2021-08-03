@@ -96,7 +96,7 @@ open class WarpSketch(
     return (noisePoint * Point(moveAmountX, moveAmountY))
   }
 
-  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
     NOISE.SetSeed(seed)
     NOISE.SetNoiseType(noiseType)
     noStroke()

@@ -64,7 +64,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
    *
    * @param block block to modify the parent props in-place. Return true if the sketch should be marked dirty.
    */
-  final fun modifyPropsDirectly(
+  fun modifyPropsDirectly(
     block: (mutableProps: LayerAndGlobalProps<TabValues, GlobalValues>) -> Boolean
   ) =
     markDirtyIf(block(layerAndGlobalProps))
@@ -78,6 +78,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   }
 
   abstract fun drawOnce(layerInfo: LayerInfo)
+  open suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {}
 
   open fun drawSetup(layerInfo: DrawInfo) {}
   open fun drawInteractive(layerInfo: DrawInfo) {}
@@ -144,9 +145,10 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
     frozenValues?.let { drawSetup(it) }
   }
 
-  final override fun drawOnce(layer: Int) {
+  final override suspend fun SequenceScope<Unit>.drawOnce(layer: Int) {
     val frozenValues = frozenValues ?: return
     drawOnce(LayerInfo(layer, frozenValues.globalValues, frozenValues.allTabValues))
+    drawLayers(frozenValues)
   }
 
   private fun savePreset(presetName: String) {

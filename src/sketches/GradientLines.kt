@@ -40,7 +40,7 @@ open class GradientLinesSketch(
     segmentHeight * numSegs,
   )
 
-  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.WHITE.rgb)

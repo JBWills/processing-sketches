@@ -44,7 +44,7 @@ open class ArcTestSketch(
     slider(::arcSize, 0..150)
   }
 
-  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
     noStroke()
 
     stroke(Color.WHITE.rgb)

@@ -26,9 +26,9 @@ abstract class CanvasSketch(
 
   override fun getControls(): Panelable = canvasProps.asControlPanel()
 
-  abstract fun drawOnce(layer: Int)
+  abstract suspend fun SequenceScope<Unit>.drawOnce(layer: Int)
 
-  override fun drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
     noFill()
 
     val needsDarkStroke: Boolean =

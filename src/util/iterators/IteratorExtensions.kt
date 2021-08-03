@@ -8,6 +8,8 @@ import util.floorInt
 import util.map
 import kotlin.math.max
 
+fun <T> Sequence<T>.iterate() = forEach { _ -> }
+
 fun <T> List<T>.endPointPair() = Pair(first(), last())
 
 fun <T, R> Pair<List<T>, List<T>>.zip(block: (T, T) -> R): List<R> {
