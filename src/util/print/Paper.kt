@@ -28,7 +28,7 @@ enum class Paper(
   LargeBlack(18, 12, BLACK, WHITE),
   A4White(11.69, 8.27, WHITE, BLACK),
   A4Black(12, 9, BLACK, WHITE),
-  A4Thick(11.125, 8.5, BLACK, WHITE),
+  A4Thick(11.125, 8.5, WHITE, BLACK),
   SquareBlack(7.87, 7.87, BLACK, WHITE),
   ColoredPaper(12.5, 9.5, RED.lightened(1.0), WHITE);
 

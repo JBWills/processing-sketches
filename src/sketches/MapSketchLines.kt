@@ -41,9 +41,9 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
   layerToDefaultTab = { MapLinesLayerData() },
 ) {
 
-  val MaxMoveAmount = 300
+  private val MaxMoveAmount = 300
 
-  var currMat: Mat? = null
+  private var currMat: Mat? = null
 
   init {
     numLayers = 1
@@ -63,7 +63,7 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
   )
 
   override fun drawOnce(layerInfo: LayerInfo) {
-    val (geoTiffFile, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, showHorizontalLines, showVerticalLines, drawMinElevationOutline, drawUnionMat) = layerInfo.globalValues
+    val (geoTiffFile, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, showHorizontalLines, showVerticalLines, drawMinElevationOutline, drawUnionMat, occludeLines) = layerInfo.globalValues
     geoTiffFile ?: return
 
     val elevationRange = minElevation..maxElevation
@@ -97,18 +97,32 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
       },
     ).toLinesByIndex()
 
-    val unionMat = Mat.zeros(boundRect.size.toSize(), ImageFormat.Gray.openCVFormat)
-    horizontalLines.reversed().forEachIndexed { _, lineAtIndex ->
-      val lineOnMat = lineAtIndex.bound(boundRect).translated(-boundRect.topLeft)
+    if (occludeLines || drawUnionMat) {
+      val unionMat = Mat.zeros(boundRect.size.toSize(), ImageFormat.Gray.openCVFormat)
+      horizontalLines.reversed().forEachIndexed { _, lineAtIndex ->
+        val lineOnMat = lineAtIndex.bound(boundRect).translated(-boundRect.topLeft)
 
-      lineOnMat
-        .maskedByImage(unionMat, inverted = true)
-        .translated(boundRect.topLeft).draw()
-      unionMat.fillPoly(lineOnMat.map { it.expandEndpointsToMakeMask(unionMat.rows().toDouble()) })
-    }
+        if (occludeLines) {
+          lineOnMat
+            .maskedByImage(unionMat, inverted = true)
+            .translated(boundRect.topLeft)
+            .draw()
+        }
 
-    if (drawUnionMat) {
-      unionMat.draw(boundRect.topLeft)
+        unionMat.fillPoly(
+          lineOnMat.map {
+            it.expandEndpointsToMakeMask(
+              unionMat.rows().toDouble(),
+            )
+          },
+        )
+      }
+
+      if (drawUnionMat) {
+        unionMat.draw(boundRect.topLeft)
+      }
+
+      unionMat.release()
     }
 
     if (drawMinElevationOutline) {
@@ -118,11 +132,10 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
         .draw(boundRect)
     }
 
-    unionMat.release()
-
 //    if (showHorizontalLines)
 //      horizontalLines.map { it.draw(boundRect) }
 
+    if (showHorizontalLines && !occludeLines) horizontalLines.map { it.draw(boundRect) }
     if (showVerticalLines) verticalLines.map { it.draw(boundRect) }
   }
 }
@@ -152,6 +165,7 @@ data class MapLinesData(
   var showVerticalLines: Boolean = true,
   var drawMinElevationOutline: Boolean = true,
   var drawUnionMat: Boolean = true,
+  var occludeLines: Boolean = true,
 ) : PropData<MapLinesData> {
   override fun bind() = tabs {
     tab("Map") {
@@ -168,9 +182,12 @@ data class MapLinesData(
 
     tab("Lines") {
       toggle(::drawUnionMat)
-      toggle(::drawMinElevationOutline)
       row {
-        slider(::minElevation, 0..5000)
+        toggle(::occludeLines)
+        toggle(::drawMinElevationOutline)
+      }
+      row {
+        slider(::minElevation, 0.1..5000.0)
         slider(::maxElevation, 0..5000)
       }
       panel(::elevationMoveVector)

@@ -33,8 +33,12 @@ fun Mat.toIntArray(bandIndex: Int = 0): Array<IntArray> = Array(rows()) { rowInd
 
 fun Mat.contains(p: Point) = bounds.contains(p)
 
-fun Mat.get(p: Point, band: Int = 0): Double? =
-  get(p.y.toInt(), p.x.toInt())?.get(band)?.let { if (it.isNaN()) null else it }
+fun Mat.get(p: Point, band: Int = 0): Double? = (p.x.toInt() to p.y.toInt()).let { (col, row) ->
+  if (!(0 until cols()).contains(col)) return null
+  if (!(0 until rows()).contains(row)) return null
+  get(row, col)?.get(band)?.let { if (it.isNaN()) null else it }
+}
+
 
 fun Mat.getOr(p: Point, default: Double, band: Int = 0): Double = get(p, band) ?: default
 fun createMat(rows: Int, cols: Int, format: ImageFormat, baseColor: Color) =
