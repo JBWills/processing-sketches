@@ -27,6 +27,9 @@ fun <T, R> Pair<List<T>, List<T>>.zipNullPadded(block: (T?, T?) -> R): List<R> {
   }
 }
 
+fun <T, K> List<List<T>>.deepMap(f: (T) -> K): List<List<K>> =
+  map { it.map(f) }
+
 fun <T> List<T>.mapPercentToIndex(lerpAmt: Double): Double {
   val boundAmt = lerpAmt.bound(0.0, 1.0)
   return indices.atAmountAlong(boundAmt)

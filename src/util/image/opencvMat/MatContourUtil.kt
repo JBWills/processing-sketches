@@ -5,25 +5,47 @@ import coordinate.BoundRect
 import coordinate.Point
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
+import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import util.image.ImageFormat.Gray
-import util.image.opencvMat.ContourApproximationModes.TC89KCOS
-import util.image.opencvMat.ContourRetrievalModes.ListMode
-import util.io.geoJson.loadGeoMatMemo
+import util.image.opencvMat.ContourApproximationMode.TC89KCOS
+import util.image.opencvMat.ContourRetrievalMode.Tree
+import util.image.opencvMat.LineFillType.Filled
+import util.io.geoJson.loadGeoMatAndBlurMemo
+import util.polylines.PolyLine
 import util.polylines.bounds
-import util.polylines.polyLine.PolyLine
 import kotlin.math.max
 
 
 const val CannyRatio = 3
 
+fun Mat.drawContours(contours: List<MatOfPoint>, fillType: LineFillType = Filled): Mat {
+  Imgproc.drawContours(this, contours, -1, Scalar(255.0), fillType.type)
+
+  return this
+}
+
 /**
  * Get the contour values as MatOfPoint objects
  */
-fun Mat.findRawContours(): List<MatOfPoint> = arrayListOf<MatOfPoint>()
-  .also { contours ->
-    Imgproc.findContours(this, contours, cloneEmpty(), ListMode.typeVal, TC89KCOS.typeVal)
-  }
+fun Mat.findRawContours(
+  retrievalMode: ContourRetrievalMode = Tree,
+  approximationMode: ContourApproximationMode = TC89KCOS
+): Pair<List<MatOfPoint>, Mat> =
+  Pair(arrayListOf<MatOfPoint>(), cloneEmpty())
+    .also { (destContours, destHierarchy) ->
+      Imgproc.findContours(
+        this,
+        destContours,
+        destHierarchy,
+        retrievalMode.type,
+        approximationMode.type,
+      )
+    }
+
+
+fun List<MatOfPoint>.toContourPolyLines(): List<PolyLine> = map { it.toPolyLine(close = true) }
+  .filter { it.size > 2 }
 
 /**
  * Get contours and process them as PolyLines. Note that this will do some filtering based on the
@@ -31,10 +53,10 @@ fun Mat.findRawContours(): List<MatOfPoint> = arrayListOf<MatOfPoint>()
  *
  * @return a list of PolyLines
  */
-fun Mat.findContours(): List<PolyLine> =
-  findRawContours()
-    .map { it.toPolyLine() }
-    .filter { it.size > 2 }
+fun Mat.findContours(approximationMode: ContourApproximationMode = TC89KCOS): List<PolyLine> =
+  findRawContours(approximationMode = approximationMode)
+    .first
+    .toContourPolyLines()
 
 /**
  * Covert a GeoTiff file to a gray openCV Mat.
@@ -78,7 +100,7 @@ fun loadAndContourWithOffset(
   filename: String,
   thresholdsToOffset: Map<Double, Point>
 ): MatContourResponse {
-  val mat = loadGeoMatMemo(filename)
+  val mat = loadGeoMatAndBlurMemo(filename, 0.0)
   val (matTopLeft, matBottomRight) = mat.bounds.minMax
   val (minOffset, maxOffset) = thresholdsToOffset.values.bounds.minMax
 
@@ -100,7 +122,7 @@ fun loadAndContourWithOffset(
       .copyTo(emptyMat, offset - combinedBounds.topLeft)
 
     val thresholdEdges = thresholdMat.findContours()
-    val maskedEdges = thresholdEdges.maskedByImage(rollingUnionMat, inverted = true)
+    val maskedEdges = thresholdEdges.maskedByImage(rollingUnionMat, inverted = true).flatten()
 
     rollingUnionMat = rollingUnionMat.bitwiseOr(thresholdMat)
 

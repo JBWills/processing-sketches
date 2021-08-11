@@ -8,6 +8,12 @@ fun minAll(vararg floats: Float) = floats.reduce { acc, item -> min(acc, item) }
 
 fun maxAll(vararg floats: Float) = floats.reduce { acc, item -> max(acc, item) }
 
+fun Int.bound(range: IntRange): Int = when {
+  this < range.first -> range.first
+  this > range.last -> range.last
+  else -> this
+}
+
 fun Double.bound(range: DoubleRange): Double = when {
   this < range.start -> range.start
   this > range.endInclusive -> range.endInclusive

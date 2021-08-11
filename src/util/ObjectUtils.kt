@@ -8,3 +8,13 @@ inline fun <A, B> A.doIf(predicate: Boolean, or: B, block: (A) -> B): B =
   if (predicate) block(this) else or
 
 fun Any.asCollection(): Collection<*> = this as Collection<*>
+
+inline fun <A, B, T> letNonNull(a: A?, b: B?, block: (A, B) -> T): T? {
+  return if (a == null || b == null) null
+  else block(a, b)
+}
+
+inline fun <A, B, C, T> letNonNull(a: A?, b: B?, c: C?, block: (A, B, C) -> T): T? {
+  return if (a == null || b == null || c == null) null
+  else block(a, b, c)
+}

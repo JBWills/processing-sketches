@@ -6,7 +6,7 @@ import org.locationtech.jts.geom.LineString
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier
 import org.locationtech.jts.simplify.VWSimplifier
-import util.polylines.polyLine.PolyLine
+import util.polylines.PolyLine
 
 typealias SimplifyFn = (geom: Geometry, amount: Double) -> Geometry
 

@@ -110,6 +110,9 @@ val getParallelLinesInBoundBaseMemoized = { bound: BoundRect,
   getParallelLinesInBoundBase(bound, deg, distanceBetween, offset)
 }.memoize()
 
+fun BoundRect.parallelLinesInBound(deg: Deg, distanceBetween: Number, offset: Number = 0.0) =
+  getParallelLinesInBoundMemo(this, deg, distanceBetween, offset)
+
 fun getParallelLinesInBound(
   bound: BoundRect,
   deg: Deg,

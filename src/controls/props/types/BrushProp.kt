@@ -43,7 +43,7 @@ import util.image.opencvMat.toPImage
 import util.image.pimage.overlay
 import util.io.serialization.MatSerializer
 import util.lerp
-import util.polylines.polyLine.PolyLine
+import util.polylines.PolyLine
 import util.print.CustomPx
 import util.print.StrokeJoin
 import util.print.Style

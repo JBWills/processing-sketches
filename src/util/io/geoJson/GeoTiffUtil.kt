@@ -13,27 +13,27 @@ import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opengis.parameter.GeneralParameterValue
 import util.asCollection
-import util.debugLog
+import util.image.opencvMat.gaussianBlur
 import util.image.raster.getSampleDouble
 import util.iterators.groupValuesBy
-import util.polylines.polyLine.PolyLine
+import util.polylines.PolyLine
 import java.awt.image.DataBufferFloat
 import java.awt.image.Raster
 import java.awt.image.RenderedImage
 import java.io.File
 
-val loadGeoDataMemo: (String) -> GridCoverage2D =
-  { filename: String -> File(filename).readGeoTiff() }.memoize()
+fun loadGeoData(filename: String): GridCoverage2D = File(filename).readGeoTiff()
 
-val loadGeoMatMemo: (String) -> Mat =
-  { filename: String ->
-    println("Reading file: $filename")
-    val geotiff = File(filename).readGeoTiff()
+fun loadGeoMat(filename: String): Mat = loadGeoData(filename).toMat()
 
-    println("Reading tif completed")
-    geotiff.toMat()
-  }.memoize()
+val loadGeoDataMemo = ::loadGeoData.memoize()
 
+val loadGeoMatAndBlurMemo: (String, Double) -> Mat = { filename: String, blurRadius: Double ->
+  loadGeoMatMemo(filename)
+    .gaussianBlur(blurRadius.toInt())
+}.memoize()
+
+val loadGeoMatMemo = ::loadGeoMat.memoize()
 val getGeoContoursMemo = ::loadAndGetGeoContours.memoize()
 val loadGeoImageMemo = ::loadGeoImage.memoize()
 
@@ -86,7 +86,6 @@ fun GridCoverage2D.toMat(): Mat {
   val image = renderedImage
   val pixels: FloatArray = (image.data.dataBuffer as DataBufferFloat).data
   return Mat(image.height, image.width, CvType.CV_32F).apply {
-    debugLog("putting pixels:", pixels.size, this.size())
     put(0, 0, pixels)
   }
 }

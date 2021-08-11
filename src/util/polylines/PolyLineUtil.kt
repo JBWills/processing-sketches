@@ -7,8 +7,6 @@ import coordinate.Point
 import coordinate.Point.Companion.maxXY
 import coordinate.Point.Companion.minXY
 import coordinate.Segment
-import util.polylines.polyLine.PolyLine
-import util.polylines.polyLine.isClosed
 
 private val _bound = { list: PolyLine, bound: BoundRect ->
   ContinuousMaskedShape(list, bound).toBoundPoints(true)

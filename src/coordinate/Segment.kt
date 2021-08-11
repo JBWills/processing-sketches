@@ -6,6 +6,7 @@ import interfaces.shape.Walkable
 import util.equalsZero
 import util.greaterThanEqualToDelta
 import util.notEqualsZero
+import util.polylines.PolyLine
 import util.toDegrees
 import java.awt.geom.Line2D
 import kotlin.math.abs
@@ -92,6 +93,8 @@ class Segment(
 
   fun toLine() = Line(p1, slope)
 
+  fun toPolyLine(): PolyLine = listOf(p1, p2)
+
   fun toProgression(step: Double = 1.0) = PointProgression(this, step)
 
   fun isEmpty() = length == 0.0
@@ -177,6 +180,18 @@ class Segment(
     }
 
     return if (segment?.length != null && segment.length > 0) segment else null
+  }
+
+  fun split(numSegments: Number): PolyLine {
+    val numSegmentsDouble = numSegments.toDouble()
+
+    if (numSegmentsDouble < 1) return listOf(*this.points)
+
+    val totalLength = p2.dist(p1)
+
+    return (p1..p2)
+      .step(totalLength / numSegmentsDouble)
+      .toList()
   }
 
   override fun equals(other: Any?): Boolean {

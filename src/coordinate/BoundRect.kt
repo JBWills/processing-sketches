@@ -17,7 +17,7 @@ import util.geomutil.toPoint
 import util.iterators.mapArray
 import util.iterators.mapWithNextCyclical
 import util.min
-import util.polylines.polyLine.PolyLine
+import util.polylines.PolyLine
 import util.polylines.transform
 import util.step
 import kotlin.math.abs
@@ -288,6 +288,16 @@ data class BoundRect(
     } ?: listOf(segment)
 
   override fun contains(p: Point) = p.y in top..bottom && p.x in left..right
+
+  @JvmName("containsLine")
+  fun contains(line: PolyLine): Boolean = contains(listOf(line))
+
+  @JvmName("containsLines")
+  fun contains(lines: List<PolyLine>): Boolean = lines.all { line ->
+    val yRange = top..bottom
+    val xRange = left..right
+    line.all { it.y in yRange && it.x in xRange }
+  }
 
   override fun draw(sketch: PAppletExt) = sketch.rect(this)
 

@@ -1,9 +1,9 @@
-package util.polylines.polyLine
+package util.polylines
 
 import coordinate.Point
 import coordinate.Point.Companion.plusIf
 import coordinate.Segment
-import util.polylines.mapBySegment
+import coordinate.Segment.Companion.toSegment
 
 typealias PolyLine = List<Point>
 
@@ -12,3 +12,5 @@ fun PolyLine.toSegments(): List<Segment> =
   mapBySegment { it }
 
 fun PolyLine.isClosed() = !isEmpty() && first() == last()
+
+fun PolyLine.toSegment(): Segment = (first() to last()).toSegment()

@@ -3,8 +3,8 @@ package util.geomutil
 import arrow.core.memoize
 import geomerativefork.src.RPath
 import interfaces.shape.Maskable
-import util.polylines.polyLine.PolyLine
-import util.polylines.polyLine.isClosed
+import util.polylines.PolyLine
+import util.polylines.isClosed
 
 
 fun PolyLine.diff(path: RPath, memoized: Boolean = false) =

@@ -3,7 +3,10 @@ package util.polylines.polyLine
 import coordinate.Segment
 import geomerativefork.src.util.boundMin
 import util.DoubleRange
+import util.polylines.PolyLine
 import util.polylines.forEachSegment
+import util.polylines.toPolyLine
+import util.polylines.toSegments
 
 fun PolyLine.normalizeForPrint() = normalizeDistances(1.5..1000.0)
 

@@ -6,27 +6,14 @@ import org.opencv.core.Mat
 import org.opencv.core.Rect
 import org.opencv.imgproc.Imgproc
 import util.coerceOdd
-import util.image.ImageFormat
 import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Companion.getFormat
 import util.image.ImageFormat.Gray
 import util.image.ImageFormat.RGB
 import util.image.converted
+import util.image.opencvMat.BlurBorderType.BorderReflect
 import util.image.opencvMat.OpenCVThresholdType.ThreshBinary
 import java.awt.Color
-
-/**
- * Helper to apply a function to a mat with a newly created destination mat.
- *
- * @param format the image format of the new mat.
- * @param block the operation to perform
- * @return the new mat.
- */
-fun Mat.applyWithDest(
-  format: ImageFormat = getFormat(),
-  inPlace: Boolean = false,
-  block: (src: Mat, dest: Mat) -> Unit,
-): Mat = (if (inPlace) this else cloneEmpty(format)).also { dest -> block(this, dest) }
 
 /**
  * Canny filter a binary image (U8 gray image where 255 is white)
@@ -39,14 +26,14 @@ fun Mat.canny(threshold: Double): Mat = applyWithDest(Gray) { src, dest ->
 
 fun Mat.threshold(value: Double, type: OpenCVThresholdType = ThreshBinary): Mat =
   applyWithDest(Gray) { src, dest ->
-    Imgproc.threshold(src, dest, value, 1.0, type.typeVal)
-    dest.convertTo(dest, ChannelDepth.CV_8U.typeVal, 255.0)
+    Imgproc.threshold(src, dest, value, 1.0, type.type)
+    dest.convertTo(dest, ChannelDepth.CV_8U.type, 255.0)
   }
 
 fun Mat.submat(bounds: BoundRect): Mat =
   submat(Rect(bounds.leftPx, bounds.topPx, bounds.widthPx + 1, bounds.heightPx + 1))
 
-fun Mat.gaussianBlur(
+fun Mat.gaussianBlurRaw(
   radius: Point,
   sigma: Double = radius.magnitude / 2.0,
   inPlace: Boolean = false
@@ -56,7 +43,18 @@ fun Mat.gaussianBlur(
 }
 
 fun Mat.gaussianBlur(radius: Int, sigma: Double = radius / 2.0, inPlace: Boolean = false): Mat =
-  gaussianBlur(Point(radius, radius), sigma, inPlace)
+  when {
+    radius == 0 && inPlace -> this
+    radius == 0 && !inPlace -> copy()
+    else -> gaussianBlurRaw(Point(radius, radius), sigma, inPlace)
+  }
+
+fun Mat.biLateralBlur(radius: Int): Mat = when (radius) {
+  0 -> copy()
+  else -> applyWithDest { src, dest ->
+    Imgproc.bilateralFilter(src, dest, radius, 10.0, 10.0, BorderReflect.type)
+  }
+}
 
 /**
  * Blur only the alpha channel of the image. and assign all color values to a solid color.

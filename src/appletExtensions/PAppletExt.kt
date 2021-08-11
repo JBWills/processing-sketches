@@ -10,7 +10,6 @@ import appletExtensions.draw.drawPoints
 import appletExtensions.draw.line
 import appletExtensions.draw.rect
 import appletExtensions.draw.shape
-import appletExtensions.draw.shapes
 import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
@@ -18,6 +17,7 @@ import coordinate.ContinuousMaskedShape
 import coordinate.Line
 import coordinate.Point
 import coordinate.Segment
+import coordinate.ShapeTransform
 import fastnoise.Noise
 import geomerativefork.src.RPath
 import geomerativefork.src.util.boundMin
@@ -26,15 +26,17 @@ import org.opencv.core.Mat
 import processing.core.PApplet
 import processing.core.PImage
 import util.atAmountAlong
+import util.image.opencvMat.getTransformedMat
 import util.image.opencvMat.toPImage
 import util.image.pimage.scale
 import util.iterators.addNotNull
 import util.iterators.forEach2D
 import util.iterators.mapWithNext
 import util.lerp
+import util.polylines.PolyLine
 import util.polylines.forEachSegment
 import util.polylines.polyLine.normalizeForPrint
-import util.polylines.polyLine.toPolyLine
+import util.polylines.toPolyLine
 import util.randomColor
 import java.awt.Color
 
@@ -76,16 +78,16 @@ open class PAppletExt : PApplet() {
   fun noiseXY(p: Point) = Point(NOISE.GetNoise(p.xf, p.yf, 0f), NOISE.GetNoise(p.xf, p.yf, 100f))
   fun noiseXY(x: Number, y: Number) = noiseXY(Point(x, y))
 
-  fun List<Point>.toSegments(): List<Segment> = mapWithNext { curr, next -> Segment(curr, next) }
-  fun List<Segment>.toVertices(): List<Point> = map { it.p1 }.addNotNull(lastOrNull()?.p2)
+  fun PolyLine.toSegments(): List<Segment> = mapWithNext { curr, next -> Segment(curr, next) }
+  fun List<Segment>.toVertices(): PolyLine = map { it.p1 }.addNotNull(lastOrNull()?.p2)
 
   fun getBoundLines(
-    unboundLine: List<Point>,
+    unboundLine: PolyLine,
     bound: BoundRect,
     boundInside: Boolean,
-  ): List<List<Point>> = ContinuousMaskedShape(unboundLine, bound).toBoundPoints(boundInside)
+  ): List<PolyLine> = ContinuousMaskedShape(unboundLine, bound).toBoundPoints(boundInside)
 
-  fun shape(vertices: List<Point>, bound: BoundRect, boundInside: Boolean = true) =
+  fun shape(vertices: PolyLine, bound: BoundRect, boundInside: Boolean = true) =
     getBoundLines(vertices, bound, boundInside).draw()
 
   fun shape(path: RPath, bound: BoundRect, boundInside: Boolean = true) =
@@ -97,7 +99,7 @@ open class PAppletExt : PApplet() {
       shape(shapeList)
     }
 
-  fun List<Point>.draw(bound: BoundRect, boundInside: Boolean = true) {
+  fun PolyLine.draw(bound: BoundRect, boundInside: Boolean = true) {
     shape(this, bound, boundInside)
   }
 
@@ -107,7 +109,7 @@ open class PAppletExt : PApplet() {
   }
 
   @JvmName("drawLines")
-  fun List<List<Point>>.draw(
+  fun List<PolyLine>.draw(
     bound: BoundRect,
     boundInside: Boolean = true,
     randomColors: Boolean = false
@@ -119,7 +121,7 @@ open class PAppletExt : PApplet() {
    * Note that this will break your SVG output into a million separate lines, only do it during
    * testing!
    */
-  fun List<List<Point>>.drawDebug() {
+  fun List<PolyLine>.drawDebug() {
     val totalSize = sumBy { (it.size - 1).boundMin(0) }
     var currIndex = 0
 
@@ -139,13 +141,17 @@ open class PAppletExt : PApplet() {
 
   fun List<Segment>.drawAsSegments() = map { it.draw() }
   fun List<Segment>.drawAsLine() = toPolyLine().draw()
-  fun List<Point>.draw() = shape(this)
+  fun PolyLine.draw(bound: BoundRect? = null) = if (bound != null) draw(bound) else shape(this)
 
   @JvmName("drawPolyLines")
-  fun List<List<Point>>.draw(debug: Boolean = false) = shapes(this, debug)
+  fun List<PolyLine>.draw(bound: BoundRect? = null) = map { it.draw(bound) }
 
   @JvmName("drawManyPolyLines")
-  fun List<List<List<Point>>>.draw(debug: Boolean = false) = shapes(this.flatten(), debug)
+  fun List<List<PolyLine>>.draw(bound: BoundRect? = null) = map { it.draw(bound) }
+
+  @JvmName("drawManyPolyLinesList")
+  fun List<List<List<PolyLine>>>.draw(bound: BoundRect) = map { it.draw(bound) }
+
   fun RPath.drawLine() = points.map { Point(it.x, it.y) }.draw()
   fun Circ.draw() = circle(this)
   fun Segment.draw() = line(this)
@@ -157,8 +163,10 @@ open class PAppletExt : PApplet() {
   fun Iterable<Point>.drawPoints(radius: Number = 2) = drawPoints(this, radius)
 
   fun PImage.draw(topLeft: Point) = image(this, topLeft.xf, topLeft.yf)
-  fun PImage.draw(bound: BoundRect) = this.scale(bound.size).draw(bound.topLeft)
-  fun Mat.draw(offset: Point) =
-    toPImage()
-      .draw(offset)
+  fun PImage.draw(bound: BoundRect) = scale(bound.size).draw(bound.topLeft)
+  fun Mat.draw(offset: Point = Point.Zero) = toPImage().draw(offset)
+
+  fun Mat.draw(matToScreenTransform: ShapeTransform, boundRect: BoundRect) {
+    getTransformedMat(matToScreenTransform, boundRect)?.draw(boundRect.topLeft)
+  }
 }

@@ -3,11 +3,11 @@ package util.polylines
 import coordinate.Point
 import coordinate.Segment
 import coordinate.ShapeTransform
+import geomerativefork.src.util.deepDeepMap
 import geomerativefork.src.util.deepMap
 import interfaces.shape.transform
 import util.iterators.forEachWithNext
 import util.iterators.mapWithNext
-import util.polylines.polyLine.PolyLine
 
 fun PolyLine.mapWithLength(block: (point: Point, length: Double) -> Point): PolyLine {
   if (isEmpty()) return emptyList()
@@ -36,3 +36,7 @@ fun PolyLine.transform(t: ShapeTransform): PolyLine = map { it.transform(t) }
 
 @JvmName("transformPolyLineList")
 fun List<PolyLine>.transform(t: ShapeTransform): List<PolyLine> = deepMap { it.transform(t) }
+
+@JvmName("transformPolyLineListList")
+fun List<List<PolyLine>>.transform(t: ShapeTransform): List<List<PolyLine>> =
+  deepDeepMap { it.transform(t) }

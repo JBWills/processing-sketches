@@ -5,9 +5,9 @@ import coordinate.Point.Companion.addIf
 import interfaces.shape.Maskable
 import util.iterators.forEachWithSurroundingCyclical
 import util.polylines.MutablePolyLine
+import util.polylines.PolyLine
 import util.polylines.connectWith
-import util.polylines.polyLine.PolyLine
-import util.polylines.polyLine.isClosed
+import util.polylines.isClosed
 
 data class ContinuousPoints(val isInBound: Boolean, val points: MutablePolyLine) :
   MutablePolyLine by points {

@@ -7,12 +7,13 @@ import coordinate.Segment
 import geomerativefork.src.RPoint
 import processing.core.PApplet
 import processing.core.PGraphics
+import util.polylines.PolyLine
 import util.polylines.polyLine.normalizeForPrint
 import java.awt.Color
 
 fun PApplet.vertex(p: Point) = vertex(p.xf, p.yf)
 
-fun PApplet.shape(vertices: List<Point>) {
+fun PApplet.shape(vertices: PolyLine) {
   beginShape()
   vertices.normalizeForPrint().forEach { vertex ->
     vertex(vertex)
@@ -20,7 +21,7 @@ fun PApplet.shape(vertices: List<Point>) {
   endShape()
 }
 
-fun PApplet.shapes(lines: List<List<Point>>, debug: Boolean = false) =
+fun PApplet.shapes(lines: List<PolyLine>, debug: Boolean = false) =
   lines.forEachIndexed { lineIndex, vertices ->
     withStrokeIf(debug, if (lineIndex % 2 == 0) Color.RED else Color.GREEN) {
       beginShape()
@@ -48,7 +49,7 @@ fun PApplet.shapeSegments(segments: List<Segment>) {
 
 fun PGraphics.vertex(p: Point) = vertex(p.xf, p.yf)
 
-fun PGraphics.shape(vertices: List<Point>) {
+fun PGraphics.shape(vertices: PolyLine) {
   beginShape()
   vertices.normalizeForPrint().forEach { vertex ->
     vertex(vertex)
@@ -56,7 +57,7 @@ fun PGraphics.shape(vertices: List<Point>) {
   endShape()
 }
 
-private fun PGraphics.shapes(lines: List<List<Point>>, debug: Boolean = false) =
+private fun PGraphics.shapes(lines: List<PolyLine>, debug: Boolean = false) =
   lines.forEachIndexed { lineIndex, vertices ->
     if (debug) {
       pushStyle()

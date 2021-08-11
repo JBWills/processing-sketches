@@ -2,7 +2,6 @@ package appletExtensions
 
 import processing.core.PApplet
 import processing.core.PGraphics
-import util.debugLog
 import util.print.Style
 import java.awt.Color
 
@@ -83,13 +82,11 @@ inline fun <R> PApplet.withFillNonNull(fill: Color?, block: PApplet.() -> R): R 
  */
 inline fun <R> PApplet.withStyle(s: Style?, block: PApplet.() -> R): R {
   s?.let {
-    debugLog("Pushing style")
     pushStyle()
     s.apply(this)
   }
   val result = block()
   s?.let {
-    debugLog("popping style")
     popStyle()
   }
   return result

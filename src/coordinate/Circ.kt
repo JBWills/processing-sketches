@@ -16,7 +16,7 @@ import util.equalsZero
 import util.lessThanEqualToDelta
 import util.map
 import util.notEqualsZero
-import util.polylines.polyLine.PolyLine
+import util.polylines.PolyLine
 import util.squared
 import kotlin.math.PI
 import kotlin.math.cos

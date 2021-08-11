@@ -23,7 +23,7 @@ data class VectorProp(
   override fun bind(): List<ControlTab> = singleTab(this::class.simpleName!!) {
     row {
       slider2D(::direction, -1..1)
-      slider(::magnitude, 0..1)
+      slider(::magnitude, 0..3)
     }
   }
 }

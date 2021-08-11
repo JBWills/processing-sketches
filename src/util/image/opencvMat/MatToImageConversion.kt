@@ -1,34 +1,19 @@
 package util.image.opencvMat
 
-import org.bytedeco.opencv.global.opencv_core
+import coordinate.Point
 import org.opencv.core.Mat
 import processing.core.PImage
 import util.image.ImageFormat
 import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Companion.getFormat
-import util.image.converted
 import java.nio.ByteBuffer
-
-fun Mat.asIntBuffer(fromFormat: ImageFormat = getFormat()) =
-  converted(fromFormat, ARGB)
-    .getByteArray()
-    .asIntBuffer()
-
-fun Mat.copyTo(arr: IntArray) {
-  asIntBuffer().copyTo(arr)
-}
 
 fun Mat.copyTo(pImage: PImage) {
   copyTo(pImage.pixels)
   pImage.updatePixels()
 }
 
-fun Mat.toPImage(): PImage {
-  val format = getFormat()
-  return PImage(width(), height(), format.pImageFormat).also { copyTo(it) }
-}
-
-fun Mat.cloneEmpty(format: ImageFormat = getFormat()) = Mat(rows(), cols(), format.openCVFormat)
+fun Mat.toPImage(): PImage = toEmptyPImage().also { copyTo(it) }
 
 fun Mat.toEmptyPImage(format: ImageFormat = getFormat()): PImage =
   PImage(cols(), rows(), format.pImageFormat)
@@ -36,18 +21,18 @@ fun Mat.toEmptyPImage(format: ImageFormat = getFormat()): PImage =
 fun PImage.toEmptyMat(format: ImageFormat = getFormat()): Mat =
   Mat(height, width, format.openCVFormat)
 
-fun PImage.toEmptyOpenCVMat(): Mat = Mat(height, width, opencv_core.CV_8UC4)
-
-fun PImage.toOpenCVRGB(): Mat = Mat(height, width, opencv_core.CV_8UC3)
-  .apply { put(0, 0, pixels) }
-
 fun ByteArray.toMat(width: Int, height: Int, format: ImageFormat): Mat =
   Mat(height, width, format.openCVFormat)
     .also { mat -> mat.put(0, 0, this) }
 
 fun Mat.toByteArray(): ByteArray = getByteArray()
 
-fun PImage.toMat(): Mat {
+/**
+ * Paste the contents of a PImage to a mat
+ *
+ * @param m Mat, must by ARGB and have space for all pixels
+ */
+fun PImage.copyTo(m: Mat, offset: Point = Point.Zero) {
   loadPixels()
   val bArray = ByteArray(pixels.size * 4)
   ByteBuffer.allocate(pixels.size * 4).apply {
@@ -55,5 +40,7 @@ fun PImage.toMat(): Mat {
     get(bArray)
   }
 
-  return toEmptyMat(format = ARGB).apply { put(0, 0, bArray) }
+  m.put(bArray, offset)
 }
+
+fun PImage.toMat(): Mat = toEmptyMat(format = ARGB).also { mat -> copyTo(mat) }

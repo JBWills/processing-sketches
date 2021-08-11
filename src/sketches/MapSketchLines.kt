@@ -1,6 +1,6 @@
 package sketches
 
-import appletExtensions.withStroke
+import appletExtensions.parallelLinesInBound
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.fileSelect
@@ -11,28 +11,33 @@ import controls.panels.panelext.toggle
 import controls.props.PropData
 import controls.props.types.VectorProp
 import coordinate.BoundRect
-import coordinate.Mesh
+import coordinate.Deg
 import coordinate.Point
 import coordinate.coordSystems.getCoordinateMap
-import geomerativefork.src.util.bound
+import geomerativefork.src.util.deepDeepMap
 import interfaces.shape.transform
 import kotlinx.serialization.Serializable
 import org.opencv.core.Mat
 import sketches.base.LayeredCanvasSketch
+import util.boundPercentAlong
 import util.image.ImageFormat
 import util.image.opencvMat.bounds
 import util.image.opencvMat.fillPoly
 import util.image.opencvMat.findContours
-import util.image.opencvMat.get
+import util.image.opencvMat.gaussianBlur
+import util.image.opencvMat.getSubPix
 import util.image.opencvMat.maskedByImage
+import util.image.opencvMat.rotate
+import util.image.opencvMat.scale
+import util.image.opencvMat.subtract
 import util.image.opencvMat.threshold
-import util.io.geoJson.loadGeoMatMemo
-import util.percentAlong
+import util.io.geoJson.loadGeoMatAndBlurMemo
+import util.polylines.PolyLine
 import util.polylines.bound
 import util.polylines.expandEndpointsToMakeMask
+import util.polylines.simplify
+import util.polylines.toSegment
 import util.polylines.transform
-import util.polylines.translated
-import java.awt.Color
 
 /**
  * Draws a map with topology that can be offset to create a 3d effect.
@@ -67,84 +72,104 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
   override fun drawOnce(layerInfo: LayerInfo) {}
 
   override suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {
-    val (geoTiffFile, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, showHorizontalLines, showVerticalLines, drawMinElevationOutline, drawUnionMat, occludeLines) = layerInfo.globalValues
+    val (geoTiffFile, drawMat, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, drawMinElevationOutline, drawUnionMat, occludeLines, drawOceanLines, blurAmount, lineSimplifyEpsilon, imageRotation, shrinkLinesHorizontally) = layerInfo.globalValues
     geoTiffFile ?: return
 
     val elevationRange = minElevation..maxElevation
     val elevationMoveAmount = elevationMoveVector.scaledVector(MaxMoveAmount)
 
-    currMat = loadGeoMatMemo(geoTiffFile)
-    val mat = currMat ?: return
+    currMat = loadGeoMatAndBlurMemo(geoTiffFile, blurAmount)
+    val mat = currMat
+      ?.scale(Point(mapScale))
+      ?.rotate(imageRotation, inPlace = true) ?: return
 
-    val scaleAndMove = getTiffToScreenTransform(mat.bounds, mapScale, mapCenter)
-    val scaleAndMoveInverted = scaleAndMove.inverted()
+    val matThreshold = mat.threshold(minElevation).subtract(mat.threshold(maxElevation))
+
+    val matToScreen = getTiffToScreenTransform(mat.bounds, mapScale, mapCenter)
+    val screenToMat = matToScreen.inverted()
+
+    fun getValue(p: Point): Double? = mat.getSubPix(p.transform(screenToMat))
 
     fun elevationPercent(p: Point) =
-      elevationRange.percentAlong(
-        mat.get(p.transform(scaleAndMoveInverted))?.bound(elevationRange) ?: minElevation,
-      )
+      (getValue(p) ?: minElevation).boundPercentAlong(elevationRange)
 
-    fun isPointVisible(p: Point): Boolean =
-      elevationRange.contains(
-        mat.get(p.transform(scaleAndMoveInverted)) ?: (minElevation - 1),
-      )
+    // Horizontal lines from the bottom of the image to the top
+    val linesBottomToTop: List<PolyLine> = boundRect
+      .expand(elevationMoveAmount.abs() * 2)
+      .parallelLinesInBound(Deg.HORIZONTAL, boundRect.height / samplePointsXY.yi)
+      .sortedByDescending { it.p1.y }
+      .map { it.asPolyLine }
 
-    val (horizontalLines, verticalLines) = Mesh(
-      boundRect.expand(elevationMoveAmount.abs() * 2),
-      samplePointsXY.xi,
-      samplePointsXY.yi,
-      pointTransformFunc = { pointLocation, _, _ ->
-        pointLocation + (elevationMoveAmount * elevationPercent(pointLocation))
-      },
-      pointVisibleFunc = { pointLocation, _, _, _ ->
-        isPointVisible(pointLocation)
-      },
-    ).toLinesByIndex()
+    // straight lines masked by the minElevation image
+    val maskedLinesBottomToTop: List<List<PolyLine>> = linesBottomToTop
+      .transform(screenToMat)
+      .map { line ->
+        line.toSegment()
+          .maskedByImage(matThreshold, inverted = false)
+          .map {
+            val originalSegmentLength = it.length
+            val segmentLengthRatio = originalSegmentLength / boundRect.width
+            it.expand(-shrinkLinesHorizontally * 2)
+              .split(samplePointsXY.x * segmentLengthRatio)
+          }
+      }
+      .transform(matToScreen)
+
+    // Masked and morphed lines based on elevation values.
+    val elevationLinesBottomToTop: List<List<PolyLine>> = maskedLinesBottomToTop
+      .deepDeepMap { point: Point -> point + (elevationMoveAmount * elevationPercent(point)) }
+      .map {
+        it.simplify(lineSimplifyEpsilon)
+      }
+
+    val unionMat = Mat.zeros(windowBounds.size.toSize(), ImageFormat.Gray.openCVFormat)
 
     if (occludeLines || drawUnionMat) {
-      val unionMat = Mat.zeros(boundRect.size.toSize(), ImageFormat.Gray.openCVFormat)
-      horizontalLines.reversed().forEachIndexed { _, lineAtIndex ->
-        val lineOnMat = lineAtIndex.bound(boundRect).translated(-boundRect.topLeft)
+      elevationLinesBottomToTop.forEachIndexed { index, elevationLine ->
+        val minYPosition = linesBottomToTop[index].first().y
+        val lineOnMat = elevationLine
+          .bound(windowBounds)
 
         if (occludeLines) {
           lineOnMat
             .maskedByImage(unionMat, inverted = true)
-            .translated(boundRect.topLeft)
-            .draw()
+            .draw(boundRect)
         }
 
-        unionMat.fillPoly(
-          lineOnMat.map {
-            it.expandEndpointsToMakeMask(
-              unionMat.rows().toDouble(),
+        unionMat.fillPoly(lineOnMat.map { it.expandEndpointsToMakeMask(newBottom = minYPosition) })
+      }
+
+      if (drawUnionMat) unionMat.draw()
+    } else {
+      elevationLinesBottomToTop.draw(boundRect)
+    }
+
+    if (drawMinElevationOutline || drawMat) {
+      if (drawMat) matThreshold.draw(matToScreen, boundRect)
+      if (drawMinElevationOutline) {
+        var matContours = matThreshold.findContours()
+          .transform(matToScreen)
+
+        if (occludeLines) {
+          matContours =
+            matContours.maskedByImage(
+              unionMat
+                .gaussianBlur(7, inPlace = true),
+              inverted = true,
+              thresholdValueRange = 240.0..256.0,
             )
-          },
-        )
-      }
+              .flatten()
+        }
 
-      if (drawUnionMat) {
-        unionMat.draw(boundRect.topLeft)
+        matContours.draw(boundRect)
       }
-
-      unionMat.release()
     }
 
-    if (drawMinElevationOutline) {
-      mat.threshold(minElevation)
-        .findContours()
-        .transform(scaleAndMove)
-        .draw(boundRect)
+    unionMat.release()
+
+    if (drawOceanLines) {
+      yield(Unit)
     }
-
-//    if (showHorizontalLines)
-//      horizontalLines.map { it.draw(boundRect) }
-
-    if (showHorizontalLines && !occludeLines) horizontalLines.map { it.draw(boundRect) }
-    if (showVerticalLines) verticalLines.map { it.draw(boundRect) }
-
-    yield(Unit)
-
-    withStroke(Color.GREEN) { boundRect.shrink(10).draw() }
   }
 }
 
@@ -163,29 +188,37 @@ data class MapLinesLayerData(
 @Serializable
 data class MapLinesData(
   var geoTiffFile: String? = null,
+  var drawMat: Boolean = false,
   var mapCenter: Point = Point.Zero,
   var mapScale: Double = 1.0,
   var minElevation: Double = 0.0,
   var maxElevation: Double = 5000.0,
   var elevationMoveVector: VectorProp = VectorProp(Point.Zero, 0.0),
   var samplePointsXY: Point = Point(2, 2),
-  var showHorizontalLines: Boolean = true,
-  var showVerticalLines: Boolean = true,
   var drawMinElevationOutline: Boolean = true,
   var drawUnionMat: Boolean = true,
   var occludeLines: Boolean = true,
+  var drawOceanLines: Boolean = true,
+  var blurAmount: Double = 0.0,
+  var lineSimplifyEpsilon: Double = 0.0,
+  var imageRotation: Deg = Deg(0),
+  var shrinkLinesHorizontally: Double = 0.0,
 ) : PropData<MapLinesData> {
   override fun bind() = tabs {
     tab("Map") {
       row {
         fileSelect(::geoTiffFile)
+        toggle(::drawMat)
       }
+
+      slider(::blurAmount, 0.0..1000.0)
 
       row {
         heightRatio = 5
         slider2D(::mapCenter, -1..1).withHeight(3)
       }
       slider(::mapScale, 0.1..10.0)
+      slider(::imageRotation)
     }
 
     tab("Lines") {
@@ -194,16 +227,18 @@ data class MapLinesData(
         toggle(::occludeLines)
         toggle(::drawMinElevationOutline)
       }
+      slider(::lineSimplifyEpsilon, 0..2)
       row {
         slider(::minElevation, 0.1..5000.0)
         slider(::maxElevation, 0..5000)
       }
       panel(::elevationMoveVector)
       sliderPair(::samplePointsXY, 1.0..3000.0)
-      row {
-        toggle(::showHorizontalLines)
-        toggle(::showVerticalLines)
-      }
+      slider(::shrinkLinesHorizontally, 0..10)
+    }
+
+    tab("ocean") {
+      toggle(::drawOceanLines)
     }
   }
 

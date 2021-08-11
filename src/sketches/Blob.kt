@@ -93,7 +93,7 @@ class Blob : LayeredCanvasSketch<BlobData, BlobLayerData>(
 
             smoothedLine.intersection(contourShape.getRPath(boundRect))
           }
-          .draw(drawDebug)
+          .draw()
       }
     }
 

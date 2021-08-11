@@ -10,7 +10,7 @@ import controls.props.types.BrushProp
 import coordinate.Deg
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.image.opencvMat.getValue
+import util.image.opencvMat.getInt
 
 /**
  * Starter sketch that uses all of the latest bells and whistles.
@@ -35,7 +35,7 @@ class InteractiveLines : LayeredCanvasSketch<InteractiveLinesData, InteractiveLi
     getParallelLinesInBoundMemo(boundRect, Deg.HORIZONTAL, distanceBetweenLines)
       .forEach { segment ->
         segment.walk(1.0) {
-          it.addY(brush.latestAlphaMat?.getValue(it) ?: 0)
+          it.addY(brush.latestAlphaMat?.getInt(it) ?: 0)
         }.draw(boundRect)
       }
   }

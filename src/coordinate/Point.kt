@@ -94,6 +94,8 @@ data class Point(val x: Double, val y: Double) :
   fun bound(minPoint: Point, maxPoint: Point) =
     bound(minPoint.x..maxPoint.x, minPoint.y..maxPoint.y)
 
+  fun bound(boundRect: BoundRect) = bound(boundRect.topLeft, boundRect.bottomRight)
+
   fun addX(amt: Number) = Point(x + amt.toDouble(), y)
   fun addY(amt: Number) = Point(x, y + amt.toDouble())
   fun withX(amt: Number) = Point(amt, y)
@@ -140,6 +142,9 @@ data class Point(val x: Double, val y: Double) :
 
   fun toRPoint(): RPoint = RPoint(xf, yf)
   fun toOpenCvPoint(): org.opencv.core.Point = org.opencv.core.Point(x, y)
+  fun toOpenCvByteDecoPoint(): org.bytedeco.opencv.opencv_core.Point =
+    org.bytedeco.opencv.opencv_core.Point(xi, yi)
+
   fun toSize(): Size = Size(x, y)
 
   override fun scaled(scale: Point, anchor: Point): Point {

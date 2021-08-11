@@ -77,9 +77,9 @@ fun Mat.convertTo(
   beta: Double? = null
 ): Mat {
   when {
-    alpha != null && beta != null -> convertTo(dest, depth.typeVal, alpha, beta)
-    alpha != null -> convertTo(dest, depth.typeVal, alpha)
-    else -> convertTo(dest, depth.typeVal)
+    alpha != null && beta != null -> convertTo(dest, depth.type, alpha, beta)
+    alpha != null -> convertTo(dest, depth.type, alpha)
+    else -> convertTo(dest, depth.type)
   }
 
   return dest

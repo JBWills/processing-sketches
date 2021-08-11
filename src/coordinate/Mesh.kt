@@ -7,12 +7,14 @@ import util.iterators.mapWithNextIndexed
 import util.map
 import util.percentAlong
 import util.polylines.MutablePolyLine
+import util.polylines.PolyLine
 import util.polylines.appendSegmentOrStartNewLine
-import util.polylines.polyLine.PolyLine
 import util.tuple.map
 
 typealias PointTransformFunc = (pointLocation: Point, xIndex: Int, yIndex: Int) -> Point
 typealias PointVisibilityFunc = (pointLocation: Point, transformedPointLocation: Point, xIndex: Int, yIndex: Int) -> Boolean
+typealias IndexedMeshLines = Pair<List<List<PolyLine>>, List<List<PolyLine>>>
+typealias MeshLines = Pair<List<PolyLine>, List<PolyLine>>
 
 /**
  * @property bounds the screen bounds the mesh extends to fit
@@ -83,7 +85,7 @@ data class Mesh(
    *
    * @return Pair from horizontal lines to vertical lines
    */
-  fun toLinesByIndex(): Pair<List<List<PolyLine>>, List<List<PolyLine>>> {
+  fun toLinesByIndex(): IndexedMeshLines {
     val inBoxes: MutableSet<Segment> = mutableSetOf()
     val xIndices = (0 until xPoints).toList()
     val yIndices = (0 until yPoints).toList()
@@ -139,6 +141,5 @@ data class Mesh(
     return (horizontalLines to verticalLines).map { it.map { lines -> lines.map { line -> line.mapIndicesToScreenPoints() } } }
   }
 
-  fun toLines(): Pair<List<PolyLine>, List<PolyLine>> = toLinesByIndex()
-    .map { it.flatten() }
+  fun toLines(): MeshLines = toLinesByIndex().map { it.flatten() }
 }

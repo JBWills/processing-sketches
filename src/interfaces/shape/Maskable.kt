@@ -4,7 +4,7 @@ import appletExtensions.PAppletExt
 import coordinate.Line
 import coordinate.Point
 import coordinate.Segment
-import util.polylines.polyLine.PolyLine
+import util.polylines.PolyLine
 
 /**
  * Represents a closed shape (can be self intersecting).
