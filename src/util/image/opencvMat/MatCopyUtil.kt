@@ -18,6 +18,9 @@ fun Mat.copy() = applyWithDest { src, dest -> src.copyTo(dest) }
 fun createMat(rows: Int, cols: Int, format: ImageFormat, baseColor: Color) =
   Mat(rows, cols, format.openCVFormat, format.colorToScalar(baseColor))
 
+fun createMat(size: Point, format: ImageFormat, baseColor: Color) =
+  createMat(size.yi, size.xi, format, baseColor)
+
 fun BoundRect.toEmptyMat(type: ImageFormat) = Mat(heightPx, widthPx, type.openCVFormat)
 fun Mat.asBlankMat(type: Int = type()) = Mat(rows(), cols(), type)
 

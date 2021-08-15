@@ -8,6 +8,13 @@ import org.opencv.core.Core.LINE_4
 import org.opencv.core.Core.LINE_8
 import org.opencv.core.Core.LINE_AA
 import org.opencv.imgproc.Imgproc
+import org.opencv.imgproc.Imgproc.HISTCMP_BHATTACHARYYA
+import org.opencv.imgproc.Imgproc.HISTCMP_CHISQR
+import org.opencv.imgproc.Imgproc.HISTCMP_CHISQR_ALT
+import org.opencv.imgproc.Imgproc.HISTCMP_CORREL
+import org.opencv.imgproc.Imgproc.HISTCMP_HELLINGER
+import org.opencv.imgproc.Imgproc.HISTCMP_INTERSECT
+import org.opencv.imgproc.Imgproc.HISTCMP_KL_DIV
 
 enum class OpenCVThresholdType(val type: Int) {
   ThreshBinary(Imgproc.THRESH_BINARY),
@@ -46,7 +53,7 @@ enum class ChannelDepth(val type: Int) {
   CV_16F(opencv_core.CV_16F),
 }
 
-enum class BlurBorderType(val type: Int) {
+enum class BorderType(val type: Int) {
   /** {@code iiiiii|abcdefgh|iiiiiii}  with some specified {@code i} */
   BorderConstant(opencv_core.BORDER_CONSTANT),
 
@@ -83,4 +90,36 @@ enum class LineFillType(val type: Int) {
 
   /** antialiased line */
   LineAA(LINE_AA),
+}
+
+enum class HistCompareMethod(val type: Int) {
+  Correl(HISTCMP_CORREL),
+  Chisor(HISTCMP_CHISQR),
+  Intersect(HISTCMP_INTERSECT),
+  Bhattacharyya(HISTCMP_BHATTACHARYYA),
+  Hellinger(HISTCMP_HELLINGER),
+  ChisorAlt(HISTCMP_CHISQR_ALT),
+  KlDiv(HISTCMP_KL_DIV),
+  ;
+
+  companion object {
+    val fastestMethod get() = Intersect
+  }
+}
+
+enum class MorphShapes(val type: Int) {
+  Rect(Imgproc.MORPH_RECT),
+  Cross(Imgproc.MORPH_CROSS),
+  Ellipse(Imgproc.MORPH_ELLIPSE),
+}
+
+enum class MorphTypes(val type: Int) {
+  Erode(Imgproc.MORPH_ERODE),
+  Dilate(Imgproc.MORPH_DILATE),
+  Open(Imgproc.MORPH_OPEN),
+  Close(Imgproc.MORPH_CLOSE),
+  Gradient(Imgproc.MORPH_GRADIENT),
+  TopHat(Imgproc.MORPH_TOPHAT),
+  BlackHat(Imgproc.MORPH_BLACKHAT),
+  HitMiss(Imgproc.MORPH_HITMISS),
 }

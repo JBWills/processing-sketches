@@ -12,6 +12,7 @@ import util.image.ImageFormat.Companion.getFormat
 
 fun Mat.crop(crop: BoundRect) = submat(crop)
 
+fun Mat.scale(amount: Number) = resize(size * amount)
 fun Mat.scale(amount: Point) = resize(size * amount)
 
 fun Mat.resize(newSize: Point) =
@@ -20,6 +21,8 @@ fun Mat.resize(newSize: Point) =
     if (empty()) return@apply
     Imgproc.resize(this@resize, this, this.size())
   }
+
+fun Mat.resize(getSize: (size: Point) -> Point) = resize(getSize(size))
 
 fun Mat.getTransformedMat(matToScreenTransform: ShapeTransform, boundRect: BoundRect) =
   bounds

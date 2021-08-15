@@ -6,10 +6,12 @@ import org.opencv.imgproc.Imgproc
 import processing.core.PImage
 import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Alpha
+import util.image.ImageFormat.Float32
 import util.image.ImageFormat.Gray
 import util.image.ImageFormat.RGB
 import util.image.opencvMat.asBlankMat
 import util.image.opencvMat.createMat
+import util.image.opencvMat.geoTiffToGray
 import util.image.opencvMat.merge
 import util.image.opencvMat.split
 import util.image.opencvMat.toPImage
@@ -26,6 +28,7 @@ fun Mat.converted(from: ImageFormat, to: ImageFormat): Mat {
     ARGB -> splitMat
     RGB -> listOf(white) + splitMat
     Gray -> listOf(white, splitMat[0], splitMat[0], splitMat[0])
+    Float32 -> geoTiffToGray().let { listOf(white, it, it, it) }
     Alpha -> splitMat + listOf(white, white, white)
   }
 
@@ -36,6 +39,9 @@ fun Mat.converted(from: ImageFormat, to: ImageFormat): Mat {
     ARGB -> argbMat.merge(ARGB)
     RGB -> rgbMat.merge(RGB)
     Gray -> asBlankMat(Gray.openCVFormat).also {
+      Imgproc.cvtColor((rgbMat + alphaMat).merge(ARGB), it, COLOR_RGBA2GRAY)
+    }
+    Float32 -> asBlankMat(Float32.openCVFormat).also {
       Imgproc.cvtColor((rgbMat + alphaMat).merge(ARGB), it, COLOR_RGBA2GRAY)
     }
     Alpha -> alphaMat

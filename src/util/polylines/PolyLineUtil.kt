@@ -7,6 +7,10 @@ import coordinate.Point
 import coordinate.Point.Companion.maxXY
 import coordinate.Point.Companion.minXY
 import coordinate.Segment
+import util.iterators.mapWithNext
+
+val PolyLine.length: Double
+  get() = mapWithNext { curr, next -> curr.dist(next) }.sum()
 
 private val _bound = { list: PolyLine, bound: BoundRect ->
   ContinuousMaskedShape(list, bound).toBoundPoints(true)

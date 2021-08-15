@@ -73,10 +73,12 @@ fun Mat.geoTiffToGray(): Mat = applyWithDest(Gray) { src, dest ->
     .convertTo(ChannelDepth.CV_8U, dest, alpha = 255.0)
 }
 
-fun Mat.contour(thresholds: List<Double>): Map<Double, List<PolyLine>> =
-  thresholds.associateWith { thresholdValue ->
-    threshold(thresholdValue).findContours()
-  }
+fun Mat.contour(
+  thresholds: List<Double>,
+  approximationMode: ContourApproximationMode = TC89KCOS
+): Map<Double, List<PolyLine>> = thresholds.associateWith { thresholdValue ->
+  threshold(thresholdValue).findContours(approximationMode)
+}
 
 fun loadAndContour(
   filename: String,

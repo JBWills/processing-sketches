@@ -46,7 +46,6 @@ data class ContourProp(
       (t.pow(thresholdEaseInOut.first)..(1 - (1 - t).pow(thresholdEaseInOut.second)))
         .interpolate(t)
     }
-    .map { it.toInt().toDouble() }
 
   fun contour(
     bounds: BoundRect,
@@ -62,7 +61,7 @@ data class ContourProp(
   override fun clone() = ContourProp(this)
 
   override fun bind(): List<ControlTab> = singleTab(this::class.simpleName!!) {
-    sliderPair(::thresholdRange, range = -1000.0..5000.0)
+    sliderPair(::thresholdRange, range = 0.0..1.0)
     slider(::numThresholds, 1..100)
 
     sliderPair(::thresholdEaseInOut, range = -1.0..5.0)

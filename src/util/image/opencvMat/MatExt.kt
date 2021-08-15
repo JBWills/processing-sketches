@@ -2,14 +2,19 @@ package util.image.opencvMat
 
 import coordinate.BoundRect
 import coordinate.Point
-import org.opencv.core.Core
 import org.opencv.core.Mat
-import util.letWith
+import org.opencv.core.Scalar
 
 val Mat.size: Point get() = Point(cols(), rows())
 val Mat.bounds: BoundRect get() = BoundRect(Point.Zero, size - 1)
-val Mat.min: Double get() = minMax.first
-val Mat.minMax: Pair<Double, Double> get() = Core.minMaxLoc(this).letWith { minVal to maxVal }
-val Mat.max: Double get() = minMax.second
+
 
 fun Mat.put(bytes: ByteArray, offset: Point = Point.Zero) = put(offset.yi, offset.xi, bytes)
+
+fun Mat.put(p: Point, s: Scalar): Boolean {
+  if (!bounds.contains(p)) return false
+  put(p.yi, p.xi, s.toFloatArray())
+  return true
+}
+
+fun Mat.put(p: Point, d: Double) = put(p, Scalar(d))

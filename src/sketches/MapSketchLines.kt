@@ -1,6 +1,7 @@
 package sketches
 
 import appletExtensions.parallelLinesInBound
+import arrow.core.memoize
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.fileSelect
@@ -9,6 +10,7 @@ import controls.panels.panelext.slider2D
 import controls.panels.panelext.sliderPair
 import controls.panels.panelext.toggle
 import controls.props.PropData
+import controls.props.types.ContourProp
 import controls.props.types.VectorProp
 import coordinate.BoundRect
 import coordinate.Deg
@@ -17,11 +19,13 @@ import coordinate.coordSystems.getCoordinateMap
 import geomerativefork.src.util.deepDeepMap
 import interfaces.shape.transform
 import kotlinx.serialization.Serializable
+import org.opencv.core.Core
 import org.opencv.core.Mat
 import sketches.base.LayeredCanvasSketch
 import util.boundPercentAlong
 import util.image.ImageFormat
 import util.image.opencvMat.bounds
+import util.image.opencvMat.dilate
 import util.image.opencvMat.fillPoly
 import util.image.opencvMat.findContours
 import util.image.opencvMat.gaussianBlur
@@ -38,6 +42,7 @@ import util.polylines.expandEndpointsToMakeMask
 import util.polylines.simplify
 import util.polylines.toSegment
 import util.polylines.transform
+import java.awt.Color
 
 /**
  * Draws a map with topology that can be offset to create a 3d effect.
@@ -49,8 +54,6 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
 ) {
 
   private val MaxMoveAmount = 300
-
-  private var currMat: Mat? = null
 
   init {
     numLayers = 1
@@ -71,17 +74,47 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
 
   override fun drawOnce(layerInfo: LayerInfo) {}
 
+  private fun loadScaleAndRotateMat(
+    fileName: String,
+    blurAmount: Double,
+    scaleAndRotation: Pair<Point, Deg>,
+    minElevation: Double,
+    simplifyEpsilon: Double,
+  ): Mat {
+    val matBase = loadGeoMatAndBlurMemo(fileName, blurAmount)
+      .scale(Point(scaleAndRotation.first))
+      .rotate(scaleAndRotation.second, inPlace = true)
+
+//    val matThreshold = matBase.threshold(minElevation).resize { size -> size / 5 }
+
+
+//    val contours = matThreshold.findContours().simplify(simplifyEpsilon)
+//
+//    val pointPolyMat = contours.pointPolyTest(matThreshold).resize(matBase.size)
+
+    return matBase
+  }
+
+  val loadScaleAndRotateMatMemo = ::loadScaleAndRotateMat.memoize()
+
   override suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {
-    val (geoTiffFile, drawMat, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, drawMinElevationOutline, drawUnionMat, occludeLines, drawOceanLines, blurAmount, lineSimplifyEpsilon, imageRotation, shrinkLinesHorizontally) = layerInfo.globalValues
+    val (geoTiffFile, drawMat, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, drawMinElevationOutline, drawUnionMat, occludeLines, drawOceanLines, blurAmount, lineSimplifyEpsilon, imageRotation, shrinkLinesHorizontally, oceanContours) = layerInfo.globalValues
     geoTiffFile ?: return
 
     val elevationRange = minElevation..maxElevation
     val elevationMoveAmount = elevationMoveVector.scaledVector(MaxMoveAmount)
 
-    currMat = loadGeoMatAndBlurMemo(geoTiffFile, blurAmount)
-    val mat = currMat
-      ?.scale(Point(mapScale))
-      ?.rotate(imageRotation, inPlace = true) ?: return
+//    val mat = HashableMat(loadGeoMatAndBlurMemo(geoTiffFile, blurAmount))
+//      .scaleMemo(Point(mapScale))
+//      .rotateMemo(imageRotation)
+
+    val mat = loadScaleAndRotateMatMemo(
+      geoTiffFile,
+      blurAmount,
+      Point(mapScale) to imageRotation,
+      minElevation,
+      lineSimplifyEpsilon,
+    )
 
     val matThreshold = mat.threshold(minElevation).subtract(mat.threshold(maxElevation))
 
@@ -118,9 +151,7 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
     // Masked and morphed lines based on elevation values.
     val elevationLinesBottomToTop: List<List<PolyLine>> = maskedLinesBottomToTop
       .deepDeepMap { point: Point -> point + (elevationMoveAmount * elevationPercent(point)) }
-      .map {
-        it.simplify(lineSimplifyEpsilon)
-      }
+      .map { it.simplify(lineSimplifyEpsilon) }
 
     val unionMat = Mat.zeros(windowBounds.size.toSize(), ImageFormat.Gray.openCVFormat)
 
@@ -169,6 +200,42 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
 
     if (drawOceanLines) {
       yield(Unit)
+      stroke(Color.BLUE)
+
+      val scaleAmount = 7.0
+      val matMinThreshold = mat.threshold(minElevation).scale(1 / scaleAmount)
+      val matSize = matMinThreshold.bounds.let { it.width * it.height }
+      if (oceanContours.numThresholds > 5) {
+        while (Core.countNonZero(matMinThreshold).let { it < matSize && it != 0 }) {
+          matMinThreshold
+            .dilate(oceanContours.numThresholds.toDouble(), inPlace = true)
+            .scale(scaleAmount)
+            .gaussianBlur(15)
+            .findContours()
+            .simplify(lineSimplifyEpsilon)
+            .transform(matToScreen)
+            .draw(boundRect)
+        }
+      }
+
+//      val valueRange = pointPolyMat.getMinMaxValues(boundMin = -10_000, boundMax = 0)
+//      debugLog(valueRange)
+//      debugLog(oceanContours.getThresholds())
+//
+//      val thresholds = oceanContours
+//        .getThresholds()
+//        .map { thresholdFromZeroToOne ->
+//          valueRange.atAmountAlong(thresholdFromZeroToOne)
+//        }
+//
+//      debugLog(thresholds)
+//
+//      pointPolyMat.contour(thresholds).forEach { (_, contourLines) ->
+//        contourLines
+//          .simplify(oceanContours.simplifier.simplifyAmount)
+//          .transform(matToScreen)
+//          .draw(boundRect)
+//      }
     }
   }
 }
@@ -203,6 +270,7 @@ data class MapLinesData(
   var lineSimplifyEpsilon: Double = 0.0,
   var imageRotation: Deg = Deg(0),
   var shrinkLinesHorizontally: Double = 0.0,
+  var oceanContours: ContourProp = ContourProp(),
 ) : PropData<MapLinesData> {
   override fun bind() = tabs {
     tab("Map") {
@@ -239,6 +307,7 @@ data class MapLinesData(
 
     tab("ocean") {
       toggle(::drawOceanLines)
+      panel(::oceanContours)
     }
   }
 

@@ -11,7 +11,7 @@ import util.image.ImageFormat.Companion.getFormat
 import util.image.ImageFormat.Gray
 import util.image.ImageFormat.RGB
 import util.image.converted
-import util.image.opencvMat.BlurBorderType.BorderReflect
+import util.image.opencvMat.BorderType.BorderReflect
 import util.image.opencvMat.OpenCVThresholdType.ThreshBinary
 import java.awt.Color
 
