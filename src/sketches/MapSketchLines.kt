@@ -16,16 +16,19 @@ import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Point
 import coordinate.coordSystems.getCoordinateMap
+import de.lighti.clipper.Clipper.EndType.CLOSED_POLYGON
+import de.lighti.clipper.Clipper.JoinType
 import geomerativefork.src.util.deepDeepMap
 import interfaces.shape.transform
 import kotlinx.serialization.Serializable
-import org.opencv.core.Core
 import org.opencv.core.Mat
 import sketches.base.LayeredCanvasSketch
 import util.boundPercentAlong
+import util.debugLog
+import util.doIf
 import util.image.ImageFormat
+import util.image.opencvMat.ContourRetrievalMode.External
 import util.image.opencvMat.bounds
-import util.image.opencvMat.dilate
 import util.image.opencvMat.fillPoly
 import util.image.opencvMat.findContours
 import util.image.opencvMat.gaussianBlur
@@ -36,8 +39,13 @@ import util.image.opencvMat.scale
 import util.image.opencvMat.subtract
 import util.image.opencvMat.threshold
 import util.io.geoJson.loadGeoMatAndBlurMemo
+import util.iterators.skipFirst
+import util.iterators.times
 import util.polylines.PolyLine
 import util.polylines.bound
+import util.polylines.clipping.clipperIntersection
+import util.polylines.clipping.getClipperMemo
+import util.polylines.clipping.offset
 import util.polylines.expandEndpointsToMakeMask
 import util.polylines.simplify
 import util.polylines.toSegment
@@ -98,7 +106,7 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
   val loadScaleAndRotateMatMemo = ::loadScaleAndRotateMat.memoize()
 
   override suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {
-    val (geoTiffFile, drawMat, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, drawMinElevationOutline, drawUnionMat, occludeLines, drawOceanLines, blurAmount, lineSimplifyEpsilon, imageRotation, shrinkLinesHorizontally, oceanContours) = layerInfo.globalValues
+    val (geoTiffFile, drawMat, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, drawMinElevationOutline, drawUnionMat, occludeLines, drawOceanLines, blurAmount, lineSimplifyEpsilon, imageRotation, shrinkLinesHorizontally, oceanContours, maxOceanDistanceFromLand) = layerInfo.globalValues
     geoTiffFile ?: return
 
     val elevationRange = minElevation..maxElevation
@@ -196,47 +204,41 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
       }
     }
 
-    unionMat.release()
-
     if (drawOceanLines) {
       yield(Unit)
       stroke(Color.BLUE)
 
-      val scaleAmount = 7.0
-      val matMinThreshold = mat.threshold(minElevation).scale(1 / scaleAmount)
-      val matSize = matMinThreshold.bounds.let { it.width * it.height }
-      if (oceanContours.numThresholds > 5) {
-        while (Core.countNonZero(matMinThreshold).let { it < matSize && it != 0 }) {
-          matMinThreshold
-            .dilate(oceanContours.numThresholds.toDouble(), inPlace = true)
-            .scale(scaleAmount)
-            .gaussianBlur(15)
-            .findContours()
-            .simplify(lineSimplifyEpsilon)
-            .transform(matToScreen)
-            .draw(boundRect)
-        }
-      }
+      debugLog("Starting ocean lines")
 
-//      val valueRange = pointPolyMat.getMinMaxValues(boundMin = -10_000, boundMax = 0)
-//      debugLog(valueRange)
-//      debugLog(oceanContours.getThresholds())
-//
-//      val thresholds = oceanContours
-//        .getThresholds()
-//        .map { thresholdFromZeroToOne ->
-//          valueRange.atAmountAlong(thresholdFromZeroToOne)
-//        }
-//
-//      debugLog(thresholds)
-//
-//      pointPolyMat.contour(thresholds).forEach { (_, contourLines) ->
-//        contourLines
-//          .simplify(oceanContours.simplifier.simplifyAmount)
-//          .transform(matToScreen)
-//          .draw(boundRect)
-//      }
+      val minThresholdMat = mat.threshold(minElevation)
+      val matContours = minThresholdMat
+        .gaussianBlur(7)
+        .findContours(retrievalMode = External)
+        .simplify(oceanContours.simplifier.simplifyAmount)
+        .transform(matToScreen)
+        .flatMap { line -> listOf(line, windowBounds.asPolyLine()).clipperIntersection() }
+
+      val clipper = matContours.getClipperMemo(JoinType.ROUND, CLOSED_POLYGON)
+
+      oceanContours
+        .getThresholds()
+        .skipFirst()
+        .times(maxOceanDistanceFromLand)
+        .mapIndexed { index, threshold ->
+          clipper.offset(threshold)
+        }
+        .doIf(occludeLines) {
+          it.flatMap { line ->
+            line.maskedByImage(
+              unionMat,
+              inverted = true,
+              thresholdValueRange = 200.0..256.0,
+            )
+          }
+        }
+        .draw(boundRect)
     }
+    unionMat.release()
   }
 }
 
@@ -271,6 +273,7 @@ data class MapLinesData(
   var imageRotation: Deg = Deg(0),
   var shrinkLinesHorizontally: Double = 0.0,
   var oceanContours: ContourProp = ContourProp(),
+  var maxOceanDistanceFromLand: Double = 500.0,
 ) : PropData<MapLinesData> {
   override fun bind() = tabs {
     tab("Map") {
@@ -308,6 +311,7 @@ data class MapLinesData(
     tab("ocean") {
       toggle(::drawOceanLines)
       panel(::oceanContours)
+      slider(::maxOceanDistanceFromLand, 0..1000)
     }
   }
 

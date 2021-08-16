@@ -53,8 +53,11 @@ fun List<MatOfPoint>.toContourPolyLines(): List<PolyLine> = map { it.toPolyLine(
  *
  * @return a list of PolyLines
  */
-fun Mat.findContours(approximationMode: ContourApproximationMode = TC89KCOS): List<PolyLine> =
-  findRawContours(approximationMode = approximationMode)
+fun Mat.findContours(
+  retrievalMode: ContourRetrievalMode = Tree,
+  approximationMode: ContourApproximationMode = TC89KCOS
+): List<PolyLine> =
+  findRawContours(retrievalMode, approximationMode)
     .first
     .toContourPolyLines()
 
@@ -75,9 +78,10 @@ fun Mat.geoTiffToGray(): Mat = applyWithDest(Gray) { src, dest ->
 
 fun Mat.contour(
   thresholds: List<Double>,
+  retrievalMode: ContourRetrievalMode = Tree,
   approximationMode: ContourApproximationMode = TC89KCOS
 ): Map<Double, List<PolyLine>> = thresholds.associateWith { thresholdValue ->
-  threshold(thresholdValue).findContours(approximationMode)
+  threshold(thresholdValue).findContours(retrievalMode, approximationMode)
 }
 
 fun loadAndContour(
