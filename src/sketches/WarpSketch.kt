@@ -131,8 +131,7 @@ open class WarpSketch(
         .map { it.y }
         .map { y ->
           (Point(xMax, y)..Point(xMin, y) step stepsPerPixel).map { p -> p + getNoiseMovement(p) }
-        }
-        .forEach { linePoints -> shape(linePoints, drawBound) }
+        }.draw(drawBound)
     }
 
     if (withVerticalLines) {
@@ -144,7 +143,7 @@ open class WarpSketch(
           .map { Point(x, it.y) }
           .map { p -> p + getNoiseMovement(p) }
 
-        shape(linePoints, drawBound)
+        linePoints.draw(drawBound)
       }
     }
 

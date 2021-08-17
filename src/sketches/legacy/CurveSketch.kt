@@ -103,7 +103,7 @@ open class CurveSketch(
         .map { y ->
           (Point(xMax, y)..Point(xMin, y) step stepsPerPixel).map { p -> p + getNoiseMovement(p) }
         }
-        .forEach { linePoints -> shape(linePoints, drawBound) }
+        .draw(drawBound)
     }
 
     for (line in 0..numLines) {
@@ -113,7 +113,7 @@ open class CurveSketch(
         .map { Point(x, it.y) }
         .map { p -> p + getNoiseMovement(p) }
 
-      shape(linePoints, drawBound)
+      linePoints.draw(drawBound)
     }
 
     rect(drawBound)

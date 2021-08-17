@@ -107,12 +107,7 @@ class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
         unionShape = nonNullUnionShape.union(s)
       }
 
-      sDiffed.forEach { splitPath ->
-        if (clipToBounds)
-          shape(splitPath, boundRect)
-        else
-          splitPath.drawLine()
-      }
+      sDiffed.toList().draw(if (clipToBounds) boundRect else null)
     }
   }
 }

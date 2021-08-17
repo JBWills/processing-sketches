@@ -9,11 +9,10 @@ import appletExtensions.draw.drawPoint
 import appletExtensions.draw.drawPoints
 import appletExtensions.draw.line
 import appletExtensions.draw.rect
-import appletExtensions.draw.shape
+import appletExtensions.draw.vertex
 import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
-import coordinate.ContinuousMaskedShape
 import coordinate.Line
 import coordinate.Point
 import coordinate.Segment
@@ -26,6 +25,8 @@ import org.opencv.core.Mat
 import processing.core.PApplet
 import processing.core.PImage
 import util.atAmountAlong
+import util.geomutil.toPolyLine
+import util.geomutil.toPolyLines
 import util.image.opencvMat.getTransformedMat
 import util.image.opencvMat.toPImage
 import util.image.pimage.scale
@@ -34,10 +35,10 @@ import util.iterators.forEach2D
 import util.iterators.mapWithNext
 import util.lerp
 import util.polylines.PolyLine
+import util.polylines.clipping.clipperDiff
+import util.polylines.clipping.clipperIntersection
 import util.polylines.forEachSegment
-import util.polylines.polyLine.normalizeForPrint
 import util.polylines.toPolyLine
-import util.randomColor
 import java.awt.Color
 
 /**
@@ -81,40 +82,40 @@ open class PAppletExt : PApplet() {
   fun PolyLine.toSegments(): List<Segment> = mapWithNext { curr, next -> Segment(curr, next) }
   fun List<Segment>.toVertices(): PolyLine = map { it.p1 }.addNotNull(lastOrNull()?.p2)
 
-  fun getBoundLines(
-    unboundLine: PolyLine,
+  private fun PolyLine.shape() {
+    beginShape()
+    forEach { vertex(it) }
+    endShape()
+  }
+
+  private fun List<PolyLine>.shapes() = map { it.shape() }
+
+  private fun getBoundLine(
+    unboundLines: PolyLine,
     bound: BoundRect,
     boundInside: Boolean,
-  ): List<PolyLine> = ContinuousMaskedShape(unboundLine, bound).toBoundPoints(boundInside)
+  ): List<PolyLine> = getBoundLines(listOf(unboundLines), bound, boundInside)
 
-  fun shape(vertices: PolyLine, bound: BoundRect, boundInside: Boolean = true) =
-    getBoundLines(vertices, bound, boundInside).draw()
-
-  fun shape(path: RPath, bound: BoundRect, boundInside: Boolean = true) =
-    getBoundLines(
-      path.points.map { Point(it.x, it.y) }.normalizeForPrint(),
-      bound,
-      boundInside,
-    ).map { shapeList ->
-      shape(shapeList)
-    }
-
-  fun PolyLine.draw(bound: BoundRect, boundInside: Boolean = true) {
-    shape(this, bound, boundInside)
-  }
-
-  @JvmName("drawSegments")
-  fun List<Segment>.draw(bound: BoundRect, boundInside: Boolean = true) = forEach {
-    shape(listOf(it.p1, it.p2), bound, boundInside)
-  }
-
-  @JvmName("drawLines")
-  fun List<PolyLine>.draw(
+  private fun getBoundLines(
+    unboundLines: List<PolyLine>,
     bound: BoundRect,
-    boundInside: Boolean = true,
-    randomColors: Boolean = false
-  ) = withStrokeIf(randomColors, randomColor()) {
-    forEach { shape(it, bound, boundInside) }
+    boundInside: Boolean,
+  ): List<PolyLine> {
+    val rectLine = bound.asPolyLine()
+    return if (boundInside) unboundLines.clipperIntersection(rectLine)
+    else unboundLines.clipperDiff(rectLine)
+  }
+
+  fun RPath.drawPath(bound: BoundRect? = null, boundInside: Boolean = true) =
+    toPolyLine().draw(bound, boundInside)
+
+  fun PolyLine.draw(bound: BoundRect? = null, boundInside: Boolean = true) =
+    listOf(this).draw(bound, boundInside)
+
+  @JvmName("drawPolyLines")
+  fun List<PolyLine>.draw(bound: BoundRect? = null, boundInside: Boolean = true) {
+    val lines = if (bound == null) this else getBoundLines(this, bound, boundInside)
+    lines.shapes()
   }
 
   /**
@@ -141,18 +142,19 @@ open class PAppletExt : PApplet() {
 
   fun List<Segment>.drawAsSegments() = map { it.draw() }
   fun List<Segment>.drawAsLine() = toPolyLine().draw()
-  fun PolyLine.draw(bound: BoundRect? = null) = if (bound != null) draw(bound) else shape(this)
-
-  @JvmName("drawPolyLines")
-  fun List<PolyLine>.draw(bound: BoundRect? = null) = map { it.draw(bound) }
 
   @JvmName("drawManyPolyLines")
-  fun List<List<PolyLine>>.draw(bound: BoundRect? = null) = map { it.draw(bound) }
+  fun List<List<PolyLine>>.draw(bound: BoundRect? = null, boundInside: Boolean = true) =
+    flatten().draw(bound, boundInside)
 
   @JvmName("drawManyPolyLinesList")
-  fun List<List<List<PolyLine>>>.draw(bound: BoundRect) = map { it.draw(bound) }
+  fun List<List<List<PolyLine>>>.draw(bound: BoundRect, boundInside: Boolean = true) =
+    flatten().flatten().draw(bound, boundInside)
 
-  fun RPath.drawLine() = points.map { Point(it.x, it.y) }.draw()
+  @JvmName("drawRPaths")
+  fun List<RPath>.draw(bound: BoundRect? = null, boundInside: Boolean = true) =
+    toPolyLines().draw(bound, boundInside)
+
   fun Circ.draw() = circle(this)
   fun Segment.draw() = line(this)
   fun Line.draw(bounds: BoundRect) = bounds.getBoundSegment(this)?.let { line(it) }

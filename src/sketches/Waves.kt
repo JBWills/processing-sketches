@@ -78,7 +78,7 @@ class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { 
       val warpedPaths: Array<RPath> =
         unionShape?.let { warpedPath.diff(it.paths[0]) } ?: arrayOf(warpedPath)
 
-      warpedPaths.forEach { shape(it, boundRect) }
+      warpedPaths.toList().draw(boundRect)
 
       height += tabValues.distBetweenLines
     }

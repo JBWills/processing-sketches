@@ -16,7 +16,7 @@ import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Point
 import coordinate.coordSystems.getCoordinateMap
-import de.lighti.clipper.Clipper.EndType.CLOSED_POLYGON
+import de.lighti.clipper.Clipper.EndType
 import de.lighti.clipper.Clipper.JoinType
 import geomerativefork.src.util.deepDeepMap
 import interfaces.shape.transform
@@ -24,7 +24,6 @@ import kotlinx.serialization.Serializable
 import org.opencv.core.Mat
 import sketches.base.LayeredCanvasSketch
 import util.boundPercentAlong
-import util.debugLog
 import util.doIf
 import util.image.ImageFormat
 import util.image.opencvMat.ContourRetrievalMode.External
@@ -44,8 +43,7 @@ import util.iterators.times
 import util.polylines.PolyLine
 import util.polylines.bound
 import util.polylines.clipping.clipperIntersection
-import util.polylines.clipping.getClipperMemo
-import util.polylines.clipping.offset
+import util.polylines.clipping.offsetByMemo
 import util.polylines.expandEndpointsToMakeMask
 import util.polylines.simplify
 import util.polylines.toSegment
@@ -111,10 +109,6 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
 
     val elevationRange = minElevation..maxElevation
     val elevationMoveAmount = elevationMoveVector.scaledVector(MaxMoveAmount)
-
-//    val mat = HashableMat(loadGeoMatAndBlurMemo(geoTiffFile, blurAmount))
-//      .scaleMemo(Point(mapScale))
-//      .rotateMemo(imageRotation)
 
     val mat = loadScaleAndRotateMatMemo(
       geoTiffFile,
@@ -208,25 +202,25 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
       yield(Unit)
       stroke(Color.BLUE)
 
-      debugLog("Starting ocean lines")
+      val simplifyAmount = oceanContours.simplifier.simplifyAmount
 
       val minThresholdMat = mat.threshold(minElevation)
       val matContours = minThresholdMat
         .gaussianBlur(7)
         .findContours(retrievalMode = External)
-        .simplify(oceanContours.simplifier.simplifyAmount)
+        .simplify(simplifyAmount)
         .transform(matToScreen)
-        .flatMap { line -> listOf(line, windowBounds.asPolyLine()).clipperIntersection() }
+        .clipperIntersection(windowBounds.asPolyLine())
+        .simplify(simplifyAmount)
 
-      val clipper = matContours.getClipperMemo(JoinType.ROUND, CLOSED_POLYGON)
-
-      oceanContours
+      val offsets = oceanContours
         .getThresholds()
         .skipFirst()
         .times(maxOceanDistanceFromLand)
-        .mapIndexed { index, threshold ->
-          clipper.offset(threshold)
-        }
+
+      matContours
+        .offsetByMemo(offsets, simplifyAmount, JoinType.ROUND, EndType.CLOSED_POLYGON)
+        .map { it.value }
         .doIf(occludeLines) {
           it.flatMap { line ->
             line.maskedByImage(
@@ -235,8 +229,7 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
               thresholdValueRange = 200.0..256.0,
             )
           }
-        }
-        .draw(boundRect)
+        }.draw(boundRect)
     }
     unionMat.release()
   }

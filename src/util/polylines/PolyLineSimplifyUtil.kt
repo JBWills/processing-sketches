@@ -8,9 +8,12 @@ import util.image.opencvMat.toPolyLine
 import util.tuple.map
 import util.tuple.mapPairOfLists
 
-fun PolyLine.simplify(epsilon: Double): PolyLine =
-  if (size < 3 || epsilon == 0.0) this
-  else toMatOfPoint2f().simplify(epsilon).toPolyLine()
+fun PolyLine.simplify(epsilon: Double): PolyLine {
+  if (size < 3 || epsilon == 0.0) return this
+
+  val wasClosed = isClosed()
+  return toMatOfPoint2f().simplify(epsilon).toPolyLine(close = wasClosed)
+}
 
 @JvmName("simplifyPolyLines")
 fun List<PolyLine>.simplify(epsilon: Double): List<PolyLine> = map { it.simplify(epsilon) }

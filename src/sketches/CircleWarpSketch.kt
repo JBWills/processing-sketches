@@ -97,7 +97,7 @@ open class CircleWarpSketch(
         positiveNoise * multiplier * radialMoveStrength
       }
 
-      shape(warpedCircle, bound = drawBound)
+      warpedCircle.draw(drawBound)
     }
 
     rect(drawBound)

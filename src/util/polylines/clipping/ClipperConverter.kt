@@ -5,6 +5,8 @@ import de.lighti.clipper.Path
 import de.lighti.clipper.Paths
 import de.lighti.clipper.Point.DoublePoint
 import de.lighti.clipper.Point.LongPoint
+import de.lighti.clipper.PolyNode
+import de.lighti.clipper.PolyTree
 import util.doIf
 import util.polylines.PolyLine
 import util.polylines.closed
@@ -31,4 +33,8 @@ fun Path.toPolyLine(closed: Boolean = false): PolyLine =
   map { it.toPoint() }
     .doIf(closed) { it.closed() }
 
-fun Paths.toPolyLines(closed: Boolean = false): List<PolyLine> = map { it.toPolyLine(closed) }
+fun Paths.toPolyLines(closed: Boolean = false): List<PolyLine> =
+  map { it.toPolyLine(closed) }
+
+fun PolyNode.toPolyLine(): PolyLine = polygon.toPolyLine(closed = !isOpen)
+fun PolyTree.toPolyLines(): List<PolyLine> = allPolys.map(PolyNode::toPolyLine)
