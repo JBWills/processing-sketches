@@ -1,26 +1,17 @@
 package util.polylines
 
-import arrow.core.memoize
 import coordinate.BoundRect
-import coordinate.ContinuousMaskedShape
 import coordinate.Point
 import coordinate.Point.Companion.maxXY
 import coordinate.Point.Companion.minXY
 import coordinate.Segment
 import util.iterators.mapWithNext
+import util.polylines.clipping.clipperIntersection
 
 val PolyLine.length: Double
   get() = mapWithNext { curr, next -> curr.dist(next) }.sum()
 
-private val _bound = { list: PolyLine, bound: BoundRect ->
-  ContinuousMaskedShape(list, bound).toBoundPoints(true)
-}.memoize()
-
-private val _translatedSegments = { list: List<Segment>, p: Point ->
-  list.map { it + p }
-}.memoize()
-
-fun PolyLine.bound(bound: BoundRect): List<PolyLine> = _bound(this, bound)
+fun PolyLine.bound(bound: BoundRect): List<PolyLine> = listOf(this).bound(bound)
 
 fun PolyLine.closed() = when {
   isEmpty() || isClosed() -> this
@@ -28,21 +19,15 @@ fun PolyLine.closed() = when {
 }
 
 @JvmName("boundLines")
-fun List<PolyLine>.bound(bound: BoundRect): List<PolyLine> = flatMap { _bound(it, bound) }
+fun List<PolyLine>.bound(bound: BoundRect): List<PolyLine> = clipperIntersection(bound.asPolyLine())
 
 @JvmName("ShiftSegments")
-fun List<Segment>.translated(p: Point) = _translatedSegments(this, p)
+fun List<Segment>.translated(p: Point) = map { it + p }
 
 @JvmName("translatedLine")
 fun PolyLine.translated(p: Point): PolyLine = map { it + p }
 
 fun List<PolyLine>.translated(p: Point): List<PolyLine> = map { it.translated(p) }
-
-fun PolyLine.expandEndpointsToMakeMask(
-  newBottom: Double = (maxByOrNull { it.y }?.y ?: firstOrNull()?.y ?: 0.0)
-): PolyLine =
-  if (size < 2) this
-  else Point(first().x, newBottom) + this + Point(last().x, newBottom)
 
 fun MutablePolyLine.translatedInPlace(p: Point): Unit = indices.forEach { this[it] += p }
 

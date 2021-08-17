@@ -18,6 +18,8 @@ import util.iterators.mapArray
 import util.iterators.mapWithNextCyclical
 import util.min
 import util.polylines.PolyLine
+import util.polylines.clipping.clipperDiff
+import util.polylines.clipping.clipperIntersection
 import util.polylines.transform
 import util.step
 import kotlin.math.abs
@@ -249,10 +251,10 @@ data class BoundRect(
   fun toRPath(): RPath = RPath(rPoints).also { it.addClose() }
 
   override fun intersection(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
-    ContinuousMaskedShape(polyLine, this).toBoundPoints(true)
+    listOf(polyLine).clipperIntersection(asPolyLine())
 
   override fun diff(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
-    ContinuousMaskedShape(polyLine, this).toBoundPoints(false)
+    listOf(asPolyLine()).clipperDiff(polyLine)
 
   fun forEachGrid(block: (Point) -> Unit) = forEachSampled(1.0, 1.0, block)
 

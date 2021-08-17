@@ -18,36 +18,38 @@ import coordinate.Point
 import coordinate.coordSystems.getCoordinateMap
 import de.lighti.clipper.Clipper.EndType
 import de.lighti.clipper.Clipper.JoinType
-import geomerativefork.src.util.deepDeepMap
 import interfaces.shape.transform
 import kotlinx.serialization.Serializable
 import org.opencv.core.Mat
 import sketches.base.LayeredCanvasSketch
 import util.boundPercentAlong
 import util.doIf
-import util.image.ImageFormat
 import util.image.opencvMat.ContourRetrievalMode.External
 import util.image.opencvMat.bounds
-import util.image.opencvMat.fillPoly
 import util.image.opencvMat.findContours
 import util.image.opencvMat.gaussianBlur
 import util.image.opencvMat.getSubPix
-import util.image.opencvMat.maskedByImage
 import util.image.opencvMat.rotate
 import util.image.opencvMat.scale
-import util.image.opencvMat.subtract
 import util.image.opencvMat.threshold
 import util.io.geoJson.loadGeoMatAndBlurMemo
+import util.iterators.deepMap
+import util.iterators.groupValuesBy
 import util.iterators.skipFirst
 import util.iterators.times
+import util.mapIf
 import util.polylines.PolyLine
 import util.polylines.bound
+import util.polylines.clipping.clipperDiff
 import util.polylines.clipping.clipperIntersection
+import util.polylines.clipping.clipperUnion
 import util.polylines.clipping.offsetByMemo
-import util.polylines.expandEndpointsToMakeMask
+import util.polylines.length
+import util.polylines.moveEndpoints
 import util.polylines.simplify
 import util.polylines.toSegment
 import util.polylines.transform
+import util.tuple.map
 import java.awt.Color
 
 /**
@@ -84,44 +86,27 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
     fileName: String,
     blurAmount: Double,
     scaleAndRotation: Pair<Point, Deg>,
-    minElevation: Double,
-    simplifyEpsilon: Double,
-  ): Mat {
-    val matBase = loadGeoMatAndBlurMemo(fileName, blurAmount)
-      .scale(Point(scaleAndRotation.first))
-      .rotate(scaleAndRotation.second, inPlace = true)
-
-//    val matThreshold = matBase.threshold(minElevation).resize { size -> size / 5 }
-
-
-//    val contours = matThreshold.findContours().simplify(simplifyEpsilon)
-//
-//    val pointPolyMat = contours.pointPolyTest(matThreshold).resize(matBase.size)
-
-    return matBase
-  }
+  ): Mat = loadGeoMatAndBlurMemo(fileName, blurAmount)
+    .scale(Point(scaleAndRotation.first))
+    .rotate(scaleAndRotation.second, inPlace = true)
 
   val loadScaleAndRotateMatMemo = ::loadScaleAndRotateMat.memoize()
 
   override suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {
-    val (geoTiffFile, drawMat, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, drawMinElevationOutline, drawUnionMat, occludeLines, drawOceanLines, blurAmount, lineSimplifyEpsilon, imageRotation, shrinkLinesHorizontally, oceanContours, maxOceanDistanceFromLand) = layerInfo.globalValues
+    val (geoTiffFile, drawMat, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, drawMinElevationOutline, occludeLines, drawOceanLines, blurAmount, lineSimplifyEpsilon, imageRotation, oceanContours, maxOceanDistanceFromLand) = layerInfo.globalValues
     geoTiffFile ?: return
 
     val elevationRange = minElevation..maxElevation
     val elevationMoveAmount = elevationMoveVector.scaledVector(MaxMoveAmount)
 
-    val mat = loadScaleAndRotateMatMemo(
-      geoTiffFile,
-      blurAmount,
-      Point(mapScale) to imageRotation,
-      minElevation,
-      lineSimplifyEpsilon,
-    )
+    val mat = loadScaleAndRotateMatMemo(geoTiffFile, blurAmount, Point(mapScale) to imageRotation)
 
-    val matThreshold = mat.threshold(minElevation).subtract(mat.threshold(maxElevation))
+    val matThreshold = mat.threshold(minElevation)
 
     val matToScreen = getTiffToScreenTransform(mat.bounds, mapScale, mapCenter)
     val screenToMat = matToScreen.inverted()
+
+    val minElevationContours = matThreshold.findContours().transform(matToScreen)
 
     fun getValue(p: Point): Double? = mat.getSubPix(p.transform(screenToMat))
 
@@ -135,67 +120,39 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
       .sortedByDescending { it.p1.y }
       .map { it.asPolyLine }
 
-    // straight lines masked by the minElevation image
-    val maskedLinesBottomToTop: List<List<PolyLine>> = linesBottomToTop
-      .transform(screenToMat)
+    val matThresholdContours = matThreshold.findContours().transform(matToScreen).bound(boundRect)
+
+    val maskedLines: Map<Double, List<PolyLine>> = linesBottomToTop
+      .clipperIntersection(matThresholdContours)
+      .filterNot { it.isEmpty() }
       .map { line ->
-        line.toSegment()
-          .maskedByImage(matThreshold, inverted = false)
-          .map {
-            val originalSegmentLength = it.length
-            val segmentLengthRatio = originalSegmentLength / boundRect.width
-            it.expand(-shrinkLinesHorizontally * 2)
-              .split(samplePointsXY.x * segmentLengthRatio)
-          }
+        val originalSegmentLength = line.length
+        val segmentLengthRatio = originalSegmentLength / boundRect.width
+        line
+          .toSegment()
+          .split(samplePointsXY.x * segmentLengthRatio)
+      }.groupValuesBy { first().y }
+
+    var unionShape: List<PolyLine> = listOf()
+    maskedLines
+      .map { (yValue, lines) ->
+        lines
+          .deepMap { point: Point -> point + (elevationMoveAmount * elevationPercent(point)) }
+          .moveEndpoints { endpoints -> endpoints.map { it.withY(yValue) } }
+          .simplify(lineSimplifyEpsilon)
       }
-      .transform(matToScreen)
+      .sortedByDescending { it.firstOrNull()?.firstOrNull()?.y ?: -1.0 }
+      .mapIf(occludeLines) { line ->
+        val clippedLines = line.clipperDiff(unionShape)
+        unionShape = unionShape.clipperUnion(line)
+        clippedLines
+      }.draw(boundRect)
 
-    // Masked and morphed lines based on elevation values.
-    val elevationLinesBottomToTop: List<List<PolyLine>> = maskedLinesBottomToTop
-      .deepDeepMap { point: Point -> point + (elevationMoveAmount * elevationPercent(point)) }
-      .map { it.simplify(lineSimplifyEpsilon) }
-
-    val unionMat = Mat.zeros(windowBounds.size.toSize(), ImageFormat.Gray.openCVFormat)
-
-    if (occludeLines || drawUnionMat) {
-      elevationLinesBottomToTop.forEachIndexed { index, elevationLine ->
-        val minYPosition = linesBottomToTop[index].first().y
-        val lineOnMat = elevationLine
-          .bound(windowBounds)
-
-        if (occludeLines) {
-          lineOnMat
-            .maskedByImage(unionMat, inverted = true)
-            .draw(boundRect)
-        }
-
-        unionMat.fillPoly(lineOnMat.map { it.expandEndpointsToMakeMask(newBottom = minYPosition) })
-      }
-
-      if (drawUnionMat) unionMat.draw()
-    } else {
-      elevationLinesBottomToTop.draw(boundRect)
-    }
-
-    if (drawMinElevationOutline || drawMat) {
-      if (drawMat) matThreshold.draw(matToScreen, boundRect)
-      if (drawMinElevationOutline) {
-        var matContours = matThreshold.findContours()
-          .transform(matToScreen)
-
-        if (occludeLines) {
-          matContours =
-            matContours.maskedByImage(
-              unionMat
-                .gaussianBlur(7, inPlace = true),
-              inverted = true,
-              thresholdValueRange = 240.0..256.0,
-            )
-              .flatten()
-        }
-
-        matContours.draw(boundRect)
-      }
+    if (drawMat) matThreshold.draw(matToScreen, boundRect)
+    if (drawMinElevationOutline) {
+      minElevationContours
+        .doIf(occludeLines) { it.clipperDiff(unionShape) }
+        .draw(boundRect)
     }
 
     if (drawOceanLines) {
@@ -204,8 +161,7 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
 
       val simplifyAmount = oceanContours.simplifier.simplifyAmount
 
-      val minThresholdMat = mat.threshold(minElevation)
-      val matContours = minThresholdMat
+      val matContours = matThreshold
         .gaussianBlur(7)
         .findContours(retrievalMode = External)
         .simplify(simplifyAmount)
@@ -221,17 +177,9 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
       matContours
         .offsetByMemo(offsets, simplifyAmount, JoinType.ROUND, EndType.CLOSED_POLYGON)
         .map { it.value }
-        .doIf(occludeLines) {
-          it.flatMap { line ->
-            line.maskedByImage(
-              unionMat,
-              inverted = true,
-              thresholdValueRange = 200.0..256.0,
-            )
-          }
-        }.draw(boundRect)
+        .mapIf(occludeLines) { line -> line.clipperDiff(unionShape, forceClosedValue = false) }
+        .draw(boundRect)
     }
-    unionMat.release()
   }
 }
 
@@ -258,13 +206,11 @@ data class MapLinesData(
   var elevationMoveVector: VectorProp = VectorProp(Point.Zero, 0.0),
   var samplePointsXY: Point = Point(2, 2),
   var drawMinElevationOutline: Boolean = true,
-  var drawUnionMat: Boolean = true,
   var occludeLines: Boolean = true,
   var drawOceanLines: Boolean = true,
   var blurAmount: Double = 0.0,
   var lineSimplifyEpsilon: Double = 0.0,
   var imageRotation: Deg = Deg(0),
-  var shrinkLinesHorizontally: Double = 0.0,
   var oceanContours: ContourProp = ContourProp(),
   var maxOceanDistanceFromLand: Double = 500.0,
 ) : PropData<MapLinesData> {
@@ -286,7 +232,6 @@ data class MapLinesData(
     }
 
     tab("Lines") {
-      toggle(::drawUnionMat)
       row {
         toggle(::occludeLines)
         toggle(::drawMinElevationOutline)
@@ -298,7 +243,6 @@ data class MapLinesData(
       }
       panel(::elevationMoveVector)
       sliderPair(::samplePointsXY, 1.0..3000.0)
-      slider(::shrinkLinesHorizontally, 0..10)
     }
 
     tab("ocean") {
