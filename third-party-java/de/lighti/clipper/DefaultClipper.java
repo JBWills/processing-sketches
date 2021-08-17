@@ -850,6 +850,10 @@ public class DefaultClipper extends ClipperBase {
     //add each output polygon/contour to polytree ...
     for (int i = 0; i < polyOuts.size(); i++) {
       final OutRec outRec = polyOuts.get(i);
+      // Change from open PR: https://github.com/lightbringer/clipper-java/pull/4/files
+      if (outRec.getPoints() == null) {
+        continue;
+      }
       final int cnt = outRec.getPoints().getPointCount();
       if (outRec.isOpen && cnt < 2 || !outRec.isOpen && cnt < 3) {
         continue;
@@ -1220,6 +1224,10 @@ public class DefaultClipper extends ClipperBase {
 
   private void fixupFirstLefts2(OutRec OldOutRec, OutRec NewOutRec) {
     for (final OutRec outRec : polyOuts) {
+      // Change from open PR: https://github.com/lightbringer/clipper-java/pull/4/files
+      if (outRec.getPoints() == null || outRec.firstLeft == null) {
+        continue;
+      }
       if (outRec.firstLeft.equals(OldOutRec)) {
         outRec.firstLeft = NewOutRec;
       }
@@ -1757,7 +1765,7 @@ public class DefaultClipper extends ClipperBase {
         if (usingPolyTree) {
           for (int j = 0; j < polyOuts.size() - 1; j++) {
             final OutRec oRec = polyOuts.get(j);
-            if (oRec.getPoints() == null || oRec.firstLeft.parseFirstLeft() != outRec1 || oRec.isHole == outRec1.isHole) {
+            if (oRec.getPoints() == null || oRec.firstLeft == null || oRec.firstLeft.parseFirstLeft() != outRec1 || oRec.isHole == outRec1.isHole) {
               continue;
             }
             if (poly2ContainsPoly1(oRec.getPoints(), join.outPt2)) {

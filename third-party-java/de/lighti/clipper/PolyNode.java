@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-class PolyNode {
+public class PolyNode {
   protected final List<PolyNode> childs = new ArrayList<PolyNode>();
   private final Path polygon = new Path();
   private PolyNode parent;
