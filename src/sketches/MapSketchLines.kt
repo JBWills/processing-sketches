@@ -36,14 +36,13 @@ import util.io.geoJson.loadGeoMatAndBlurMemo
 import util.iterators.deepMap
 import util.iterators.groupValuesBy
 import util.iterators.skipFirst
-import util.iterators.times
 import util.mapIf
 import util.polylines.PolyLine
 import util.polylines.bound
-import util.polylines.clipping.clipperDiff
-import util.polylines.clipping.clipperIntersection
-import util.polylines.clipping.clipperUnion
+import util.polylines.clipping.diff
+import util.polylines.clipping.intersection
 import util.polylines.clipping.offsetByMemo
+import util.polylines.clipping.union
 import util.polylines.length
 import util.polylines.moveEndpoints
 import util.polylines.simplify
@@ -123,7 +122,7 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
     val matThresholdContours = matThreshold.findContours().transform(matToScreen).bound(boundRect)
 
     val maskedLines: Map<Double, List<PolyLine>> = linesBottomToTop
-      .clipperIntersection(matThresholdContours)
+      .intersection(matThresholdContours)
       .filterNot { it.isEmpty() }
       .map { line ->
         val originalSegmentLength = line.length
@@ -142,16 +141,17 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
           .simplify(lineSimplifyEpsilon)
       }
       .sortedByDescending { it.firstOrNull()?.firstOrNull()?.y ?: -1.0 }
-      .mapIf(occludeLines) { line ->
-        val clippedLines = line.clipperDiff(unionShape)
-        unionShape = unionShape.clipperUnion(line)
-        clippedLines
-      }.draw(boundRect)
+      .mapIf(occludeLines) { lines ->
+        lines.diff(unionShape, forceClosed = false).also {
+          unionShape = unionShape.union(lines)
+        }
+      }
+      .draw(boundRect)
 
     if (drawMat) matThreshold.draw(matToScreen, boundRect)
     if (drawMinElevationOutline) {
       minElevationContours
-        .doIf(occludeLines) { it.clipperDiff(unionShape) }
+        .doIf(occludeLines) { it.diff(unionShape, forceClosed = false) }
         .draw(boundRect)
     }
 
@@ -162,22 +162,17 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
       val simplifyAmount = oceanContours.simplifier.simplifyAmount
 
       val matContours = matThreshold
-        .gaussianBlur(7)
+        .gaussianBlur(5)
         .findContours(retrievalMode = External)
-        .simplify(simplifyAmount)
         .transform(matToScreen)
-        .clipperIntersection(windowBounds.toPolyLine())
         .simplify(simplifyAmount)
 
-      val offsets = oceanContours
-        .getThresholds()
-        .skipFirst()
-        .times(maxOceanDistanceFromLand)
+      val offsets = oceanContours.getThresholds(maxOceanDistanceFromLand).skipFirst()
 
       matContours
         .offsetByMemo(offsets, simplifyAmount, JoinType.ROUND, EndType.CLOSED_POLYGON)
-        .map { it.value }
-        .mapIf(occludeLines) { line -> line.clipperDiff(unionShape, forceClosedValue = false) }
+        .values
+        .mapIf(occludeLines) { lines -> lines.diff(unionShape, forceClosed = false) }
         .draw(boundRect)
     }
   }

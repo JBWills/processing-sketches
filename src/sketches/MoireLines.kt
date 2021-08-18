@@ -20,7 +20,7 @@ import sketches.MoireShape.Circle
 import sketches.MoireShape.Rectangle
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
-import util.polylines.clipping.clipperIntersection
+import util.polylines.clipping.intersection
 
 enum class MoireShape {
   Rectangle,
@@ -68,12 +68,12 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
       Rectangle -> {
         val r = boundRect.scale(shapeSize, centerPoint)
 
-        baseLines.flatMap { it.warped(noise).clipperIntersection(r.toPolyLine()) }
+        baseLines.flatMap { it.warped(noise).intersection(r.toPolyLine()) }
       }
       Circle -> {
         val cPath = Circ(centerPoint, (shapeSize * (boundRect.bottomRight - boundRect.topLeft)).x)
           .toPolyLine()
-        baseLines.flatMap { it.warped(noise).clipperIntersection(cPath) }
+        baseLines.flatMap { it.warped(noise).intersection(cPath) }
       }
     }.draw(boundRect)
   }

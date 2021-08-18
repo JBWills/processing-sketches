@@ -11,8 +11,8 @@ import util.equalsZero
 import util.iterators.mapWithNextCyclical
 import util.min
 import util.polylines.PolyLine
-import util.polylines.clipping.clipperDiff
-import util.polylines.clipping.clipperIntersection
+import util.polylines.clipping.diff
+import util.polylines.clipping.intersection
 import util.polylines.transform
 import util.step
 import kotlin.math.abs
@@ -240,10 +240,10 @@ data class BoundRect(
   )
 
   override fun intersection(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
-    listOf(polyLine).clipperIntersection(toPolyLine())
+    listOf(polyLine).intersection(toPolyLine())
 
   override fun diff(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
-    listOf(toPolyLine()).clipperDiff(polyLine)
+    listOf(toPolyLine()).diff(polyLine)
 
   fun forEachGrid(block: (Point) -> Unit) = forEachSampled(1.0, 1.0, block)
 

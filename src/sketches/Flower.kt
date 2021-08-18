@@ -16,8 +16,8 @@ import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.polylines.PolyLine
-import util.polylines.clipping.clipperDiff
-import util.polylines.clipping.clipperUnion
+import util.polylines.clipping.diff
+import util.polylines.clipping.union
 import util.polylines.closed
 import util.times
 
@@ -97,10 +97,10 @@ class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
 
       val nonNullUnionShape = unionShape ?: return@times
 
-      val sDiffed = s.clipperDiff(nonNullUnionShape, false)
+      val sDiffed = s.diff(nonNullUnionShape, false)
 
       if (amountAlongInnerCircle == 0.0) {
-        unionShape = nonNullUnionShape.clipperUnion(s)
+        unionShape = nonNullUnionShape.union(s)
       }
 
       sDiffed.toList().draw(if (clipToBounds) boundRect else null)

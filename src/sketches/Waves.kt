@@ -15,8 +15,8 @@ import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.polylines.PolyLine
-import util.polylines.clipping.clipperDiff
-import util.polylines.clipping.clipperUnion
+import util.polylines.clipping.diff
+import util.polylines.clipping.union
 
 class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { WaveTab() }) {
   init {
@@ -66,11 +66,11 @@ class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { 
         val waveShape = (warpedPath + size) + size.withX(0)
 
         nextUnionShape =
-          if (unionShape == null) listOf(waveShape) else unionShape?.clipperUnion(waveShape)
+          if (unionShape == null) listOf(waveShape) else unionShape?.union(waveShape)
       }
 
       val warpedPaths: List<PolyLine> =
-        unionShape?.let { warpedPath.clipperDiff(it) } ?: listOf(warpedPath)
+        unionShape?.let { warpedPath.diff(it) } ?: listOf(warpedPath)
 
       warpedPaths.draw(boundRect)
 

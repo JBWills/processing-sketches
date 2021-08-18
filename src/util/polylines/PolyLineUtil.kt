@@ -6,7 +6,7 @@ import coordinate.Point.Companion.maxXY
 import coordinate.Point.Companion.minXY
 import coordinate.Segment
 import util.iterators.mapWithNext
-import util.polylines.clipping.clipperIntersection
+import util.polylines.clipping.intersection
 
 val PolyLine.length: Double
   get() = mapWithNext { curr, next -> curr.dist(next) }.sum()
@@ -19,7 +19,7 @@ fun PolyLine.closed() = when {
 }
 
 @JvmName("boundLines")
-fun List<PolyLine>.bound(bound: BoundRect): List<PolyLine> = clipperIntersection(bound.toPolyLine())
+fun List<PolyLine>.bound(bound: BoundRect): List<PolyLine> = intersection(bound.toPolyLine())
 
 @JvmName("ShiftSegments")
 fun List<Segment>.translated(p: Point) = map { it + p }

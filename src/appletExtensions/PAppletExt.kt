@@ -32,8 +32,8 @@ import util.iterators.mapWithNext
 import util.lerp
 import util.numbers.boundMin
 import util.polylines.PolyLine
-import util.polylines.clipping.clipperDiff
-import util.polylines.clipping.clipperIntersection
+import util.polylines.clipping.diff
+import util.polylines.clipping.intersection
 import util.polylines.forEachSegment
 import util.polylines.toPolyLine
 import java.awt.Color
@@ -99,8 +99,8 @@ open class PAppletExt : PApplet() {
     boundInside: Boolean,
   ): List<PolyLine> {
     val rectLine = bound.toPolyLine()
-    return if (boundInside) unboundLines.clipperIntersection(rectLine)
-    else unboundLines.clipperDiff(rectLine)
+    return if (boundInside) unboundLines.intersection(rectLine)
+    else unboundLines.diff(rectLine)
   }
 
   fun PolyLine.draw(bound: BoundRect? = null, boundInside: Boolean = true) =

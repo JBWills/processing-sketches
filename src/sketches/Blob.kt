@@ -27,7 +27,7 @@ import util.algorithms.contouring.walkThreshold
 import util.algorithms.douglassPeucker
 import util.atAmountAlong
 import util.numSteps
-import util.polylines.clipping.clipperIntersection
+import util.polylines.clipping.intersection
 
 /**
  * Starter sketch that uses all of the latest bells and whistles.
@@ -91,7 +91,7 @@ class Blob : LayeredCanvasSketch<BlobData, BlobLayerData>(
                 .douglassPeucker(smoothEpsilon)
             else line
 
-            smoothedLine.clipperIntersection(contourShape.getPolyLine(boundRect))
+            smoothedLine.intersection(contourShape.getPolyLine(boundRect))
           }
           .draw()
       }
@@ -100,7 +100,7 @@ class Blob : LayeredCanvasSketch<BlobData, BlobLayerData>(
     lines.flatMap {
       warpedMemo(it, lineNoise)
         .walkThreshold(noise, thresholdStart)
-        .flatMap { lineSegment -> lineSegment.clipperIntersection(shape.getPolyLine(boundRect)) }
+        .flatMap { lineSegment -> lineSegment.intersection(shape.getPolyLine(boundRect)) }
     }.draw()
   }
 }

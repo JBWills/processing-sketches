@@ -16,52 +16,48 @@ import util.polylines.isClosed
 fun DefaultClipper.addPath(
   line: PolyLine,
   polyType: Clipper.PolyType,
-  forceClosedValue: Boolean? = null
-) =
-  addPath(line.toClipperPath(), polyType, forceClosedValue ?: line.isClosed())
+  forceClosed: Boolean? = null
+) = addPath(line.toClipperPath(), polyType, forceClosed ?: line.isClosed())
 
 fun DefaultClipper.addPaths(
   lines: List<PolyLine>,
   polyType: Clipper.PolyType,
-  forceClosedValue: Boolean? = null
-) = lines.map { line -> addPath(line, polyType, forceClosedValue) }
+  forceClosed: Boolean? = null
+) = lines.map { line -> addPath(line, polyType, forceClosed) }
 
-fun DefaultClipper.addClip(line: PolyLine) = addPath(line, CLIP, true)
 fun DefaultClipper.addClips(lines: List<PolyLine>) = addPaths(lines, CLIP, true)
 
-fun DefaultClipper.addSubjects(lines: List<PolyLine>, forceClosedValue: Boolean? = null) =
-  addPaths(lines, SUBJECT, forceClosedValue)
+fun DefaultClipper.addSubjects(lines: List<PolyLine>, forceClosed: Boolean? = null) =
+  addPaths(lines, SUBJECT, forceClosed)
 
 private fun List<PolyLine>.getClipper(
   clip: List<PolyLine>,
-  forceClosedValue: Boolean? = null
-): DefaultClipper = DefaultClipper()
-  .apply {
-    addSubjects(this@getClipper, forceClosedValue)
-    addClips(clip)
-  }
+  forceClosed: Boolean? = null
+): DefaultClipper = DefaultClipper().apply {
+  addSubjects(this@getClipper, forceClosed)
+  addClips(clip)
+}
 
 private fun List<PolyLine>.operationAsTree(
   operationType: ClipType,
   other: List<PolyLine>,
-  forceClosedValue: Boolean? = null
-) = PolyTree().also { getClipper(other, forceClosedValue).execute(operationType, it) }
+  forceClosed: Boolean? = null
+) = PolyTree().also { getClipper(other, forceClosed).execute(operationType, it) }
 
 private fun List<PolyLine>.operation(
   operationType: ClipType,
   other: List<PolyLine>,
-  forceClosedValue: Boolean? = null
-) =
-  operationAsTree(operationType, other, forceClosedValue).toPolyLines()
+  forceClosed: Boolean? = null
+) = operationAsTree(operationType, other, forceClosed).toPolyLines(forceClosed)
 
-fun List<PolyLine>.clipperIntersection(other: List<PolyLine>, forceClosedValue: Boolean? = null) =
-  operation(INTERSECTION, other, forceClosedValue)
+fun List<PolyLine>.intersection(other: List<PolyLine>, forceClosed: Boolean? = null) =
+  operation(INTERSECTION, other, forceClosed)
 
-fun List<PolyLine>.clipperDiff(other: List<PolyLine>, forceClosedValue: Boolean? = null) =
-  operation(DIFFERENCE, other, forceClosedValue)
+fun List<PolyLine>.diff(other: List<PolyLine>, forceClosed: Boolean? = null) =
+  operation(DIFFERENCE, other, forceClosed)
 
-fun List<PolyLine>.clipperUnion(other: List<PolyLine>, forceClosedValue: Boolean? = null) =
-  operation(UNION, other, forceClosedValue)
+fun List<PolyLine>.union(other: List<PolyLine>, forceClosed: Boolean? = null) =
+  operation(UNION, other, forceClosed)
 
-fun List<PolyLine>.clipperXor(other: List<PolyLine>, forceClosedValue: Boolean? = null) =
-  operation(XOR, other, forceClosedValue)
+fun List<PolyLine>.xor(other: List<PolyLine>, forceClosed: Boolean? = null) =
+  operation(XOR, other, forceClosed)

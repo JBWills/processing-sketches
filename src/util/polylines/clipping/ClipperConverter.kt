@@ -18,13 +18,12 @@ import util.polylines.closed
 fun Point.toDoublePoint(): DoublePoint = DoublePoint(x, y)
 fun Point.toLongPoint(): LongPoint = LongPoint(xl, yl)
 
-fun PolyLine.toLongPointList(): List<LongPoint> = map { it.toLongPoint() }
+fun PolyLine.toLongPointList(): List<LongPoint> = map(Point::toLongPoint)
 
 fun PolyLine.toClipperPath(): Path = Path(size).also { path -> path.addAll(toLongPointList()) }
 
 fun List<PolyLine>.toClipperPaths(): Paths =
   Paths(size).also { paths -> paths.addAll(map { it.toClipperPath() }) }
-
 
 fun DoublePoint.toPoint(): Point = Point(x, y)
 fun LongPoint.toPoint(): Point = Point(x, y)
@@ -36,5 +35,8 @@ fun Path.toPolyLine(closed: Boolean = false): PolyLine =
 fun Paths.toPolyLines(closed: Boolean = false): List<PolyLine> =
   map { it.toPolyLine(closed) }
 
-fun PolyNode.toPolyLine(): PolyLine = polygon.toPolyLine(closed = !isOpen)
-fun PolyTree.toPolyLines(): List<PolyLine> = allPolys.map(PolyNode::toPolyLine)
+fun PolyNode.toPolyLine(forceClose: Boolean? = null): PolyLine =
+  polygon.toPolyLine(closed = forceClose ?: !isOpen)
+
+fun PolyTree.toPolyLines(forceClose: Boolean? = null): List<PolyLine> =
+  allPolys.map { it.toPolyLine(forceClose) }

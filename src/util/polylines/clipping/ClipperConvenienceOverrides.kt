@@ -3,49 +3,49 @@ package util.polylines.clipping
 import util.polylines.PolyLine
 
 @JvmName("clipperIntersectionPolyLine")
-fun List<PolyLine>.clipperIntersection(other: PolyLine, forceClosedValue: Boolean? = null) =
-  clipperIntersection(listOf(other), forceClosedValue)
+fun List<PolyLine>.intersection(other: PolyLine, forceClosed: Boolean? = null) =
+  intersection(listOf(other), forceClosed)
 
 @JvmName("clipperDiffPolyLine")
-fun List<PolyLine>.clipperDiff(other: PolyLine, forceClosedValue: Boolean? = null) =
-  clipperDiff(listOf(other), forceClosedValue)
+fun List<PolyLine>.diff(other: PolyLine, forceClosed: Boolean? = null) =
+  diff(listOf(other), forceClosed)
 
 @JvmName("clipperUnionPolyLine")
-fun List<PolyLine>.clipperUnion(other: PolyLine, forceClosedValue: Boolean? = null) =
-  clipperUnion(listOf(other), forceClosedValue)
+fun List<PolyLine>.union(other: PolyLine, forceClosed: Boolean? = null) =
+  union(listOf(other), forceClosed)
 
 @JvmName("clipperXorPolyLine")
-fun List<PolyLine>.clipperXor(other: PolyLine, forceClosedValue: Boolean? = null) =
-  clipperXor(listOf(other), forceClosedValue)
+fun List<PolyLine>.xor(other: PolyLine, forceClosed: Boolean? = null) =
+  xor(listOf(other), forceClosed)
 
 @JvmName("singleClipperIntersection")
-fun PolyLine.clipperIntersection(other: PolyLine, forceClosedValue: Boolean? = null) =
-  listOf(this).clipperIntersection(other, forceClosedValue)
+fun PolyLine.intersection(other: PolyLine, forceClosed: Boolean? = null) =
+  listOf(this).intersection(other, forceClosed)
 
 @JvmName("singleClipperDiff")
-fun PolyLine.clipperDiff(other: PolyLine, forceClosedValue: Boolean? = null) =
-  listOf(this).clipperDiff(other, forceClosedValue)
+fun PolyLine.diff(other: PolyLine, forceClosed: Boolean? = null) =
+  listOf(this).diff(other, forceClosed)
 
 @JvmName("singleClipperUnion")
-fun PolyLine.clipperUnion(other: PolyLine, forceClosedValue: Boolean? = null) =
-  listOf(this).clipperUnion(other, forceClosedValue)
+fun PolyLine.union(other: PolyLine, forceClosed: Boolean? = null) =
+  listOf(this).union(other, forceClosed)
 
 @JvmName("singleClipperXor")
-fun PolyLine.clipperXor(other: PolyLine, forceClosedValue: Boolean? = null) =
-  listOf(this).clipperXor(other, forceClosedValue)
+fun PolyLine.xor(other: PolyLine, forceClosed: Boolean? = null) =
+  listOf(this).xor(other, forceClosed)
 
 @JvmName("singleClipperIntersectionMulti")
-fun PolyLine.clipperIntersection(other: List<PolyLine>, forceClosedValue: Boolean? = null) =
-  listOf(this).clipperIntersection(other, forceClosedValue)
+fun PolyLine.intersection(other: List<PolyLine>, forceClosed: Boolean? = null) =
+  listOf(this).intersection(other, forceClosed)
 
 @JvmName("singleClipperDiffMulti")
-fun PolyLine.clipperDiff(other: List<PolyLine>, forceClosedValue: Boolean? = null) =
-  listOf(this).clipperDiff(other, forceClosedValue)
+fun PolyLine.diff(other: List<PolyLine>, forceClosed: Boolean? = null) =
+  listOf(this).diff(other, forceClosed)
 
 @JvmName("singleClipperUnionMulti")
-fun PolyLine.clipperUnion(other: List<PolyLine>, forceClosedValue: Boolean? = null) =
-  listOf(this).clipperUnion(other, forceClosedValue)
+fun PolyLine.union(other: List<PolyLine>, forceClosed: Boolean? = null) =
+  listOf(this).union(other, forceClosed)
 
 @JvmName("singleClipperXorMulti")
-fun PolyLine.clipperXor(other: List<PolyLine>, forceClosedValue: Boolean? = null) =
-  listOf(this).clipperXor(other, forceClosedValue)
+fun PolyLine.xor(other: List<PolyLine>, forceClosed: Boolean? = null) =
+  listOf(this).xor(other, forceClosed)

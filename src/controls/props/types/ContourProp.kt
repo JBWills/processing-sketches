@@ -12,6 +12,7 @@ import coordinate.Segment
 import kotlinx.serialization.Serializable
 import util.algorithms.contouring.getContour
 import util.interpolation.interpolate
+import util.iterators.times
 import util.pow
 import util.select
 import util.toRange
@@ -40,12 +41,12 @@ data class ContourProp(
     chaikinTimes = chaikinTimes ?: base.chaikinTimes,
   )
 
-  fun getThresholds(): List<Double> = thresholdRange
+  fun getThresholds(multiplier: Double = 1.0): List<Double> = thresholdRange
     .toRange()
     .select(numThresholds) { t ->
       (t.pow(thresholdEaseInOut.first)..(1 - (1 - t).pow(thresholdEaseInOut.second)))
         .interpolate(t)
-    }
+    }.times(multiplier)
 
   fun contour(
     bounds: BoundRect,
