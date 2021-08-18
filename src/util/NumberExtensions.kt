@@ -1,7 +1,6 @@
 package util
 
 import coordinate.Point
-import geomerativefork.src.util.reduceTo
 import java.lang.Math.toDegrees
 import java.lang.Math.toRadians
 import kotlin.math.abs
@@ -26,7 +25,7 @@ fun <R> Int.map(f: (Int) -> R) = (0 until this).map(f)
 fun Int.times(f: (Int) -> Unit) = (0 until this).forEach(f)
 
 fun sum(vararg numbers: Number): Double =
-  numbers.reduceTo(0.0) { acc, value -> acc + value.toDouble() }
+  numbers.sumByDouble { it.toDouble() }
 
 fun mean(vararg numbers: Number): Double = sum(*numbers) / numbers.size
 
@@ -38,7 +37,7 @@ fun Number.coerceOdd(roundUp: Boolean = true): Int {
   if (numberInt.even) {
     return if (roundUp) numberInt + 1 else numberInt - 1
   }
-  
+
   return numberInt
 }
 
@@ -57,7 +56,7 @@ fun Double.ceilInt(): Int = ceil(this).toInt()
 /**
  * If number basically equals other (within threshold amount), just make it
  * equal to the other number. Useful to avoid NaN issues with ever so slightly
- * negative numbers that are basically 0.
+ * negative util.numbers that are basically 0.
  */
 fun Double.coerceTo(other: Number, threshold: Double = EPSILON): Double =
   if (equalsDelta(other, threshold)) other.toDouble() else this

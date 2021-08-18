@@ -1,12 +1,8 @@
-package geomerativefork.src.util
+package util.numbers
 
 import util.DoubleRange
 import kotlin.math.max
 import kotlin.math.min
-
-fun minAll(vararg floats: Float) = floats.reduce { acc, item -> min(acc, item) }
-
-fun maxAll(vararg floats: Float) = floats.reduce { acc, item -> max(acc, item) }
 
 fun Int.bound(range: IntRange): Int = when {
   this < range.first -> range.first
@@ -65,7 +61,3 @@ fun Int.boundMin(min: Int = 0): Int = max(min, this)
 fun Int.boundMax(max: Int = 1): Int = min(this, max)
 fun Float.boundMin(min: Float = 0f): Float = max(min, this)
 fun Float.boundMax(max: Float = 1f): Float = min(this, max)
-
-fun Number.toDoubleArray() = doubleArrayOf(toDouble())
-fun Number.toFloatArray() = floatArrayOf(toFloat())
-fun Number.toIntArray() = intArrayOf(toInt())

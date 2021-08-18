@@ -3,9 +3,9 @@ package util.polylines
 import coordinate.Point
 import coordinate.Segment
 import coordinate.ShapeTransform
-import geomerativefork.src.util.deepDeepMap
-import geomerativefork.src.util.deepMap
 import interfaces.shape.transform
+import util.iterators.deepDeepMap
+import util.iterators.deepMap
 import util.iterators.forEachWithNext
 import util.iterators.mapWithNext
 

@@ -18,7 +18,6 @@ import sketches.base.LayeredCanvasSketch
 import util.NegativeOneToOne
 import util.algorithms.kMeans
 import util.algorithms.makeHull
-import util.geomutil.toRPath
 import util.letWith
 import util.map
 import util.randomPoint
@@ -72,7 +71,7 @@ class Packing : LayeredCanvasSketch<PackingData, PackingLayerData>(
 
     pointSets.forEach { pointSet ->
       if (drawDots) pointSet.drawPoints()
-      pointSet.makeHull().toRPath(closed = true).draw()
+      pointSet.makeHull().draw()
     }
   }
 }

@@ -1,7 +1,6 @@
 package coordinate
 
 import coordinate.iterators.PointProgression
-import geomerativefork.src.RShape
 import interfaces.shape.Walkable
 import util.equalsZero
 import util.greaterThanEqualToDelta
@@ -47,8 +46,6 @@ class Segment(
   val p1: Point get() = origin
 
   fun getPointAtPercent(percent: Double) = origin + (slope.unitVector * (length * percent))
-
-  fun toRShape() = RShape.createLine(p1.xf, p1.yf, p2.xf, p2.yf)
 
   val points: Array<Point> get() = arrayOf(p1, p2)
   val asPolyLine: List<Point> get() = listOf(p1, p2)

@@ -15,8 +15,6 @@ fun PApplet.drawPoints(points: Iterable<Point>, radius: Number = 2) =
 
 fun PApplet.drawSquare(point: Point, size: Number = 2, rotation: Deg = Deg(0)) {
   if (size.toDouble() > 0)
-    BoundRect.centeredRect(point, Point(size, size))
-      .toRPath()
-      .apply { rotate(rotation.rad.toFloat()) }.draw()
+    shape(BoundRect.centeredRect(point, Point(size, size)).toPolyLine())
 }
 

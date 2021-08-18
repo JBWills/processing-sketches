@@ -45,8 +45,7 @@ private fun List<PolyLine>.operationAsTree(
   operationType: ClipType,
   other: List<PolyLine>,
   forceClosedValue: Boolean? = null
-) =
-  PolyTree().also { getClipper(other, forceClosedValue).execute(operationType, it) }
+) = PolyTree().also { getClipper(other, forceClosedValue).execute(operationType, it) }
 
 private fun List<PolyLine>.operation(
   operationType: ClipType,
@@ -55,30 +54,14 @@ private fun List<PolyLine>.operation(
 ) =
   operationAsTree(operationType, other, forceClosedValue).toPolyLines()
 
-fun List<PolyLine>.clipperIntersection(other: PolyLine, forceClosedValue: Boolean? = null) =
-  operation(INTERSECTION, listOf(other), forceClosedValue)
-
-fun List<PolyLine>.clipperDiff(other: PolyLine, forceClosedValue: Boolean? = null) =
-  operation(DIFFERENCE, listOf(other), forceClosedValue)
-
-fun List<PolyLine>.clipperUnion(other: PolyLine, forceClosedValue: Boolean? = null) =
-  operation(UNION, listOf(other), forceClosedValue)
-
-fun List<PolyLine>.clipperXor(other: PolyLine, forceClosedValue: Boolean? = null) =
-  operation(XOR, listOf(other), forceClosedValue)
-
-@JvmName("clipperIntersectionMulti")
 fun List<PolyLine>.clipperIntersection(other: List<PolyLine>, forceClosedValue: Boolean? = null) =
   operation(INTERSECTION, other, forceClosedValue)
 
-@JvmName("clipperDiffMulti")
 fun List<PolyLine>.clipperDiff(other: List<PolyLine>, forceClosedValue: Boolean? = null) =
   operation(DIFFERENCE, other, forceClosedValue)
 
-@JvmName("clipperUnionMulti")
 fun List<PolyLine>.clipperUnion(other: List<PolyLine>, forceClosedValue: Boolean? = null) =
   operation(UNION, other, forceClosedValue)
 
-@JvmName("clipperXorMulti")
 fun List<PolyLine>.clipperXor(other: List<PolyLine>, forceClosedValue: Boolean? = null) =
   operation(XOR, other, forceClosedValue)

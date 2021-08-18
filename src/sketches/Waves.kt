@@ -11,19 +11,19 @@ import coordinate.Segment
 import fastnoise.Noise
 import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
-import geomerativefork.src.RPath
-import geomerativefork.src.RShape
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
-import util.geomutil.toRPath
+import util.polylines.PolyLine
+import util.polylines.clipping.clipperDiff
+import util.polylines.clipping.clipperUnion
 
 class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { WaveTab() }) {
   init {
     numLayers = MAX_LAYERS
   }
 
-  var unionShape: RShape? = null
+  var unionShape: List<PolyLine>? = null
 
   override fun drawSetup(layerInfo: DrawInfo) {
     unionShape = null
@@ -52,7 +52,7 @@ class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { 
 
     var height = baseHeight
 
-    var nextUnionShape: RShape? = null
+    var nextUnionShape: List<PolyLine>? = null
 
     val baseWarpedPoints = Segment(Point(0, height), Point(size.x, height))
       .warped(waveNoise)
@@ -61,24 +61,18 @@ class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { 
       val warpedPath = baseWarpedPoints.map {
         it + Point(0, height - baseHeight)
       }
-        .toRPath()
 
       if (height == baseHeight) {
-        val waveShape = RShape(
-          warpedPath.apply {
-            addLineTo(size.x.toFloat(), size.y.toFloat())
-            addLineTo(0f, size.y.toFloat())
-            addClose()
-          },
-        )
+        val waveShape = (warpedPath + size) + size.withX(0)
 
-        nextUnionShape = if (unionShape == null) waveShape else unionShape?.union(waveShape)
+        nextUnionShape =
+          if (unionShape == null) listOf(waveShape) else unionShape?.clipperUnion(waveShape)
       }
 
-      val warpedPaths: Array<RPath> =
-        unionShape?.let { warpedPath.diff(it.paths[0]) } ?: arrayOf(warpedPath)
+      val warpedPaths: List<PolyLine> =
+        unionShape?.let { warpedPath.clipperDiff(it) } ?: listOf(warpedPath)
 
-      warpedPaths.toList().draw(boundRect)
+      warpedPaths.draw(boundRect)
 
       height += tabValues.distBetweenLines
     }

@@ -11,7 +11,6 @@ import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.button
 import controls.panels.panelext.toggle
 import coordinate.Point
-import geomerativefork.src.RG
 import interfaces.listeners.MouseListener
 import nu.pattern.OpenCV
 import processing.core.PGraphics
@@ -205,8 +204,6 @@ abstract class BaseSketch(
   fun setActiveTab(tabName: String) = window.controlFrame?.setActiveTab(tabName)
 
   override fun setup() {
-    RG.init(this)
-    RG.setPolygonizer(RG.ADAPTATIVE)
     frameRate(30f)
     strokeJoin(StrokeJoin.Round.joinInt)
 

@@ -49,7 +49,6 @@ fun <T> times(iterations: Int, block: (i: Int) -> T): List<T> = (0 until iterati
 @Suppress("unused")
 fun <T> Iterable<T>.pEach() = println(map { it.toString() })
 
-
 fun <T> Iterable<T>.copy(): List<T> = map { it }
 
 fun <T, R> Iterable<T>.mapIf(

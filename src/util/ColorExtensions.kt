@@ -1,12 +1,12 @@
 package util
 
-import geomerativefork.src.util.bound
-import geomerativefork.src.util.boundInt
 import org.opencv.core.Scalar
 import util.iterators.endPointPair
 import util.iterators.getLerpIndices
 import util.iterators.mapPercentToIndex
 import util.iterators.zip
+import util.numbers.bound
+import util.numbers.boundInt
 import java.awt.Color
 
 fun Number.toRGBInt() = (bound(0f, 1f) * 255).toInt()

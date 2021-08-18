@@ -4,7 +4,6 @@ import appletExtensions.stroke
 import appletExtensions.withStrokeIf
 import coordinate.Point
 import coordinate.Segment
-import geomerativefork.src.RPoint
 import processing.core.PApplet
 import processing.core.PGraphics
 import util.polylines.PolyLine
@@ -29,12 +28,6 @@ fun PApplet.shapes(lines: List<PolyLine>, debug: Boolean = false) =
       endShape()
     }
   }
-
-fun PApplet.shape(vertices: Array<RPoint>) {
-  beginShape()
-  vertices.forEach { vertex(it.x, it.y) }
-  endShape()
-}
 
 fun PApplet.shapeSegments(segments: List<Segment>) {
   beginShape()
@@ -68,12 +61,6 @@ private fun PGraphics.shapes(lines: List<PolyLine>, debug: Boolean = false) =
     endShape()
     if (debug) popStyle()
   }
-
-fun PGraphics.shape(vertices: Array<RPoint>) {
-  beginShape()
-  vertices.forEach { vertex(it.x, it.y) }
-  endShape()
-}
 
 fun PGraphics.shapeSegments(segments: List<Segment>) {
   beginShape()

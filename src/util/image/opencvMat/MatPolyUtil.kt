@@ -2,7 +2,6 @@ package util.image.opencvMat
 
 import coordinate.Point
 import coordinate.Segment
-import geomerativefork.src.util.chunkFilterInterpolated
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
 import org.opencv.core.MatOfPoint2f
@@ -10,6 +9,7 @@ import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import util.DoubleRange
 import util.doIf
+import util.iterators.chunkFilterInterpolated
 import util.polylines.PolyLine
 import util.polylines.closed
 import util.polylines.toSegment

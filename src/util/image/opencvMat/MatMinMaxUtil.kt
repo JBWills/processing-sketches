@@ -1,10 +1,10 @@
 package util.image.opencvMat
 
-import geomerativefork.src.util.bound
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import util.DoubleRange
 import util.letWith
+import util.numbers.bound
 import util.toRange
 import util.tuple.map
 

@@ -3,8 +3,6 @@
 package coordinate
 
 import coordinate.iterators.PointProgression
-import geomerativefork.src.RPoint
-import geomerativefork.src.util.bound
 import interfaces.math.Mathable
 import interfaces.shape.Transformable
 import kotlinx.serialization.Serializable
@@ -13,6 +11,7 @@ import org.opencv.core.Size
 import util.DoubleRange
 import util.equalsDelta
 import util.equalsZero
+import util.numbers.bound
 import util.roundedString
 import util.squared
 import util.step
@@ -140,7 +139,6 @@ data class Point(val x: Double, val y: Double) :
 
   fun forEach2D(block: (Point) -> Unit) = (Zero..this).forEach2D(block)
 
-  fun toRPoint(): RPoint = RPoint(xf, yf)
   fun toOpenCvPoint(): org.opencv.core.Point = org.opencv.core.Point(x, y)
   fun toOpenCvByteDecoPoint(): org.bytedeco.opencv.opencv_core.Point =
     org.bytedeco.opencv.opencv_core.Point(xi, yi)

@@ -5,7 +5,6 @@ import coordinate.Deg
 import coordinate.Point
 import coordinate.isInCircle
 import coordinate.isOnCircle
-import geomerativefork.src.RShape.Companion
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import util.times
@@ -51,12 +50,6 @@ internal class CircTest {
     assertEquals(1.0, Circ(1).radiusSquared)
     assertEquals(4.0, Circ(2).radiusSquared)
     assertEquals(10100.25, Circ(100.5).radiusSquared)
-  }
-
-  @Test
-  fun testToRShape() {
-    val res = Circ(Point.Zero, 2).toRShape()
-    assertEquals(Companion.createCircle(Point.Zero.toRPoint(), 4), res)
   }
 
   @Test

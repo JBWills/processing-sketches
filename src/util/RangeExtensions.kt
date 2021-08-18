@@ -2,10 +2,10 @@ package util
 
 import coordinate.Point
 import coordinate.Segment
-import geomerativefork.src.util.bound
 import interfaces.math.Addable
 import interfaces.math.NumScalable
 import interfaces.math.Subtractable
+import util.numbers.bound
 
 fun IntRange.toDoubleRange() = first.toDouble()..last.toDouble()
 

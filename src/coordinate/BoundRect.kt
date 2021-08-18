@@ -2,19 +2,12 @@ package coordinate
 
 import appletExtensions.PAppletExt
 import appletExtensions.draw.rect
-import geomerativefork.src.RPath
-import geomerativefork.src.RPoint
-import geomerativefork.src.RRectangle
-import geomerativefork.src.RShape
 import interfaces.shape.Maskable
 import interfaces.shape.Transformable
 import interfaces.shape.Walkable
 import kotlinx.serialization.Serializable
-import org.opengis.geometry.BoundingBox
 import util.atAmountAlong
 import util.equalsZero
-import util.geomutil.toPoint
-import util.iterators.mapArray
 import util.iterators.mapWithNextCyclical
 import util.min
 import util.polylines.PolyLine
@@ -85,7 +78,6 @@ data class BoundRect(
   val rightSegment get() = Segment(topRight, bottomRight)
 
   val points: List<Point> get() = listOf(topLeft, topRight, bottomRight, bottomLeft, topLeft)
-  val rPoints: Array<RPoint> get() = points.mapArray { it.toRPoint() }
 
   val center get() = Point(left + width / 2, top + height / 2)
 
@@ -103,7 +95,7 @@ data class BoundRect(
   fun isLeft(line: Line) = line.origin.x == left && line.slope.isVertical()
   fun isRight(line: Line) = line.origin.x == right && line.slope.isVertical()
 
-  fun asPolyLine() = listOf(topLeft, topRight, bottomRight, bottomLeft, topLeft)
+  fun toPolyLine() = listOf(topLeft, topRight, bottomRight, bottomLeft, topLeft)
 
   fun boundsIntersection(other: BoundRect): BoundRect? {
     if (right <= other.left || other.right <= left) return null
@@ -247,14 +239,11 @@ data class BoundRect(
     abs(point.y - bottom),
   )
 
-  fun toRShape(): RShape = RShape.createRectangle(topLeft.toRPoint(), w = width, h = height)
-  fun toRPath(): RPath = RPath(rPoints).also { it.addClose() }
-
   override fun intersection(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
-    listOf(polyLine).clipperIntersection(asPolyLine())
+    listOf(polyLine).clipperIntersection(toPolyLine())
 
   override fun diff(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
-    listOf(asPolyLine()).clipperDiff(polyLine)
+    listOf(toPolyLine()).clipperDiff(polyLine)
 
   fun forEachGrid(block: (Point) -> Unit) = forEachSampled(1.0, 1.0, block)
 
@@ -343,10 +332,6 @@ data class BoundRect(
     )
 
     fun centeredRect(center: Point, size: Point) = centeredRect(center, size.x, size.y)
-
-    fun RRectangle.toBoundRect(): BoundRect = BoundRect(topLeft.toPoint(), bottomRight.toPoint())
-    fun BoundingBox.toBoundRect(): BoundRect =
-      BoundRect(Point(minX, minY), Point(max(minX, maxX), max(minY, maxY)))
 
     /**
      * Try to create the rect with the given topleft and bottomRight points, but if it would result

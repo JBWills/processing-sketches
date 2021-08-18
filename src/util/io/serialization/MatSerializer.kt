@@ -18,7 +18,6 @@ class SimpleMatData(
   val data: ByteArray,
   val format: ImageFormat,
 ) {
-
   fun toMat(): Mat = data.toMat(colCount, rowCount, format)
 
   companion object {
@@ -33,9 +32,8 @@ object MatSerializer : KSerializer<Mat> {
   override fun deserialize(decoder: Decoder): Mat =
     SimpleMatData.deserialize(decoder).toMat()
 
-
   override val descriptor: SerialDescriptor
-    get() = SimpleMat.serializer().descriptor
+    get() = SimpleMatData.serializer().descriptor
 
   override fun serialize(encoder: Encoder, value: Mat) {
     SimpleMatData.serialize(

@@ -3,7 +3,6 @@ package coordinate
 import appletExtensions.PAppletExt
 import appletExtensions.draw.circle
 import coordinate.BoundRect.Companion.centeredRect
-import geomerativefork.src.RShape
 import interfaces.shape.Maskable
 import interfaces.shape.Transformable
 import interfaces.shape.Walkable
@@ -85,7 +84,7 @@ open class Circ(val origin: Point, val radius: Double) :
 
   override fun translated(translate: Point): Circ = Circ(origin.translated(translate), radius)
 
-  fun toRShape() = RShape.createCircle(origin.toRPoint(), diameter)
+  fun toPolyLine(step: Double = 2.0) = walk(step)
 
   fun bound(s: Segment): Segment? {
     if (contains(s.p1) && contains(s.p2)) return s
@@ -135,6 +134,4 @@ open class Circ(val origin: Point, val radius: Double) :
   override fun toString(): String {
     return "Circ(origin=$origin, radius=$radius)"
   }
-
-  fun toRPath() = toRShape().paths.first()
 }

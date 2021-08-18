@@ -1,6 +1,5 @@
 package controls.props.types
 
-import arrow.core.memoize
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.dropdown
@@ -14,15 +13,9 @@ import coordinate.BoundRect.Companion.centeredRect
 import coordinate.Circ
 import coordinate.Deg
 import coordinate.Point
-import geomerativefork.src.RPath
 import interfaces.shape.Maskable
 import kotlinx.serialization.Serializable
 import util.ZeroToOne
-import util.geomutil.contains
-import util.geomutil.diff
-import util.geomutil.ellipse
-import util.geomutil.intersection
-import util.geomutil.rotated
 import util.polylines.PolyLine
 
 enum class ShapeType {
@@ -51,9 +44,21 @@ data class ShapeProp(
     rotation ?: s.rotation,
   )
 
-  fun getRPath(bound: BoundRect): RPath = getRPathMemo(bound, type, size, center, rotation)
+  private fun getCirc(bound: BoundRect): Circ = Circ(bound.pointAt(center.x, center.y), size.x)
+  private fun getRect(bound: BoundRect): BoundRect =
+    centeredRect(bound.pointAt(center.x, center.y), size)
 
-  fun contains(p: Point, sketchBound: BoundRect) = getRPath(sketchBound).contains(p)
+  fun getPolyLine(bound: BoundRect): PolyLine {
+    val centerPoint = bound.pointAt(center.x, center.y)
+
+    return if (type == Ellipse) Circ(centerPoint, size.x).toPolyLine()
+    else centeredRect(centerPoint, size).toPolyLine()
+  }
+
+  fun contains(bound: BoundRect, p: Point) = when (type) {
+    Ellipse -> getCirc(bound).contains(p)
+    Rectangle -> getRect(bound).contains(p)
+  }
 
   // Not accurate with rotation, sorry!
   fun roughBounds(bound: BoundRect) = centeredRect(bound.pointAt(center.x, center.y), size)
@@ -66,12 +71,6 @@ data class ShapeProp(
     }
   }
 
-  fun intersection(boundRect: BoundRect, polyLine: PolyLine) =
-    polyLine.intersection(asMaskable(boundRect))
-
-  fun diff(boundRect: BoundRect, polyLine: PolyLine) =
-    polyLine.diff(asMaskable(boundRect))
-
   override fun toSerializer() = serializer()
 
   override fun clone() = ShapeProp(this)
@@ -83,23 +82,3 @@ data class ShapeProp(
     slider(::rotation)
   }
 }
-
-private val getRPathMemo = {
-    bound: BoundRect,
-    type: ShapeType,
-    size: Point,
-    centerRatio: Point,
-    rotation: Deg,
-  ->
-  val centerPoint = bound.pointAt(centerRatio.x, centerRatio.y)
-
-  val rShape =
-    if (type == Ellipse) ellipse(centerPoint, size)
-    else centeredRect(centerPoint, size).toRShape()
-
-  rShape
-    .also { it.polygonize() }
-    .rotated(rotation, centerPoint)
-    .paths
-    .first()
-}.memoize()

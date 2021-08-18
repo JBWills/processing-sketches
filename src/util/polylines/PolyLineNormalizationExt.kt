@@ -1,8 +1,8 @@
 package util.polylines.polyLine
 
 import coordinate.Segment
-import geomerativefork.src.util.boundMin
 import util.DoubleRange
+import util.numbers.boundMin
 import util.polylines.PolyLine
 import util.polylines.forEachSegment
 import util.polylines.toPolyLine

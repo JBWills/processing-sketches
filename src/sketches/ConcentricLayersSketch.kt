@@ -7,12 +7,12 @@ import controls.props.PropData
 import coordinate.Arc
 import coordinate.Circ
 import coordinate.Deg
-import geomerativefork.src.util.bound
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.iterators.mapIf
 import util.negToPos
+import util.numbers.bound
 import util.zeroTo
 
 const val MAX_CIRCLES = 8

@@ -12,13 +12,13 @@ import coordinate.Circ
 import coordinate.Point
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
-import geomerativefork.src.RPath
-import geomerativefork.src.RShape
-import geomerativefork.src.util.flatMapArray
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
-import util.geomutil.toRShape
+import util.polylines.PolyLine
+import util.polylines.clipping.clipperDiff
+import util.polylines.clipping.clipperUnion
+import util.polylines.closed
 import util.times
 
 class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
@@ -30,7 +30,7 @@ class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
     numLayers = MAX_LAYERS
   }
 
-  var unionShape: RShape? = null
+  var unionShape: List<PolyLine>? = null
 
   override fun drawSetup(layerInfo: DrawInfo) {
     unionShape = null
@@ -87,24 +87,20 @@ class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
         return@walk it + (movedOriginalPoint - originalPoint)
       }
 
-      val s = warpedCircle
-        .toRShape().also { it.addClose() }
+      val s = warpedCircle.closed()
 
       if (unionShape == null) {
-        unionShape = RShape(s)
+        unionShape = listOf(s)
         shape(warpedCircle)
         return@times
       }
 
       val nonNullUnionShape = unionShape ?: return@times
-      var sDiffed: Array<RPath> = arrayOf(s.paths[0])
 
-      nonNullUnionShape.paths.forEach { unionPath ->
-        sDiffed = sDiffed.flatMapArray { it.diff(unionPath) }
-      }
+      val sDiffed = s.clipperDiff(nonNullUnionShape, false)
 
       if (amountAlongInnerCircle == 0.0) {
-        unionShape = nonNullUnionShape.union(s)
+        unionShape = nonNullUnionShape.clipperUnion(s)
       }
 
       sDiffed.toList().draw(if (clipToBounds) boundRect else null)

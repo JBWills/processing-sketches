@@ -18,15 +18,11 @@ import coordinate.Point
 import coordinate.Segment
 import coordinate.ShapeTransform
 import fastnoise.Noise
-import geomerativefork.src.RPath
-import geomerativefork.src.util.boundMin
 import interfaces.shape.Maskable
 import org.opencv.core.Mat
 import processing.core.PApplet
 import processing.core.PImage
 import util.atAmountAlong
-import util.geomutil.toPolyLine
-import util.geomutil.toPolyLines
 import util.image.opencvMat.getTransformedMat
 import util.image.opencvMat.toPImage
 import util.image.pimage.scale
@@ -34,6 +30,7 @@ import util.iterators.addNotNull
 import util.iterators.forEach2D
 import util.iterators.mapWithNext
 import util.lerp
+import util.numbers.boundMin
 import util.polylines.PolyLine
 import util.polylines.clipping.clipperDiff
 import util.polylines.clipping.clipperIntersection
@@ -101,13 +98,10 @@ open class PAppletExt : PApplet() {
     bound: BoundRect,
     boundInside: Boolean,
   ): List<PolyLine> {
-    val rectLine = bound.asPolyLine()
+    val rectLine = bound.toPolyLine()
     return if (boundInside) unboundLines.clipperIntersection(rectLine)
     else unboundLines.clipperDiff(rectLine)
   }
-
-  fun RPath.drawPath(bound: BoundRect? = null, boundInside: Boolean = true) =
-    toPolyLine().draw(bound, boundInside)
 
   fun PolyLine.draw(bound: BoundRect? = null, boundInside: Boolean = true) =
     listOf(this).draw(bound, boundInside)
@@ -150,10 +144,6 @@ open class PAppletExt : PApplet() {
   @JvmName("drawManyPolyLinesList")
   fun List<List<List<PolyLine>>>.draw(bound: BoundRect, boundInside: Boolean = true) =
     flatten().flatten().draw(bound, boundInside)
-
-  @JvmName("drawRPaths")
-  fun List<RPath>.draw(bound: BoundRect? = null, boundInside: Boolean = true) =
-    toPolyLines().draw(bound, boundInside)
 
   fun Circ.draw() = circle(this)
   fun Segment.draw() = line(this)

@@ -19,7 +19,7 @@ fun PolyLine.closed() = when {
 }
 
 @JvmName("boundLines")
-fun List<PolyLine>.bound(bound: BoundRect): List<PolyLine> = clipperIntersection(bound.asPolyLine())
+fun List<PolyLine>.bound(bound: BoundRect): List<PolyLine> = clipperIntersection(bound.toPolyLine())
 
 @JvmName("ShiftSegments")
 fun List<Segment>.translated(p: Point) = map { it + p }

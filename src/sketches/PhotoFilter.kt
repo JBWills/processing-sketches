@@ -13,7 +13,6 @@ import controls.props.types.PhotoProp
 import coordinate.Deg
 import coordinate.Point
 import coordinate.Segment.Companion.toUnitVectorSegment
-import geomerativefork.src.util.bound
 import kotlinx.serialization.Serializable
 import sketches.FilterType.Circles
 import sketches.FilterType.Crosses
@@ -26,6 +25,7 @@ import util.atAmountAlong
 import util.image.pimage.bounds
 import util.image.pimage.get
 import util.image.pimage.gradientAt
+import util.numbers.bound
 import util.tuple.and
 
 /**
@@ -56,7 +56,7 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
     image.bounds.forEachSampled(sampleRate.x, sampleRate.y) { imagePoint ->
       val canvasPoint = imagePoint + imageBounds.topLeft
 
-      if (photo.shouldCrop && !photo.cropShape.contains(canvasPoint, boundRect))
+      if (photo.shouldCrop && !photo.cropShape.contains(boundRect, imagePoint))
         return@forEachSampled
 
       val lumAtP = image.get(imagePoint).red / 255.0
@@ -75,7 +75,7 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
           listOf(segment, segment.centeredWithSlope(segment.slope + 90)).drawAsLine()
         }
         Crosses2 -> {
-          val length1 = lumAtP.bound(0.0, 0.5) * 2 * length
+          val length1 = lumAtP.bound(0.0..0.5) * 2 * length
           val length2 = (lumAtP.bound(0.5, 1.0) - 0.5) * 2 * length
 
           val segment = image

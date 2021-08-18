@@ -166,7 +166,7 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
         .findContours(retrievalMode = External)
         .simplify(simplifyAmount)
         .transform(matToScreen)
-        .clipperIntersection(windowBounds.asPolyLine())
+        .clipperIntersection(windowBounds.toPolyLine())
         .simplify(simplifyAmount)
 
       val offsets = oceanContours

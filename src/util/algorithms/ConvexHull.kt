@@ -4,24 +4,25 @@ import coordinate.Point
 import util.algorithms.PointOrientation.Clockwise
 import util.algorithms.PointOrientation.Colinear
 import util.algorithms.PointOrientation.CounterClockwise
-import java.util.*
+import util.polylines.MutablePolyLine
+import util.polylines.PolyLine
 
 
 // from: https://www.nayuki.io/res/convex-hull-algorithm/ConvexHull.java
 // Returns a new list of points representing the convex hull of
 // the given set of points. The convex hull excludes collinear points.
 // This algorithm runs in O(n log n) time.
-fun Iterable<Point>.makeHull(): List<Point> = makeHullPresorted(sorted())
+fun Iterable<Point>.makeHull(): PolyLine = makeHullPresorted(sorted())
 
 // from: https://www.nayuki.io/res/convex-hull-algorithm/ConvexHull.java
 // Returns the convex hull, assuming that each points[i] <= points[i + 1]. Runs in O(n) time.
-fun makeHullPresorted(points: List<Point>): List<Point> {
+fun makeHullPresorted(points: PolyLine): PolyLine {
   if (points.size <= 1) return points.toList()
 
   // Andrew's monotone chain algorithm. Positive y coordinates correspond to "up"
   // as per the mathematical convention, instead of "down" as per the computer
   // graphics convention. This doesn't affect the correctness of the result.
-  val upperHull: MutableList<Point> = ArrayList()
+  val upperHull: MutablePolyLine = ArrayList()
   for (p in points) {
     while (upperHull.size >= 2) {
       val q = upperHull[upperHull.size - 1]
@@ -32,7 +33,7 @@ fun makeHullPresorted(points: List<Point>): List<Point> {
     upperHull.add(p)
   }
   upperHull.removeAt(upperHull.size - 1)
-  val lowerHull: MutableList<Point> = ArrayList()
+  val lowerHull: MutablePolyLine = ArrayList()
   for (i in points.indices.reversed()) {
     val p = points[i]
     while (lowerHull.size >= 2) {
@@ -55,7 +56,7 @@ private enum class PointOrientation {
   CounterClockwise
 }
 
-fun Set<Point>.convexHull(): List<Point> {
+fun Set<Point>.convexHull(): PolyLine {
   if (size < 3) return listOf()
 
   val hull = mutableListOf<Point>()

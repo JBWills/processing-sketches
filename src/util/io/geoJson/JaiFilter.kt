@@ -1,7 +1,6 @@
 package util.io.geoJson
 
 import coordinate.Point
-import geomerativefork.src.util.toDoubleArray
 import java.awt.image.RenderedImage
 import javax.media.jai.InterpolationBicubic
 import javax.media.jai.JAI
@@ -36,7 +35,7 @@ class Contour(thresholds: List<Double>) : JaiFilter(
 class Clamp(low: Number, high: Number) : JaiFilter(
   "Clamp",
   {
-    ClampDescriptor.create(it, low.toDoubleArray(), high.toDoubleArray(), null)
+    ClampDescriptor.create(it, doubleArrayOf(low.toDouble()), doubleArrayOf(high.toDouble()), null)
   },
 )
 

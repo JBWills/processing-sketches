@@ -9,18 +9,18 @@ import controls.panels.panelext.noisePanel
 import controls.panels.panelext.slider
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
+import coordinate.Circ
 import coordinate.Deg
 import coordinate.Point
 import fastnoise.Noise
 import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
-import geomerativefork.src.RShape.Companion.createEllipse
 import kotlinx.serialization.Serializable
 import sketches.MoireShape.Circle
 import sketches.MoireShape.Rectangle
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
-import util.geomutil.intersection
+import util.polylines.clipping.clipperIntersection
 
 enum class MoireShape {
   Rectangle,
@@ -68,17 +68,12 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
       Rectangle -> {
         val r = boundRect.scale(shapeSize, centerPoint)
 
-        baseLines.flatMap { it.warped(noise).intersection(r) }
+        baseLines.flatMap { it.warped(noise).clipperIntersection(r.toPolyLine()) }
       }
       Circle -> {
-        val cPath = createEllipse(
-          centerPoint.toRPoint(),
-          (shapeSize * (boundRect.bottomRight - boundRect.topLeft)).toRPoint(),
-        ).also {
-          it.rotate(shapeRotation.value.toFloat(), centerPoint.toRPoint())
-          it.polygonize()
-        }.paths.first()
-        baseLines.flatMap { it.warped(noise).intersection(cPath) }
+        val cPath = Circ(centerPoint, (shapeSize * (boundRect.bottomRight - boundRect.topLeft)).x)
+          .toPolyLine()
+        baseLines.flatMap { it.warped(noise).clipperIntersection(cPath) }
       }
     }.draw(boundRect)
   }
