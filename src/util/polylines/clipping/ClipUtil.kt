@@ -48,7 +48,7 @@ private fun List<PolyLine>.operation(
   operationType: ClipType,
   other: List<PolyLine>,
   forceClosed: Boolean? = null
-) = operationAsTree(operationType, other, forceClosed).toPolyLines(forceClosed)
+) = operationAsTree(operationType, other, forceClosed).toPolyLines()
 
 fun List<PolyLine>.intersection(other: List<PolyLine>, forceClosed: Boolean? = null) =
   operation(INTERSECTION, other, forceClosed)

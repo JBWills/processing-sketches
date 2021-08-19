@@ -1,0 +1,119 @@
+package sketches
+
+import controls.panels.TabsBuilder.Companion.layerTab
+import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.dropdown
+import controls.panels.panelext.slider
+import controls.panels.panelext.slider2D
+import controls.panels.panelext.toggle
+import controls.props.PropData
+import coordinate.Arc
+import coordinate.Circ
+import coordinate.Deg
+import coordinate.Point
+import kotlinx.serialization.Serializable
+import sketches.ForceClosedOption.Close
+import sketches.base.LayeredCanvasSketch
+import util.listWrapped
+import util.polylines.PolyLine
+import util.polylines.clipping.diff
+import util.polylines.simplify
+
+enum class ForceClosedOption(val forceClosedValue: Boolean?) {
+  Close(true),
+  NoClose(false),
+  Default(null),
+}
+
+/**
+ * Starter sketch that uses all of the latest bells and whistles.
+ *
+ * Copy and paste this to create a new sketch.
+ */
+class ClipperDebug : LayeredCanvasSketch<ClipperDebugData, ClipperDebugLayerData>(
+  "ClipperDebug",
+  defaultGlobal = ClipperDebugData(),
+  layerToDefaultTab = { ClipperDebugLayerData() },
+) {
+  override fun drawSetup(layerInfo: DrawInfo) {}
+
+  override fun drawOnce(layerInfo: LayerInfo) {
+    val (arcLocation, arcRadius, arcDeg, arcDegStart, simplifyAmt, boundByRect, doDiffCircle, doDiffSquare, forceClosed) = layerInfo.globalValues
+
+    var arc: List<PolyLine> = Arc(
+      arcDegStart,
+      arcDegStart + arcDeg,
+      Circ(arcLocation * boundRect.size, arcRadius),
+    ).walk(1.0)
+      .simplify(simplifyAmt)
+      .listWrapped()
+
+    fun diffArc(other: List<PolyLine>, forceClosed: ForceClosedOption) {
+      arc = arc.diff(other, forceClosed.forceClosedValue)
+    }
+
+    val staticSquare: PolyLine = boundRect
+      .scale(Point(0.3), boundRect.size / 3)
+      .toPolyLine()
+
+    val staticCircle: PolyLine = Circ(Point(0.7, 0.7) * boundRect.size, 50)
+      .walk(1.0)
+
+    if (doDiffCircle) diffArc(staticCircle.listWrapped(), forceClosed)
+    if (doDiffSquare) diffArc(staticSquare.listWrapped(), forceClosed)
+
+    arc.draw(if (boundByRect) boundRect else null)
+  }
+}
+
+@Serializable
+data class ClipperDebugLayerData(
+  var exampleTabField: Int = 1,
+) : PropData<ClipperDebugLayerData> {
+  override fun bind() = layerTab {
+    slider(::exampleTabField, 0..10)
+  }
+
+  override fun clone() = copy()
+  override fun toSerializer() = serializer()
+}
+
+@Serializable
+data class ClipperDebugData(
+  var arcLocation: Point = Point.Half,
+  var arcRadius: Double = 50.0,
+  var arcDeg: Deg = Deg(180),
+  var arcDegStart: Deg = Deg(0),
+  var simplifyAmt: Double = 0.0,
+  var boundByRect: Boolean = true,
+  var doDiffCircle: Boolean = true,
+  var doDiffSquare: Boolean = true,
+  var forceClosed: ForceClosedOption = Close
+) : PropData<ClipperDebugData> {
+  override fun bind() = singleTab("Global") {
+    row {
+      slider2D(::arcLocation, Point.Zero..Point.One)
+      slider(::arcRadius, 0..500)
+    }
+    row {
+      slider(::arcDegStart)
+      slider(::arcDeg)
+    }
+
+    slider(::simplifyAmt)
+
+    row {
+      toggle(::boundByRect)
+      toggle(::doDiffCircle)
+      toggle(::doDiffSquare)
+    }
+
+    dropdown(::forceClosed)
+  }
+
+  override fun clone() = copy()
+
+  override fun toSerializer() = serializer()
+}
+
+fun main() = ClipperDebug().run()

@@ -4,6 +4,7 @@ import coordinate.iterators.PointProgression
 import interfaces.shape.Walkable
 import util.equalsZero
 import util.greaterThanEqualToDelta
+import util.maybeMap
 import util.notEqualsZero
 import util.polylines.PolyLine
 import util.toDegrees
@@ -179,16 +180,16 @@ class Segment(
     return if (segment?.length != null && segment.length > 0) segment else null
   }
 
-  fun split(numSegments: Number): PolyLine {
+  fun split(numSegments: Number, transform: ((Point) -> Point)? = null): PolyLine {
     val numSegmentsDouble = numSegments.toDouble()
 
-    if (numSegmentsDouble < 1) return listOf(*this.points)
+    if (numSegmentsDouble < 1) return points.maybeMap(transform)
 
     val totalLength = p2.dist(p1)
 
     return (p1..p2)
       .step(totalLength / numSegmentsDouble)
-      .toList()
+      .maybeMap(transform)
   }
 
   override fun equals(other: Any?): Boolean {
@@ -224,6 +225,7 @@ class Segment(
 
 
     fun List<Segment>.move(amount: Point) = map { it + amount }
+    fun List<Segment>.segmentsToPolyLines() = map(Segment::asPolyLine)
     fun Pair<Point, Point>.toSegment() = Segment(first, second)
   }
 }

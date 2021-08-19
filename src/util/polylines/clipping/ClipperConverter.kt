@@ -39,4 +39,4 @@ fun PolyNode.toPolyLine(forceClose: Boolean? = null): PolyLine =
   polygon.toPolyLine(closed = forceClose ?: !isOpen)
 
 fun PolyTree.toPolyLines(forceClose: Boolean? = null): List<PolyLine> =
-  allPolys.map { it.toPolyLine(forceClose) }
+  allPolys.mapNotNull { it.toPolyLine(forceClose).ifEmpty { null } }

@@ -18,6 +18,10 @@ fun PolyLine.simplify(epsilon: Double): PolyLine {
 @JvmName("simplifyPolyLines")
 fun List<PolyLine>.simplify(epsilon: Double): List<PolyLine> = map { it.simplify(epsilon) }
 
+@JvmName("simplifyNestedPolyLines")
+fun List<List<PolyLine>>.simplify(epsilon: Double): List<List<PolyLine>> =
+  map { it.simplify(epsilon) }
+
 @JvmName("simplifyIndexedMesh")
 fun IndexedMeshLines.simplifyMesh(epsilon: Double): IndexedMeshLines =
   mapPairOfLists { it.simplify(epsilon) }

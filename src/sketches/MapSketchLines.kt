@@ -15,6 +15,7 @@ import controls.props.types.VectorProp
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Point
+import coordinate.Segment
 import coordinate.coordSystems.getCoordinateMap
 import de.lighti.clipper.Clipper.EndType
 import de.lighti.clipper.Clipper.JoinType
@@ -34,7 +35,7 @@ import util.image.opencvMat.scale
 import util.image.opencvMat.threshold
 import util.io.geoJson.loadGeoMatAndBlurMemo
 import util.iterators.deepMap
-import util.iterators.groupValuesBy
+import util.iterators.groupToSortedList
 import util.iterators.skipFirst
 import util.mapIf
 import util.polylines.PolyLine
@@ -43,10 +44,8 @@ import util.polylines.clipping.diff
 import util.polylines.clipping.intersection
 import util.polylines.clipping.offsetByMemo
 import util.polylines.clipping.union
-import util.polylines.length
 import util.polylines.moveEndpoints
 import util.polylines.simplify
-import util.polylines.toSegment
 import util.polylines.transform
 import util.tuple.map
 import java.awt.Color
@@ -79,6 +78,52 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
       .scaled(mapScale).let { it.translated(mapCenter * it.size - (it.size / 2)) },
   )
 
+  private fun Segment.splitEvenly(
+    samplePointsAcrossBoundRect: Double,
+    transform: (Point) -> Point
+  ): PolyLine {
+    val originalSegmentLength = length
+    val segmentLengthRatio = originalSegmentLength / boundRect.width
+    return split(samplePointsAcrossBoundRect * segmentLengthRatio, transform)
+  }
+
+  /**
+   * Given a list of split lines, occlude them, assuming the outer list is sorted front-to-back.
+   *
+   * @return a pair where:
+   *  The first element is the unionShape of all the occlusions
+   *  The second element is a nested list, where each sub-list is the occluded elevation lines at a
+   *  certain height on the image.
+   */
+  private fun List<List<PolyLine>>.occludeElevationLines(
+    shrinkUnionShapeBy: Double = 0.0,
+    lineSimplifyEpsilon: Double
+  ): Pair<List<PolyLine>, List<List<PolyLine>>> {
+    var unionShape: List<PolyLine> = listOf()
+    val occludedLines = map { linesAtElevation ->
+      linesAtElevation.diff(unionShape, forceClosed = false).also {
+        unionShape = unionShape.union(linesAtElevation)
+      }
+    }
+
+    val shrunkUnionShape = unionShape.doIf(shrinkUnionShapeBy != 0.0) {
+      unionShape.offsetByMemo(
+        listOf(-1.0),
+        lineSimplifyEpsilon,
+        JoinType.ROUND,
+        EndType.CLOSED_POLYGON,
+      ).values.flatten()
+    }
+
+    return shrunkUnionShape to occludedLines
+  }
+
+  private fun Segment.convertToElevationLine(step: Double, getDelta: (Point) -> Point): PolyLine {
+    val elevationLine = walk(step) { point -> point + getDelta(point) }
+
+    return elevationLine.moveEndpoints { endpoints -> endpoints.map { it.withY(p1.y) } }
+  }
+
   override fun drawOnce(layerInfo: LayerInfo) {}
 
   private fun loadScaleAndRotateMat(
@@ -105,48 +150,43 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
     val matToScreen = getTiffToScreenTransform(mat.bounds, mapScale, mapCenter)
     val screenToMat = matToScreen.inverted()
 
+    val xyStep = boundRect.size / samplePointsXY
+
     val minElevationContours = matThreshold.findContours().transform(matToScreen)
 
     fun getValue(p: Point): Double? = mat.getSubPix(p.transform(screenToMat))
 
-    fun elevationPercent(p: Point) =
-      (getValue(p) ?: minElevation).boundPercentAlong(elevationRange)
+    fun elevationDelta(p: Point) =
+      elevationMoveAmount * (getValue(p) ?: minElevation).boundPercentAlong(elevationRange)
+
+    val expandedBoundRect = boundRect.expand(elevationMoveAmount.abs() * 2)
 
     // Horizontal lines from the bottom of the image to the top
-    val linesBottomToTop: List<PolyLine> = boundRect
-      .expand(elevationMoveAmount.abs() * 2)
-      .parallelLinesInBound(Deg.HORIZONTAL, boundRect.height / samplePointsXY.yi)
-      .sortedByDescending { it.p1.y }
-      .map { it.asPolyLine }
+    val linesBottomToTop: List<Segment> =
+      expandedBoundRect
+        .parallelLinesInBound(Deg.HORIZONTAL, boundRect.height / samplePointsXY.yi)
+        .sortedByDescending { it.p1.y }
 
-    val matThresholdContours = matThreshold.findContours().transform(matToScreen).bound(boundRect)
+    val matThresholdContours = matThreshold
+      .findContours()
+      .transform(matToScreen)
+      .bound(expandedBoundRect)
 
-    val maskedLines: Map<Double, List<PolyLine>> = linesBottomToTop
+    val maskedLines: List<List<Segment>> = linesBottomToTop
       .intersection(matThresholdContours)
-      .filterNot { it.isEmpty() }
-      .map { line ->
-        val originalSegmentLength = line.length
-        val segmentLengthRatio = originalSegmentLength / boundRect.width
-        line
-          .toSegment()
-          .split(samplePointsXY.x * segmentLengthRatio)
-      }.groupValuesBy { first().y }
+      .groupToSortedList(sortDescending = true) { p1.y }
 
-    var unionShape: List<PolyLine> = listOf()
-    maskedLines
-      .map { (yValue, lines) ->
-        lines
-          .deepMap { point: Point -> point + (elevationMoveAmount * elevationPercent(point)) }
-          .moveEndpoints { endpoints -> endpoints.map { it.withY(yValue) } }
-          .simplify(lineSimplifyEpsilon)
-      }
-      .sortedByDescending { it.firstOrNull()?.firstOrNull()?.y ?: -1.0 }
-      .mapIf(occludeLines) { lines ->
-        lines.diff(unionShape, forceClosed = false).also {
-          unionShape = unionShape.union(lines)
-        }
-      }
-      .draw(boundRect)
+    val (unionShape: List<PolyLine>, elevationLines: List<List<PolyLine>>) =
+      maskedLines
+        .deepMap { segment -> segment.convertToElevationLine(xyStep.x, ::elevationDelta) }
+        .simplify(lineSimplifyEpsilon)
+        .doIf(
+          occludeLines,
+          ifTrue = { it.occludeElevationLines(-1.0, lineSimplifyEpsilon) },
+          ifFalse = { listOf<PolyLine>() to it },
+        )
+
+    elevationLines.draw(boundRect)
 
     if (drawMat) matThreshold.draw(matToScreen, boundRect)
     if (drawMinElevationOutline) {
@@ -172,7 +212,7 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
       matContours
         .offsetByMemo(offsets, simplifyAmount, JoinType.ROUND, EndType.CLOSED_POLYGON)
         .values
-        .mapIf(occludeLines) { lines -> lines.diff(unionShape, forceClosed = false) }
+        .mapIf(occludeLines) { it.diff(unionShape, forceClosed = false) }
         .draw(boundRect)
     }
   }
@@ -243,7 +283,7 @@ data class MapLinesData(
     tab("ocean") {
       toggle(::drawOceanLines)
       panel(::oceanContours)
-      slider(::maxOceanDistanceFromLand, 0..1000)
+      slider(::maxOceanDistanceFromLand, 0..2000)
     }
   }
 

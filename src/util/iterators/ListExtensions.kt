@@ -2,6 +2,7 @@ package util.iterators
 
 import util.atAmountAlong
 import util.ceilInt
+import util.doIf
 import util.floorInt
 import util.numbers.bound
 
@@ -81,3 +82,24 @@ fun <T> List<T>.extendCyclical(num: Int): List<T> {
 fun <T> List<T>.limit(i: Int) = filterIndexed { index, _ -> index < i }
 
 fun <T> List<T?>.filterNotNull(): List<T> = mapNotNull { it }
+
+fun <T, Attribute> Iterable<T>.groupToList(getAttr: T.() -> Attribute): List<List<T>> {
+  val res = mutableMapOf<Attribute, MutableList<T>>()
+  forEach {
+    res.getOrPut(it.getAttr()) { mutableListOf() }.add(it)
+  }
+
+  return res.values.toList()
+}
+
+fun <T, SortingAttr : Comparable<SortingAttr>> Iterable<T>.groupToSortedList(
+  sortDescending: Boolean = false,
+  getGroupingAttr: T.() -> SortingAttr,
+): List<List<T>> {
+  val res = sortedMapOf<SortingAttr, MutableList<T>>()
+  forEach {
+    res.getOrPut(it.getGroupingAttr()) { mutableListOf() }.add(it)
+  }
+
+  return res.values.toList().doIf(sortDescending) { it.reversed() }
+}

@@ -1,6 +1,8 @@
 package util.polylines.clipping
 
+import coordinate.Segment
 import util.polylines.PolyLine
+import util.polylines.toSegment
 
 @JvmName("clipperIntersectionPolyLine")
 fun List<PolyLine>.intersection(other: PolyLine, forceClosed: Boolean? = null) =
@@ -49,3 +51,7 @@ fun PolyLine.union(other: List<PolyLine>, forceClosed: Boolean? = null) =
 @JvmName("singleClipperXorMulti")
 fun PolyLine.xor(other: List<PolyLine>, forceClosed: Boolean? = null) =
   listOf(this).xor(other, forceClosed)
+
+fun List<Segment>.intersection(other: List<PolyLine>): List<Segment> = map { it.toPolyLine() }
+  .intersection(other, forceClosed = false)
+  .map { it.toSegment() }
