@@ -2,6 +2,7 @@ package coordinate
 
 import appletExtensions.PAppletExt
 import appletExtensions.draw.rect
+import de.lighti.clipper.Clipper.ClipType
 import interfaces.shape.Maskable
 import interfaces.shape.Transformable
 import interfaces.shape.Walkable
@@ -11,8 +12,7 @@ import util.equalsZero
 import util.iterators.mapWithNextCyclical
 import util.min
 import util.polylines.PolyLine
-import util.polylines.clipping.diff
-import util.polylines.clipping.intersection
+import util.polylines.clipping.clip
 import util.polylines.transform
 import util.step
 import kotlin.math.abs
@@ -96,6 +96,12 @@ data class BoundRect(
   fun isRight(line: Line) = line.origin.x == right && line.slope.isVertical()
 
   fun toPolyLine() = listOf(topLeft, topRight, bottomRight, bottomLeft, topLeft)
+
+  /**
+   * "Simple" polygons don't have overlapping points. So this may look like an open line if you
+   * drew it directly, but utils like Clipper might work better with it if it's simplified.
+   */
+  fun toSimplePolyLine() = listOf(topLeft, topRight, bottomRight, bottomLeft)
 
   fun boundsIntersection(other: BoundRect): BoundRect? {
     if (right <= other.left || other.right <= left) return null
@@ -232,7 +238,7 @@ data class BoundRect(
       }
       .flatten()
 
-  fun roughDistFromSides(point: Point): Double = min(
+  private fun roughDistFromSides(point: Point): Double = min(
     abs(point.x - left),
     abs(point.x - right),
     abs(point.y - top),
@@ -240,10 +246,10 @@ data class BoundRect(
   )
 
   override fun intersection(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
-    listOf(polyLine).intersection(toPolyLine())
+    polyLine.clip(toPolyLine(), ClipType.INTERSECTION)
 
   override fun diff(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
-    listOf(toPolyLine()).diff(polyLine)
+    toPolyLine().clip(polyLine, ClipType.DIFFERENCE)
 
   fun forEachGrid(block: (Point) -> Unit) = forEachSampled(1.0, 1.0, block)
 

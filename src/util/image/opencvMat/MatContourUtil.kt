@@ -14,8 +14,9 @@ import util.image.opencvMat.LineFillType.Filled
 import util.io.geoJson.loadGeoMatAndBlurMemo
 import util.polylines.PolyLine
 import util.polylines.bounds
+import util.polylines.clipping.simplify.toSimplePolygonsMemo
+import util.polylines.simplify
 import kotlin.math.max
-
 
 const val CannyRatio = 3
 
@@ -43,9 +44,11 @@ fun Mat.findRawContours(
       )
     }
 
-
-fun List<MatOfPoint>.toContourPolyLines(): List<PolyLine> = map { it.toPolyLine(close = true) }
-  .filter { it.size > 2 }
+fun List<MatOfPoint>.toContourPolyLines(lineSimplifyEpsilon: Double): List<PolyLine> = mapNotNull {
+  val line = it.toPolyLine(close = true)
+  if (line.size > 2) line else null
+}.simplify(lineSimplifyEpsilon)
+  .toSimplePolygonsMemo()
 
 /**
  * Get contours and process them as PolyLines. Note that this will do some filtering based on the
@@ -54,12 +57,13 @@ fun List<MatOfPoint>.toContourPolyLines(): List<PolyLine> = map { it.toPolyLine(
  * @return a list of PolyLines
  */
 fun Mat.findContours(
+  lineSimplifyEpsilon: Double = 0.0,
   retrievalMode: ContourRetrievalMode = Tree,
   approximationMode: ContourApproximationMode = TC89KCOS
 ): List<PolyLine> =
   findRawContours(retrievalMode, approximationMode)
     .first
-    .toContourPolyLines()
+    .toContourPolyLines(lineSimplifyEpsilon)
 
 /**
  * Covert a GeoTiff file to a gray openCV Mat.
@@ -75,20 +79,6 @@ fun Mat.geoTiffToGray(): Mat = applyWithDest(Gray) { src, dest ->
     .divide(max - actualMin, false)
     .convertTo(ChannelDepth.CV_8U, dest, alpha = 255.0)
 }
-
-fun Mat.contour(
-  thresholds: List<Double>,
-  retrievalMode: ContourRetrievalMode = Tree,
-  approximationMode: ContourApproximationMode = TC89KCOS
-): Map<Double, List<PolyLine>> = thresholds.associateWith { thresholdValue ->
-  threshold(thresholdValue).findContours(retrievalMode, approximationMode)
-}
-
-fun loadAndContour(
-  filename: String,
-  thresholds: List<Double>
-): MatContourResponse =
-  loadAndContourWithOffset(filename, thresholds.associateWith { Point.Zero })
 
 data class ContourData(
   val threshold: Double,

@@ -51,11 +51,11 @@ inline fun <R> PApplet.withStrokeIf(predicate: Boolean, c: Color, block: PApplet
  * Run the block after applying stroke color, then switch back to
  * last styling.
  */
-inline fun <R> PApplet.withStroke(c: Color, block: PApplet.() -> R): R =
-  withStroke(c.rgb, c.alpha, block)
+inline fun <R> PApplet.withStroke(c: Color?, block: PApplet.() -> R): R =
+  if (c != null) withStroke(c.rgb, c.alpha, block) else block()
 
-inline fun <R> PApplet.withFill(c: Color, block: PApplet.() -> R): R =
-  withFill(c.rgb, c.alpha, block)
+inline fun <R> PApplet.withFill(c: Color?, block: PApplet.() -> R): R =
+  if (c != null) withFill(c.rgb, c.alpha, block) else block()
 
 inline fun <R> PGraphics.withStroke(c: Color, block: PGraphics.() -> R): R =
   withStroke(c.rgb, c.alpha, block)

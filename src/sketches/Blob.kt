@@ -15,6 +15,7 @@ import controls.props.types.ShapeType.Rectangle
 import coordinate.Deg
 import coordinate.Point
 import coordinate.Segment
+import de.lighti.clipper.Clipper.ClipType.INTERSECTION
 import fastnoise.Noise
 import fastnoise.Noise.Companion.warpedMemo
 import kotlinx.serialization.Serializable
@@ -27,10 +28,10 @@ import util.algorithms.contouring.walkThreshold
 import util.algorithms.douglassPeucker
 import util.atAmountAlong
 import util.numSteps
-import util.polylines.clipping.intersection
+import util.polylines.clipping.clip
 
 /**
- * Starter sketch that uses all of the latest bells and whistles.
+ * Starter sketch that uses all the latest bells and whistles.
  *
  * Copy and paste this to create a new sketch.
  */
@@ -50,7 +51,7 @@ class Blob : LayeredCanvasSketch<BlobData, BlobLayerData>(
       noise,
       gridStep,
       drawBlob,
-      drawDebug,
+      _,
       thresholdStart,
       thresholdEnd,
       numThresholds,
@@ -91,7 +92,7 @@ class Blob : LayeredCanvasSketch<BlobData, BlobLayerData>(
                 .douglassPeucker(smoothEpsilon)
             else line
 
-            smoothedLine.intersection(contourShape.getPolyLine(boundRect))
+            smoothedLine.clip(contourShape.getPolyLine(boundRect), INTERSECTION)
           }
           .draw()
       }
@@ -100,7 +101,7 @@ class Blob : LayeredCanvasSketch<BlobData, BlobLayerData>(
     lines.flatMap {
       warpedMemo(it, lineNoise)
         .walkThreshold(noise, thresholdStart)
-        .flatMap { lineSegment -> lineSegment.intersection(shape.getPolyLine(boundRect)) }
+        .flatMap { lineSegment -> lineSegment.clip(shape.getPolyLine(boundRect), INTERSECTION) }
     }.draw()
   }
 }

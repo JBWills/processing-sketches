@@ -1,5 +1,6 @@
 package sketches
 
+import appletExtensions.withStroke
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.dropdown
@@ -11,19 +12,17 @@ import coordinate.Arc
 import coordinate.Circ
 import coordinate.Deg
 import coordinate.Point
+import de.lighti.clipper.Clipper.ClipType
 import kotlinx.serialization.Serializable
-import sketches.ForceClosedOption.Close
 import sketches.base.LayeredCanvasSketch
 import util.listWrapped
 import util.polylines.PolyLine
-import util.polylines.clipping.diff
+import util.polylines.clipping.ForceClosedOption
+import util.polylines.clipping.ForceClosedOption.Close
+import util.polylines.clipping.clip
+import util.polylines.isClosed
 import util.polylines.simplify
-
-enum class ForceClosedOption(val forceClosedValue: Boolean?) {
-  Close(true),
-  NoClose(false),
-  Default(null),
-}
+import java.awt.Color
 
 /**
  * Starter sketch that uses all of the latest bells and whistles.
@@ -35,34 +34,62 @@ class ClipperDebug : LayeredCanvasSketch<ClipperDebugData, ClipperDebugLayerData
   defaultGlobal = ClipperDebugData(),
   layerToDefaultTab = { ClipperDebugLayerData() },
 ) {
+
+  init {
+    numLayers = 1
+  }
+
   override fun drawSetup(layerInfo: DrawInfo) {}
 
   override fun drawOnce(layerInfo: LayerInfo) {
-    val (arcLocation, arcRadius, arcDeg, arcDegStart, simplifyAmt, boundByRect, doDiffCircle, doDiffSquare, forceClosed) = layerInfo.globalValues
+    val (arcLocation, arcRadius, arcDeg, arcDegStart, simplifyAmt, boundByRect, doDiffCircle, doDiffSquare, intersectPinkSquare, forceClosed) = layerInfo.globalValues
 
-    var arc: List<PolyLine> = Arc(
-      arcDegStart,
-      arcDegStart + arcDeg,
-      Circ(arcLocation * boundRect.size, arcRadius),
-    ).walk(1.0)
-      .simplify(simplifyAmt)
-      .listWrapped()
+    var arc: List<PolyLine> =
+      Arc(arcDegStart, arcDeg.unboundValue, Circ(boundRect.size * arcLocation, arcRadius))
+        .walk(1.0)
+        .simplify(simplifyAmt)
+        .listWrapped()
 
     fun diffArc(other: List<PolyLine>, forceClosed: ForceClosedOption) {
-      arc = arc.diff(other, forceClosed.forceClosedValue)
+      arc = arc.clip(other, ClipType.DIFFERENCE, forceClosed)
+    }
+
+    fun intersectArc(other: List<PolyLine>, forceClosed: ForceClosedOption) {
+      arc = arc.clip(other, ClipType.INTERSECTION, forceClosed)
     }
 
     val staticSquare: PolyLine = boundRect
       .scale(Point(0.3), boundRect.size / 3)
       .toPolyLine()
+      .also {
+        withStroke(Color.RED) {
+          it.draw()
+        }
+      }
+
+    val intersectSquare: PolyLine = boundRect
+      .scale(Point(0.3), boundRect.size / 4)
+      .toPolyLine()
+      .also {
+        withStroke(Color.PINK) {
+          it.draw()
+        }
+      }
 
     val staticCircle: PolyLine = Circ(Point(0.7, 0.7) * boundRect.size, 50)
       .walk(1.0)
+      .also { withStroke(Color.BLUE) { it.draw() } }
 
     if (doDiffCircle) diffArc(staticCircle.listWrapped(), forceClosed)
     if (doDiffSquare) diffArc(staticSquare.listWrapped(), forceClosed)
+    if (intersectPinkSquare) intersectArc(intersectSquare.listWrapped(), forceClosed)
 
-    arc.draw(if (boundByRect) boundRect else null)
+    arc.forEach { arcLine ->
+      withStroke(if (arcLine.isClosed()) Color.GRAY else Color.WHITE) {
+
+        arcLine.draw(if (boundByRect) boundRect else null)
+      }
+    }
   }
 }
 
@@ -88,7 +115,8 @@ data class ClipperDebugData(
   var boundByRect: Boolean = true,
   var doDiffCircle: Boolean = true,
   var doDiffSquare: Boolean = true,
-  var forceClosed: ForceClosedOption = Close
+  var intersectPinkSquare: Boolean = true,
+  var forceClosed: ForceClosedOption = Close,
 ) : PropData<ClipperDebugData> {
   override fun bind() = singleTab("Global") {
     row {
@@ -106,6 +134,7 @@ data class ClipperDebugData(
       toggle(::boundByRect)
       toggle(::doDiffCircle)
       toggle(::doDiffSquare)
+      toggle(::intersectPinkSquare)
     }
 
     dropdown(::forceClosed)

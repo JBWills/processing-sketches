@@ -12,6 +12,7 @@ import controls.props.PropData
 import coordinate.Circ
 import coordinate.Deg
 import coordinate.Point
+import de.lighti.clipper.Clipper.ClipType.INTERSECTION
 import fastnoise.Noise
 import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
@@ -20,7 +21,7 @@ import sketches.MoireShape.Circle
 import sketches.MoireShape.Rectangle
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
-import util.polylines.clipping.intersection
+import util.polylines.clipping.clip
 
 enum class MoireShape {
   Rectangle,
@@ -28,7 +29,7 @@ enum class MoireShape {
 }
 
 /**
- * Create a Moire pattern interaction between two shapes
+ * Create a Moiré pattern interaction between two shapes
  */
 class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
   "MoireLines",
@@ -49,7 +50,6 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
       lineOffset,
       shapeSize,
       shapeCenter,
-      shapeRotation,
       noise
     ) = layerInfo.tabValues
 
@@ -68,12 +68,12 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
       Rectangle -> {
         val r = boundRect.scale(shapeSize, centerPoint)
 
-        baseLines.flatMap { it.warped(noise).intersection(r.toPolyLine()) }
+        baseLines.flatMap { it.warped(noise).clip(r.toPolyLine(), INTERSECTION) }
       }
       Circle -> {
         val cPath = Circ(centerPoint, (shapeSize * (boundRect.bottomRight - boundRect.topLeft)).x)
           .toPolyLine()
-        baseLines.flatMap { it.warped(noise).intersection(cPath) }
+        baseLines.flatMap { it.warped(noise).clip(cPath, INTERSECTION) }
       }
     }.draw(boundRect)
   }
@@ -87,7 +87,6 @@ data class MoireLinesLayerData(
   var lineOffset: Double = 0.0,
   var shapeSize: Point = Point.One,
   var shapeCenter: Point = Point.Half,
-  var shapeRotation: Deg = Deg(0),
   var noise: Noise = Noise(
     seed = 100,
     noiseType = Perlin,
@@ -106,7 +105,6 @@ data class MoireLinesLayerData(
     slider(::lineOffset, 0.0..1.0)
     sliderPair(::shapeSize, 0.0..2.0, withLockToggle = true, defaultLocked = true)
     sliderPair(::shapeCenter, -0.5..1.5)
-    slider(::shapeRotation, 0.0..90.0)
     noisePanel(::noise)
   }
 

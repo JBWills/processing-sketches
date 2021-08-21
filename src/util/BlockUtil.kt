@@ -10,11 +10,18 @@ inline fun <A, B> A.doIf(predicate: Boolean, ifTrue: (A) -> B, ifFalse: (A) -> B
 inline fun <A> Iterable<A>.mapIf(predicate: Boolean, block: (A) -> A): List<A> =
   if (predicate) map(block) else toList()
 
+inline fun <A, B> Iterable<A>.mapIf(
+  predicate: Boolean,
+  ifTrue: (A) -> B,
+  ifFalse: (A) -> B
+): List<B> =
+  if (predicate) map(ifTrue) else map(ifFalse)
+
 fun <A> Iterable<A>.maybeMap(block: ((A) -> A)?): List<A> =
-  if (block == null) this.toList() else map(block)
+  if (block == null) toList() else map(block)
 
 fun <A> Array<A>.maybeMap(block: ((A) -> A)?): List<A> =
-  if (block == null) this.toList() else map(block)
+  if (block == null) toList() else map(block)
 
 inline fun <A, B> A.doIf(predicate: Boolean, or: B, block: (A) -> B): B =
   if (predicate) block(this) else or

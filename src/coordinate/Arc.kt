@@ -1,10 +1,9 @@
 package coordinate
 
 import coordinate.RotationDirection.Clockwise
-import util.atAmountAlong
 import util.equalsZero
 import util.lessThanEqualToDelta
-import util.toRadians
+import util.step
 
 class Arc(
   val startDeg: Deg,
@@ -48,7 +47,7 @@ class Arc(
   val startPoint get() = pointAtAngle(startDeg)
   val endPoint get() = pointAtAngle(endDeg)
 
-  val arcLength: Double = (startDeg.rotation(endDeg, Clockwise) / 360.0) * circumference
+  val arcLength: Double get() = (startDeg.rotation(endDeg, Clockwise) / 360.0) * circumference
 
   val endDegUnbound: Double get() = startDeg.value + lengthClockwise
 
@@ -88,21 +87,17 @@ class Arc(
     }
   }
 
+  private fun pointAtLength(length: Double): Point {
+    if (circumference == 0.0) return origin
+    return pointAtAngle(Deg((length / circumference) * 360.0 + startDeg.value))
+  }
+
   override fun walk(step: Double): List<Point> = walk(step) { it }
 
-  override fun <T> walk(step: Double, block: (Point) -> T): List<T> {
-    if (lengthClockwise == 360.0) return super.walk(step, block)
-
-    val startRad = startDeg.rad
-    val endRad = endDegUnbound.toRadians()
-    val numSteps = (arcLength / step).toInt()
-
-    return (0..numSteps).map { i ->
-      val radians = (startRad..endRad).atAmountAlong(i / numSteps.toDouble())
-
-      block(pointAtRad(radians))
+  override fun <T> walk(step: Double, block: (Point) -> T): List<T> =
+    (0.0..lengthClockwise step step).map { degLengthAlong ->
+      block(pointAtAngle(startDeg + degLengthAlong))
     }
-  }
 
   fun contains(a: Arc): Boolean {
     if (lengthClockwise == 360.0) return true

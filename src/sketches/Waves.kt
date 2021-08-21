@@ -8,6 +8,8 @@ import controls.panels.panelext.slider
 import controls.props.PropData
 import coordinate.Point
 import coordinate.Segment
+import de.lighti.clipper.Clipper.ClipType
+import de.lighti.clipper.Clipper.ClipType.UNION
 import fastnoise.Noise
 import fastnoise.Noise.Companion.warped
 import fastnoise.NoiseQuality.High
@@ -15,8 +17,7 @@ import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.polylines.PolyLine
-import util.polylines.clipping.diff
-import util.polylines.clipping.union
+import util.polylines.clipping.clip
 
 class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { WaveTab() }) {
   init {
@@ -66,11 +67,11 @@ class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { 
         val waveShape = (warpedPath + size) + size.withX(0)
 
         nextUnionShape =
-          if (unionShape == null) listOf(waveShape) else unionShape?.union(waveShape)
+          if (unionShape == null) listOf(waveShape) else unionShape?.clip(waveShape, UNION)
       }
 
       val warpedPaths: List<PolyLine> =
-        unionShape?.let { warpedPath.diff(it) } ?: listOf(warpedPath)
+        unionShape?.let { warpedPath.clip(it, ClipType.DIFFERENCE) } ?: listOf(warpedPath)
 
       warpedPaths.draw(boundRect)
 

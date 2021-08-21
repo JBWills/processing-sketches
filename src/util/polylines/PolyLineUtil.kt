@@ -5,8 +5,11 @@ import coordinate.Point
 import coordinate.Point.Companion.maxXY
 import coordinate.Point.Companion.minXY
 import coordinate.Segment
+import de.lighti.clipper.Clipper.ClipType.INTERSECTION
 import util.iterators.mapWithNext
-import util.polylines.clipping.intersection
+import util.polylines.clipping.ForceClosedOption
+import util.polylines.clipping.ForceClosedOption.Default
+import util.polylines.clipping.clip
 
 val PolyLine.length: Double
   get() = mapWithNext { curr, next -> curr.dist(next) }.sum()
@@ -19,7 +22,10 @@ fun PolyLine.closed() = when {
 }
 
 @JvmName("boundLines")
-fun List<PolyLine>.bound(bound: BoundRect): List<PolyLine> = intersection(bound.toPolyLine())
+fun List<PolyLine>.bound(
+  bound: BoundRect,
+  forceClosedOption: ForceClosedOption = Default
+): List<PolyLine> = clip(bound.toPolyLine(), INTERSECTION, forceClosedOption)
 
 @JvmName("ShiftSegments")
 fun List<Segment>.translated(p: Point) = map { it + p }

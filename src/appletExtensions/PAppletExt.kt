@@ -17,6 +17,8 @@ import coordinate.Line
 import coordinate.Point
 import coordinate.Segment
 import coordinate.ShapeTransform
+import de.lighti.clipper.Clipper.ClipType
+import de.lighti.clipper.Clipper.ClipType.INTERSECTION
 import fastnoise.Noise
 import interfaces.shape.Maskable
 import org.opencv.core.Mat
@@ -32,8 +34,7 @@ import util.iterators.mapWithNext
 import util.lerp
 import util.numbers.boundMin
 import util.polylines.PolyLine
-import util.polylines.clipping.diff
-import util.polylines.clipping.intersection
+import util.polylines.clipping.clip
 import util.polylines.forEachSegment
 import util.polylines.toPolyLine
 import java.awt.Color
@@ -99,8 +100,9 @@ open class PAppletExt : PApplet() {
     boundInside: Boolean,
   ): List<PolyLine> {
     val rectLine = bound.toPolyLine()
-    return if (boundInside) unboundLines.intersection(rectLine)
-    else unboundLines.diff(rectLine)
+    val clipOperation = if (boundInside) INTERSECTION else ClipType.DIFFERENCE
+
+    return unboundLines.clip(rectLine, clipOperation)
   }
 
   fun PolyLine.draw(bound: BoundRect? = null, boundInside: Boolean = true) =
@@ -151,7 +153,11 @@ open class PAppletExt : PApplet() {
   fun BoundRect.draw() = rect(this)
   fun Arc.draw() = arc(this)
   fun Maskable.draw() = draw(this@PAppletExt)
-  fun Point.draw(radius: Number = 2) = drawPoint(this, radius)
+  fun Point.draw(radius: Number = 2, color: Color? = null) = drawPoint(this, radius, color)
+  fun Point.draw(radii: List<Number>, color: Color? = null) = radii.forEach {
+    draw(it, color)
+  }
+
   fun Iterable<Point>.drawPoints(radius: Number = 2) = drawPoints(this, radius)
 
   fun PImage.draw(topLeft: Point) = image(this, topLeft.xf, topLeft.yf)

@@ -10,14 +10,16 @@ import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
+import de.lighti.clipper.Clipper.ClipType
+import de.lighti.clipper.Clipper.ClipType.UNION
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
 import util.polylines.PolyLine
-import util.polylines.clipping.diff
-import util.polylines.clipping.union
+import util.polylines.clipping.ForceClosedOption.NoClose
+import util.polylines.clipping.clip
 import util.polylines.closed
 import util.times
 
@@ -97,10 +99,10 @@ class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
 
       val nonNullUnionShape = unionShape ?: return@times
 
-      val sDiffed = s.diff(nonNullUnionShape, false)
+      val sDiffed = s.clip(nonNullUnionShape, ClipType.DIFFERENCE, NoClose)
 
       if (amountAlongInnerCircle == 0.0) {
-        unionShape = nonNullUnionShape.union(s)
+        unionShape = nonNullUnionShape.clip(s, UNION)
       }
 
       sDiffed.toList().draw(if (clipToBounds) boundRect else null)

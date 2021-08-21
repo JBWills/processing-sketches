@@ -28,6 +28,8 @@ fun lockValueTo360(v: Double) = (360 + (v % 360)) % 360
 @Serializable
 data class Deg(private val inputValue: Double) {
 
+  val unboundValue get() = inputValue
+
   val value = lockValueTo360(inputValue)
 
   @Suppress("unused")
@@ -55,6 +57,7 @@ data class Deg(private val inputValue: Double) {
   }
 
   fun rotation(to: Deg, dir: RotationDirection = EitherDirection): Double {
+    if (equals(to)) return 0.0
     val start = if (dir == Clockwise) value else to.value
     val end = if (dir == Clockwise) to.value else value
 

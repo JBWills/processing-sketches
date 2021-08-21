@@ -191,6 +191,6 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
     const val DEFAULT_PRESET_NAME = "default"
     const val CANVAS_TAB_NAME = "canvas"
     const val PRESETS_TAB_NAME = "presets"
-    const val MAX_LAYERS = 3
+    const val MAX_LAYERS = 1
   }
 }

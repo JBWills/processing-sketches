@@ -2,62 +2,34 @@ package util.polylines.clipping
 
 import de.lighti.clipper.Clipper
 import de.lighti.clipper.Clipper.ClipType
-import de.lighti.clipper.Clipper.ClipType.DIFFERENCE
-import de.lighti.clipper.Clipper.ClipType.INTERSECTION
-import de.lighti.clipper.Clipper.ClipType.UNION
-import de.lighti.clipper.Clipper.ClipType.XOR
 import de.lighti.clipper.Clipper.PolyType.CLIP
 import de.lighti.clipper.Clipper.PolyType.SUBJECT
 import de.lighti.clipper.DefaultClipper
 import de.lighti.clipper.PolyTree
-import util.polylines.PolyLine
-import util.polylines.isClosed
 
-fun DefaultClipper.addPath(
-  line: PolyLine,
+private fun DefaultClipper.addPaths(
+  lines: ClipperPaths,
   polyType: Clipper.PolyType,
-  forceClosed: Boolean? = null
-) = addPath(line.toClipperPath(), polyType, forceClosed ?: line.isClosed())
+) = lines.paths.map { line -> addPath(line, polyType, lines.isClosed(line)) }
 
-fun DefaultClipper.addPaths(
-  lines: List<PolyLine>,
-  polyType: Clipper.PolyType,
-  forceClosed: Boolean? = null
-) = lines.map { line -> addPath(line, polyType, forceClosed) }
+private fun DefaultClipper.addClips(lines: ClipperPaths) =
+  addPaths(lines.paths, CLIP, true)
 
-fun DefaultClipper.addClips(lines: List<PolyLine>) = addPaths(lines, CLIP, true)
+private fun DefaultClipper.addSubjects(lines: ClipperPaths) = addPaths(lines, SUBJECT)
 
-fun DefaultClipper.addSubjects(lines: List<PolyLine>, forceClosed: Boolean? = null) =
-  addPaths(lines, SUBJECT, forceClosed)
-
-private fun List<PolyLine>.getClipper(
-  clip: List<PolyLine>,
-  forceClosed: Boolean? = null
+private fun ClipperPaths.getClipper(
+  clip: ClipperPaths,
 ): DefaultClipper = DefaultClipper().apply {
-  addSubjects(this@getClipper, forceClosed)
+  addSubjects(this@getClipper)
   addClips(clip)
 }
 
-private fun List<PolyLine>.operationAsTree(
+private fun ClipperPaths.operationAsTree(
   operationType: ClipType,
-  other: List<PolyLine>,
-  forceClosed: Boolean? = null
-) = PolyTree().also { getClipper(other, forceClosed).execute(operationType, it) }
+  other: ClipperPaths,
+) = PolyTree().also { getClipper(other).execute(operationType, it) }
 
-private fun List<PolyLine>.operation(
+fun ClipperPaths.clip(
   operationType: ClipType,
-  other: List<PolyLine>,
-  forceClosed: Boolean? = null
-) = operationAsTree(operationType, other, forceClosed).toPolyLines()
-
-fun List<PolyLine>.intersection(other: List<PolyLine>, forceClosed: Boolean? = null) =
-  operation(INTERSECTION, other, forceClosed)
-
-fun List<PolyLine>.diff(other: List<PolyLine>, forceClosed: Boolean? = null) =
-  operation(DIFFERENCE, other, forceClosed)
-
-fun List<PolyLine>.union(other: List<PolyLine>, forceClosed: Boolean? = null) =
-  operation(UNION, other, forceClosed)
-
-fun List<PolyLine>.xor(other: List<PolyLine>, forceClosed: Boolean? = null) =
-  operation(XOR, other, forceClosed)
+  other: ClipperPaths,
+) = operationAsTree(operationType, other).toPolyLines()

@@ -22,8 +22,14 @@ fun PolyLine.toLongPointList(): List<LongPoint> = map(Point::toLongPoint)
 
 fun PolyLine.toClipperPath(): Path = Path(size).also { path -> path.addAll(toLongPointList()) }
 
+@JvmName("lineToClipperPaths")
+fun PolyLine.toClipperPaths(): Paths = listOf(this).toClipperPaths()
+
+@JvmName("lineListToClipperPaths")
 fun List<PolyLine>.toClipperPaths(): Paths =
   Paths(size).also { paths -> paths.addAll(map { it.toClipperPath() }) }
+
+fun Path.toClipperPaths(): Paths = Paths(1).also { it.add(this) }
 
 fun DoublePoint.toPoint(): Point = Point(x, y)
 fun LongPoint.toPoint(): Point = Point(x, y)
@@ -39,4 +45,5 @@ fun PolyNode.toPolyLine(forceClose: Boolean? = null): PolyLine =
   polygon.toPolyLine(closed = forceClose ?: !isOpen)
 
 fun PolyTree.toPolyLines(forceClose: Boolean? = null): List<PolyLine> =
-  allPolys.mapNotNull { it.toPolyLine(forceClose).ifEmpty { null } }
+  Paths.openPathsFromPolyTree(this).toPolyLines(closed = forceClose ?: false) +
+    Paths.closedPathsFromPolyTree(this).toPolyLines(closed = forceClose ?: true)
