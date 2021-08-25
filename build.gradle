@@ -13,9 +13,7 @@ repositories {
     mavenCentral()
     maven { url 'https://jcenter.bintray.com/' }
     maven { url 'https://jitpack.io' }
-    flatDir {
-        dirs 'third-party', 'third-party-java/svg-lib'
-    }
+    flatDir { dirs 'third-party' }
 }
 def arrow_version = "0.13.1"
 dependencies {
@@ -51,15 +49,6 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-java
     compileOnly group: 'org.apache.flink', name: 'flink-streaming-java_2.12', version: '1.13.1'
-    implementation files(
-            'third-party-java/svg-lib/svg.jar',
-            'third-party-java/svg-lib/batik-xml-1.8.jar',
-            'third-party-java/svg-lib/batik-util-1.8.jar',
-            'third-party-java/svg-lib/batik-svggen-1.8.jar',
-            'third-party-java/svg-lib/batik-ext-1.8.jar',
-            'third-party-java/svg-lib/batik-dom-1.8.jar',
-            'third-party-java/svg-lib/batik-awt-util-1.8.jar'
-    )
     testImplementation(
             'org.assertj:assertj-core:3.12.2',
             'org.junit.jupiter:junit-jupiter-api:5.4.2'
