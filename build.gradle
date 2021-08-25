@@ -45,6 +45,9 @@ dependencies {
     implementation group: 'org.geotools', name: 'gt-geojson', version: '25.1'
     // https://mvnrepository.com/artifact/org.geotools/gt-geotiff
     implementation group: 'org.geotools', name: 'gt-geotiff', version: '25.1'
+    // https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-svggen
+    implementation group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.14'
+
 
     // https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-java
     compileOnly group: 'org.apache.flink', name: 'flink-streaming-java_2.12', version: '1.13.1'

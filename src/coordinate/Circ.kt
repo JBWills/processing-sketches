@@ -16,6 +16,7 @@ import util.lessThanEqualToDelta
 import util.map
 import util.notEqualsZero
 import util.polylines.PolyLine
+import util.polylines.rotate
 import util.squared
 import kotlin.math.PI
 import kotlin.math.cos
@@ -83,6 +84,8 @@ open class Circ(val origin: Point, val radius: Double) :
     Circ(origin.scaled(scale, anchor), radius * scale.x)
 
   override fun translated(translate: Point): Circ = Circ(origin.translated(translate), radius)
+
+  override fun rotated(deg: Deg, anchor: Point): PolyLine = walk(10.0).rotate(deg, anchor)
 
   fun toPolyLine(step: Double = 2.0) = walk(step)
 

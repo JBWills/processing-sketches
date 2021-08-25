@@ -168,6 +168,9 @@ internal class RectTest {
     assertEquals(BoundRect(Point.Zero, Point(11, 20)), b1.expandToInclude(Point(11, 20)))
     assertEquals(BoundRect(Point.Zero, Point(11, 21)), b1.expandToInclude(Point(11, 21)))
     assertEquals(BoundRect(Point.Zero, Point(10, 21)), b1.expandToInclude(Point(9, 21)))
-    assertEquals(BoundRect(Point(0, -21), Point(10, 20)), b1.expandToInclude(Point(9, -21)))
+    assertEquals(
+      BoundRect(Point(0, -21), Point(10, 20)), b1.expandToInclude(
+      Point(9, -21)
+      ))
   }
 }

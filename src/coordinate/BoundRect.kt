@@ -2,6 +2,7 @@ package coordinate
 
 import appletExtensions.PAppletExt
 import appletExtensions.draw.rect
+import coordinate.transforms.ShapeTransform
 import de.lighti.clipper.Clipper.ClipType
 import interfaces.shape.Maskable
 import interfaces.shape.Transformable
@@ -13,6 +14,7 @@ import util.iterators.mapWithNextCyclical
 import util.min
 import util.polylines.PolyLine
 import util.polylines.clipping.clip
+import util.polylines.rotate
 import util.polylines.transform
 import util.step
 import kotlin.math.abs
@@ -170,6 +172,8 @@ data class BoundRect(
     val newHeight = ratio * height
     return BoundRect(topLeft, newWidth, newHeight)
   }
+
+  override fun rotated(deg: Deg, anchor: Point): PolyLine = points.rotate(deg, anchor)
 
   override fun translated(translate: Point) = plus(translate)
 

@@ -12,6 +12,7 @@ import util.DoubleRange
 import util.equalsDelta
 import util.equalsZero
 import util.numbers.bound
+import util.polylines.rotate
 import util.roundedString
 import util.squared
 import util.step
@@ -152,6 +153,8 @@ data class Point(val x: Double, val y: Double) :
   }
 
   override fun translated(translate: Point) = plus(translate)
+  
+  override fun rotated(deg: Deg, anchor: Point) = listOf(this).rotate(deg, anchor)
 
   override fun toString(): String {
     return "Point(x=${x.roundedString(5)}, y=${y.roundedString(5)})"

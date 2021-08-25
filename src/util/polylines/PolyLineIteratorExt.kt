@@ -2,7 +2,7 @@ package util.polylines
 
 import coordinate.Point
 import coordinate.Segment
-import coordinate.ShapeTransform
+import coordinate.transforms.ShapeTransform
 import interfaces.shape.transform
 import util.iterators.deepDeepMap
 import util.iterators.deepMap

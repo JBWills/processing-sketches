@@ -14,13 +14,14 @@ import coordinate.Point
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import util.print.DPI
+import util.print.DPI.InkScape
 import util.print.Orientation.Landscape
 import util.print.Paper
 import java.awt.Color
 
 open class DebugMeasureSketch(
   backgroundColor: Color = Color.WHITE,
-  size: Point = Point(DPI.InkScape.toPixels(20), DPI.InkScape.toPixels(20)),
+  size: Point = Point(InkScape.toPixels(20), InkScape.toPixels(20)),
 ) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "DebugMeasureSketch",

@@ -28,7 +28,8 @@ class ControlFrame(
   }
 
   private val tabHeight: Int = 16
-  private val tabBound: BoundRect get() = BoundRect(w, h).minusPadding(PaddingRect(top = tabHeight))
+  private val tabBound: BoundRect
+    get() = BoundRect(w, h).minusPadding(PaddingRect(top = tabHeight))
 
   fun getActiveTabAndIndex(): Pair<ControlTab, Int>? {
     val currentTabName = cp5.controlWindow.currentTab.name

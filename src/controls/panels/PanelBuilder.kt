@@ -51,7 +51,10 @@ open class PanelBuilder(val panels: MutableList<Panelable>) {
   private fun Panelable.applyAndAdd(style: ControlStyle? = null) =
     applyStyleOverrides(style).also { panels.add(it) }
 
-  fun addNewPanel(style: ControlStyle? = null, panelCreator: PanelBuilder.() -> Panelable) =
+  fun addNewPanel(
+    style: ControlStyle? = null,
+    panelCreator: PanelBuilder.() -> Panelable
+  ): Panelable =
     panelCreator().applyAndAdd(style)
 
   fun build(): ControlList = ControlList(

@@ -7,6 +7,7 @@ import util.greaterThanEqualToDelta
 import util.maybeMap
 import util.notEqualsZero
 import util.polylines.PolyLine
+import util.polylines.rotate
 import util.toDegrees
 import java.awt.geom.Line2D
 import kotlin.math.abs
@@ -115,6 +116,8 @@ class Segment(
 
   override fun translated(translate: Point): Segment =
     Segment(p1.translated(translate), p2.translated(translate))
+
+  override fun rotated(deg: Deg, anchor: Point): PolyLine = points.toList().rotate(deg, anchor)
 
   override fun walk(step: Double) = (p1..p2 step step).toList()
 

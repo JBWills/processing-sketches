@@ -3,7 +3,7 @@ package util.image.opencvMat
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Point
-import coordinate.ShapeTransform
+import coordinate.transforms.ShapeTransform
 import interfaces.shape.revertTransform
 import interfaces.shape.transform
 import org.opencv.core.Mat

@@ -1,23 +1,32 @@
-package coordinate
+package coordinate.transforms
 
+import coordinate.Point
+import coordinate.div
 import interfaces.shape.Transformable
 import util.iterators.copy
 
 sealed class ShapeTransform {
   abstract fun <T : Transformable<T>> transform(t: T): T
   abstract fun inverted(): ShapeTransform
+
+  fun addTransform(t: ShapeTransform) = ShapeTransformGroup(this, t)
+  fun addTransforms(vararg t: ShapeTransform) = ShapeTransformGroup(this, *t)
+  fun addTransforms(t: List<ShapeTransform>) = ShapeTransformGroup(this, *t.toTypedArray())
 }
 
 class ShapeTransformGroup() : ShapeTransform() {
-  constructor(vararg transforms: ShapeTransform) : this() {
-    add(*transforms)
-  }
+  constructor(vararg transforms: ShapeTransform) : this(transforms.toList())
 
   constructor(transforms: List<ShapeTransform>) : this() {
-    addAll(transforms)
+    val flattenedTransforms = transforms.flatMap {
+      if (it is ShapeTransformGroup) it.transforms else listOf(it)
+    }
+    addAll(flattenedTransforms)
   }
 
   private val transforms: MutableList<ShapeTransform> = mutableListOf()
+
+  fun getAsArray() = transforms.toTypedArray()
 
   override fun <T : Transformable<T>> transform(t: T): T =
     transforms.fold(t) { transformable, transform -> transform.transform(transformable) }
@@ -48,3 +57,4 @@ class ScaleTransform(val scale: Point, val anchor: Point) : ShapeTransform() {
 
   override fun inverted(): ShapeTransform = ScaleTransform(1 / scale, anchor)
 }
+

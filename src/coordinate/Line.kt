@@ -3,6 +3,8 @@ package coordinate
 import interfaces.shape.Transformable
 import kotlinx.serialization.Serializable
 import util.equalsZero
+import util.polylines.PolyLine
+import util.polylines.rotate
 import java.awt.geom.Line2D
 
 @Serializable
@@ -67,6 +69,9 @@ open class Line(
   override fun scaled(scale: Point, anchor: Point): Line = Line(origin.scaled(scale, anchor), slope)
 
   override fun translated(translate: Point): Line = Line(origin.translated(translate), slope)
+
+  override fun rotated(deg: Deg, anchor: Point): PolyLine = listOf(origin, getPointAtDist(10.0))
+    .rotate(deg, anchor)
 
   override fun toString(): String {
     return "Line(crossesThrough=$origin, slope=$slope)"

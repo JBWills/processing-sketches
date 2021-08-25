@@ -12,16 +12,27 @@ import kotlin.reflect.KMutableProperty0
 fun PanelBuilder.dropdown(
   name: String,
   options: List<String>,
-  ref: KMutableProperty0<String>,
+  initialValue: String,
   style: ControlStyle? = null,
   shouldMarkDirty: Boolean = true,
   onChange: BaseSketch.(String) -> Unit = {},
 ) = addNewPanel(style) {
-  Dropdown(text = name, options = options, defaultValue = ref.get()) {
-    ref.set(it)
+  Dropdown(text = name, options = options, defaultValue = initialValue) {
     onChange(it)
     markDirtyIf(shouldMarkDirty)
   }
+}
+
+fun PanelBuilder.dropdown(
+  name: String,
+  options: List<String>,
+  ref: KMutableProperty0<String>,
+  style: ControlStyle? = null,
+  shouldMarkDirty: Boolean = true,
+  onChange: BaseSketch.(String) -> Unit = {},
+) = dropdown(name, options, ref.get(), style, shouldMarkDirty) {
+  ref.set(it)
+  onChange(it)
 }
 
 fun <E : Enum<E>> PanelBuilder.dropdown(

@@ -1,8 +1,8 @@
 package interfaces.shape
 
-import coordinate.ShapeTransform
+import coordinate.transforms.ShapeTransform
 
-interface Transformable<out T> : Scalable<T>, Translateable<T>
+interface Transformable<out T> : Scalable<T>, Translateable<T>, Rotatable<T>
 
 fun <T : Transformable<T>> T.transform(s: ShapeTransform): T = s.transform(this)
 fun <T : Transformable<T>> List<T>.transform(s: ShapeTransform): List<T> = map { s.transform(it) }

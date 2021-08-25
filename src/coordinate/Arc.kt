@@ -3,6 +3,8 @@ package coordinate
 import coordinate.RotationDirection.Clockwise
 import util.equalsZero
 import util.lessThanEqualToDelta
+import util.polylines.PolyLine
+import util.polylines.rotate
 import util.step
 
 class Arc(
@@ -184,6 +186,8 @@ class Arc(
 
   override fun translated(translate: Point): Arc =
     Arc(startDeg, lengthClockwise, super.translated(translate))
+
+  override fun rotated(deg: Deg, anchor: Point): PolyLine = walk(10.0).rotate(deg, anchor)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

@@ -12,7 +12,7 @@ import sketches.base.LayeredCanvasSketch
  *
  * Copy and paste this to create a new sketch.
  */
-class Example : LayeredCanvasSketch<ExampleData, ExampleLayerData>(
+class ExampleSketch : LayeredCanvasSketch<ExampleData, ExampleLayerData>(
   "Example",
   defaultGlobal = ExampleData(),
   layerToDefaultTab = { ExampleLayerData() },
@@ -50,4 +50,4 @@ data class ExampleData(
   override fun toSerializer() = serializer()
 }
 
-fun main() = Example().run()
+fun main() = ExampleSketch().run()

@@ -11,6 +11,10 @@ import util.polylines.clipping.ForceClosedOption
 import util.polylines.clipping.ForceClosedOption.Default
 import util.polylines.clipping.clip
 
+typealias MinMaxPoints = Pair<Point, Point>
+
+val DefaultMinMax: MinMaxPoints = Point.MAX_VALUE to Point.MIN_VALUE
+
 val PolyLine.length: Double
   get() = mapWithNext { curr, next -> curr.dist(next) }.sum()
 
@@ -19,6 +23,10 @@ fun PolyLine.bound(bound: BoundRect): List<PolyLine> = listOf(this).bound(bound)
 fun PolyLine.closed() = when {
   isEmpty() || isClosed() -> this
   else -> this + first()
+}
+
+fun MutablePolyLine.closedInPlace(): MutablePolyLine = apply {
+  if (!isEmpty() && !isClosed()) this.add(first())
 }
 
 @JvmName("boundLines")
@@ -57,10 +65,21 @@ fun PolyLine.connectWith(other: PolyLine): PolyLine = when {
   else -> other + this
 }
 
-val Iterable<Point>.bounds: BoundRect
-  get() = minMax.let { (topLeft, bottomRight) -> BoundRect(topLeft, bottomRight) }
+private fun MinMaxPoints.toBounds() =
+  if (equals(DefaultMinMax)) BoundRect(Point.Zero, Point.Zero)
+  else BoundRect(first, second)
 
-val Iterable<Point>.minMax: Pair<Point, Point>
-  get() = fold(initial = Point.MAX_VALUE to Point.MIN_VALUE) { (min, max), value ->
+val Iterable<Point>.bounds: BoundRect get() = minMax.toBounds()
+
+val Iterable<PolyLine>.boundsAll: BoundRect get() = minMaxAll.toBounds()
+
+val Iterable<Point>.minMax: MinMaxPoints
+  get() = fold(initial = DefaultMinMax) { (min, max), value ->
     minXY(min, value) to maxXY(max, value)
+  }
+
+val Iterable<Iterable<Point>>.minMaxAll: MinMaxPoints
+  get() = fold(initial = DefaultMinMax) { (min, max), line ->
+    val (lineMin, lineMax) = line.minMax
+    minXY(min, lineMin) to maxXY(max, lineMax)
   }

@@ -16,7 +16,7 @@ import coordinate.Circ
 import coordinate.Line
 import coordinate.Point
 import coordinate.Segment
-import coordinate.ShapeTransform
+import coordinate.transforms.ShapeTransform
 import de.lighti.clipper.Clipper.ClipType
 import de.lighti.clipper.Clipper.ClipType.INTERSECTION
 import fastnoise.Noise
