@@ -10,10 +10,10 @@ fun PanelBuilder.audioSelect(
   ref: KMutableProperty0<Audio>,
   style: ControlStyle? = null,
   shouldMarkDirty: Boolean = true,
-) = col {
+) = col(style = style) {
   fileSelect(ref.get()::filename, shouldMarkDirty = shouldMarkDirty)
   row {
     slider(ref.get()::startPercent, shouldMarkDirty = shouldMarkDirty)
     slider(ref.get()::endPercent, shouldMarkDirty = shouldMarkDirty)
   }
-}.applyStyleOverrides(style)
+}

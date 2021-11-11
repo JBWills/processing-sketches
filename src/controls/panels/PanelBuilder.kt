@@ -68,14 +68,17 @@ open class PanelBuilder(val panels: MutableList<Panelable>) {
 
   fun createAndAdd(
     name: String? = null,
+    style: ControlStyle? = null,
     direction: ListDirection,
     block: PanelBuilder.() -> Unit
   ): Panelable =
-    PanelBuilder(name, direction, block = block).build().applyAndAdd()
+    PanelBuilder(name, direction, style = style, block = block).build().applyAndAdd()
 
-  fun row(name: String? = null, block: PanelBuilder.() -> Unit) = createAndAdd(name, Row, block)
+  fun row(name: String? = null, style: ControlStyle? = null, block: PanelBuilder.() -> Unit) =
+    createAndAdd(name, style, Row, block)
 
-  fun col(name: String? = null, block: PanelBuilder.() -> Unit) = createAndAdd(name, Col, block)
+  fun col(name: String? = null, style: ControlStyle? = null, block: PanelBuilder.() -> Unit) =
+    createAndAdd(name, style, Col, block)
 
   fun <T : PropData<T>> panel(
     ref: KMutableProperty0<T>,
