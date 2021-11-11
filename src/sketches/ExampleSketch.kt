@@ -18,10 +18,11 @@ class ExampleSketch : LayeredCanvasSketch<ExampleData, ExampleLayerData>(
   layerToDefaultTab = { ExampleLayerData() },
 ) {
   override fun drawSetup(layerInfo: DrawInfo) {}
+  override fun drawOnce(layerInfo: LayerInfo) {}
 
-  override fun drawOnce(layerInfo: LayerInfo) {
+  override suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {
     val (exampleGlobalField) = layerInfo.globalValues
-    val (exampleTabField) = layerInfo.tabValues
+    val (exampleTabField) = layerInfo.allTabValues
   }
 }
 

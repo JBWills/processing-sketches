@@ -13,7 +13,6 @@ repositories {
     mavenCentral()
     maven { url 'https://jcenter.bintray.com/' }
     maven { url 'https://jitpack.io' }
-    flatDir { dirs 'third-party' }
 }
 def arrow_version = "0.13.1"
 dependencies {
@@ -22,10 +21,7 @@ dependencies {
     implementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     implementation 'org.junit.jupiter:junit-jupiter-engine'
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0"
-    // https://mvnrepository.com/artifact/org.processing/core
-    //implementation group: 'org.processing', name: 'core', version: '3.3.7'
     implementation group: 'com.github.micycle1', name: 'processing-core-4', version: '4.0.3'
-    implementation group: 'controlp5', name: 'controlp5', version: '2.2.4'
     implementation group: 'ca.pjer', name: 'ekmeans', version: '2.0.0'
     implementation group: 'org.openpnp', name: 'opencv', version: '3.4.2-0'
     implementation "io.arrow-kt:arrow-core:$arrow_version"
@@ -45,7 +41,8 @@ dependencies {
     implementation group: 'org.geotools', name: 'gt-geotiff', version: '25.1'
     // https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-svggen
     implementation group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.14'
-
+    // https://mvnrepository.com/artifact/com.github.axet/TarsosDSP
+    implementation 'com.github.axet:TarsosDSP:2.4-1'
 
     // https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-java
     compileOnly group: 'org.apache.flink', name: 'flink-streaming-java_2.12', version: '1.13.1'
@@ -55,6 +52,10 @@ dependencies {
     )
     testRuntime('org.junit.jupiter:junit-jupiter-engine:5.4.2')
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.31"
+
+    /// LOCAL JARS BELOW
+    // This is where we load controlP5 and processing.svg, neither of which have maven dists.
+    implementation fileTree(dir: 'third-party', include: '/**/*.jar')
 }
 
 sourceSets {

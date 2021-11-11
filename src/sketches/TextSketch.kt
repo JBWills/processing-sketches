@@ -16,6 +16,7 @@ import de.lighti.clipper.Clipper.EndType.CLOSED_POLYGON
 import de.lighti.clipper.Clipper.JoinType
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
+import util.atAmountAlong
 import util.fonts.FontData
 import util.iterators.skipFirst
 import util.javageom.DefaultFlatness
@@ -40,27 +41,33 @@ class TextSketch : LayeredCanvasSketch<TextData, TextLayerData>(
   override fun drawOnce(layerInfo: LayerInfo) {}
 
   override suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {
-    val (lineWidth, centerPoint, rotation, flatness, font, text, interiorOffsets, exteriorOffsets, lockOffsetsDistance) = layerInfo.globalValues
+    val (lineWidth, lineHeight, centerPoint, rotation, flatness, font, text, interiorOffsets, exteriorOffsets, lockOffsetsDistance) = layerInfo.globalValues
 
     fun List<PolyLine>.offset(amounts: Iterable<Double>) =
       offsetBy(amounts, JoinType.ROUND, CLOSED_POLYGON)
         .values.flatten()
 
-    fun getLineTransform(s: Shape): AffineTransform {
+    fun getLineTransform(s: Shape, heightOffset: Double): AffineTransform {
       val bounds = s.boundRect()
 
       return buildTransform {
         translate(-bounds.center)
         rotate(rotation)
         scale(lineWidth.toDouble() / bounds.width)
-        translate(boundRect.pointAt(centerPoint))
+        translate(boundRect.pointAt(centerPoint).addY(heightOffset))
       }
     }
 
     val textOutLine = text.toPolyLine(
       font.toFont(), flatness,
       getTransforms = { shapesAndLayouts ->
-        shapesAndLayouts.map { (_, shape) -> getLineTransform(shape) }
+        val totalHeight = (shapesAndLayouts.size - 1) * lineHeight
+        val offsetRange = (-totalHeight / 2)..(totalHeight / 2)
+        shapesAndLayouts.mapIndexed { index, (_, shape) ->
+          val offsetPercent = index.toDouble() / (shapesAndLayouts.size - 1)
+          val offset = offsetRange.atAmountAlong(offsetPercent)
+          getLineTransform(shape, offset)
+        }
       },
     ).flatten().also { it.draw() }
 
@@ -112,6 +119,7 @@ data class OffsetData(
 @Serializable
 data class TextData(
   var lineWidth: Int = 25,
+  var lineHeight: Int = 50,
   var centerPoint: Point = Point.Half,
   var rotation: Deg = Deg.HORIZONTAL,
   var flatness: Double = DefaultFlatness,
@@ -124,7 +132,10 @@ data class TextData(
   override fun bind() = tabs {
     tab("Global") {
       fontSelect(::font)
-      slider(::lineWidth, 5..2000)
+      row {
+        slider(::lineWidth, 5..2000)
+        slider(::lineHeight, 5..2000)
+      }
       slider(::rotation)
       slider2D(::centerPoint, Point.Zero..Point.One)
       slider(::flatness, 0.1..10.0)

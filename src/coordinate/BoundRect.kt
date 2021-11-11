@@ -264,6 +264,17 @@ data class BoundRect(
       }
     }
 
+  fun forEachSampledIndexed(
+    stepX: Number,
+    stepY: Number,
+    block: (indexes: Pair<Int, Int>, point: Point) -> Unit
+  ) =
+    (left..right step stepX.toDouble()).forEachIndexed { indexX, x ->
+      (top..bottom step stepY.toDouble()).forEachIndexed { indexY, y ->
+        block(indexX to indexY, Point(x, y))
+      }
+    }
+
   fun getBoundSegment(line: Segment): Segment? {
     if (contains(line.p1) && roughDistFromSides(line.p1) > line.length + 5) return Segment(line)
 

@@ -1,7 +1,6 @@
 package util.javageom
 
 import arrow.core.memoize
-import util.debugLog
 import util.iterators.skipLast
 import util.javageom.pathiterator.PathSegmentType.Close
 import util.javageom.pathiterator.PathSegmentType.CubicTo
@@ -33,7 +32,6 @@ private fun Shape.toPolyLines(
   transform: AffineTransform? = null,
   flatness: Double = DefaultFlatness
 ): List<PolyLine> {
-  debugLog("Transform: $transform")
   val lines: MutableList<MutablePolyLine> = mutableListOf()
   getPathIterator(transform, flatness)
     .forEach { (type, points) ->
@@ -58,7 +56,6 @@ private fun List<Shape>.toPolyLines(
 private fun String.getLayoutAndOutlines(font: Font): List<Pair<TextLayout, Shape>> =
   split("\\n")
     .map { line ->
-      debugLog(line)
       val t = TextLayout(line, font, DefaultFontRenderContext)
 
       t to t.getOutline(null)
