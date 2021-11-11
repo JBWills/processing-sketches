@@ -1,6 +1,5 @@
 package sketches
 
-import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.audioSelect
 import controls.panels.panelext.slider
@@ -11,7 +10,7 @@ import coordinate.BoundRect.Companion.centeredRect
 import coordinate.Point
 import data.Audio
 import kotlinx.serialization.Serializable
-import sketches.base.LayeredCanvasSketch
+import sketches.base.SimpleCanvasSketch
 import util.audio.DefaultSampleSize
 import util.map
 
@@ -20,19 +19,15 @@ import util.map
  *
  * Copy and paste this to create a new sketch.
  */
-class AudioLines : LayeredCanvasSketch<AudioLinesData, AudioLinesLayerData>(
+class AudioLines : SimpleCanvasSketch<AudioLinesData>(
   "AudioLines",
-  defaultGlobal = AudioLinesData(),
-  layerToDefaultTab = { AudioLinesLayerData() },
+  defaultData = AudioLinesData(),
 ) {
-  override fun drawSetup(layerInfo: DrawInfo) {}
-  override fun drawOnce(layerInfo: LayerInfo) {}
-
-  override suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {
-    val (audio, sampleSize, linesToShow, drawSize, drawCenter) = layerInfo.globalValues
+  override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
+    val (audio, sampleSize, linesToShow, drawSize, drawCenter) = drawInfo.dataValues
 
     val features = audio.getFeatures(sampleSize) ?: return
-    
+
     val pressureSamples = features.pressures.size
     val samplesPerLine = pressureSamples / linesToShow
     val linesBound = centeredRect(boundRect.pointAt(drawCenter), boundRect.size * drawSize)
@@ -48,18 +43,6 @@ class AudioLines : LayeredCanvasSketch<AudioLinesData, AudioLinesLayerData>(
       }
     }.draw(boundRect)
   }
-}
-
-@Serializable
-data class AudioLinesLayerData(
-  var audioLinesTabField: Int = 1,
-) : PropData<AudioLinesLayerData> {
-  override fun bind() = layerTab {
-    slider(::audioLinesTabField, 0..10)
-  }
-
-  override fun clone() = copy()
-  override fun toSerializer() = serializer()
 }
 
 @Serializable

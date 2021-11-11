@@ -42,9 +42,9 @@ abstract class CanvasSketch(
     withStyle(style) {
       if (layer == getLayers().size - 1) {
         if (canvasProps.drawBoundRect) rect(boundRect)
-      } else {
-        drawOnce(layer)
       }
+
+      drawOnce(layer)
     }
   }
 }

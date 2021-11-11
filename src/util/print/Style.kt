@@ -7,9 +7,9 @@ import util.print.Alignment.Baseline
 import util.print.Alignment.Center
 import java.awt.Color
 
-typealias MM = Number
-typealias Px = Number
-typealias Inches = Number
+typealias MM = Double
+typealias Px = Double
+typealias Inches = Double
 
 enum class Alignment(val alignInt: Int) {
   Center(PConstants.CENTER),

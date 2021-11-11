@@ -5,6 +5,7 @@ import controls.panels.ControlStyle
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.dropdown
+import controls.panels.panelext.listDropdown
 import controls.panels.panelext.sliderPair
 import controls.panels.panelext.toggle
 import controls.props.PropData
@@ -13,6 +14,8 @@ import coordinate.Point
 import kotlinx.serialization.Serializable
 import util.print.Orientation
 import util.print.Paper
+import util.print.StrokeWeight
+import util.print.Thick
 import util.with
 
 
@@ -23,6 +26,7 @@ data class CanvasProp(
   var boundBoxScale: Point = Point(0.8, 0.8),
   var drawBoundRect: Boolean = true,
   var orientation: Orientation = Orientation.Landscape,
+  var strokeWeight: StrokeWeight = Thick()
 ) : PropData<CanvasProp> {
   constructor(
     c: CanvasProp,
@@ -31,12 +35,14 @@ data class CanvasProp(
     boundBoxScale: Point? = null,
     drawBoundRect: Boolean? = null,
     orientation: Orientation? = null,
+    strokeWeight: StrokeWeight? = null,
   ) : this(
     paper ?: c.paper,
     boundBoxCenter ?: c.boundBoxCenter,
     boundBoxScale ?: c.boundBoxScale,
     drawBoundRect ?: c.drawBoundRect,
     orientation ?: c.orientation,
+    strokeWeight ?: c.strokeWeight,
   )
 
   val pagePx: Point get() = paper.px(orientation)
@@ -67,6 +73,7 @@ data class CanvasProp(
       toggle(::drawBoundRect)
       sliderPair(::boundBoxCenter)
       sliderPair(::boundBoxScale, withLockToggle = true, defaultLocked = false)
+      listDropdown(::strokeWeight, StrokeWeight.values())
     }
   }
 
