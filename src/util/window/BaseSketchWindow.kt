@@ -44,7 +44,7 @@ class BaseSketchWindow(private val title: String, private val surface: PSurface)
     newControls: List<ControlTab>
   ) {
     val lastControlFrame = controlFrame
-    val (tab, index) = lastControlFrame?.getActiveTabAndIndex() ?: null to 0
+    val (tab, index) = lastControlFrame?.getActiveTabAndIndex() ?: (null to 0)
     lastControlFrame?.close()
 
     controlFrame = ControlFrame(sketch, size.xi, size.yi, newControls).also {

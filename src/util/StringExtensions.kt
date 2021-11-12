@@ -10,6 +10,8 @@ fun String.splitCamelCase() = replace(
   " ",
 )
 
+fun String.equalsIgnoreCase(other: String) = equals(other, ignoreCase = true)
+
 fun String.lineLimit(limit: Int): String = lines().joinToString(separator = "\n", limit = limit)
 
 fun String.isAllUniqueChars(): Boolean = uniqueChars() == this

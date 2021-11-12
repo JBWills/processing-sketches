@@ -12,6 +12,7 @@ import controls.panels.ControlTab
 import coordinate.BoundRect
 import coordinate.PaddingRect
 import processing.core.PApplet
+import util.equalsIgnoreCase
 import util.style
 import java.awt.Color
 
@@ -57,9 +58,16 @@ class ControlFrame(
 
   fun setActiveTab(tabIndex: Int) = setActiveTab(tabs[tabIndex].name)
 
-  fun setActiveTab(tabName: String) = cp5.controlWindow.tabs.get()
-    .map { it as Tab }
-    .forEach { tab -> tab.isActive = tab.name == tabName }
+  fun setActiveTab(tabName: String) {
+    val allTabs = cp5.controlWindow.tabs.get()
+
+    val indexOfTab = allTabs.indexOfFirst { it.name.equalsIgnoreCase(tabName) }
+    if (indexOfTab == allTabs.size - 1) {
+      throw Exception("Sorry, you can't programmatically select the last tab because of a bug in getCurrentTab in controlP5. You should probably just add a dummy tab after this one.")
+    }
+
+    allTabs.mapIndexed { index, tab -> (tab as Tab).apply { isActive = index == indexOfTab } }
+  }
 
   override fun settings() = size(w, h)
 

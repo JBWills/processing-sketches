@@ -7,6 +7,7 @@ import appletExtensions.withStyle
 import controls.panels.Panelable
 import controls.props.types.CanvasProp
 import util.darkened
+import util.debugLog
 import util.print.Style
 import java.awt.Color
 
@@ -34,10 +35,13 @@ abstract class CanvasSketch(
     val needsDarkStroke: Boolean =
       isRecording || canvasProps.paper.defaultBackgroundColor != Color.black
     val style = canvasProps.paper.defaultStyle
+      .applyOverrides(Style(weight = canvasProps.strokeWeight))
       .applyOverrides(layerConfig.style)
       .applyOverrides(
         Style(color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5) else null),
       )
+
+    debugLog(style)
 
     withStyle(style) {
       if (layer == getLayers().size - 1) {

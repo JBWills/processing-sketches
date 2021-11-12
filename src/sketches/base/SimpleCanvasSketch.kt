@@ -1,5 +1,6 @@
 package sketches.base
 
+import LayerConfig
 import controls.panels.ControlTab
 import controls.panels.ControlTab.Companion.tab
 import controls.panels.panelext.button
@@ -15,6 +16,7 @@ import controls.utils.deletePresetFile
 import controls.utils.loadPresets
 import controls.utils.savePresetToFile
 import kotlinx.serialization.KSerializer
+import util.print.Style
 
 abstract class SimpleCanvasSketch<Data : PropData<Data>>(
   svgBaseFilename: String,
@@ -44,7 +46,7 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
     }
 
   /**
-   * Update the props directly (as in, not through the control panel.
+   * Update the props directly (as in, not through the control panel).
    * This is useful if you need to listen to mouse or other UI events.
    *
    * @param block block to modify the parent props in-place. Return true if the sketch should be marked dirty.
@@ -93,6 +95,9 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
       +props.canvasControls
     },
     *props.dataControlTabs,
+    // Have to add these, so we can select the last tab because of a bug in controlP5
+    tab("_") { },
+    tab("__") { },
   )
 
   private fun onSwitchCanvas(newPresetName: String) {
@@ -102,6 +107,8 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
     updateControls()
     markDirty()
   }
+
+  override fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(color = strokeColor)))
 
   final override fun markDirty() {
     super.markDirty()
@@ -142,8 +149,8 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
   }
 
   open inner class DrawInfo(
-    val canvasValues: CanvasProp,
-    val dataValues: Data,
+    @Suppress("MemberVisibilityCanBePrivate") val canvasValues: CanvasProp,
+    @Suppress("MemberVisibilityCanBePrivate") val dataValues: Data,
   ) {
     override fun toString(): String =
       "DrawInfo(canvasValues=$canvasValues, dataValues=$dataValues)"

@@ -53,7 +53,7 @@ data class AudioLinesData(
   var drawSize: Point = Point(0.5, 0.5),
   var drawCenter: Point = Point(0.5, 0.5)
 ) : PropData<AudioLinesData> {
-  override fun bind() = singleTab("Global") {
+  override fun bind() = singleTab("mytesttab") {
     audioSelect(::audio)
     slider(::sampleSize, 10..2048)
     slider(::linesToShow, 1..2000)

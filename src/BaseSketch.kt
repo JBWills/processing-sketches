@@ -88,7 +88,7 @@ abstract class BaseSketch(
     runSketch()
   }
 
-  open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(Thick(), strokeColor)))
+  open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(Thick(), color = strokeColor)))
 
   abstract suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig)
 
