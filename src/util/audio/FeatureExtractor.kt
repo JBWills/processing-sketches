@@ -17,10 +17,11 @@ import java.io.File
  */
 fun getFeatures(f: File, sampleSize: Int = DefaultSampleSize): AudioFeatures {
   val silenceDetector = SilenceDetector()
-  return f.toAudioDispatcher(sampleSize = sampleSize).let {
-    val pressures = it.processAudioEvents(silenceDetector::getPressure)
-    val pitches = it.processPitch(sampleSize = sampleSize)
-    it.run()
+  return f.toAudioDispatcher(sampleSize = sampleSize).let { dispatcher ->
+    val pressures =
+      dispatcher.processAudioEvents { audioEvent -> silenceDetector.getPressure(audioEvent) }
+    val pitches = dispatcher.processPitch(sampleSize = sampleSize)
+    dispatcher.run()
 
     AudioFeatures(
       pressures = pressures.toDoubleArray(),

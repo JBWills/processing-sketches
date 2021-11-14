@@ -24,7 +24,7 @@ class AudioLines : SimpleCanvasSketch<AudioLinesData>(
   defaultData = AudioLinesData(),
 ) {
   override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
-    val (audio, sampleSize, linesToShow, drawSize, drawCenter) = drawInfo.dataValues
+    val (audio, sampleSize, linesToShow, drawSize, drawCenter, amplitudeScale, numLayers) = drawInfo.dataValues
 
     val features = audio.getFeatures(sampleSize) ?: return
 
@@ -39,7 +39,9 @@ class AudioLines : SimpleCanvasSketch<AudioLinesData>(
           (lineIndex.toDouble() / linesToShow) * linesBound.height,
         )
 
-        basePoint.addY(features.pressures[lineIndex * samplesPerLine + sampleIndex])
+        basePoint.addY(
+          features.pressures[lineIndex * samplesPerLine + sampleIndex] * amplitudeScale,
+        )
       }
     }.draw(boundRect)
   }
@@ -51,14 +53,22 @@ data class AudioLinesData(
   var sampleSize: Int = DefaultSampleSize,
   var linesToShow: Int = 200,
   var drawSize: Point = Point(0.5, 0.5),
-  var drawCenter: Point = Point(0.5, 0.5)
+  var drawCenter: Point = Point(0.5, 0.5),
+  var amplitudeScale: Double = 1.0,
+  var numLayers: Int = 1
 ) : PropData<AudioLinesData> {
-  override fun bind() = singleTab("mytesttab") {
+  override fun bind() = singleTab("audio") {
     audioSelect(::audio)
-    slider(::sampleSize, 10..2048)
-    slider(::linesToShow, 1..2000)
-    sliderPair(::drawSize, 0.0..2.0)
-    slider2D(::drawCenter, 0..1 to 0..1)
+    col {
+      slider(::sampleSize, 10..2048)
+      slider(::linesToShow, 1..2000)
+    }
+    col {
+      sliderPair(::drawSize, 0.0..2.0)
+      slider2D(::drawCenter, 0..1 to 0..1)
+    }
+    slider(::amplitudeScale, range = 0..100)
+    slider(::numLayers, range = 0..10)
   }
 
   override fun clone() = copy()

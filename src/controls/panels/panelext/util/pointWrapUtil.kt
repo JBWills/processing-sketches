@@ -4,6 +4,17 @@ import coordinate.Point
 import util.DoubleRange
 import kotlin.reflect.KMutableProperty0
 
+@JvmName("pointWrappedDoublePair")
+fun pointWrapped(d1: KMutableProperty0<Double>, d2: KMutableProperty0<Double>) = (d1 to d2).wrapped(
+  wrap = { x, y -> Point(x, y) },
+  unwrap = { x to y },
+)
+
+fun pointWrapped(d1: KMutableProperty0<Int>, d2: KMutableProperty0<Int>) = (d1 to d2).wrapped(
+  wrap = { x, y -> Point(x, y) },
+  unwrap = { x.toInt() to y.toInt() },
+)
+
 @JvmName("pointWrappedDoubleRange")
 fun KMutableProperty0<DoubleRange>.pointWrapped() = wrapped(
   wrap = { Point(start, endInclusive) },

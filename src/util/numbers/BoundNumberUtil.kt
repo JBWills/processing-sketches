@@ -55,9 +55,9 @@ fun Number.bound(start: Float = 0f, end: Float = 1f): Float {
   }
 }
 
-fun Double.boundMin(min: Double = 0.0): Double = max(min, this)
-fun Double.boundMax(max: Double = 1.0): Double = min(this, max)
-fun Int.boundMin(min: Int = 0): Int = max(min, this)
-fun Int.boundMax(max: Int = 1): Int = min(this, max)
-fun Float.boundMin(min: Float = 0f): Float = max(min, this)
-fun Float.boundMax(max: Float = 1f): Float = min(this, max)
+fun Double.boundMin(min: Number = 0): Double = max(this, min.toDouble())
+fun Double.boundMax(max: Number = 1): Double = min(this, max.toDouble())
+fun Int.boundMin(min: Number = 0): Int = max(min.toInt(), this)
+fun Int.boundMax(max: Number = 1): Int = min(this, max.toInt())
+fun Float.boundMin(min: Number = 0): Float = max(min.toFloat(), this)
+fun Float.boundMax(max: Number = 1): Float = min(this, max.toFloat())

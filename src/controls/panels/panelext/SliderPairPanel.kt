@@ -4,7 +4,7 @@ import controls.Control.Slider
 import controls.Control.Toggle
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
-import controls.panels.panelext.util.RefWrapper
+import controls.panels.panelext.util.RefGetter
 import controls.panels.panelext.util.pointWrapped
 import controls.panels.panelext.util.wrapSelf
 import controls.props.GenericProp
@@ -12,6 +12,24 @@ import coordinate.Point
 import util.DoubleRange
 import util.tuple.and
 import kotlin.reflect.KMutableProperty0
+
+@JvmName("sliderPairDoubles")
+fun PanelBuilder.sliderPair(
+  ref1: KMutableProperty0<Double>,
+  ref2: KMutableProperty0<Double>,
+  range: DoubleRange = (0.0..1.0),
+  withLockToggle: Boolean = false,
+  defaultLocked: Boolean = false,
+  style: ControlStyle? = null,
+  shouldMarkDirty: Boolean = true,
+) = sliderPairPanel(
+  pointWrapped(ref1, ref2),
+  range to range,
+  withLockToggle,
+  defaultLocked,
+  style,
+  shouldMarkDirty,
+)
 
 @JvmName("sliderPairDoubleRange")
 fun PanelBuilder.sliderPair(
@@ -78,14 +96,14 @@ fun PanelBuilder.sliderPair(
 )
 
 private fun PanelBuilder.sliderPairPanel(
-  ref: RefWrapper<*, Point>,
+  ref: RefGetter<Point>,
   ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0),
   withLockToggle: Boolean = false,
   defaultLocked: Boolean = false,
   style: ControlStyle? = null,
   shouldMarkDirty: Boolean = true,
 ) = addNewPanel(style) {
-  GenericProp(ref.backingRef) {
+  GenericProp(ref) {
     var locked: Boolean = defaultLocked && ref.get().x == ref.get().y
     var ctrlY: Slider? = null
     val ctrlX = Slider(
