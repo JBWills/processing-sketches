@@ -8,15 +8,15 @@ import interfaces.shape.Transformable
 import kotlinx.serialization.Serializable
 import org.locationtech.jts.geom.Coordinate
 import org.opencv.core.Size
-import util.DoubleRange
-import util.equalsDelta
-import util.equalsZero
+import util.base.DoubleRange
+import util.base.step
 import util.numbers.bound
+import util.numbers.equalsDelta
+import util.numbers.equalsZero
+import util.numbers.roundedString
+import util.numbers.squared
+import util.numbers.toDegrees
 import util.polylines.rotate
-import util.roundedString
-import util.squared
-import util.step
-import util.toDegrees
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.max
@@ -105,6 +105,11 @@ data class Point(val x: Double, val y: Double) :
 
   operator fun plus(other: Point) = Point(x + other.x, y + other.y)
   operator fun plus(other: List<Point>) = listOf(this) + other
+
+  @JvmName("plusMutable")
+  operator fun plus(other: MutableList<Point>): MutableList<Point> =
+    other.also { it.add(0, this) }
+
   override operator fun plus(other: Number) = Point(x + other.toDouble(), y + other.toDouble())
   operator fun minus(other: Point) = this + -other
   override operator fun minus(other: Number) = this + -other.toDouble()
@@ -153,11 +158,11 @@ data class Point(val x: Double, val y: Double) :
   }
 
   override fun translated(translate: Point) = plus(translate)
-  
+
   override fun rotated(deg: Deg, anchor: Point) = listOf(this).rotate(deg, anchor)
 
   override fun toString(): String {
-    return "Point(x=${x.roundedString(5)}, y=${y.roundedString(5)})"
+    return "Point(x=${x.roundedString(2)}, y=${y.roundedString(2)})"
   }
 
   override fun equals(other: Any?): Boolean {

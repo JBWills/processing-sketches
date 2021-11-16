@@ -1,7 +1,7 @@
 package util.polylines
 
 import coordinate.Point
-import util.map
+import util.numbers.map
 
 fun PolyLine.toEmptyDoubleArray() = DoubleArray(size * 2)
 

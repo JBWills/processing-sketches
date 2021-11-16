@@ -5,8 +5,8 @@ import coordinate.BoundRect
 import coordinate.Point
 import coordinate.Segment
 import fastnoise.Noise
+import util.base.step
 import util.iterators.zipNullPadded
-import util.step
 
 private fun bools(
   all: Boolean? = null,

@@ -9,14 +9,14 @@ import interfaces.shape.Transformable
 import interfaces.shape.Walkable
 import kotlinx.serialization.Serializable
 import util.atAmountAlong
-import util.equalsZero
+import util.base.step
 import util.iterators.mapWithNextCyclical
-import util.min
+import util.numbers.equalsZero
+import util.numbers.min
 import util.polylines.PolyLine
 import util.polylines.clipping.clip
 import util.polylines.rotate
 import util.polylines.transform
-import util.step
 import kotlin.math.abs
 import kotlin.math.max
 

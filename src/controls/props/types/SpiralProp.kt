@@ -11,7 +11,7 @@ import coordinate.Deg
 import coordinate.Point
 import coordinate.PointSpiral
 import kotlinx.serialization.Serializable
-import util.ZeroToOne
+import util.base.ZeroToOne
 import util.polylines.polyLine.normalizeDistances
 
 

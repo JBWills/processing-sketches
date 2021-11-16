@@ -11,7 +11,7 @@ import controls.panels.panelext.slider
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
-import util.pow
+import util.numbers.pow
 import java.awt.Color
 
 open class ArcSketch(

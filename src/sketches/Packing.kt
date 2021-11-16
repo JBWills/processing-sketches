@@ -15,13 +15,13 @@ import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.NegativeOneToOne
 import util.algorithms.kMeans
 import util.algorithms.makeHull
-import util.letWith
-import util.map
+import util.base.NegativeOneToOne
+import util.base.letWith
+import util.base.times
+import util.numbers.map
 import util.randomPoint
-import util.times
 import java.awt.Color
 
 class Packing : LayeredCanvasSketch<PackingData, PackingLayerData>(

@@ -1,4 +1,4 @@
-package util
+package util.base
 
 import org.opencv.core.Scalar
 import util.iterators.endPointPair
@@ -7,6 +7,7 @@ import util.iterators.mapPercentToIndex
 import util.iterators.zip
 import util.numbers.bound
 import util.numbers.boundInt
+import util.numbers.mean
 import java.awt.Color
 
 fun Number.toRGBInt() = (bound(0f, 1f) * 255).toInt()

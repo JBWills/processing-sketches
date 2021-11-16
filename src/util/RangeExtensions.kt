@@ -5,6 +5,7 @@ import coordinate.Segment
 import interfaces.math.Addable
 import interfaces.math.NumScalable
 import interfaces.math.Subtractable
+import util.base.DoubleRange
 import util.numbers.bound
 
 fun IntRange.toDoubleRange() = first.toDouble()..last.toDouble()

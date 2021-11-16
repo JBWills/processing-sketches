@@ -3,11 +3,11 @@ package coordinate
 import coordinate.RotationDirection.Clockwise
 import coordinate.RotationDirection.EitherDirection
 import kotlinx.serialization.Serializable
-import util.cos
-import util.equalsDelta
-import util.sin
-import util.tan
-import util.toRadians
+import util.numbers.cos
+import util.numbers.equalsDelta
+import util.numbers.sin
+import util.numbers.tan
+import util.numbers.toRadians
 import kotlin.math.abs
 import kotlin.math.min
 

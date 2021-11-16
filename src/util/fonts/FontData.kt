@@ -10,13 +10,14 @@ import java.io.File
 data class FontData(
   val family: String,
   val weight: String,
-  val type: String = "ttf"
+  val type: String = "ttf",
+  val baseSize: Double = 10.0,
 ) {
   val fullPath = getFontFilePath(family, weight, type)
 
   fun withWeight(newWeight: String) = FontData(family, newWeight, type)
 
-  fun toFont(size: Double = 10.0): Font = loadFontMemo(fullPath).deriveFont(size.toFloat())
+  fun toFont(size: Double = baseSize): Font = loadFontMemo(fullPath).deriveFont(size.toFloat())
 
   fun displayString(): String = "$family - $weight"
 

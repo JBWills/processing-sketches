@@ -1,8 +1,8 @@
 package coordinate
 
 import interfaces.shape.Walkable
-import util.DoubleRange
 import util.atAmountAlong
+import util.base.DoubleRange
 import util.percentAlong
 
 open class FShape(val f: (Double, Double) -> Point, val tRange: DoubleRange) : Walkable {

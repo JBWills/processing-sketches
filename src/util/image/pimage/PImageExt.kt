@@ -7,9 +7,9 @@ import coordinate.Point.Companion.minXY
 import processing.core.PConstants.RGB
 import processing.core.PGraphics
 import processing.core.PImage
+import util.base.luminance
 import util.image.ImageCrop
 import util.image.ImageCrop.Crop
-import util.luminance
 import java.awt.Color
 
 val PImage.aspect: Double get() = width.toDouble() / height

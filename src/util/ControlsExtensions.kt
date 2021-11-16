@@ -5,9 +5,12 @@ import controlP5.Slider
 import controlP5.Slider2D
 import controlP5.Tab
 import controls.panels.ControlStyle
+import controls.panels.LabelAlign.Companion.alignCaptionAndLabel
 import controls.panels.TabStyle
 import coordinate.BoundRect
 import coordinate.Point
+import processing.core.PFont
+import util.base.DoubleRange
 
 val Controller<*>.topLeft get(): Point = Point(position[0], position[1])
 
@@ -33,6 +36,13 @@ fun <T> Controller<T>.style(controlStyle: ControlStyle): Controller<T> {
   setColorActive(controlStyle.onHoverColor.rgb)
   setColorForeground(controlStyle.color.rgb)
   setColorLabel(controlStyle.textColor.rgb)
+  setFont(PFont(controlStyle.font.toFont(), true))
+  
+  alignCaptionAndLabel(
+    valueAlign = controlStyle.labelAlign,
+    captionAlign = controlStyle.captionAlign,
+  )
+
   return this
 }
 

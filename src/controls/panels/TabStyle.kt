@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package controls.panels
 
 import coordinate.PaddingRect
@@ -86,7 +88,7 @@ data class TabStyle(
     val Gray = s(background = Gray1, frame = Gray0, hover = Gray2, color = Gray3)
     val Black = s(background = Black1, frame = Black0, hover = Black2, color = Black3)
 
-    val BASE_TAB_PADDING = PaddingRect(base = 20)
+    val BASE_TAB_PADDING = PaddingRect(base = 15)
     val Base = TabStyle(
       Purple,
       controlStyle = ControlStyle.EmptyStyle,

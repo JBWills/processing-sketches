@@ -1,4 +1,4 @@
-package util
+package util.base
 
 import util.interpolation.interpolate
 import kotlin.math.abs

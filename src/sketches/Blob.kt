@@ -20,14 +20,14 @@ import fastnoise.Noise
 import fastnoise.Noise.Companion.warpedMemo
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.ZeroToOne
 import util.algorithms.chaikin
 import util.algorithms.contouring.getNoiseContourMemo
 import util.algorithms.contouring.mergeSegments
 import util.algorithms.contouring.walkThreshold
 import util.algorithms.douglassPeucker
 import util.atAmountAlong
-import util.numSteps
+import util.base.ZeroToOne
+import util.base.numSteps
 import util.polylines.clipping.clip
 
 /**

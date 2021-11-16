@@ -15,7 +15,7 @@ import coordinate.Point
 import de.lighti.clipper.Clipper.ClipType
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.listWrapped
+import util.iterators.listWrapped
 import util.polylines.PolyLine
 import util.polylines.clipping.ForceClosedOption
 import util.polylines.clipping.ForceClosedOption.Close

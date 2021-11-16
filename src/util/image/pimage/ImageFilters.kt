@@ -5,9 +5,9 @@ import arrow.core.memoize
 import controlP5.ControlP5Constants.GRAY
 import processing.core.PConstants.INVERT
 import processing.core.PImage
+import util.base.luminance
 import util.image.opencvMat.gaussianBlur
 import util.image.opencvMat.gaussianBlurAlpha
-import util.luminance
 import java.awt.Color
 
 private val _luminance = { p: PImage ->

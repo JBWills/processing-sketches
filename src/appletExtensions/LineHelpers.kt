@@ -9,9 +9,9 @@ import coordinate.Deg
 import coordinate.Line
 import coordinate.Point
 import coordinate.Segment
-import util.DoubleRange
 import util.atAmountAlong
-import util.reversed
+import util.base.DoubleRange
+import util.base.reversed
 import java.awt.Color
 
 typealias Sketch = BaseSketch

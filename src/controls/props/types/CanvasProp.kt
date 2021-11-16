@@ -12,11 +12,11 @@ import controls.props.PropData
 import coordinate.BoundRect
 import coordinate.Point
 import kotlinx.serialization.Serializable
+import util.base.with
 import util.print.Orientation
 import util.print.Paper
 import util.print.StrokeWeight
 import util.print.Thick
-import util.with
 
 
 @Serializable
@@ -66,14 +66,17 @@ data class CanvasProp(
   }
 
   override fun bind(): List<ControlTab> = singleTab("SpiralProp") {
-    dropdown(::paper) { markCanvasDirty(this) }
-    dropdown(::orientation) { markCanvasDirty(this) }
+    row {
+      heightRatio = 1.5
+      dropdown(::paper) { markCanvasDirty(this) }
+      dropdown(::orientation) { markCanvasDirty(this) }
+      listDropdown(::strokeWeight, StrokeWeight.values())
+    }
     col {
       style = ControlStyle.Red
-      toggle(::drawBoundRect)
+      toggle(::drawBoundRect).withHeight(0.5)
       sliderPair(::boundBoxCenter)
       sliderPair(::boundBoxScale, withLockToggle = true, defaultLocked = false)
-      listDropdown(::strokeWeight, StrokeWeight.values())
     }
   }
 

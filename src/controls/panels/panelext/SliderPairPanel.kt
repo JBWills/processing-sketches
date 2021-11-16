@@ -9,7 +9,7 @@ import controls.panels.panelext.util.pointWrapped
 import controls.panels.panelext.util.wrapSelf
 import controls.props.GenericProp
 import coordinate.Point
-import util.DoubleRange
+import util.base.DoubleRange
 import util.tuple.and
 import kotlin.reflect.KMutableProperty0
 

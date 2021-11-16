@@ -1,7 +1,7 @@
 package controls.panels.panelext.util
 
 import coordinate.Point
-import util.DoubleRange
+import util.base.DoubleRange
 import kotlin.reflect.KMutableProperty0
 
 @JvmName("pointWrappedDoublePair")

@@ -25,13 +25,13 @@ import org.opencv.core.Mat
 import processing.core.PApplet
 import processing.core.PImage
 import util.atAmountAlong
+import util.base.lerp
 import util.image.opencvMat.getTransformedMat
 import util.image.opencvMat.toPImage
 import util.image.pimage.scale
 import util.iterators.addNotNull
 import util.iterators.forEach2D
 import util.iterators.mapWithNext
-import util.lerp
 import util.numbers.boundMin
 import util.polylines.PolyLine
 import util.polylines.clipping.clip

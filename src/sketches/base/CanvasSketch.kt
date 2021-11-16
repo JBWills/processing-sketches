@@ -6,7 +6,7 @@ import appletExtensions.draw.rect
 import appletExtensions.withStyle
 import controls.panels.Panelable
 import controls.props.types.CanvasProp
-import util.darkened
+import util.base.darkened
 import util.print.Style
 import java.awt.Color
 
@@ -39,7 +39,7 @@ abstract class CanvasSketch(
       .applyOverrides(
         Style(color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5) else null),
       )
-    
+
     withStyle(style) {
       if (layer == getLayers().size - 1) {
         if (canvasProps.drawBoundRect) rect(boundRect)

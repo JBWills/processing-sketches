@@ -8,7 +8,7 @@ import controlP5.ControllerList
 import controlP5.Tab
 import controls.panels.ControlTab
 import coordinate.BoundRect
-import util.with
+import util.base.with
 import java.awt.Color
 
 fun <R> ControllerList.map(block: (ControllerInterface<*>) -> R): List<R> =

@@ -14,7 +14,7 @@ import coordinate.Point
 import fastnoise.Noise
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.ZeroToOne
+import util.base.ZeroToOne
 import util.tuple.and
 
 /**

@@ -7,7 +7,7 @@ import de.lighti.clipper.Point.DoublePoint
 import de.lighti.clipper.Point.LongPoint
 import de.lighti.clipper.PolyNode
 import de.lighti.clipper.PolyTree
-import util.doIf
+import util.base.doIf
 import util.polylines.PolyLine
 import util.polylines.closed
 

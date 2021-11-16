@@ -8,7 +8,7 @@ import coordinate.Deg
 import coordinate.Point
 import processing.core.PApplet
 import processing.core.PGraphics
-import util.toRadians
+import util.numbers.toRadians
 
 fun PGraphics.circle(c: Point, r: Double) = circle(c.xf, c.yf, r.toFloat() * 2)
 fun PGraphics.circle(c: Circ) = circle(c.origin.xf, c.origin.yf, c.diameter.toFloat())

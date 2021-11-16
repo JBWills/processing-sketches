@@ -26,8 +26,8 @@ import interfaces.shape.transform
 import kotlinx.serialization.Serializable
 import org.opencv.core.Mat
 import sketches.base.LayeredCanvasSketch
+import util.base.doIf
 import util.boundPercentAlong
-import util.doIf
 import util.image.opencvMat.bounds
 import util.image.opencvMat.findContours
 import util.image.opencvMat.gaussianBlur

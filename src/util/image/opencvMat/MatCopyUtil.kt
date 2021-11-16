@@ -8,7 +8,7 @@ import util.image.ImageFormat
 import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Companion.getFormat
 import util.image.converted
-import util.map
+import util.numbers.map
 import java.awt.Color
 import java.nio.ByteBuffer
 import java.nio.IntBuffer

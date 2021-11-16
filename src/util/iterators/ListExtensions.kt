@@ -1,10 +1,10 @@
 package util.iterators
 
 import util.atAmountAlong
-import util.ceilInt
-import util.doIf
-import util.floorInt
+import util.base.doIf
 import util.numbers.bound
+import util.numbers.ceilInt
+import util.numbers.floorInt
 
 fun <T> List<T>.skipFirst() = if (isEmpty()) listOf() else slice(1 until size)
 fun <T> List<T>.skipLast() = if (isEmpty()) listOf() else slice(0 until size - 1)
@@ -103,3 +103,6 @@ fun <T, SortingAttr : Comparable<SortingAttr>> Iterable<T>.groupToSortedList(
 
   return res.values.toList().doIf(sortDescending) { it.reversed() }
 }
+
+fun <T> List<T>.secondToLast(): T = get(size - 2)
+fun <T> List<T>.secondToLastOrNull(): T? = getOrNull(size - 2)

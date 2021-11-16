@@ -1,13 +1,18 @@
+@file:Suppress("unused")
+
 package coordinate
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class PaddingRect(
-  val base: Double = 0.0,
-  val vertical: Double = base,
-  val horizontal: Double = base,
-  val top: Double = vertical,
-  val bottom: Double = vertical,
-  val left: Double = horizontal,
-  val right: Double = horizontal,
+  val base: Double,
+  val vertical: Double,
+  val horizontal: Double,
+  val top: Double,
+  val bottom: Double,
+  val left: Double,
+  val right: Double,
 ) {
   constructor(
     base: Number = 0.0,
@@ -24,7 +29,7 @@ data class PaddingRect(
     top.toDouble(),
     bottom.toDouble(),
     left.toDouble(),
-    right.toDouble()
+    right.toDouble(),
   )
 
   fun totalHorizontal() = left + right

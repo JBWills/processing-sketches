@@ -1,5 +1,6 @@
 package util.javageom
 
+import kotlinx.serialization.Serializable
 import util.iterators.mapOf
 import java.awt.Font
 import java.awt.font.TextAttribute
@@ -8,6 +9,7 @@ import java.awt.font.TextAttribute.KERNING
 import java.awt.font.TextAttribute.KERNING_ON
 import java.awt.font.TextAttribute.SIZE
 
+@Serializable
 enum class FontFamily(val family: String) {
   Arial("Arial"),
   Helvetica("Helvetica"),

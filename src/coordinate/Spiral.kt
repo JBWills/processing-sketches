@@ -1,8 +1,8 @@
 package coordinate
 
-import util.DoubleRange
 import util.PointRange
 import util.atAmountAlong
+import util.base.DoubleRange
 
 fun getSpiralPointFunc(
   originFunc: (t: Double, percentAlong: Double, degrees: Deg) -> Point,

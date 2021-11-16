@@ -1,7 +1,7 @@
 package util.iterators
 
 import coordinate.Point
-import util.map
+import util.numbers.map
 import kotlin.math.max
 
 fun <T> Sequence<T>.iterate() = forEach { _ -> }

@@ -1,11 +1,11 @@
 package coordinate
 
 import coordinate.RotationDirection.Clockwise
-import util.equalsZero
-import util.lessThanEqualToDelta
+import util.base.step
+import util.numbers.equalsZero
+import util.numbers.lessThanEqualToDelta
 import util.polylines.PolyLine
 import util.polylines.rotate
-import util.step
 
 class Arc(
   val startDeg: Deg,

@@ -7,8 +7,8 @@ import org.opencv.core.MatOfPoint
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
-import util.DoubleRange
-import util.doIf
+import util.base.DoubleRange
+import util.base.doIf
 import util.iterators.chunkFilterInterpolated
 import util.polylines.PolyLine
 import util.polylines.closed

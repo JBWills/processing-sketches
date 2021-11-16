@@ -2,7 +2,7 @@ package coordinate
 
 import interfaces.shape.Transformable
 import kotlinx.serialization.Serializable
-import util.equalsZero
+import util.numbers.equalsZero
 import util.polylines.PolyLine
 import util.polylines.rotate
 import java.awt.geom.Line2D

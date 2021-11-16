@@ -35,9 +35,7 @@ enum class RecordMode {
   RecordSVG,
 }
 
-val CONTROL_PANEL_SIZE = Point(400, 800)
-
-typealias StartNewLayerFn = () -> Unit
+val CONTROL_PANEL_SIZE = Point(500, 800)
 
 abstract class BaseSketch(
   var backgroundColor: Color = Color.white,

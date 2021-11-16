@@ -19,7 +19,7 @@ import util.circleintersection.CircleCircleIntersection.Type.OVERLAPPING
 import util.circleintersection.LCircle
 import util.circleintersection.LVector2
 import util.iterators.zipWithSiblingsCyclical
-import util.squared
+import util.numbers.squared
 import kotlin.math.sqrt
 
 sealed class IntersectionData {

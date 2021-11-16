@@ -9,6 +9,12 @@ data class AudioFeatures(
   val pitches: DoubleArray,
   val sampleSize: Int = DefaultSampleSize
 ) {
+
+  fun pressuresFrom(indices: IntRange): DoubleArray {
+    val safeLast = indices.last.coerceAtMost(pressures.size - 1)
+    return pressures.sliceArray(indices.first..safeLast)
+  }
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false

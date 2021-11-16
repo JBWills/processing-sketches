@@ -5,7 +5,7 @@ import controls.panels.ControlTab
 import controls.props.types.CanvasProp
 import util.iterators.flattenArray
 import util.iterators.mapArray
-import util.map
+import util.numbers.map
 import util.tuple.Pair3
 
 /**

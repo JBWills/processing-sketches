@@ -1,5 +1,4 @@
-package util
-
+package util.iterators
 
 fun Any.asCollection(): Collection<*> = this as Collection<*>
 

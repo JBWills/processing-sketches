@@ -10,10 +10,10 @@ import coordinate.Deg
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
+import util.base.negToPos
+import util.base.zeroTo
 import util.iterators.mapIf
-import util.negToPos
 import util.numbers.bound
-import util.zeroTo
 
 const val MAX_CIRCLES = 8
 

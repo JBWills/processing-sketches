@@ -2,10 +2,10 @@ package util.image.opencvMat
 
 import org.opencv.core.Core
 import org.opencv.core.Mat
-import util.DoubleRange
-import util.letWith
+import util.base.DoubleRange
+import util.base.letWith
+import util.base.toRange
 import util.numbers.bound
-import util.toRange
 import util.tuple.map
 
 val Mat.minMax: Pair<Double, Double> get() = Core.minMaxLoc(this).letWith { minVal to maxVal }

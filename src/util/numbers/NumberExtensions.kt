@@ -1,6 +1,10 @@
-package util
+package util.numbers
 
 import coordinate.Point
+import util.atAmountAlong
+import util.base.DoubleRange
+import util.base.step
+import util.percentAlong
 import java.lang.Math.toDegrees
 import java.lang.Math.toRadians
 import kotlin.math.abs

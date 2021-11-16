@@ -4,8 +4,8 @@ package util.print
 
 import coordinate.BoundRect
 import coordinate.Point
-import util.doIf
-import util.lightened
+import util.base.doIf
+import util.base.lightened
 import util.print.DPI.InkScape
 import util.print.Orientation.Portrait
 import java.awt.Color

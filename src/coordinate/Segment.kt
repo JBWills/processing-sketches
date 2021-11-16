@@ -2,13 +2,13 @@ package coordinate
 
 import coordinate.iterators.PointProgression
 import interfaces.shape.Walkable
-import util.equalsZero
-import util.greaterThanEqualToDelta
-import util.maybeMap
-import util.notEqualsZero
+import util.base.maybeMap
+import util.numbers.equalsZero
+import util.numbers.greaterThanEqualToDelta
+import util.numbers.notEqualsZero
+import util.numbers.toDegrees
 import util.polylines.PolyLine
 import util.polylines.rotate
-import util.toDegrees
 import java.awt.geom.Line2D
 import kotlin.math.abs
 import kotlin.math.atan
@@ -79,6 +79,9 @@ class Segment(
   fun expand(amt: Number) =
     Segment(p1 - (slope.unitVector * (amt.toDouble() / 2)), slope, length + amt.toDouble())
 
+
+  fun expandStart(amt: Number) = Segment(p1 - (slope.unitVector * amt.toDouble()), p2)
+  fun expandEnd(amt: Number) = Segment(p1, p2 + (slope.unitVector * amt.toDouble()))
   fun resizeCentered(newLength: Number) = expand(newLength.toDouble() - length)
   fun recentered(newCenter: Point) = centered(newCenter, slope, length)
 
@@ -120,6 +123,7 @@ class Segment(
   override fun rotated(deg: Deg, anchor: Point): PolyLine = points.toList().rotate(deg, anchor)
 
   override fun walk(step: Double) = (p1..p2 step step).toList()
+  fun walk(step: Double, offset: Double) = (p1..p2 step step offset offset).toList()
 
   override fun <T> walk(step: Double, block: (Point) -> T) = (p1..p2 step step).map(block)
 

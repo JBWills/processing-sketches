@@ -6,6 +6,7 @@ import processing.data.XML
 import util.io.getSVGNameAndPath
 import util.io.getTempFileNameAndPath
 import util.io.getTempFilepath
+import util.numbers.times
 import util.print.applyStyle
 import java.io.File
 import java.time.Instant

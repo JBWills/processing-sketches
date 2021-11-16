@@ -1,6 +1,6 @@
 package util.numbers
 
-import util.DoubleRange
+import util.base.DoubleRange
 import kotlin.math.max
 import kotlin.math.min
 

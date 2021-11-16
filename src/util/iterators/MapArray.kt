@@ -10,7 +10,14 @@ inline fun <T, reified R> Array<T>.mapArrayIndexed(block: (Int, T) -> R): Array<
   Array(size) { i -> block(i, this[i]) }
 
 inline fun <T, reified R> List<T>.mapArray(block: (T) -> R): Array<R> =
-  Array(this.size) { block(this[it]) }
+  Array(size) { block(this[it]) }
+
+
+inline fun DoubleArray.mapDoubleArray(block: (Double) -> Double): DoubleArray =
+  DoubleArray(size) { block(this[it]) }
 
 inline fun <reified R> DoubleArray.mapArray(block: (Double) -> R): Array<R> =
-  Array(this.size) { block(this[it]) }
+  Array(size) { block(this[it]) }
+
+inline fun <reified R> DoubleArray.mapArrayIndexed(block: (Int, Double) -> R): Array<R> =
+  Array(size) { block(it, this[it]) }

@@ -13,8 +13,8 @@ import controls.props.PropData
 import coordinate.Point
 import kotlinx.serialization.Serializable
 import processing.core.PImage
-import util.ZeroToOne
-import util.doIf
+import util.base.ZeroToOne
+import util.base.doIf
 import util.image.blurred
 import util.image.inverted
 import util.image.luminance

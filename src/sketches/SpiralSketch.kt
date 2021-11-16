@@ -17,8 +17,8 @@ import coordinate.Point
 import coordinate.Spiral
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
+import util.numbers.squared
 import util.polylines.polyLine.normalizeDistances
-import util.squared
 import java.awt.Color
 import kotlin.math.sin
 

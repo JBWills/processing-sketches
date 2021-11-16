@@ -7,9 +7,9 @@ import controls.panels.PanelBuilder
 import controls.props.GenericProp
 import coordinate.Deg
 import coordinate.Point
-import util.DoubleRange
 import util.PointRange
-import util.ZeroToOne
+import util.base.DoubleRange
+import util.base.ZeroToOne
 import util.toDoubleRange
 import util.tuple.and
 import util.xRange

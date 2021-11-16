@@ -15,7 +15,7 @@ import coordinate.Deg
 import coordinate.Point
 import interfaces.shape.Maskable
 import kotlinx.serialization.Serializable
-import util.ZeroToOne
+import util.base.ZeroToOne
 import util.polylines.PolyLine
 
 enum class ShapeType {

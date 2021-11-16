@@ -17,11 +17,11 @@ import fastnoise.NoiseQuality.High
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
+import util.numbers.times
 import util.polylines.PolyLine
 import util.polylines.clipping.ForceClosedOption.NoClose
 import util.polylines.clipping.clip
 import util.polylines.closed
-import util.times
 
 class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
   "Flower",

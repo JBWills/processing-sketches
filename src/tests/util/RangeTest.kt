@@ -5,9 +5,9 @@ package tests.util
 import coordinate.Point
 import org.junit.jupiter.api.Test
 import util.atAmountAlong
-import util.numSteps
+import util.base.numSteps
+import util.base.step
 import util.percentAlong
-import util.step
 import kotlin.test.assertEquals
 
 internal class RangeTest {

@@ -1,6 +1,12 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package controls.panels
 
+import controls.panels.LabelAlignHorizontal.Left
+import controls.panels.LabelAlignVertical.Bottom
+import controls.panels.LabelAlignVertical.Top
 import coordinate.PaddingRect
+import kotlinx.serialization.Serializable
 import util.constants.Black0
 import util.constants.Black1
 import util.constants.Black2
@@ -33,16 +39,27 @@ import util.constants.Yellow0
 import util.constants.Yellow1
 import util.constants.Yellow2
 import util.constants.Yellow3
+import util.fonts.FontData
+import util.io.serialization.ColorSerializer
 import java.awt.Color
 
+@Serializable
 data class ControlStyle(
+  @Serializable(with = ColorSerializer::class)
   val backgroundColorOverrides: Color? = null,
+  @Serializable(with = ColorSerializer::class)
   val colorOverrides: Color? = null,
+  @Serializable(with = ColorSerializer::class)
   val onHoverColorOverrides: Color? = null,
+  @Serializable(with = ColorSerializer::class)
   val frameBackgroundColorOverrides: Color? = null,
+  @Serializable(with = ColorSerializer::class)
   val textColorOverrides: Color? = null,
   val paddingOverrides: PaddingRect? = null,
   val childPaddingOverrides: PaddingRect? = null,
+  val fontOverrides: FontData? = null,
+  val labelAlignOverrides: LabelAlign? = null,
+  val captionAlignOverrides: LabelAlign? = null,
 ) {
   constructor(
     base: ControlStyle,
@@ -53,6 +70,9 @@ data class ControlStyle(
     textColor: Color? = null,
     padding: PaddingRect? = null,
     childPadding: PaddingRect? = null,
+    font: FontData? = null,
+    labelAlign: LabelAlign? = null,
+    captionAlign: LabelAlign? = null,
   ) : this(
     backgroundColorOverrides = backgroundColor ?: base.backgroundColorOverrides,
     colorOverrides = color ?: base.colorOverrides,
@@ -61,6 +81,9 @@ data class ControlStyle(
     textColorOverrides = textColor ?: base.textColorOverrides,
     paddingOverrides = padding ?: base.paddingOverrides,
     childPaddingOverrides = childPadding ?: base.childPaddingOverrides,
+    fontOverrides = font ?: base.fontOverrides,
+    labelAlignOverrides = labelAlign ?: base.labelAlignOverrides,
+    captionAlignOverrides = captionAlign ?: base.captionAlignOverrides,
   )
 
   val padding: PaddingRect by lazy { paddingOverrides ?: Base.paddingOverrides!! }
@@ -72,6 +95,9 @@ data class ControlStyle(
   val onHoverColor: Color by lazy { onHoverColorOverrides ?: Base.onHoverColorOverrides!! }
   val textColor: Color by lazy { textColorOverrides ?: Base.textColorOverrides!! }
   val color: Color by lazy { colorOverrides ?: Base.colorOverrides!! }
+  val font: FontData by lazy { fontOverrides ?: Base.fontOverrides!! }
+  val labelAlign: LabelAlign by lazy { labelAlignOverrides ?: Base.labelAlignOverrides!! }
+  val captionAlign: LabelAlign by lazy { captionAlignOverrides ?: Base.captionAlignOverrides!! }
 
   fun withOverrides(overrides: ControlStyle) = ControlStyle(
     this,
@@ -82,6 +108,9 @@ data class ControlStyle(
     textColor = overrides.textColorOverrides,
     padding = overrides.paddingOverrides,
     childPadding = overrides.childPaddingOverrides,
+    font = overrides.fontOverrides,
+    labelAlign = overrides.labelAlignOverrides,
+    captionAlign = overrides.captionAlignOverrides,
   )
 
   fun withBackgroundColor(c: Color?) = withOverrides(ControlStyle(backgroundColorOverrides = c))
@@ -113,6 +142,9 @@ data class ControlStyle(
     textColorOverrides = textColorOverrides,
     paddingOverrides = paddingOverrides,
     childPaddingOverrides = childPaddingOverrides,
+    fontOverrides = fontOverrides,
+    labelAlignOverrides = labelAlignOverrides,
+    captionAlignOverrides = captionAlignOverrides,
   )
 
   override fun toString(): String {
@@ -143,6 +175,9 @@ data class ControlStyle(
         textColorOverrides = Color.WHITE,
         paddingOverrides = PaddingRect(vertical = 0, horizontal = 0),
         childPaddingOverrides = PaddingRect(vertical = 2.5, horizontal = 2.5),
+        fontOverrides = FontData("Roboto", "Medium", baseSize = 15.0),
+        labelAlignOverrides = LabelAlign(Left, Top),
+        captionAlignOverrides = LabelAlign(Left, Bottom),
       ),
     )
 

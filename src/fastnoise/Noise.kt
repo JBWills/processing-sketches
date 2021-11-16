@@ -14,7 +14,7 @@ import fastnoise.NoiseQuality.High
 import interfaces.shape.Walkable
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import util.remap
+import util.numbers.remap
 
 @Suppress("unused")
 enum class NoiseQuality(val step: Double) {

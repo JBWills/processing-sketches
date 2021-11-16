@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import util.iterators.mapWithNext
 import util.iterators.mapWithNextIndexed
-import util.map
+import util.numbers.map
 import util.percentAlong
 import util.polylines.MutablePolyLine
 import util.polylines.PolyLine

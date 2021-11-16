@@ -8,12 +8,20 @@ import controlP5.Tab
 import controlP5.Textfield
 import controls.panels.ControlItem
 import controls.panels.ControlPanel
+import controls.panels.ControlStyle
+import controls.panels.LabelAlign
+import controls.panels.LabelAlign.Companion.align
+import controls.panels.LabelAlign.Companion.alignCaptionAndLabel
+import controls.panels.LabelAlignHorizontal.Left
+import controls.panels.LabelAlignVertical.Center
+import controls.panels.LabelAlignVertical.Top
 import controls.panels.Panelable
 import controls.utils.selectFile
+import controls.utils.setupDDList
 import coordinate.BoundRect
 import coordinate.Point
-import util.DoubleRange
 import util.PointRange
+import util.base.DoubleRange
 import util.bounds
 import util.image.ImageCrop
 import util.image.pimage.pasteOnTopCentered
@@ -47,7 +55,7 @@ val DEFAULT_RANGE = 0.0..1.0
 sealed class Control<T : Controller<T>>(
   var name: String,
   val createFunc: ControlP5.(id: String) -> T,
-  val block: T.(BaseSketch) -> Unit,
+  val block: T.(BaseSketch, ControlStyle) -> Unit,
 ) : Panelable {
   override fun toControlPanel(): ControlPanel = ControlItem(control = this)
 
@@ -72,7 +80,7 @@ sealed class Control<T : Controller<T>>(
       positionAndSize(bound)
       style(panel.styleFromParents)
 
-      block(sketch)
+      block(sketch, panel.styleFromParents)
     }
   }
 
@@ -84,7 +92,7 @@ sealed class Control<T : Controller<T>>(
   ) : Control<controlP5.Button>(
     fieldName,
     ControlP5::addButton,
-    { sketch ->
+    { sketch, _ ->
       fun updateThumbnailAndLabel(path: String) {
         val noImageSelected =
           path.isBlank() || !File(path).exists() || path == noImageSelectedFilepath
@@ -92,7 +100,7 @@ sealed class Control<T : Controller<T>>(
         sketch.loadImageMemo(if (noImageSelected) noImageSelectedFilepath else path)
           ?.scaleAndCrop(thumbnailCrop, bounds)
           ?.let { setImage(it.pasteOnTopCentered(solidColorPImage(bounds.size, Color.PINK))) }
-        label = if (noImageSelected) "No Image Selected" else path
+        label = fieldName
         setCaptionLabel(if (noImageSelected) "No Image Selected" else path)
         isLabelVisible = true
       }
@@ -117,10 +125,10 @@ sealed class Control<T : Controller<T>>(
   ) : Control<controlP5.Button>(
     fieldName,
     ControlP5::addButton,
-    { sketch ->
+    { sketch, _ ->
       fun updateLabel(path: String?) {
         val noFileSelected = path == null || path.isEmpty()
-        label = if (noFileSelected) "Select File" else path
+        label = fieldName
         setCaptionLabel(if (noFileSelected) "Select File" else path)
         isLabelVisible = true
       }
@@ -142,7 +150,14 @@ sealed class Control<T : Controller<T>>(
   ) : Control<Textfield>(
     fieldName,
     ControlP5::addTextfield,
-    { setValue(defaultValue) },
+    { _, _ ->
+      setValue(defaultValue)
+
+      alignCaptionAndLabel(
+        valueAlign = LabelAlign(Left, Center),
+        captionAlign = LabelAlign(Left, Top),
+      )
+    },
   )
 
   class Button(
@@ -151,8 +166,9 @@ sealed class Control<T : Controller<T>>(
   ) : Control<controlP5.Button>(
     text,
     ControlP5::addButton,
-    { sketch ->
+    { sketch, _ ->
       onClick { sketch.handleClick() }
+      captionLabel.align(LabelAlign.Centered)
     },
   ) {
     companion object {
@@ -170,11 +186,10 @@ sealed class Control<T : Controller<T>>(
   ) : Control<controlP5.Toggle>(
     text,
     ControlP5::addToggle,
-    { sketch ->
+    { sketch, _ ->
       setValue(defaultValue)
       onChange { sketch.handleToggled(booleanValue) }
       captionLabel.align(ControlP5.CENTER, ControlP5.CENTER)
-      captionLabel.setSize(13)
     },
   ) {
     constructor(
@@ -199,15 +214,14 @@ sealed class Control<T : Controller<T>>(
   ) : Control<controlP5.Slider>(
     text,
     ControlP5::addSlider,
-    { sketch ->
+    { sketch, style ->
       range(range)
 
       this.value = defaultValue?.toFloat() ?: range.start.toFloat()
       onChange { sketch.handleChange(value.toDouble()) }
-      captionLabel.align(ControlP5.RIGHT, ControlP5.BOTTOM)
-      captionLabel.setSize(13)
-      valueLabel.align(ControlP5.LEFT, ControlP5.BOTTOM)
-      valueLabel.setSize(13)
+
+      // For some reason we have to do this here even though we're already doing it
+      alignCaptionAndLabel(valueAlign = style.labelAlign, captionAlign = style.captionAlign)
     },
   ) {
     constructor(
@@ -263,7 +277,7 @@ sealed class Control<T : Controller<T>>(
   ) : Control<controlP5.Slider2D>(
     text,
     ControlP5::addSlider2D,
-    { sketch ->
+    { sketch, _ ->
       range(rangeX, rangeY)
       val defaultPoint = defaultValue ?: Point(rangeX.start, rangeY.start)
 
@@ -271,10 +285,6 @@ sealed class Control<T : Controller<T>>(
       cursorY = defaultPoint.y.toFloat()
 
       onChange { sketch.handleChange(Point(arrayValue[0], arrayValue[1])) }
-      captionLabel.align(ControlP5.RIGHT, ControlP5.BOTTOM)
-      captionLabel.setSize(13)
-      valueLabel.align(ControlP5.LEFT, ControlP5.BOTTOM)
-      valueLabel.setSize(13)
     },
   ) {
     constructor(
@@ -299,6 +309,7 @@ sealed class Control<T : Controller<T>>(
     ) : this(text, range.xRange, range.yRange, defaultValue, handleChange)
   }
 
+
   class Dropdown(
     text: String,
     options: List<String>,
@@ -307,17 +318,7 @@ sealed class Control<T : Controller<T>>(
   ) : Control<DropdownList>(
     text,
     ControlP5::addDropdownList,
-    { sketch ->
-      setType(DropdownList.LIST)
-      setItems(options)
-
-      value = options.indexOf(defaultValue).toFloat()
-
-      onChange {
-        val selectedOption = options[value.toInt()]
-        sketch.handleChange(selectedOption)
-      }
-    },
+    { sketch, style -> setupDDList(sketch, style, defaultValue, options, handleChange) },
   )
 
   class EnumDropdown<E : Enum<E>>(
@@ -327,16 +328,10 @@ sealed class Control<T : Controller<T>>(
   ) : Control<DropdownList>(
     text,
     ControlP5::addDropdownList,
-    { sketch ->
-      setType(DropdownList.LIST)
+    { sketch, style ->
       val options = defaultValue.declaringClass.enumConstants.sortedBy { it.name }
-      setItems(options.map { it.name })
-
-      value = options.indexOf(defaultValue).toFloat()
-
-      onChange {
-        val selectedOption = options[value.toInt()]
-        sketch.handleChange(selectedOption)
+      setupDDList(sketch, style, defaultValue.name, options.map { it.name }) {
+        handleChange(options[value.toInt()])
       }
     },
   ) {

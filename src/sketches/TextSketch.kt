@@ -17,6 +17,7 @@ import de.lighti.clipper.Clipper.JoinType
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.atAmountAlong
+import util.base.step
 import util.fonts.FontData
 import util.iterators.skipFirst
 import util.javageom.DefaultFlatness
@@ -24,7 +25,6 @@ import util.javageom.boundRect
 import util.javageom.toPolyLine
 import util.polylines.PolyLine
 import util.polylines.clipping.offsetBy
-import util.step
 import java.awt.Color
 import java.awt.Shape
 import java.awt.geom.AffineTransform

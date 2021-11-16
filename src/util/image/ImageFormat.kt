@@ -8,9 +8,9 @@ import org.opencv.core.Mat
 import org.opencv.core.Scalar
 import processing.core.PConstants
 import processing.core.PImage
-import util.gray
-import util.toARGBScalar
-import util.toRGBScalar
+import util.base.gray
+import util.base.toARGBScalar
+import util.base.toRGBScalar
 import java.awt.Color
 
 enum class ImageFormat(val openCVFormat: Int, val pImageFormat: Int, val numChannels: Int) {

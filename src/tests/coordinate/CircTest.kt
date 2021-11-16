@@ -7,7 +7,7 @@ import coordinate.isInCircle
 import coordinate.isOnCircle
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import util.times
+import util.numbers.times
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.test.assertFalse

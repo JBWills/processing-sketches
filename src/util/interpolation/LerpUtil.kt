@@ -1,7 +1,7 @@
 package util.interpolation
 
-import util.DoubleRange
 import util.atAmountAlong
+import util.base.DoubleRange
 
 typealias InterpolationFn = (Double) -> Double
 

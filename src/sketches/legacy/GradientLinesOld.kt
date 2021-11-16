@@ -11,8 +11,8 @@ import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
 import coordinate.Point
-import util.pow
-import util.times
+import util.numbers.pow
+import util.numbers.times
 import java.awt.Color
 
 class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(

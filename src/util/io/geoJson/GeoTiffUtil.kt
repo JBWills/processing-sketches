@@ -12,9 +12,9 @@ import org.locationtech.jts.geom.LineString
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opengis.parameter.GeneralParameterValue
-import util.asCollection
 import util.image.opencvMat.gaussianBlur
 import util.image.raster.getSampleDouble
+import util.iterators.asCollection
 import util.iterators.groupValuesBy
 import util.polylines.PolyLine
 import java.awt.image.DataBufferFloat

@@ -32,6 +32,10 @@ import kotlinx.serialization.Transient
 import org.opencv.core.Mat
 import processing.core.PGraphics
 import processing.core.PImage
+import util.base.lerp
+import util.base.with
+import util.base.withAlpha
+import util.base.withAlphaDouble
 import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Gray
 import util.image.ImageFormat.RGB
@@ -42,14 +46,10 @@ import util.image.opencvMat.toMat
 import util.image.opencvMat.toPImage
 import util.image.pimage.overlay
 import util.io.serialization.MatSerializer
-import util.lerp
 import util.polylines.PolyLine
 import util.print.CustomPx
 import util.print.StrokeJoin
 import util.print.Style
-import util.with
-import util.withAlpha
-import util.withAlphaDouble
 import java.awt.Color
 
 enum class BrushType {

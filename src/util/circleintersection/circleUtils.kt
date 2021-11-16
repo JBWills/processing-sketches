@@ -3,9 +3,9 @@ package util.circleintersection
 import coordinate.Circ
 import coordinate.Point
 import coordinate.Segment
-import util.coerceTo
-import util.lessThan
-import util.squared
+import util.numbers.coerceTo
+import util.numbers.lessThan
+import util.numbers.squared
 import kotlin.math.sqrt
 
 /**

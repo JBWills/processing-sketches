@@ -11,11 +11,11 @@ import coordinate.Point
 import coordinate.Segment
 import kotlinx.serialization.Serializable
 import util.algorithms.contouring.getContour
+import util.base.select
+import util.base.toRange
 import util.interpolation.interpolate
 import util.iterators.times
-import util.pow
-import util.select
-import util.toRange
+import util.numbers.pow
 
 @Serializable
 data class ContourProp(

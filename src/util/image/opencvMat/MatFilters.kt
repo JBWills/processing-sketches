@@ -5,7 +5,6 @@ import coordinate.Point
 import org.opencv.core.Mat
 import org.opencv.core.Rect
 import org.opencv.imgproc.Imgproc
-import util.coerceOdd
 import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Companion.getFormat
 import util.image.ImageFormat.Gray
@@ -13,6 +12,7 @@ import util.image.ImageFormat.RGB
 import util.image.converted
 import util.image.opencvMat.BorderType.BorderReflect
 import util.image.opencvMat.OpenCVThresholdType.ThreshBinary
+import util.numbers.coerceOdd
 import java.awt.Color
 
 /**

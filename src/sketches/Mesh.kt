@@ -14,12 +14,12 @@ import fastnoise.Noise
 import fastnoise.NoiseQuality.High
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
-import util.ZeroToOne
-import util.map
+import util.base.ZeroToOne
+import util.base.plus
+import util.base.zeroTo
+import util.numbers.map
 import util.percentAlong
-import util.plus
 import util.tuple.map
-import util.zeroTo
 import java.awt.Color
 
 /**

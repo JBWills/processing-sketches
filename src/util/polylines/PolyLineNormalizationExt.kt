@@ -1,7 +1,7 @@
 package util.polylines.polyLine
 
 import coordinate.Segment
-import util.DoubleRange
+import util.base.DoubleRange
 import util.numbers.boundMin
 import util.polylines.PolyLine
 import util.polylines.forEachSegment
