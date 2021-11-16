@@ -2,8 +2,13 @@ package util.polylines
 
 import Interpolator2D.CubicSpline2D
 import coordinate.Point
-import util.atAmountAlong
 
+/**
+ * TODO Figure out why this is creating really wild values
+ *
+ * @param step
+ * @return
+ */
 fun PolyLine.interpolate(step: Double = 1.0): PolyLine {
   val interpolator = CubicSpline2D
   interpolator.setData(
@@ -11,11 +16,8 @@ fun PolyLine.interpolate(step: Double = 1.0): PolyLine {
     DoubleArray(this.size) { i -> this[i].y },
   )
 
-  val xRange = first().x..last().x
-
   return walkWithPercentAndSegment(step) { percent, segment, point ->
-    val x = xRange.atAmountAlong(percent)
-    val interpolatedValue = interpolator.interpolate(x)
-    if (interpolatedValue.isNaN()) point else Point(x, interpolatedValue)
+    val interpolatedValue = interpolator.interpolate(point.x)
+    if (interpolatedValue.isNaN()) point else Point(point.x, interpolatedValue)
   }
 }
