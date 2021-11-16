@@ -1,41 +1,21 @@
 package sketches
 
-import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.slider
 import controls.props.PropData
 import kotlinx.serialization.Serializable
-import sketches.base.LayeredCanvasSketch
+import sketches.base.SimpleCanvasSketch
 
 /**
  * Starter sketch that uses all of the latest bells and whistles.
  *
  * Copy and paste this to create a new sketch.
  */
-class ExampleSketch : LayeredCanvasSketch<ExampleData, ExampleLayerData>(
-  "Example",
-  defaultGlobal = ExampleData(),
-  layerToDefaultTab = { ExampleLayerData() },
-) {
-  override fun drawSetup(layerInfo: DrawInfo) {}
-  override fun drawOnce(layerInfo: LayerInfo) {}
+class ExampleSketch : SimpleCanvasSketch<ExampleData>("Example", ExampleData()) {
 
-  override suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {
-    val (exampleGlobalField) = layerInfo.globalValues
-    val (exampleTabField) = layerInfo.allTabValues
+  override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
+    val (exampleGlobalField) = drawInfo.dataValues
   }
-}
-
-@Serializable
-data class ExampleLayerData(
-  var exampleTabField: Int = 1,
-) : PropData<ExampleLayerData> {
-  override fun bind() = layerTab {
-    slider(::exampleTabField, 0..10)
-  }
-
-  override fun clone() = copy()
-  override fun toSerializer() = serializer()
 }
 
 @Serializable
