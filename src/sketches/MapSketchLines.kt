@@ -2,7 +2,6 @@ package sketches
 
 import appletExtensions.parallelLinesInBound
 import arrow.core.memoize
-import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.fileSelect
 import controls.panels.panelext.slider
@@ -25,7 +24,7 @@ import de.lighti.clipper.Clipper.JoinType
 import interfaces.shape.transform
 import kotlinx.serialization.Serializable
 import org.opencv.core.Mat
-import sketches.base.LayeredCanvasSketch
+import sketches.base.SimpleCanvasSketch
 import util.base.doIf
 import util.boundPercentAlong
 import util.image.opencvMat.bounds
@@ -54,20 +53,9 @@ import java.awt.Color
 /**
  * Draws a map with topology that can be offset to create a 3d effect.
  */
-class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
-  "MapSketchLines",
-  defaultGlobal = MapLinesData(),
-  layerToDefaultTab = { MapLinesLayerData() },
-) {
+class MapSketchLines : SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLinesData()) {
 
-  private val MaxMoveAmount = 300
-
-  init {
-    numLayers = 1
-  }
-
-  override fun drawSetup(layerInfo: DrawInfo) {
-  }
+  val MaxMoveAmount = 300
 
   private fun getTiffToScreenTransform(
     contourBounds: BoundRect,
@@ -114,8 +102,6 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
     return elevationLine.moveEndpoints { endpoints -> endpoints.map { it.withY(p1.y) } }
   }
 
-  override fun drawOnce(layerInfo: LayerInfo) {}
-
   private fun loadScaleAndRotateMat(
     fileName: String,
     blurAmount: Double,
@@ -126,8 +112,8 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
 
   val loadScaleAndRotateMatMemo = ::loadScaleAndRotateMat.memoize()
 
-  override suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {
-    val (geoTiffFile, drawMat, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, drawMinElevationOutline, occludeLines, drawOceanLines, blurAmount, lineSimplifyEpsilon, imageRotation, oceanContours, initialOceanLinesOffset, maxOceanDistanceFromLand) = layerInfo.globalValues
+  override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
+    val (geoTiffFile, drawMat, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, drawMinElevationOutline, occludeLines, drawOceanLines, blurAmount, lineSimplifyEpsilon, imageRotation, oceanContours, initialOceanLinesOffset, maxOceanDistanceFromLand) = drawInfo.dataValues
     geoTiffFile ?: return
 
     val elevationRange = minElevation..maxElevation
@@ -209,18 +195,6 @@ class MapSketchLines : LayeredCanvasSketch<MapLinesData, MapLinesLayerData>(
         .draw(boundRect)
     }
   }
-}
-
-@Serializable
-data class MapLinesLayerData(
-  var exampleTabField: Int = 1,
-) : PropData<MapLinesLayerData> {
-  override fun bind() = layerTab {
-    slider(::exampleTabField, 0..10)
-  }
-
-  override fun clone() = copy()
-  override fun toSerializer() = serializer()
 }
 
 @Serializable

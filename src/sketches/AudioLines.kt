@@ -51,7 +51,7 @@ class AudioLines : SimpleCanvasSketch<AudioLinesData>(
       val amplitudeLine = AmplitudeLine(pressures, interpolationType, interpolationSpread)
 
       val baseBounds = BoundRect(
-        Point(linesBound.topLeft.x, (lineIndex.toDouble() / linesToShow) * linesBound.height),
+        linesBound.topLeft + Point(0, (lineIndex.toDouble() / linesToShow) * linesBound.height),
         width = linesBound.width,
         height = 0,
       )
@@ -59,27 +59,16 @@ class AudioLines : SimpleCanvasSketch<AudioLinesData>(
       val baseLine = listOf(baseBounds.topLeft, baseBounds.topRight)
 
       withStroke(Color.PINK) {
-        (amplitudeLine.getUninterpolatedLine(baseLine.length).translated(baseBounds.topLeft)).draw(
-          boundRect,
-        )
+        amplitudeLine
+          .getUninterpolatedLine(baseLine.length)
+          .translated(baseBounds.topLeft)
+          .draw(boundRect)
       }
 
-      amplitudeLine.interpolateAlong(baseLine, step = interpolationStep) { origPoint, mappedPoint ->
-        val diff = mappedPoint - origPoint
-        val scaledDiff = diff.withY(diff.y)
-        origPoint + scaledDiff
+      amplitudeLine.interpolateAlong(baseLine, step = interpolationStep) { old, new ->
+        val diff = new - old
+        old + diff.withY(diff.y * amplitudeScale)
       }
-
-//      samplesPerLine.map { sampleIndex ->
-//        val basePoint = linesBound.topLeft + Point(
-//          (sampleIndex.toDouble() / samplesPerLine) * linesBound.width,
-//          (lineIndex.toDouble() / linesToShow) * linesBound.height,
-//        )
-//
-//        basePoint.addY(
-//          features.pressures[lineIndex * samplesPerLine + sampleIndex] * amplitudeScale,
-//        )
-//      }
     }.draw(boundRect)
   }
 }

@@ -30,6 +30,7 @@ import util.image.opencvMat.getTransformedMat
 import util.image.opencvMat.toPImage
 import util.image.pimage.scale
 import util.iterators.addNotNull
+import util.iterators.deepMap
 import util.iterators.forEach2D
 import util.iterators.mapWithNext
 import util.numbers.boundMin
@@ -43,6 +44,8 @@ import java.awt.Color
  * Todo: Why is this not just a bunch of top level extension functions?
  */
 open class PAppletExt : PApplet() {
+
+  val ClipScale = 1_000
 
   val windowBounds: BoundRect get() = BoundRect(Point.Zero, width, height)
 
@@ -102,7 +105,9 @@ open class PAppletExt : PApplet() {
     val rectLine = bound.toPolyLine()
     val clipOperation = if (boundInside) INTERSECTION else ClipType.DIFFERENCE
 
-    return unboundLines.clip(rectLine, clipOperation)
+    return unboundLines.deepMap { it * ClipScale }
+      .clip(rectLine.map { it * ClipScale }, clipOperation)
+      .deepMap { it * (1.0 / ClipScale) }
   }
 
   fun PolyLine.draw(bound: BoundRect? = null, boundInside: Boolean = true) =

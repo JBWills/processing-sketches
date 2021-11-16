@@ -33,7 +33,8 @@ data class AmplitudeLine(
     step: Double,
     block: (pointOnPoly: Point, transformedPoint: Point) -> Point = { _, transformedPoint -> transformedPoint }
   ): PolyLine = poly.walkWithPercentAndSegment(step) { percent, segment, point ->
-    block(point, point + segment.normal().slope.unitVector * getAtPercent(percent))
+    val newPoint = point + segment.normal().slope.unitVector * getAtPercent(percent)
+    block(point, newPoint)
   }
 
   override fun equals(other: Any?): Boolean {

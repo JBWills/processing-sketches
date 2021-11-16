@@ -70,15 +70,17 @@ fun PolyLine.walkWithPercentAndSegment(
     var currLength = lengthSoFar + step - lastSegmentUnused
 
     val pointsOnSegment = mutableListOf<Point>()
+    val pointsOnSegmentUntransformed = mutableListOf<Point>()
     while (currLength < segmentEndLength) {
       val p = segment.getPointAtDist(currLength - lengthSoFar)
       val transformedP = block(currLength / totalLength, segment, p)
       pointsOnSegment.add(transformedP)
+      pointsOnSegmentUntransformed.add(p)
       currLength += step
     }
 
-    if (pointsOnSegment.isNotEmpty()) {
-      lastSegmentUnused = pointsOnSegment.last().dist(segment.p2)
+    if (pointsOnSegmentUntransformed.isNotEmpty()) {
+      lastSegmentUnused = pointsOnSegmentUntransformed.last().dist(segment.p2)
     } else {
       lastSegmentUnused += segment.length
     }
