@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import sketches.base.SimpleCanvasSketch
 
 /**
- * Starter sketch that uses all of the latest bells and whistles.
+ * Starter sketch that uses all the latest bells and whistles.
  *
  * Copy and paste this to create a new sketch.
  */
