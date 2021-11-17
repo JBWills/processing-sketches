@@ -3,6 +3,10 @@ package util.base
 import util.tuple.Pair3
 
 inline fun <A, R> A.letWith(block: A.() -> R) = let { it.block() }
+
+inline fun <A> A.alsoIf(predicate: Boolean, block: (A) -> Unit): A =
+  doIf(predicate) { block(it); this }
+
 inline fun <A> A.doIf(predicate: Boolean, block: (A) -> A): A =
   doIf(predicate, ifTrue = block) { this }
 

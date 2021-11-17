@@ -57,6 +57,12 @@ inline fun <R> PApplet.withStroke(c: Color?, block: PApplet.() -> R): R =
 inline fun <R> PApplet.withFill(c: Color?, block: PApplet.() -> R): R =
   if (c != null) withFill(c.rgb, c.alpha, block) else block()
 
+inline fun <R> PApplet.withFillAndStroke(
+  strokeColor: Color?,
+  fillColor: Color? = strokeColor,
+  block: PApplet.() -> R
+): R = withStroke(strokeColor) { withFill(fillColor, block) }
+
 inline fun <R> PGraphics.withStroke(c: Color, block: PGraphics.() -> R): R =
   withStroke(c.rgb, c.alpha, block)
 

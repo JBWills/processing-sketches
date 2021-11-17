@@ -78,3 +78,15 @@ fun <T, R> Iterable<T>.reduceGeneral(initial: R, block: (R, T) -> R): R {
   forEach { r = block(r, it) }
   return r
 }
+
+fun <T> Iterable<T>.meanByOrNull(block: (T) -> Number): Double? {
+  var itemCount = 0
+  val sumTotal = sumByDouble {
+    itemCount++
+    block(it).toDouble()
+  }
+  
+  if (itemCount == 0) return null
+
+  return sumTotal / itemCount
+}

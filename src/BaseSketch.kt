@@ -126,11 +126,7 @@ abstract class BaseSketch(
       try {
         drawSetup()
         if (recordMode == RecordSVG) {
-          drawLayeredSvg(
-            svgBaseFileName,
-            getFilenameSuffix(),
-            getLayerSequence(),
-          )
+          drawLayeredSvg(svgBaseFileName, getFilenameSuffix(), size, getLayerSequence())
 
           recordMode = NoRecord
         } else {

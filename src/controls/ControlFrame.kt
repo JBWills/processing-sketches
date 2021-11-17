@@ -33,7 +33,7 @@ class ControlFrame(
     get() = BoundRect(w, h).minusPadding(PaddingRect(top = tabHeight))
 
   fun getActiveTabAndIndex(): Pair<ControlTab, Int>? {
-    val currentTabName = cp5.controlWindow.currentTab.name
+    val currentTabName = cp5.controlWindow.currentTab?.name ?: return null
 
     val tabIndex = tabs.indexOfFirst { it.name == currentTabName }
     return if (tabIndex == -1) null else tabs[tabIndex] to tabIndex

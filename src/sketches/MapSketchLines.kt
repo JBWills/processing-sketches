@@ -154,13 +154,15 @@ class MapSketchLines : SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLin
       maskedLines
         .deepMap { segment -> segment.convertToElevationLine(xyStep.x, ::elevationDelta) }
         .simplify(lineSimplifyEpsilon)
+//        .deepMap { it.interpolate(5.0) }
         .doIf(
           occludeLines,
           ifTrue = { it.occludeElevationLines(-1.0) },
           ifFalse = { Pair(listOf(), it) },
         )
 
-    elevationLines.draw(boundRect)
+    elevationLines
+      .draw(boundRect)
 
     if (drawMat) matThreshold.draw(matToScreen, boundRect)
     if (drawMinElevationOutline) {
@@ -176,10 +178,8 @@ class MapSketchLines : SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLin
       val simplifyAmount = oceanContours.simplifier.simplifyAmount
 
       val matContours = matThreshold
-//        .submat(windowBounds.transform(screenToMat))
         .gaussianBlur(3)
         .findContours(simplifyAmount)
-//        .translated(windowBounds.transform(screenToMat).topLeft)
         .transform(matToScreen)
 
       val offsets =

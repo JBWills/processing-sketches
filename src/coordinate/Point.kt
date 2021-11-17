@@ -99,7 +99,9 @@ data class Point(val x: Double, val y: Double) :
   fun addX(amt: Number) = Point(x + amt.toDouble(), y)
   fun addY(amt: Number) = Point(x, y + amt.toDouble())
   fun withX(amt: Number) = Point(amt, y)
+  fun withX(block: (Point) -> Number) = Point(block(this), y)
   fun withY(amt: Number) = Point(x, amt)
+  fun withY(block: (Point) -> Number) = Point(x, block(this))
   fun zeroX() = Point(0, y)
   fun zeroY() = Point(x, 0)
 
@@ -142,6 +144,8 @@ data class Point(val x: Double, val y: Double) :
   fun lerp(to: Point, steps: Int) = this..to step (dist(to) / steps)
 
   fun map(block: (Double) -> Number) = Point(block(x), block(y))
+  fun <T> toPair(block: (Double) -> T): Pair<T, T> = block(x) to block(y)
+  fun toPair() = toPair { it }
 
   fun forEach2D(block: (Point) -> Unit) = (Zero..this).forEach2D(block)
 

@@ -21,7 +21,7 @@ class SketchProps<Data : PropData<Data>>(
     defaultData ?: l.defaultData.clone(),
   )
 
-  var dataBackingField = defaultData.clone()
+  private var dataBackingField = defaultData.clone()
   var canvasBackingField = canvasData?.clone() ?: CanvasProp()
 
   private val dataProp: TabProp<Data> by lazy {

@@ -6,6 +6,7 @@ import appletExtensions.draw.rect
 import appletExtensions.withStyle
 import controls.panels.Panelable
 import controls.props.types.CanvasProp
+import util.base.alsoIf
 import util.base.darkened
 import util.print.Style
 import java.awt.Color
@@ -41,8 +42,15 @@ abstract class CanvasSketch(
       )
 
     withStyle(style) {
-      if (layer == getLayers().size - 1) {
-        if (canvasProps.drawBoundRect) rect(boundRect)
+      if (layer == getLayers().size - 1 && canvasProps.drawBoundRect) {
+        val boundRectsToDraw =
+          mutableListOf(boundRect)
+            .alsoIf(canvasProps.boundRectExtraWide) {
+              it.add(boundRect.expand(0.1))
+              it.add(boundRect.shrink(0.1))
+            }
+        boundRectsToDraw.forEach { rect(it) }
+        yield(Unit)
       }
 
       drawOnce(layer)

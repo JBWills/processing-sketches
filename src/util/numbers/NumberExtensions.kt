@@ -1,6 +1,7 @@
 package util.numbers
 
 import coordinate.Point
+import freemarker.template.utility.NumberUtil.isNaN
 import util.atAmountAlong
 import util.base.DoubleRange
 import util.base.step
@@ -102,5 +103,9 @@ fun Number.toRadians(): Double = toRadians(toDouble())
 fun Number.toDegrees(): Double = toDegrees(toDouble())
 
 fun Number.inchesToPx(): Int = (this.toDouble() * 72.0).toInt()
+
+fun Int.ifNan(block: () -> Int): Int = if (isNaN(this)) block() else this
+fun Float.ifNan(block: () -> Float): Float = if (isNaN(this)) block() else this
+fun Double.ifNan(block: () -> Double): Double = if (isNaN(this)) block() else this
 
 fun min(vararg doubles: Double) = doubles.reduce { acc, item -> kotlin.math.min(acc, item) }

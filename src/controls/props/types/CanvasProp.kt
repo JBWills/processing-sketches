@@ -25,6 +25,7 @@ data class CanvasProp(
   var boundBoxCenter: Point = Point.Half,
   var boundBoxScale: Point = Point(0.8, 0.8),
   var drawBoundRect: Boolean = true,
+  var boundRectExtraWide: Boolean = true,
   var orientation: Orientation = Orientation.Landscape,
   var strokeWeight: StrokeWeight = Thick()
 ) : PropData<CanvasProp> {
@@ -34,6 +35,7 @@ data class CanvasProp(
     boundBoxCenter: Point? = null,
     boundBoxScale: Point? = null,
     drawBoundRect: Boolean? = null,
+    boundRectExtraWide: Boolean? = null,
     orientation: Orientation? = null,
     strokeWeight: StrokeWeight? = null,
   ) : this(
@@ -41,6 +43,7 @@ data class CanvasProp(
     boundBoxCenter ?: c.boundBoxCenter,
     boundBoxScale ?: c.boundBoxScale,
     drawBoundRect ?: c.drawBoundRect,
+    boundRectExtraWide ?: c.boundRectExtraWide,
     orientation ?: c.orientation,
     strokeWeight ?: c.strokeWeight,
   )
@@ -74,7 +77,11 @@ data class CanvasProp(
     }
     col {
       style = ControlStyle.Red
-      toggle(::drawBoundRect).withHeight(0.5)
+      row {
+        toggle(::drawBoundRect).withHeight(0.5)
+        toggle(::boundRectExtraWide).withHeight(0.5)
+      }
+
       sliderPair(::boundBoxCenter)
       sliderPair(::boundBoxScale, withLockToggle = true, defaultLocked = false)
     }

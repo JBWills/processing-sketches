@@ -49,7 +49,8 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
    * Update the props directly (as in, not through the control panel).
    * This is useful if you need to listen to mouse or other UI events.
    *
-   * @param block block to modify the parent props in-place. Return true if the sketch should be marked dirty.
+   * @param block block to modify the parent props in-place.
+   * @return true if the sketch should be marked dirty.
    */
   @Suppress("unused")
   fun modifyPropsDirectly(
@@ -72,11 +73,11 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
     tab(PRESETS_TAB_NAME) {
       row {
-        button("Override $DEFAULT_PRESET_NAME preset") { savePreset(DEFAULT_PRESET_NAME) }
+        button("Override\n$DEFAULT_PRESET_NAME\npreset") { savePreset(DEFAULT_PRESET_NAME) }
 
         if (currentPreset != DEFAULT_PRESET_NAME) {
-          button("Override $currentPreset preset") { savePreset(currentPreset) }
-          button("Delete $currentPreset preset") { deletePreset(currentPreset) }
+          button("Override\n$currentPreset\npreset") { savePreset(currentPreset) }
+          button("Delete\n$currentPreset\npreset") { deletePreset(currentPreset) }
         }
       }
 

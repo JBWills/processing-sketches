@@ -1,22 +1,20 @@
 package util.polylines
 
-import Interpolator2D.CubicSpline2D
+import PointInterpolator1D.CubicSpline2D
 import coordinate.Point
 
-/**
- * TODO Figure out why this is creating really wild values
- *
- * @param step
- * @return
- */
 fun PolyLine.interpolate(step: Double = 1.0): PolyLine {
+  var last: Point? = null
+  val filteredLine = filter {
+    val result: Boolean = it.x != last?.x
+    last = it
+    result
+  }
+  if (filteredLine.size < 3) return this
   val interpolator = CubicSpline2D
-  interpolator.setData(
-    DoubleArray(this.size) { i -> this[i].x },
-    DoubleArray(this.size) { i -> this[i].y },
-  )
+  interpolator.setData(filteredLine)
 
-  return walkWithPercentAndSegment(step) { percent, segment, point ->
+  return filteredLine.walkWithPercentAndSegment(step) { percent, segment, point ->
     val interpolatedValue = interpolator.interpolate(point.x)
     if (interpolatedValue.isNaN()) point else Point(point.x, interpolatedValue)
   }
