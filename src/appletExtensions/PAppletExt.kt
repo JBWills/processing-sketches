@@ -30,7 +30,6 @@ import util.image.opencvMat.getTransformedMat
 import util.image.opencvMat.toPImage
 import util.image.pimage.scale
 import util.iterators.addNotNull
-import util.iterators.deepMap
 import util.iterators.forEach2D
 import util.iterators.mapWithNext
 import util.numbers.boundMin
@@ -44,18 +43,17 @@ import java.awt.Color
  * Todo: Why is this not just a bunch of top level extension functions?
  */
 open class PAppletExt : PApplet() {
-
-  val ClipScale = 1_000
-
   val windowBounds: BoundRect get() = BoundRect(Point.Zero, width, height)
 
-  val NOISE = getNoise(Perlin)
+  @Suppress("PropertyName")
+  val Noise = getNoise(Perlin)
 
   fun background(c: Color) = background(c.rgb)
   fun stroke(c: Color) = stroke(c.rgb)
   fun fill(c: Color) = fill(c.rgb)
   fun setSurfaceSize(p: Point) = surface.setSize(p.xi, p.yi)
 
+  @Suppress("SameParameterValue")
   private fun getNoise(type: NoiseType = Perlin): FastNoiseLite =
     FastNoiseLite().also { it.SetNoiseType(type) }
 
@@ -77,7 +75,7 @@ open class PAppletExt : PApplet() {
   fun debugCirc(p: Point) = circle(p.xf, p.yf, 5f)
   fun Point.drawDebugCirc() = debugCirc(this)
 
-  fun noiseXY(p: Point) = Point(NOISE.GetNoise(p.xf, p.yf, 0f), NOISE.GetNoise(p.xf, p.yf, 100f))
+  fun noiseXY(p: Point) = Point(Noise.GetNoise(p.xf, p.yf, 0f), Noise.GetNoise(p.xf, p.yf, 100f))
   fun noiseXY(x: Number, y: Number) = noiseXY(Point(x, y))
 
   fun PolyLine.toSegments(): List<Segment> = mapWithNext { curr, next -> Segment(curr, next) }
@@ -105,9 +103,7 @@ open class PAppletExt : PApplet() {
     val rectLine = bound.toPolyLine()
     val clipOperation = if (boundInside) INTERSECTION else ClipType.DIFFERENCE
 
-    return unboundLines.deepMap { it * ClipScale }
-      .clip(rectLine.map { it * ClipScale }, clipOperation)
-      .deepMap { it * (1.0 / ClipScale) }
+    return unboundLines.clip(rectLine, clipOperation)
   }
 
   fun PolyLine.draw(bound: BoundRect? = null, boundInside: Boolean = true) =

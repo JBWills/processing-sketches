@@ -1,7 +1,5 @@
 package util.polylines.clipping
 
-import coordinate.BoundRect
-import coordinate.Segment
 import de.lighti.clipper.Path
 import de.lighti.clipper.Paths
 import util.polylines.PolyLine
@@ -26,28 +24,17 @@ class ClipperPaths(val paths: Paths, private val forceClosed: ForceClosedOption)
   fun <B> map(block: (Path) -> B): List<B> = paths.map(block)
 
   companion object {
-    fun PolyLine.asPaths(forceClosed: ForceClosedOption = Default) =
-      ClipperPaths(toClipperPaths(), forceClosed)
+    fun PolyLine.asPaths(forceClosed: ForceClosedOption = Default, scale: Double = 1.0) =
+      ClipperPaths(toClipperPaths(scale), forceClosed)
 
     @JvmName("asPathsPolyLineList")
-    fun List<PolyLine>.asPaths(forceClosed: ForceClosedOption = Default) =
-      ClipperPaths(toClipperPaths(), forceClosed)
+    fun List<PolyLine>.asPaths(forceClosed: ForceClosedOption = Default, scale: Double = 1.0) =
+      ClipperPaths(toClipperPaths(scale), forceClosed)
 
     fun Path.asPaths(forceClosed: ForceClosedOption = Default) =
       ClipperPaths(toClipperPaths(), forceClosed)
 
     fun Paths.asPaths(forceClosed: ForceClosedOption = Default) =
       ClipperPaths(this, forceClosed)
-
-    @JvmName("asPathsSegments")
-    fun List<Segment>.asPaths(forceClosed: ForceClosedOption = Default) =
-      map { it.toPolyLine() }.asPaths(forceClosed)
-
-    @JvmName("asPathsBoundRect")
-    fun BoundRect.asPaths(forceClosed: ForceClosedOption = Default) =
-      toPolyLine().asPaths(forceClosed)
-
-    fun ClipperPaths.asPaths(forceClosed: ForceClosedOption? = null) =
-      ClipperPaths(paths, forceClosed ?: this.forceClosed)
   }
 }

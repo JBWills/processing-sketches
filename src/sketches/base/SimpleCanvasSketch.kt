@@ -85,12 +85,9 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
         savePreset(it)
       }
 
-      dropdown(
-        "Load Preset",
-        presets.keys.sorted(),
-        ::currentPreset,
-        shouldMarkDirty = false,
-      ) { onSwitchCanvas(it) }
+      dropdown("Load Preset", presets.keys.sorted(), ::currentPreset, shouldMarkDirty = false) {
+        onSwitchCanvas(it)
+      }
     },
     tab(CANVAS_TAB_NAME) {
       +props.canvasControls

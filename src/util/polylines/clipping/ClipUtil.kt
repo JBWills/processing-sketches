@@ -32,4 +32,6 @@ private fun ClipperPaths.operationAsTree(
 fun ClipperPaths.clip(
   operationType: ClipType,
   other: ClipperPaths,
-) = operationAsTree(operationType, other).toPolyLines()
+  scaleResult: Double,
+) = operationAsTree(operationType, other)
+  .toPolyLines(scale = scaleResult)

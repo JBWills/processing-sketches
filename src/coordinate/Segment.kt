@@ -232,7 +232,7 @@ class Segment(
 
 
     fun List<Segment>.move(amount: Point) = map { it + amount }
-    fun List<Segment>.segmentsToPolyLines() = map(Segment::asPolyLine)
+    fun List<Segment>.segmentsToPolyLines(): List<PolyLine> = map(Segment::asPolyLine)
     fun Pair<Point, Point>.toSegment() = Segment(first, second)
   }
 }

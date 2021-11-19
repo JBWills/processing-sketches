@@ -97,8 +97,8 @@ open class WarpSketch(
   }
 
   override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
-    NOISE.SetSeed(seed)
-    NOISE.SetNoiseType(noiseType)
+    Noise.SetSeed(seed)
+    Noise.SetNoiseType(noiseType)
     noStroke()
 
     stroke(Color.BLACK.rgb)

@@ -3,9 +3,7 @@ package util.polylines.clipping
 import coordinate.Point
 import de.lighti.clipper.Path
 import de.lighti.clipper.Paths
-import de.lighti.clipper.Point.DoublePoint
 import de.lighti.clipper.Point.LongPoint
-import de.lighti.clipper.PolyNode
 import de.lighti.clipper.PolyTree
 import util.base.doIf
 import util.polylines.PolyLine
@@ -15,35 +13,32 @@ import util.polylines.closed
  * Convenience file for converting between my objects and de.lighti.clipper objects
  */
 
-fun Point.toDoublePoint(): DoublePoint = DoublePoint(x, y)
-fun Point.toLongPoint(): LongPoint = LongPoint(xl, yl)
+fun Point.toLongPoint(scale: Double): LongPoint =
+  LongPoint((x * scale).toLong(), (y * scale).toLong())
 
-fun PolyLine.toLongPointList(): List<LongPoint> = map(Point::toLongPoint)
+fun PolyLine.toLongPointList(scale: Double): List<LongPoint> = map { it.toLongPoint(scale) }
 
-fun PolyLine.toClipperPath(): Path = Path(size).also { path -> path.addAll(toLongPointList()) }
+fun PolyLine.toClipperPath(scale: Double): Path =
+  Path(size).also { path -> path.addAll(toLongPointList(scale)) }
 
 @JvmName("lineToClipperPaths")
-fun PolyLine.toClipperPaths(): Paths = listOf(this).toClipperPaths()
+fun PolyLine.toClipperPaths(scale: Double): Paths = listOf(this).toClipperPaths(scale)
 
 @JvmName("lineListToClipperPaths")
-fun List<PolyLine>.toClipperPaths(): Paths =
-  Paths(size).also { paths -> paths.addAll(map { it.toClipperPath() }) }
+fun List<PolyLine>.toClipperPaths(scale: Double = 1.0): Paths =
+  Paths(size).also { paths -> paths.addAll(map { it.toClipperPath(scale) }) }
 
 fun Path.toClipperPaths(): Paths = Paths(1).also { it.add(this) }
 
-fun DoublePoint.toPoint(): Point = Point(x, y)
 fun LongPoint.toPoint(): Point = Point(x, y)
 
-fun Path.toPolyLine(closed: Boolean = false): PolyLine =
-  map { it.toPoint() }
+fun Path.toPolyLine(closed: Boolean = false, scale: Double): PolyLine =
+  map { it.toPoint() * scale }
     .doIf(closed) { it.closed() }
 
-fun Paths.toPolyLines(closed: Boolean = false): List<PolyLine> =
-  map { it.toPolyLine(closed) }
+fun Paths.toPolyLines(closed: Boolean = false, scale: Double): List<PolyLine> =
+  map { it.toPolyLine(closed, scale) }
 
-fun PolyNode.toPolyLine(forceClose: Boolean? = null): PolyLine =
-  polygon.toPolyLine(closed = forceClose ?: !isOpen)
-
-fun PolyTree.toPolyLines(forceClose: Boolean? = null): List<PolyLine> =
-  Paths.openPathsFromPolyTree(this).toPolyLines(closed = forceClose ?: false) +
-    Paths.closedPathsFromPolyTree(this).toPolyLines(closed = forceClose ?: true)
+fun PolyTree.toPolyLines(forceClose: Boolean? = null, scale: Double = 1.0): List<PolyLine> =
+  Paths.openPathsFromPolyTree(this).toPolyLines(closed = forceClose ?: false, scale) +
+    Paths.closedPathsFromPolyTree(this).toPolyLines(closed = forceClose ?: true, scale)

@@ -39,7 +39,6 @@ import util.iterators.deepMap
 import util.iterators.groupToSortedList
 import util.polylines.PolyLine
 import util.polylines.bound
-import util.polylines.clipping.ClipperPaths.Companion.asPaths
 import util.polylines.clipping.ForceClosedOption.Close
 import util.polylines.clipping.ForceClosedOption.NoClose
 import util.polylines.clipping.clip
@@ -141,13 +140,13 @@ class MapSketchLines : SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLin
         .parallelLinesInBound(Deg.HORIZONTAL, boundRect.height / samplePointsXY.yi)
         .sortedByDescending { it.p1.y }
 
-    val matThresholdContours = matThreshold
+    val matThresholdContours: List<PolyLine> = matThreshold
       .findContours(lineSimplifyEpsilon)
       .transform(matToScreen)
       .bound(expandedBoundRect, Close)
 
     val maskedLines: List<List<Segment>> = linesBottomToTop
-      .clip(matThresholdContours.asPaths(), INTERSECTION, NoClose)
+      .clip(matThresholdContours, INTERSECTION, NoClose)
       .groupToSortedList(sortDescending = true) { p1.y }
 
     val (unionShape: List<PolyLine>, elevationLines: List<List<PolyLine>>) =
