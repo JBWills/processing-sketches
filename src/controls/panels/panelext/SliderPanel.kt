@@ -1,7 +1,7 @@
 package controls.panels.panelext
 
-import controls.Control.Slider
-import controls.Control.Slider2d
+import controls.controlsealedclasses.Control.Slider
+import controls.controlsealedclasses.Control.Slider2d
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
 import controls.props.GenericProp
@@ -92,7 +92,11 @@ fun PanelBuilder.slider2D(
   style: ControlStyle? = null,
   shouldMarkDirty: Boolean = true,
 ) = addNewPanel(style) {
-  GenericProp(ref) { Slider2d(ref, ranges.first, ranges.second) { markDirtyIf(shouldMarkDirty) } }
+  GenericProp(ref) {
+    Slider2d(ref, ranges.first, ranges.second) {
+      markDirtyIf(shouldMarkDirty)
+    }
+  }
 }
 
 fun PanelBuilder.slider2D(

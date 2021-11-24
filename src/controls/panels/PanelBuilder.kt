@@ -54,8 +54,8 @@ open class PanelBuilder(val panels: MutableList<Panelable>) {
   fun addNewPanel(
     style: ControlStyle? = null,
     panelCreator: PanelBuilder.() -> Panelable
-  ): Panelable =
-    panelCreator().applyAndAdd(style)
+  ): Panelable = panelCreator().applyAndAdd(style)
+
 
   fun build(): ControlList = ControlList(
     name = name ?: direction.name,

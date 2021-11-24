@@ -1,8 +1,8 @@
 package controls.panels.panelext
 
 import BaseSketch
-import controls.Control.Dropdown
-import controls.Control.EnumDropdown
+import controls.controlsealedclasses.Control.Dropdown
+import controls.controlsealedclasses.Control.EnumDropdown
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
 import controls.props.GenericProp

@@ -1,6 +1,6 @@
 package controls.panels.panelext
 
-import controls.Control.Toggle
+import controls.controlsealedclasses.Control.Toggle
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
 import controls.props.GenericProp

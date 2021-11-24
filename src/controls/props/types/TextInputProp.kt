@@ -1,8 +1,8 @@
 package controls.props.types
 
 import BaseSketch
-import controls.Control.Button
-import controls.Control.TextInput
+import controls.controlsealedclasses.Control.Button
+import controls.controlsealedclasses.Control.TextInput
 import controls.panels.ControlList
 import controls.panels.ControlList.Companion.row
 

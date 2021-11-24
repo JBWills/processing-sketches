@@ -1,4 +1,4 @@
-package controls
+package controls.controlsealedclasses
 
 import BaseSketch
 import controlP5.ControlP5

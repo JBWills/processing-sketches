@@ -37,7 +37,7 @@ fun <T, TWrap> KMutableProperty0<T>.wrapped(
 
   override fun get(): TWrap = this@wrapped.get().wrap()
 
-  override fun set(newItem: TWrap) = this@wrapped.set(newItem.unwrap())
+  override fun set(item: TWrap) = this@wrapped.set(item.unwrap())
 }
 
 fun <T, K, TWrap> Pair<KMutableProperty0<T>, KMutableProperty0<K>>.wrapped(
@@ -49,8 +49,8 @@ fun <T, K, TWrap> Pair<KMutableProperty0<T>, KMutableProperty0<K>>.wrapped(
 
   override fun get(): TWrap = wrap(this@wrapped.first.get(), this@wrapped.second.get())
 
-  override fun set(newItem: TWrap) {
-    newItem.unwrap().let { (newItem1, newItem2) ->
+  override fun set(item: TWrap) {
+    item.unwrap().let { (newItem1, newItem2) ->
       this@wrapped.first.set(newItem1)
       this@wrapped.second.set(newItem2)
     }

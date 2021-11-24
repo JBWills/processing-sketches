@@ -50,7 +50,7 @@ class NoiseElevationSketch : LayeredCanvasSketch<NoiseElevationData, NoiseElevat
       pointTransformFunc = { pointLocation, _, _ ->
         pointLocation + (elevationMoveAmount * elevationPercent(pointLocation))
       },
-      pointVisibleFunc = { pointLocation, transformedPointLocation, x, y ->
+      pointVisibleFunc = { pointLocation, _, _, _ ->
         isPointVisible(pointLocation)
       },
     ).toLines()

@@ -14,7 +14,7 @@ fun PolyLine.interpolate(step: Double = 1.0): PolyLine {
   val interpolator = CubicSpline2D
   interpolator.setData(filteredLine)
 
-  return filteredLine.walkWithPercentAndSegment(step) { percent, segment, point ->
+  return filteredLine.walkWithPercentAndSegment(step) { _, _, point ->
     val interpolatedValue = interpolator.interpolate(point.x)
     if (interpolatedValue.isNaN()) point else Point(point.x, interpolatedValue)
   }

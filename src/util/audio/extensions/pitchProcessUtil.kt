@@ -12,7 +12,7 @@ fun AudioDispatcher.processPitch(
   val result = mutableListOf<Double>()
 
   addAudioProcessor(
-    PitchProcessor(algo, format.sampleRate, sampleSize) { pitch, event ->
+    PitchProcessor(algo, format.sampleRate, sampleSize) { pitch, _ ->
       result.add(pitch.pitch.toDouble())
     },
   )

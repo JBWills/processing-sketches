@@ -120,7 +120,7 @@ open class PAppletExt : PApplet() {
    * testing!
    */
   fun List<PolyLine>.drawDebug() {
-    val totalSize = sumBy { (it.size - 1).boundMin(0) }
+    val totalSize = sumOf { (it.size - 1).boundMin(0) }
     var currIndex = 0
 
     val colors = listOf(Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN, Color.BLUE)

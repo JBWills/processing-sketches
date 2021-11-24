@@ -1,9 +1,9 @@
 package controls.props.types
 
 import BaseSketch
-import controls.Control.EnumDropdown
-import controls.Control.Slider
-import controls.Control.Slider2d
+import controls.controlsealedclasses.Control.EnumDropdown
+import controls.controlsealedclasses.Control.Slider
+import controls.controlsealedclasses.Control.Slider2d
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlPanel
 import coordinate.Point

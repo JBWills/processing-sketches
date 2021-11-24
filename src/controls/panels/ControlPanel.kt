@@ -2,7 +2,7 @@ package controls.panels
 
 import BaseSketch
 import controlP5.ControlP5
-import controls.Control
+import controls.controlsealedclasses.Control
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlStyle.Companion.EmptyStyle
 import controls.panels.ListDirection.Col
@@ -89,7 +89,7 @@ sealed class ControlPanel(
  *
  * @param name the name of the tab, this will display at the top of the controlFrame and should be
  *   unique compared to other tabs, since it will be used to generate view IDs.
- * @param style the style to apply to the panels and controls in the tab.
+ * @param tabStyle the style to apply to the panels and controls in the tab.
  */
 class ControlTab(
   name: String,
@@ -121,7 +121,6 @@ class ControlTab(
   )
 
   fun withName(newName: String) = ControlTab(this, newName)
-  fun withName(nameFunc: (String) -> String) = ControlTab(this, nameFunc(name))
 
   override fun toString(): String {
     return "ControlTab(name = $name, panel=$panel, base=${super.toString()})"
@@ -151,9 +150,9 @@ class ControlList(
   name: String = "",
   style: ControlStyle = EmptyStyle,
   val direction: ListDirection = Row,
-  val widthOverride: Double? = null,
-  val heightOverride: Double? = null,
-  val items: List<ControlPanel>,
+  private val widthOverride: Double? = null,
+  private val heightOverride: Double? = null,
+  private val items: List<ControlPanel>,
 ) : ControlPanel(name, style) {
   init {
     items.forEach { it.parent = this }
@@ -233,7 +232,7 @@ class ControlList(
     val ratio = when (direction) {
       Row -> items.maxOfOrNull { it.heightRatio }
         ?: 0.0
-      Col -> items.sumByDouble { it.heightRatio }
+      Col -> items.sumOf { it.heightRatio }
     }
 
     if (ratio == 0.0)
@@ -244,7 +243,7 @@ class ControlList(
   override
   val widthRatio by lazy {
     val ratio = when (direction) {
-      Row -> items.sumByDouble { it.widthRatio }
+      Row -> items.sumOf { it.widthRatio }
       Col -> items.maxOfOrNull { it.widthRatio }
         ?: 0.0
     }

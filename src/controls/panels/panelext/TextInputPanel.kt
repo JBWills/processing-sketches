@@ -1,8 +1,8 @@
 package controls.panels.panelext
 
 import BaseSketch
-import controls.Control.Button
-import controls.Control.TextInput
+import controls.controlsealedclasses.Control.Button
+import controls.controlsealedclasses.Control.TextInput
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
 import kotlin.reflect.KMutableProperty0

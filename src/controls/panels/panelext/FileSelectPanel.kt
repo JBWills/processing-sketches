@@ -1,6 +1,6 @@
 package controls.panels.panelext
 
-import controls.Control.FileName
+import controls.controlsealedclasses.Control.FileName
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
 import controls.props.GenericProp

@@ -1,7 +1,7 @@
 package controls.panels.panelext
 
-import controls.Control.Slider
-import controls.Control.Toggle
+import controls.controlsealedclasses.Control.Slider
+import controls.controlsealedclasses.Control.Toggle
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
 import controls.panels.panelext.util.RefGetter

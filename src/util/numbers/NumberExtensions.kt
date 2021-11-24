@@ -30,7 +30,7 @@ inline fun <R> Int.map(f: (Int) -> R) = (0 until this).map(f)
 inline fun Int.times(f: (Int) -> Unit) = (0 until this).forEach(f)
 
 fun sum(vararg numbers: Number): Double =
-  numbers.sumByDouble { it.toDouble() }
+  numbers.sumOf { it.toDouble() }
 
 fun mean(vararg numbers: Number): Double = sum(*numbers) / numbers.size
 
