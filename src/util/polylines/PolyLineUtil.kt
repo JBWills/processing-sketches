@@ -35,16 +35,6 @@ fun List<PolyLine>.bound(
   forceClosedOption: ForceClosedOption = Default
 ): List<PolyLine> = clip(bound.toPolyLine(), INTERSECTION, forceClosedOption)
 
-@JvmName("ShiftSegments")
-fun List<Segment>.translated(p: Point) = map { it + p }
-
-@JvmName("translatedLine")
-fun PolyLine.translated(p: Point): PolyLine = map { it + p }
-
-fun List<PolyLine>.translated(p: Point): List<PolyLine> = map { it.translated(p) }
-
-fun MutablePolyLine.translatedInPlace(p: Point): Unit = indices.forEach { this[it] += p }
-
 fun MutablePolyLine.appendSegmentOrStartNewLine(s: Segment): MutablePolyLine? = when {
   isEmpty() -> {
     add(s.p1)

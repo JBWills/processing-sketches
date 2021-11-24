@@ -25,9 +25,9 @@ fun forEachPoint(w: Double, h: Double, step: Double, block: (p: Point) -> Unit) 
     }
   }
 
-fun <R> Int.map(f: (Int) -> R) = (0 until this).map(f)
+inline fun <R> Int.map(f: (Int) -> R) = (0 until this).map(f)
 
-fun Int.times(f: (Int) -> Unit) = (0 until this).forEach(f)
+inline fun Int.times(f: (Int) -> Unit) = (0 until this).forEach(f)
 
 fun sum(vararg numbers: Number): Double =
   numbers.sumByDouble { it.toDouble() }

@@ -15,6 +15,8 @@ import interfaces.shape.Walkable
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import util.numbers.remap
+import util.polylines.PolyLine
+import util.polylines.walk
 
 @Suppress("unused")
 enum class NoiseQuality(val step: Double) {
@@ -84,8 +86,13 @@ data class Noise(
     offset: Point? = null,
     strength: Point? = null,
   ) = Noise(
-    this, seed = seed, noiseType = noiseType, quality = quality, scale = scale,
-    offset = offset, strength = strength,
+    this,
+    seed = seed,
+    noiseType = noiseType,
+    quality = quality,
+    scale = scale,
+    offset = offset,
+    strength = strength,
   )
 
   private fun noiseAt2D(p: Point) = Point(
@@ -119,31 +126,39 @@ data class Noise(
     return pointToMove + (dir * scaleFn(noiseVal))
   }
 
-  fun List<Point>.warped(scaleFn: (Point) -> Point = { it }): List<Point> =
+  fun PolyLine.warped(scaleFn: (Point) -> Point = { it }): PolyLine =
     map { move(it, scaleFn) }
 
-  fun List<Point>.warpedRadially(
+  fun PolyLine.warpedRadially(
     originPoint: Point, scaleFn: (Double) -> Double = { it },
-  ): List<Point> = map { moveRadially(it, originPoint, scaleFn) }
+  ): PolyLine = map { moveRadially(it, originPoint, scaleFn) }
 
-  fun move(points: List<Point>, scaleFn: (Point) -> Point = { it }): List<Point> =
+  fun move(points: PolyLine, scaleFn: (Point) -> Point = { it }): PolyLine =
     points.warped(scaleFn)
 
   fun moveRadially(
-    points: List<Point>, originPoint: Point, scaleFn: (Double) -> Double = { it },
-  ): List<Point> = points.warpedRadially(originPoint, scaleFn)
+    points: PolyLine, originPoint: Point, scaleFn: (Double) -> Double = { it },
+  ): PolyLine = points.warpedRadially(originPoint, scaleFn)
 
-  fun warp(w: Walkable, scaleFn: (Point) -> Point = { it }): List<Point> =
+  fun warp(w: Walkable, scaleFn: (Point) -> Point = { it }): PolyLine =
+    w.walk(quality.step) { move(it, scaleFn) }
+
+  fun warp(w: PolyLine, scaleFn: (Point) -> Point = { it }): PolyLine =
     w.walk(quality.step) { move(it, scaleFn) }
 
   fun warpRadially(
-    w: Walkable, aroundPoint: Point, scaleFn: (Double) -> Double = { it },
-  ): List<Point> = w.walk(quality.step) { moveRadially(it, aroundPoint, scaleFn) }
+    w: Walkable,
+    aroundPoint: Point,
+    scaleFn: (Double) -> Double = { it },
+  ): PolyLine = w.walk(quality.step) { moveRadially(it, aroundPoint, scaleFn) }
 
   fun clone() = Noise(this)
 
   companion object {
-    fun Walkable.warped(noise: Noise, scaleFn: (Point) -> Point = { it }): List<Point> =
+    fun PolyLine.warped(noise: Noise, scaleFn: (Point) -> Point = { it }): PolyLine =
+      noise.warp(this, scaleFn)
+
+    fun Walkable.warped(noise: Noise, scaleFn: (Point) -> Point = { it }): PolyLine =
       noise.warp(this, scaleFn)
 
     val warpedMemo = { walkable: Walkable, noise: Noise ->

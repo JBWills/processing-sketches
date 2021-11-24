@@ -46,6 +46,12 @@ fun Int.bound(start: Int = 0, end: Int = 1): Int = when {
   else -> this
 }
 
+fun Long.bound(start: Long = 0, end: Long = 1): Long = when {
+  this < start -> start
+  this > end -> end
+  else -> this
+}
+
 fun Number.bound(start: Float = 0f, end: Float = 1f): Float {
   val t = this.toFloat()
   return when {

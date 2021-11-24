@@ -27,6 +27,13 @@ abstract class CanvasSketch(
 
   override fun getControls(): Panelable = canvasProps.asControlPanel()
 
+  private fun drawBoundRect(): Unit =
+    mutableListOf(boundRect)
+      .alsoIf(canvasProps.boundRectExtraWide) {
+        it.add(boundRect.expand(0.2))
+        it.add(boundRect.shrink(0.2))
+      }.forEach { rect(it) }
+
   abstract suspend fun SequenceScope<Unit>.drawOnce(layer: Int)
 
   override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
@@ -42,18 +49,13 @@ abstract class CanvasSketch(
       )
 
     withStyle(style) {
-      if (layer == getLayers().size - 1 && canvasProps.drawBoundRect) {
-        val boundRectsToDraw =
-          mutableListOf(boundRect)
-            .alsoIf(canvasProps.boundRectExtraWide) {
-              it.add(boundRect.expand(0.1))
-              it.add(boundRect.shrink(0.1))
-            }
-        boundRectsToDraw.forEach { rect(it) }
-        yield(Unit)
-      }
-
       drawOnce(layer)
+
+      val isLastLayer = layer == getLayers().size - 1
+      if (isLastLayer && canvasProps.drawBoundRect) {
+        nextLayer()
+        drawBoundRect()
+      }
     }
   }
 }

@@ -13,20 +13,17 @@ import util.polylines.closed
  * Convenience file for converting between my objects and de.lighti.clipper objects
  */
 
-fun Point.toLongPoint(scale: Double): LongPoint =
-  LongPoint((x * scale).toLong(), (y * scale).toLong())
-
 fun PolyLine.toLongPointList(scale: Double): List<LongPoint> = map { it.toLongPoint(scale) }
 
 fun PolyLine.toClipperPath(scale: Double): Path =
-  Path(size).also { path -> path.addAll(toLongPointList(scale)) }
+  Path(size).also { path -> path.addAll(run { toLongPointList(scale) }) }
 
 @JvmName("lineToClipperPaths")
 fun PolyLine.toClipperPaths(scale: Double): Paths = listOf(this).toClipperPaths(scale)
 
 @JvmName("lineListToClipperPaths")
 fun List<PolyLine>.toClipperPaths(scale: Double = 1.0): Paths =
-  Paths(size).also { paths -> paths.addAll(map { it.toClipperPath(scale) }) }
+  Paths(size).also { path -> path.addAll(this.map { line -> line.toClipperPath(scale) }) }
 
 fun Path.toClipperPaths(): Paths = Paths(1).also { it.add(this) }
 

@@ -2,6 +2,7 @@ import RecordMode.NoRecord
 import RecordMode.RecordSVG
 import appletExtensions.PAppletExt
 import appletExtensions.createGraphics
+import appletExtensions.withFillAndStroke
 import appletExtensions.withStyle
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlTab
@@ -87,6 +88,20 @@ abstract class BaseSketch(
   }
 
   open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(Thick(), color = strokeColor)))
+
+  suspend inline fun SequenceScope<Unit>.newLayerStyled(
+    stroke: Color,
+    fill: Color? = null,
+    block: () -> Unit
+  ) = withFillAndStroke(stroke, fill) {
+    block()
+    yield(Unit)
+  }
+
+
+  suspend inline fun SequenceScope<Unit>.nextLayer() {
+    yield(Unit)
+  }
 
   abstract suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig)
 

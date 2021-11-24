@@ -56,15 +56,15 @@ fun PolyLine.walkWithPercentAndSegment(
   @Suppress("NAME_SHADOWING")
   val step = abs(step.toDouble())
 
-  var lengthSoFar = 0.0
   val totalLength = length
 
   if (size < 1) return listOf()
   if (size < 2 || totalLength == 0.0) return listOf(block(0.0, Segment(first(), first()), first()))
 
+  var lengthSoFar = 0.0
   var lastSegmentUnused = 0.0
 
-  val walkedLine = line.first() + line.mapBySegment { segment ->
+  val walkedLine = block(0.0, Segment(first(), this[1]), first()) + line.mapBySegment { segment ->
     val segmentEndLength = lengthSoFar + segment.length
 
     var currLength = lengthSoFar + step - lastSegmentUnused
