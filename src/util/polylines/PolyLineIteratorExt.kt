@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package util.polylines
 
 import coordinate.Point
@@ -9,6 +11,7 @@ import util.iterators.deepMap
 import util.iterators.forEachWithNext
 import util.iterators.mapWithNext
 import util.iterators.mapWithNextIndexed
+import util.iterators.secondOrNull
 import util.iterators.secondToLast
 import kotlin.math.abs
 
@@ -47,24 +50,33 @@ fun List<PolyLine>.transform(t: ShapeTransform): List<PolyLine> = deepMap { it.t
 fun List<List<PolyLine>>.transform(t: ShapeTransform): List<List<PolyLine>> =
   deepDeepMap { it.transform(t) }
 
-fun PolyLine.walkWithPercentAndSegment(
-  step: Number,
-  block: (percent: Double, segment: Segment, point: Point) -> Point = { _, _, point -> point }
+/**
+ * @param step must be positive
+ */
+private fun walkWithPercentAndSegmentForwardsOnly(
+  line: PolyLine,
+  step: Double,
+  block: (percent: Double, segment: Segment, point: Point) -> Point = { _, _, point -> point },
 ): List<Point> {
-  val line = if (step.toDouble() < 0.0) reversed() else this
+  if (step <= 0.0) {
+    throw Exception("Cannot call walkWithPercentAndSegmentForwardsOnly with a step <= 0.0")
+  }
 
-  @Suppress("NAME_SHADOWING")
-  val step = abs(step.toDouble())
+  val totalLength = line.length
 
-  val totalLength = length
+  if (line.isEmpty()) return listOf()
 
-  if (size < 1) return listOf()
-  if (size < 2 || totalLength == 0.0) return listOf(block(0.0, Segment(first(), first()), first()))
+  val firstItemProcessed = block(
+    0.0,
+    Segment(line.first(), line.secondOrNull() ?: line.first()),
+    line.first(),
+  )
+  if (line.size < 2 || totalLength == 0.0) return listOf(firstItemProcessed)
 
   var lengthSoFar = 0.0
   var lastSegmentUnused = 0.0
 
-  val walkedLine = block(0.0, Segment(first(), this[1]), first()) + line.mapBySegment { segment ->
+  val walkedLine = firstItemProcessed + line.mapBySegment { segment ->
     val segmentEndLength = lengthSoFar + segment.length
 
     var currLength = lengthSoFar + step - lastSegmentUnused
@@ -95,6 +107,22 @@ fun PolyLine.walkWithPercentAndSegment(
   }
 
   return walkedLine
+}
+
+fun PolyLine.walkWithPercentAndSegment(
+  step: Number,
+  block: (percent: Double, segment: Segment, point: Point) -> Point = { _, _, point -> point }
+): List<Point> {
+  if (step.toDouble() == 0.0) {
+    throw Exception("Can't walk along a line with a step of 0, it will be infinite!")
+  }
+
+  val line = if (step.toDouble() < 0.0) reversed() else this
+
+  @Suppress("NAME_SHADOWING")
+  val step = abs(step.toDouble())
+
+  return walkWithPercentAndSegmentForwardsOnly(line, step, block)
 }
 
 fun PolyLine.walk(step: Number, block: (point: Point) -> Point = { it }): List<Point> =

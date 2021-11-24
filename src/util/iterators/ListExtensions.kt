@@ -106,3 +106,4 @@ fun <T, SortingAttr : Comparable<SortingAttr>> Iterable<T>.groupToSortedList(
 
 fun <T> List<T>.secondToLast(): T = get(size - 2)
 fun <T> List<T>.secondToLastOrNull(): T? = getOrNull(size - 2)
+fun <T> List<T>.secondOrNull(): T? = getOrNull(1)
