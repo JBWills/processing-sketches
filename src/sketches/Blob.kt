@@ -1,14 +1,14 @@
 package sketches
 
 import appletExtensions.getParallelLinesInBoundMemo
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle.Companion.Blue
 import controls.panels.ControlStyle.Companion.Green
 import controls.panels.ControlStyle.Companion.Red
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.noisePanel
-import controls.panels.panelext.slider
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import controls.props.types.ShapeProp
 import controls.props.types.ShapeType.Rectangle
@@ -101,7 +101,12 @@ class Blob : LayeredCanvasSketch<BlobData, BlobLayerData>(
     lines.flatMap {
       warpedMemo(it, lineNoise)
         .walkThreshold(noise, thresholdStart)
-        .flatMap { lineSegment -> lineSegment.clip(shape.getPolyLine(boundRect), INTERSECTION) }
+        .flatMap { lineSegment ->
+          lineSegment.clip(
+            shape.getPolyLine(boundRect),
+            INTERSECTION,
+          )
+        }
     }.draw()
   }
 }

@@ -1,13 +1,13 @@
 package sketches
 
+import controls.controlsealedclasses.Button.Companion.button
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
-import controls.panels.panelext.button
 import controls.panels.panelext.fileSelect
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import controls.props.types.ContourProp
 import coordinate.BoundRect
@@ -19,7 +19,6 @@ import util.image.opencvMat.contourMemo
 import util.image.opencvMat.geoTiffToGray
 import util.percentAlong
 import util.polylines.transform
-
 
 /**
  * Draws a map with topology that can be offset to create a 3d effect.
@@ -40,19 +39,21 @@ class MapSketch : LayeredCanvasSketch<MapData, MapLayerData>(
   private fun getTiffToScreenTransform(
     contourBounds: BoundRect,
     mapScale: Double,
-    mapCenter: Point
+    mapCenter: Point,
   ) = getCoordinateMap(
     contourBounds,
     boundRect
-      .scaled(mapScale).let { it.translated(mapCenter * it.size - (it.size / 2)) },
+      .scaled(mapScale)
+      .let { it.translated(mapCenter * it.size - (it.size / 2)) },
   )
 
   private fun getThresholdToOffset(
     allThresholds: List<Double>,
-    layerMove: Point
+    layerMove: Point,
   ): Map<Double, Point> =
     allThresholds.associateWith { threshold ->
-      val thresholdPercent = (allThresholds.first()..allThresholds.last()).percentAlong(threshold)
+      val thresholdPercent =
+        (allThresholds.first()..allThresholds.last()).percentAlong(threshold)
       if (thresholdPercent.isNaN()) Point(0)
       else layerMove * thresholdPercent
     }
@@ -63,10 +64,15 @@ class MapSketch : LayeredCanvasSketch<MapData, MapLayerData>(
 
     val allThresholds = contourProp.getThresholds()
 
-    val contourResponse = contourMemo(geoTiffFile, getThresholdToOffset(allThresholds, layerMove))
+    val contourResponse =
+      contourMemo(geoTiffFile, getThresholdToOffset(allThresholds, layerMove))
 
     val scaleAndMove =
-      getTiffToScreenTransform(contourResponse.baseMatBoundsInUnionRect, mapScale, mapCenter)
+      getTiffToScreenTransform(
+        contourResponse.baseMatBoundsInUnionRect,
+        mapScale,
+        mapCenter,
+      )
 
     if (drawMap) {
       contourResponse.contours.first().binaryImage.draw(boundRect.topLeft)

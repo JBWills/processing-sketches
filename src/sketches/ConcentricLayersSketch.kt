@@ -2,7 +2,7 @@ package sketches
 
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.slider
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.props.PropData
 import coordinate.Arc
 import coordinate.Circ
@@ -17,12 +17,13 @@ import util.numbers.bound
 
 const val MAX_CIRCLES = 8
 
-class ConcentricLayersSketch : LayeredCanvasSketch<CircleGlobalData, CircleLayerData>(
-  "ConcentricLayersSketch",
-  CircleGlobalData(),
-  { CircleLayerData() },
-  maxLayers = MAX_CIRCLES,
-) {
+class ConcentricLayersSketch :
+  LayeredCanvasSketch<CircleGlobalData, CircleLayerData>(
+    "ConcentricLayersSketch",
+    CircleGlobalData(),
+    { CircleLayerData() },
+    maxLayers = MAX_CIRCLES,
+  ) {
   val trueNumLayers get() = arcsPerLayer.size
   val trueNumCircles get() = if (arcsPerLayer.size <= 1) 0 else arcsPerLayer[1].size
 
@@ -35,13 +36,21 @@ class ConcentricLayersSketch : LayeredCanvasSketch<CircleGlobalData, CircleLayer
   private fun getArcsAtIndex(circleIndex: Int, startLayer: Int): List<Arc> =
     (startLayer until trueNumLayers).map { layer -> arcsPerLayer[layer][circleIndex] }
 
-  private fun getCircle(circleIndex: Int, circleGlobalData: CircleGlobalData): Circ {
+  private fun getCircle(
+    circleIndex: Int,
+    circleGlobalData: CircleGlobalData,
+  ): Circ {
     val (startRad, endRad) = circleGlobalData.startRad to circleGlobalData.endRad
-    val rad = (startRad..endRad).atAmountAlong(circleIndex / trueNumCircles.toDouble())
+    val rad =
+      (startRad..endRad).atAmountAlong(circleIndex / trueNumCircles.toDouble())
     return Circ(center, rad)
   }
 
-  private fun getArcsForLayer(index: Int, c: CircleLayerData, g: CircleGlobalData): List<Arc> {
+  private fun getArcsForLayer(
+    index: Int,
+    c: CircleLayerData,
+    g: CircleGlobalData,
+  ): List<Arc> {
     if (index == 0) return listOf()
 
     return (0 until g.numCircles).map { circleIndex ->
@@ -71,7 +80,11 @@ class ConcentricLayersSketch : LayeredCanvasSketch<CircleGlobalData, CircleLayer
 
   override fun drawOnce(
     layerInfo: LayerInfo,
-  ) = getArcsForLayer(layerInfo.layerIndex, layerInfo.tabValues, layerInfo.globalValues)
+  ) = getArcsForLayer(
+    layerInfo.layerIndex,
+    layerInfo.tabValues,
+    layerInfo.globalValues,
+  )
     .flatMapIndexed { circleIndex, layerArc ->
       layerArc.minusAll(
         getArcsAtIndex(circleIndex, layerInfo.layerIndex + 1)

@@ -6,7 +6,7 @@ import appletExtensions.draw.rect
 import appletExtensions.drawParallelLinesInBound
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.panels.panelext.slider
+import controls.controlsealedclasses.Slider.Companion.slider
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Point
@@ -34,13 +34,17 @@ open class GradientLinesSketch(
     slider(::lineDegrees, range = 0.0..360.0)
   }
 
-  fun bounds(segmentHeight: Double, segIndexFromTop: Int, numSegs: Int = 1) = BoundRect(
-    drawBound.topLeft + Point(0f, segIndexFromTop * segmentHeight),
-    drawBound.width,
-    segmentHeight * numSegs,
-  )
+  fun bounds(segmentHeight: Double, segIndexFromTop: Int, numSegs: Int = 1) =
+    BoundRect(
+      drawBound.topLeft + Point(0f, segIndexFromTop * segmentHeight),
+      drawBound.width,
+      segmentHeight * numSegs,
+    )
 
-  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(
+    layer: Int,
+    layerConfig: LayerConfig,
+  ) {
     noStroke()
 
     stroke(Color.WHITE.rgb)

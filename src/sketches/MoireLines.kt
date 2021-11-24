@@ -2,11 +2,11 @@ package sketches
 
 import FastNoiseLite.NoiseType.Perlin
 import appletExtensions.getParallelLinesInBound
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.dropdown
 import controls.panels.panelext.noisePanel
-import controls.panels.panelext.slider
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import coordinate.Circ
@@ -50,7 +50,7 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
       lineOffset,
       shapeSize,
       shapeCenter,
-      noise
+      noise,
     ) = layerInfo.tabValues
 
     val centerPoint = boundRect.pointAt(shapeCenter.x, shapeCenter.y)
@@ -68,10 +68,15 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
       Rectangle -> {
         val r = boundRect.scale(shapeSize, centerPoint)
 
-        baseLines.flatMap { it.warped(noise).clip(r.toPolyLine(), INTERSECTION) }
+        baseLines.flatMap {
+          it.warped(noise).clip(r.toPolyLine(), INTERSECTION)
+        }
       }
       Circle -> {
-        val cPath = Circ(centerPoint, (shapeSize * (boundRect.bottomRight - boundRect.topLeft)).x)
+        val cPath = Circ(
+          centerPoint,
+          (shapeSize * (boundRect.bottomRight - boundRect.topLeft)).x,
+        )
           .toPolyLine()
         baseLines.flatMap { it.warped(noise).clip(cPath, INTERSECTION) }
       }
@@ -103,7 +108,12 @@ data class MoireLinesLayerData(
       slider(::lineAngle, 0.0..90.0)
     }
     slider(::lineOffset, 0.0..1.0)
-    sliderPair(::shapeSize, 0.0..2.0, withLockToggle = true, defaultLocked = true)
+    sliderPair(
+      ::shapeSize,
+      0.0..2.0,
+      withLockToggle = true,
+      defaultLocked = true,
+    )
     sliderPair(::shapeCenter, -0.5..1.5)
     noisePanel(::noise)
   }

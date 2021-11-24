@@ -1,8 +1,8 @@
 package controls.props.types
 
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.dropdown
-import controls.panels.panelext.slider
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.props.PropData
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -25,7 +25,12 @@ data class LineSimplifierProp(
     simplifyAmount: Number,
     simplifyType: SimplifyType,
     lengthMin: Number,
-  ) : this(smoothAmount.toDouble(), simplifyAmount.toDouble(), simplifyType, lengthMin.toDouble())
+  ) : this(
+    smoothAmount.toDouble(),
+    simplifyAmount.toDouble(),
+    simplifyType,
+    lengthMin.toDouble(),
+  )
 
   constructor() : this(0, 0, DouglasPeucker, 0)
 

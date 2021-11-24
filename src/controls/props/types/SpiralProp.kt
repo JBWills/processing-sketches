@@ -1,9 +1,9 @@
 package controls.props.types
 
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import coordinate.BoundRect
@@ -13,7 +13,6 @@ import coordinate.PointSpiral
 import kotlinx.serialization.Serializable
 import util.base.ZeroToOne
 import util.polylines.polyLine.normalizeDistances
-
 
 @Serializable
 data class SpiralProp(
@@ -50,8 +49,18 @@ data class SpiralProp(
 
   override fun bind(): List<ControlTab> = singleTab("SpiralProp") {
     slider2D(::origin, range = -Point.Half..Point(1.5, 1.5))
-    sliderPair(::sizeStart, 0.0..1000.0, defaultLocked = true, withLockToggle = true)
-    sliderPair(::sizeEnd, 0.0..1000.0, defaultLocked = true, withLockToggle = true)
+    sliderPair(
+      ::sizeStart,
+      0.0..1000.0,
+      defaultLocked = true,
+      withLockToggle = true,
+    )
+    sliderPair(
+      ::sizeEnd,
+      0.0..1000.0,
+      defaultLocked = true,
+      withLockToggle = true,
+    )
 
     row {
       slider(::numRotations, 1..100)
@@ -65,7 +74,7 @@ data class SpiralProp(
 
   fun spiral(
     drawBounds: BoundRect,
-    mapPoint: (t: Double, percent: Double, deg: Deg, p: Point) -> Point
+    mapPoint: (t: Double, percent: Double, deg: Deg, p: Point) -> Point,
   ): List<Point> = PointSpiral(
     drawBounds.pointAt(origin),
     sizeRange = (sizeStart..sizeEnd),

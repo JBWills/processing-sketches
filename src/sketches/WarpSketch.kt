@@ -5,13 +5,13 @@ import FastNoiseLite.NoiseType
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import appletExtensions.draw.rect
+import controls.controlsealedclasses.Button.Companion.button
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.panels.panelext.button
-import controls.panels.panelext.dropdown
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
-import controls.panels.panelext.toggle
 import coordinate.BoundRect
 import coordinate.Point
 import java.awt.Color
@@ -96,7 +96,10 @@ open class WarpSketch(
     return (noisePoint * Point(moveAmountX, moveAmountY))
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(
+    layer: Int,
+    layerConfig: LayerConfig,
+  ) {
     Noise.SetSeed(seed)
     Noise.SetNoiseType(noiseType)
     noStroke()
@@ -120,7 +123,8 @@ open class WarpSketch(
       else -> 0.1
     }.toDouble()
 
-    val xMin = drawBound.width * xMidpointVal + drawBound.left - (0 - numLines / 2) * lineSpacing
+    val xMin =
+      drawBound.width * xMidpointVal + drawBound.left - (0 - numLines / 2) * lineSpacing
     val xMax =
       drawBound.width * xMidpointVal + drawBound.left - (numLines - numLines / 2) * lineSpacing
 
@@ -130,7 +134,12 @@ open class WarpSketch(
       leftWithSomeOverlap.toProgression(lineSpacing)
         .map { it.y }
         .map { y ->
-          (Point(xMax, y)..Point(xMin, y) step stepsPerPixel).map { p -> p + getNoiseMovement(p) }
+          (Point(xMax, y)..Point(
+            xMin,
+            y,
+          ) step stepsPerPixel).map { p ->
+            p + getNoiseMovement(p)
+          }
         }.draw(drawBound)
     }
 

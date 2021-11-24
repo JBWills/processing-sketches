@@ -1,12 +1,12 @@
 package sketches
 
 import appletExtensions.draw.drawSquare
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.panels.ControlStyle
 import controls.panels.TabStyle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
-import controls.panels.panelext.dropdown
-import controls.panels.panelext.slider
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import controls.props.types.PhotoProp

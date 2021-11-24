@@ -1,8 +1,9 @@
 package controls.panels.panelext
 
 import BaseSketch
-import controls.controlsealedclasses.Control.Button
-import controls.controlsealedclasses.Control.TextInput
+import controls.controlsealedclasses.Button
+import controls.controlsealedclasses.Button.Companion.button
+import controls.controlsealedclasses.TextInput
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
 import kotlin.reflect.KMutableProperty0
@@ -14,8 +15,8 @@ fun PanelBuilder.textInput(
   onSubmit: BaseSketch.(String) -> Unit,
 ) {
   val input = TextInput(textFieldLabel)
-  val button = Button.buttonProp(submitButtonLabel) {
-    val text = input.ref?.text ?: return@buttonProp
+  val button = Button(submitButtonLabel) {
+    val text = input.ref?.text ?: return@Button
     onSubmit(text)
   }
 

@@ -1,9 +1,9 @@
 package controls.props.types
 
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.dropdown
-import controls.panels.panelext.slider
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import controls.props.types.ShapeType.Ellipse
@@ -44,7 +44,9 @@ data class ShapeProp(
     rotation ?: s.rotation,
   )
 
-  private fun getCirc(bound: BoundRect): Circ = Circ(bound.pointAt(center.x, center.y), size.x)
+  private fun getCirc(bound: BoundRect): Circ =
+    Circ(bound.pointAt(center.x, center.y), size.x)
+
   private fun getRect(bound: BoundRect): BoundRect =
     centeredRect(bound.pointAt(center.x, center.y), size)
 
@@ -61,7 +63,8 @@ data class ShapeProp(
   }
 
   // Not accurate with rotation, sorry!
-  fun roughBounds(bound: BoundRect) = centeredRect(bound.pointAt(center.x, center.y), size)
+  fun roughBounds(bound: BoundRect) =
+    centeredRect(bound.pointAt(center.x, center.y), size)
 
   fun asMaskable(boundRect: BoundRect): Maskable {
     val centerPoint = boundRect.pointAt(center.x, center.y)

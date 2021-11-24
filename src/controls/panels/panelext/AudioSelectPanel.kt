@@ -1,5 +1,6 @@
 package controls.panels.panelext
 
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
 import data.Audio

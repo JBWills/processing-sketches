@@ -1,13 +1,12 @@
 package controls.props.types
 
 import BaseSketch
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.dropdown
-import controls.panels.panelext.listDropdown
 import controls.panels.panelext.sliderPair
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.BoundRect
 import coordinate.Point
@@ -73,7 +72,7 @@ data class CanvasProp(
       heightRatio = 1.5
       dropdown(::paper) { markCanvasDirty(this) }
       dropdown(::orientation) { markCanvasDirty(this) }
-      listDropdown(::strokeWeight, StrokeWeight.values())
+      dropdown(::strokeWeight, StrokeWeight.values())
     }
     col {
       style = ControlStyle.Red

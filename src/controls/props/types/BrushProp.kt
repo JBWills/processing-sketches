@@ -12,12 +12,12 @@ import appletExtensions.mouseLocation
 import appletExtensions.withDraw
 import appletExtensions.withDrawToImage
 import appletExtensions.withStyle
+import controls.controlsealedclasses.Button.Companion.button
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.button
-import controls.panels.panelext.dropdown
-import controls.panels.panelext.slider
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import controls.props.types.BrushType.Brush
 import controls.props.types.BrushType.Bucket

@@ -4,16 +4,15 @@ import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import appletExtensions.draw.rect
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
 import controls.panels.panelext.noisePanel
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
 import coordinate.BoundRect
 import coordinate.Point
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
-import util.print.DPI
 import util.print.DPI.InkScape
 import util.print.Orientation.Landscape
 import util.print.Paper
@@ -84,7 +83,10 @@ open class DebugMeasureSketch(
     }
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(
+    layer: Int,
+    layerConfig: LayerConfig,
+  ) {
     noStroke()
 
     stroke(Color.BLACK.rgb)

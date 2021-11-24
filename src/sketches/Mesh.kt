@@ -2,12 +2,12 @@ package sketches
 
 import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.noisePanel
-import controls.panels.panelext.slider
 import controls.panels.panelext.sliderPair
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.Point
 import fastnoise.Noise
@@ -53,7 +53,8 @@ class Mesh : LayeredCanvasSketch<MeshData, MeshLayerData>(
 
     val (numDotsX, numDotsY) = (numDots.x to numDots.y).map { it.toInt() }
 
-    val dotBound = boundRect.scale(size, boundRect.pointAt(dotRectCenter.x, dotRectCenter.y))
+    val dotBound =
+      boundRect.scale(size, boundRect.pointAt(dotRectCenter.x, dotRectCenter.y))
 
     val pointRows = numDotsX.map { xIndex ->
       val amountAlongX = (0 until numDotsX).percentAlong(xIndex)

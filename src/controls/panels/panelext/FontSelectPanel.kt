@@ -1,5 +1,6 @@
 package controls.panels.panelext
 
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
 import controls.props.GenericProp

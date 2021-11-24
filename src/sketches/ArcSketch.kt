@@ -7,7 +7,7 @@ import appletExtensions.draw.rect
 import appletExtensions.intersection
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.panels.panelext.slider
+import controls.controlsealedclasses.Slider.Companion.slider
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
@@ -16,7 +16,7 @@ import java.awt.Color
 
 open class ArcSketch(
   backgroundColor: Color = Color.WHITE,
-  size: Point = Point(11 * 72, 16 * 72)
+  size: Point = Point(11 * 72, 16 * 72),
 ) : BaseSketch(
   backgroundColor = backgroundColor,
   svgBaseFileName = "svgs.ArcSketch",
@@ -50,7 +50,10 @@ open class ArcSketch(
     slider(::power2, 0.0..2.0)
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(
+    layer: Int,
+    layerConfig: LayerConfig,
+  ) {
     noStroke()
 
     stroke(Color.BLACK.rgb)

@@ -1,10 +1,10 @@
 package sketches.base
 
 import LayerConfig
+import controls.controlsealedclasses.Button.Companion.button
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.panels.ControlTab
 import controls.panels.ControlTab.Companion.tab
-import controls.panels.panelext.button
-import controls.panels.panelext.dropdown
 import controls.panels.panelext.markDirtyIf
 import controls.panels.panelext.textInput
 import controls.props.PropData
@@ -54,7 +54,7 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
    */
   @Suppress("unused")
   fun modifyPropsDirectly(
-    block: (mutableProps: SketchProps<Data>) -> Boolean
+    block: (mutableProps: SketchProps<Data>) -> Boolean,
   ) = markDirtyIf(block(props))
 
   final override fun setup() {
@@ -73,7 +73,9 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
     tab(PRESETS_TAB_NAME) {
       row {
-        button("Override\n$DEFAULT_PRESET_NAME\npreset") { savePreset(DEFAULT_PRESET_NAME) }
+        button("Override\n$DEFAULT_PRESET_NAME\npreset") {
+          savePreset(DEFAULT_PRESET_NAME)
+        }
 
         if (currentPreset != DEFAULT_PRESET_NAME) {
           button("Override\n$currentPreset\npreset") { savePreset(currentPreset) }
@@ -81,11 +83,19 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
         }
       }
 
-      textInput(textFieldLabel = "New Preset Name", submitButtonLabel = "Save new preset") {
+      textInput(
+        textFieldLabel = "New Preset Name",
+        submitButtonLabel = "Save new preset",
+      ) {
         savePreset(it)
       }
 
-      dropdown("Load Preset", presets.keys.sorted(), ::currentPreset, shouldMarkDirty = false) {
+      dropdown(
+        "Load Preset",
+        presets.keys.sorted(),
+        ::currentPreset,
+        shouldMarkDirty = false,
+      ) {
         onSwitchCanvas(it)
       }
     },
@@ -106,7 +116,8 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
     markDirty()
   }
 
-  override fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(color = strokeColor)))
+  override fun getLayers(): List<LayerConfig> =
+    listOf(LayerConfig(Style(color = strokeColor)))
 
   final override fun markDirty() {
     super.markDirty()

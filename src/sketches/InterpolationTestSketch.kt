@@ -4,12 +4,12 @@ import PointInterpolator1D
 import PointInterpolator1D.CubicSpline2D
 import appletExtensions.withFill
 import appletExtensions.withStroke
+import controls.controlsealedclasses.Button.Companion.button
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle.Companion.Yellow
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.button
-import controls.panels.panelext.dropdown
-import controls.panels.panelext.slider
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.Point
 import coordinate.Segment

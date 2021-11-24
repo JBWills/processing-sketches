@@ -4,11 +4,11 @@ import BaseSketch
 import FastNoiseLite.NoiseType.Perlin
 import LayerConfig
 import appletExtensions.draw.rect
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.noisePanel
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
-import controls.panels.panelext.toggle
 import coordinate.BoundRect
 import coordinate.BoundRect.Companion.mappedOnto
 import coordinate.Circ
@@ -107,7 +107,10 @@ open class SpiralSketch(
     markDirty()
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(
+    layer: Int,
+    layerConfig: LayerConfig,
+  ) {
     noStroke()
 
     stroke(Color.BLACK.rgb)
@@ -141,7 +144,10 @@ open class SpiralSketch(
       .walk(noise.quality.step / 50)
 
     if (withNormalization) {
-      finalSpiral = finalSpiral.normalizeDistances(normalizeMin..normalizeMax, normalizeAngleCutoff)
+      finalSpiral = finalSpiral.normalizeDistances(
+        normalizeMin..normalizeMax,
+        normalizeAngleCutoff,
+      )
     }
 
     finalSpiral.draw(drawBound)

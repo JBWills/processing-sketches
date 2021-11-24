@@ -1,13 +1,13 @@
 package sketches
 
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.fontSelect
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
 import controls.panels.panelext.textInput
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.Deg
 import coordinate.Point

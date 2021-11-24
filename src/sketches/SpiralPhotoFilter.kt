@@ -4,7 +4,7 @@ import controls.panels.ControlStyle
 import controls.panels.TabStyle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
-import controls.panels.panelext.slider
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.props.PropData
 import controls.props.types.PhotoProp
 import controls.props.types.SpiralProp
@@ -20,12 +20,13 @@ import util.polylines.mapWithLength
  *
  * Copy and paste this to create a new sketch.
  */
-class SpiralPhotoFilter : LayeredCanvasSketch<SpiralPhotoFilterData, SpiralPhotoFilterLayerData>(
-  "SpiralPhotoFilter",
-  defaultGlobal = SpiralPhotoFilterData(),
-  layerToDefaultTab = { SpiralPhotoFilterLayerData() },
-  maxLayers = 1,
-) {
+class SpiralPhotoFilter :
+  LayeredCanvasSketch<SpiralPhotoFilterData, SpiralPhotoFilterLayerData>(
+    "SpiralPhotoFilter",
+    defaultGlobal = SpiralPhotoFilterData(),
+    layerToDefaultTab = { SpiralPhotoFilterLayerData() },
+    maxLayers = 1,
+  ) {
   override fun drawSetup(layerInfo: DrawInfo) {}
 
   override fun drawOnce(layerInfo: LayerInfo) {

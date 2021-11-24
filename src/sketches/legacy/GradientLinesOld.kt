@@ -6,7 +6,7 @@ import appletExtensions.draw.line
 import appletExtensions.draw.rect
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.panels.panelext.slider
+import controls.controlsealedclasses.Slider.Companion.slider
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
@@ -32,7 +32,10 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
     slider(::lineDegrees, 0..360)
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(
+    layer: Int,
+    layerConfig: LayerConfig,
+  ) {
     fun getPointsLinesShouldCrossThrough(
       bound: BoundRect, deg: Deg, numLines: Int,
     ): Iterable<Point> {
@@ -43,7 +46,12 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
       return start.lerp(end, numLines)
     }
 
-    fun drawLines(bound: BoundRect, numLines: Int, direction: Deg, addFinalLine: Boolean = false) {
+    fun drawLines(
+      bound: BoundRect,
+      numLines: Int,
+      direction: Deg,
+      addFinalLine: Boolean = false,
+    ) {
       getPointsLinesShouldCrossThrough(bound, direction, numLines)
         .filterIndexed { index, _ -> addFinalLine || index != numLines - 1 }
         .mapNotNull { point -> bound.getBoundSegment(Line(point, direction)) }

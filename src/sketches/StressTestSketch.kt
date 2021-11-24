@@ -2,12 +2,12 @@ package sketches
 
 import FastNoiseLite.NoiseType.Value
 import FastNoiseLite.NoiseType.ValueCubic
+import controls.controlsealedclasses.Button.Companion.button
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
 import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.tabs
-import controls.panels.panelext.button
 import controls.panels.panelext.noisePanel
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
 import controls.props.PropData
 import controls.props.types.ShapeProp
 import coordinate.Point
@@ -147,7 +147,6 @@ data class StressTestData(
       panel(::shapeGlobal4, style = ControlStyle.Green)
     }
   }
-
 
   override fun clone() = copy()
 

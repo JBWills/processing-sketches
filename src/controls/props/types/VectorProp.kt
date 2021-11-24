@@ -1,9 +1,9 @@
 package controls.props.types
 
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
 import controls.props.PropData
 import coordinate.Point
 import kotlinx.serialization.Serializable
@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class VectorProp(
   var direction: Point,
-  var magnitude: Double
+  var magnitude: Double,
 ) : PropData<VectorProp> {
 
   val vector: Point get() = direction.normalized * magnitude

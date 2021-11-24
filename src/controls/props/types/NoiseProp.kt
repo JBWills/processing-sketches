@@ -1,9 +1,9 @@
 package controls.props.types
 
 import BaseSketch
-import controls.controlsealedclasses.Control.EnumDropdown
-import controls.controlsealedclasses.Control.Slider
-import controls.controlsealedclasses.Control.Slider2d
+import controls.controlsealedclasses.EnumDropdown
+import controls.controlsealedclasses.Slider
+import controls.controlsealedclasses.Slider2D
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlPanel
 import coordinate.Point
@@ -57,7 +57,7 @@ private fun noiseControls(
     +Slider("Scale", 0.0..2.0, noise.scale) {
       updateNoiseField { with(scale = it) }
     }
-    +Slider2d(
+    +Slider2D(
       "Offset",
       Point.One..Point(1000, 1000),
       noise.offset,

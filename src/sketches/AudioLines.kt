@@ -1,13 +1,13 @@
 package sketches
 
 import appletExtensions.withStroke
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
 import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.audioSelect
-import controls.panels.panelext.dropdown
 import controls.panels.panelext.noisePanel
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import coordinate.BoundRect

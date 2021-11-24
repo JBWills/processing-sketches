@@ -1,11 +1,11 @@
 package sketches
 
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.noisePanel
-import controls.panels.panelext.slider
 import controls.panels.panelext.sliderPair
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import controls.props.types.VectorProp
 import coordinate.Mesh

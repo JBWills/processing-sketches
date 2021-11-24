@@ -2,12 +2,12 @@ package sketches
 
 import appletExtensions.parallelLinesInBound
 import arrow.core.memoize
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.fileSelect
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
 import controls.panels.panelext.sliderPair
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import controls.props.types.ContourProp
 import controls.props.types.VectorProp
@@ -52,18 +52,20 @@ import java.awt.Color
 /**
  * Draws a map with topology that can be offset to create a 3d effect.
  */
-class MapSketchLines : SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLinesData()) {
+class MapSketchLines :
+  SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLinesData()) {
 
   val MaxMoveAmount = 300
 
   private fun getTiffToScreenTransform(
     contourBounds: BoundRect,
     mapScale: Double,
-    mapCenter: Point
+    mapCenter: Point,
   ) = getCoordinateMap(
     contourBounds,
     boundRect
-      .scaled(mapScale).let { it.translated(mapCenter * it.size - (it.size / 2)) },
+      .scaled(mapScale)
+      .let { it.translated(mapCenter * it.size - (it.size / 2)) },
   )
 
   /**
@@ -95,10 +97,17 @@ class MapSketchLines : SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLin
     return Pair(shrunkUnionShape, occludedLines)
   }
 
-  private fun Segment.convertToElevationLine(step: Double, getDelta: (Point) -> Point): PolyLine {
+  private fun Segment.convertToElevationLine(
+    step: Double,
+    getDelta: (Point) -> Point,
+  ): PolyLine {
     val elevationLine = walk(step) { point -> point + getDelta(point) }
 
-    return elevationLine.moveEndpoints { endpoints -> endpoints.map { it.withY(p1.y) } }
+    return elevationLine.moveEndpoints { endpoints ->
+      endpoints.map {
+        it.withY(p1.y)
+      }
+    }
   }
 
   private fun loadScaleAndRotateMat(
@@ -118,7 +127,11 @@ class MapSketchLines : SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLin
     val elevationRange = minElevation..maxElevation
     val elevationMoveAmount = elevationMoveVector.scaledVector(MaxMoveAmount)
 
-    val mat = loadScaleAndRotateMatMemo(geoTiffFile, blurAmount, Point(mapScale) to imageRotation)
+    val mat = loadScaleAndRotateMatMemo(
+      geoTiffFile,
+      blurAmount,
+      Point(mapScale) to imageRotation,
+    )
 
     val matThreshold = mat.threshold(minElevation)
 
@@ -130,14 +143,19 @@ class MapSketchLines : SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLin
     fun getValue(p: Point): Double? = mat.getSubPix(p.transform(screenToMat))
 
     fun elevationDelta(p: Point) =
-      elevationMoveAmount * (getValue(p) ?: minElevation).boundPercentAlong(elevationRange)
+      elevationMoveAmount * (getValue(p) ?: minElevation).boundPercentAlong(
+        elevationRange,
+      )
 
     val expandedBoundRect = boundRect.expand(elevationMoveAmount.abs() * 2)
 
     // Horizontal lines from the bottom of the image to the top
     val linesBottomToTop: List<Segment> =
       expandedBoundRect
-        .parallelLinesInBound(Deg.HORIZONTAL, boundRect.height / samplePointsXY.yi)
+        .parallelLinesInBound(
+          Deg.HORIZONTAL,
+          boundRect.height / samplePointsXY.yi,
+        )
         .sortedByDescending { it.p1.y }
 
     val matThresholdContours: List<PolyLine> = matThreshold
@@ -151,7 +169,12 @@ class MapSketchLines : SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLin
 
     val (unionShape: List<PolyLine>, elevationLines: List<List<PolyLine>>) =
       maskedLines
-        .deepMap { segment -> segment.convertToElevationLine(xyStep.x, ::elevationDelta) }
+        .deepMap { segment ->
+          segment.convertToElevationLine(
+            xyStep.x,
+            ::elevationDelta,
+          )
+        }
         .simplify(lineSimplifyEpsilon)
 //        .deepMap { it.interpolate(5.0) }
         .doIf(
@@ -166,7 +189,13 @@ class MapSketchLines : SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLin
     if (drawMat) matThreshold.draw(matToScreen, boundRect)
     if (drawMinElevationOutline) {
       matThresholdContours
-        .doIf(occludeLines) { it.clip(unionShape, ClipType.DIFFERENCE, NoClose) }
+        .doIf(occludeLines) {
+          it.clip(
+            unionShape,
+            ClipType.DIFFERENCE,
+            NoClose,
+          )
+        }
         .draw(boundRect)
     }
 
@@ -182,7 +211,8 @@ class MapSketchLines : SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLin
         .transform(matToScreen)
 
       val offsets =
-        oceanContours.getThresholds(maxOceanDistanceFromLand).map { it + initialOceanLinesOffset }
+        oceanContours.getThresholds(maxOceanDistanceFromLand)
+          .map { it + initialOceanLinesOffset }
 
       matContours
         .offsetByMemo(offsets, JoinType.ROUND, EndType.CLOSED_POLYGON)
@@ -190,7 +220,13 @@ class MapSketchLines : SimpleCanvasSketch<MapLinesData>("MapSketchLines", MapLin
         .flatten()
         .simplify(simplifyAmount)
         .clip(boundRect.toPolyLine(), INTERSECTION, NoClose)
-        .doIf(occludeLines) { it.clip(unionShape, ClipType.DIFFERENCE, NoClose) }
+        .doIf(occludeLines) {
+          it.clip(
+            unionShape,
+            ClipType.DIFFERENCE,
+            NoClose,
+          )
+        }
         .draw(boundRect)
     }
   }

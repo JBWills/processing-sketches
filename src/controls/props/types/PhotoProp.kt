@@ -2,13 +2,13 @@ package controls.props.types
 
 import BaseSketch
 import arrow.core.memoize
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.imageSelect
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.Point
 import kotlinx.serialization.Serializable
@@ -22,7 +22,6 @@ import util.image.pimage.scaleByLargestDimension
 import util.image.threshold
 import util.io.loadImageMemo
 import util.tuple.and
-
 
 @Serializable
 data class PhotoProp(
@@ -100,15 +99,20 @@ data class PhotoProp(
   }
 }
 
-private val _transformImage = { img: PImage?,
-                                imageSize: Double,
-                                imageBlackAndWhitePoint: Pair<Int, Int>,
-                                invert: Boolean,
-                                blurRadius: Double ->
+private val _transformImage = {
+    img: PImage?,
+    imageSize: Double,
+    imageBlackAndWhitePoint: Pair<Int, Int>,
+    invert: Boolean,
+    blurRadius: Double,
+  ->
   img
     ?.scaleByLargestDimension(imageSize)
     ?.luminance()
-    ?.threshold(min = imageBlackAndWhitePoint.first, max = imageBlackAndWhitePoint.second)
+    ?.threshold(
+      min = imageBlackAndWhitePoint.first,
+      max = imageBlackAndWhitePoint.second,
+    )
     ?.doIf(blurRadius > 1) { it.blurred(blurRadius) }
     ?.doIf(invert) { it.inverted() }
 }.memoize()

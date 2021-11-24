@@ -4,7 +4,7 @@ import FastNoiseLite.NoiseType.ValueCubic
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.noisePanel
-import controls.panels.panelext.slider
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import coordinate.Point
@@ -48,12 +48,17 @@ class Moire : LayeredCanvasSketch<MoireData, MoireLayerData>(
         spiralPoint
       },
       lengthFunc = { _, percentAlong, _ ->
-        ((startRad + baseData.startRad)..(endRad + baseData.endRad)).atAmountAlong(percentAlong)
+        ((startRad + baseData.startRad)..(endRad + baseData.endRad)).atAmountAlong(
+          percentAlong,
+        )
       },
       rotationsRange = 0.0..(baseData.numRotations),
     )
       .walk(noise.quality.step / 40) {
-        noise.moveRadially(it, spiralPoint) { i -> i * noise.strength.magnitude }
+        noise.moveRadially(
+          it,
+          spiralPoint,
+        ) { i -> i * noise.strength.magnitude }
       }
       .draw(boundRect)
   }

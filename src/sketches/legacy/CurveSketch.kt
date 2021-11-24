@@ -3,12 +3,12 @@ package sketches.legacy
 import BaseSketch
 import LayerConfig
 import appletExtensions.draw.rect
+import controls.controlsealedclasses.Button.Companion.button
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.panels.panelext.button
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
-import controls.panels.panelext.toggle
 import coordinate.BoundRect
 import coordinate.Point
 import util.tuple.and

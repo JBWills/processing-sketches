@@ -2,12 +2,12 @@ package sketches
 
 import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.withStroke
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.noisePanel
-import controls.panels.panelext.slider
 import controls.panels.panelext.sliderPair
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point

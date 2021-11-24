@@ -8,7 +8,7 @@ import appletExtensions.draw.rect
 import appletExtensions.intersection
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.panels.panelext.slider
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.panelext.sliderPair
 import coordinate.BoundRect
 import coordinate.Circ
@@ -44,7 +44,10 @@ open class ArcTestSketch(
     slider(::arcSize, 0..150)
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<Unit>.drawOnce(
+    layer: Int,
+    layerConfig: LayerConfig,
+  ) {
     noStroke()
 
     stroke(Color.WHITE.rgb)

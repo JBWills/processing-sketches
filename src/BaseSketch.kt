@@ -4,13 +4,13 @@ import appletExtensions.PAppletExt
 import appletExtensions.createGraphics
 import appletExtensions.withFillAndStroke
 import appletExtensions.withStyle
+import controls.controlsealedclasses.Button.Companion.button
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlList.Companion.col
 import controls.panels.ControlTab
 import controls.panels.ControlTab.Companion.tab
 import controls.panels.Panelable
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.button
-import controls.panels.panelext.toggle
 import coordinate.Point
 import interfaces.listeners.MouseListener
 import nu.pattern.OpenCV

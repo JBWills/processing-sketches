@@ -1,12 +1,12 @@
 package sketches
 
 import appletExtensions.withStroke
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.panels.panelext.dropdown
-import controls.panels.panelext.slider
-import controls.panels.panelext.slider2D
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.Arc
 import coordinate.Circ
@@ -29,11 +29,12 @@ import java.awt.Color
  *
  * Copy and paste this to create a new sketch.
  */
-class ClipperDebug : LayeredCanvasSketch<ClipperDebugData, ClipperDebugLayerData>(
-  "ClipperDebug",
-  defaultGlobal = ClipperDebugData(),
-  layerToDefaultTab = { ClipperDebugLayerData() },
-) {
+class ClipperDebug :
+  LayeredCanvasSketch<ClipperDebugData, ClipperDebugLayerData>(
+    "ClipperDebug",
+    defaultGlobal = ClipperDebugData(),
+    layerToDefaultTab = { ClipperDebugLayerData() },
+  ) {
 
   init {
     numLayers = 1
@@ -45,7 +46,11 @@ class ClipperDebug : LayeredCanvasSketch<ClipperDebugData, ClipperDebugLayerData
     val (arcLocation, arcRadius, arcDeg, arcDegStart, simplifyAmt, boundByRect, doDiffCircle, doDiffSquare, intersectPinkSquare, forceClosed) = layerInfo.globalValues
 
     var arc: List<PolyLine> =
-      Arc(arcDegStart, arcDeg.unboundValue, Circ(boundRect.size * arcLocation, arcRadius))
+      Arc(
+        arcDegStart,
+        arcDeg.unboundValue,
+        Circ(boundRect.size * arcLocation, arcRadius),
+      )
         .walk(1.0)
         .simplify(simplifyAmt)
         .listWrapped()
@@ -82,7 +87,10 @@ class ClipperDebug : LayeredCanvasSketch<ClipperDebugData, ClipperDebugLayerData
 
     if (doDiffCircle) diffArc(staticCircle.listWrapped(), forceClosed)
     if (doDiffSquare) diffArc(staticSquare.listWrapped(), forceClosed)
-    if (intersectPinkSquare) intersectArc(intersectSquare.listWrapped(), forceClosed)
+    if (intersectPinkSquare) intersectArc(
+      intersectSquare.listWrapped(),
+      forceClosed,
+    )
 
     arc.forEach { arcLine ->
       withStroke(if (arcLine.isClosed()) Color.GRAY else Color.WHITE) {

@@ -2,11 +2,11 @@ package sketches
 
 import FastNoiseLite.NoiseType.ValueCubic
 import appletExtensions.draw.shape
+import controls.controlsealedclasses.Slider.Companion.slider
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.noisePanel
-import controls.panels.panelext.slider
-import controls.panels.panelext.toggle
 import controls.props.PropData
 import coordinate.Circ
 import coordinate.Point
@@ -82,9 +82,10 @@ class Flower : LayeredCanvasSketch<FlowerData, FlowerLayerData>(
       val warpedCircle = c.walk(circleNoise.quality.step) {
         val originalPoint = baseCircle.pointAtAngle(c.angleAtPoint(it))
 
-        val movedOriginalPoint = circleNoise.moveRadially(originalPoint, center) { noiseVal ->
-          (noiseVal) * circleNoise.strength.magnitude * (if (layerIndex == 0) 0 else 1)
-        }
+        val movedOriginalPoint =
+          circleNoise.moveRadially(originalPoint, center) { noiseVal ->
+            (noiseVal) * circleNoise.strength.magnitude * (if (layerIndex == 0) 0 else 1)
+          }
 
         return@walk it + (movedOriginalPoint - originalPoint)
       }

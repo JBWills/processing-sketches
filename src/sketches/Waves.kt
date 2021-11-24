@@ -4,7 +4,7 @@ import FastNoiseLite.NoiseType.ValueCubic
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.noisePanel
-import controls.panels.panelext.slider
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.props.PropData
 import coordinate.Point
 import coordinate.Segment
@@ -19,7 +19,11 @@ import util.atAmountAlong
 import util.polylines.PolyLine
 import util.polylines.clipping.clip
 
-class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { WaveTab() }) {
+class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>(
+  "Waves",
+  WaveGlobal(),
+  { WaveTab() },
+) {
   init {
     numLayers = MAX_LAYERS
   }
@@ -67,11 +71,16 @@ class Waves : LayeredCanvasSketch<WaveGlobal, WaveTab>("Waves", WaveGlobal(), { 
         val waveShape = (warpedPath + size) + size.withX(0)
 
         nextUnionShape =
-          if (unionShape == null) listOf(waveShape) else unionShape?.clip(waveShape, UNION)
+          if (unionShape == null) listOf(waveShape) else unionShape?.clip(
+            waveShape,
+            UNION,
+          )
       }
 
       val warpedPaths: List<PolyLine> =
-        unionShape?.let { warpedPath.clip(it, ClipType.DIFFERENCE) } ?: listOf(warpedPath)
+        unionShape?.let { warpedPath.clip(it, ClipType.DIFFERENCE) } ?: listOf(
+          warpedPath,
+        )
 
       warpedPaths.draw(boundRect)
 
