@@ -20,8 +20,8 @@ import fastnoise.Noise.Companion.warped
 import kotlinx.serialization.Serializable
 import sketches.base.SimpleCanvasSketch
 import util.audio.DefaultSampleSize
-import util.interpolation.Interpolator1D
-import util.interpolation.Interpolator1D.CubicSpline1D
+import util.interpolation.Interpolator1DType
+import util.interpolation.Interpolator1DType.CubicSpline1DType
 import util.iterators.mapDoubleArray
 import util.numbers.map
 import java.awt.Color
@@ -58,7 +58,7 @@ class AudioLines : SimpleCanvasSketch<AudioLinesData>(
       val pressures = features
         .pressuresFrom(sampleIndex..(sampleIndex + samplesPerLine))
         .mapDoubleArray { it * amplitudeScale }
-      AmplitudeLine(pressures, interpolationType, interpolationSpread, amplitudeScale)
+      AmplitudeLine(pressures, interpolationType.create(), interpolationSpread, amplitudeScale)
     }
 
     numLayers.map { layerIndex ->
@@ -102,7 +102,7 @@ data class AudioLinesData(
   var drawCenter: Point = Point(0.5, 0.5),
   var amplitudeScale: Double = 1.0,
   var numLayers: Int = 1,
-  var interpolationType: Interpolator1D = CubicSpline1D,
+  var interpolationType: Interpolator1DType = CubicSpline1DType,
   var interpolationSpread: Double = 1.0,
   var noise: Noise = Noise.DEFAULT,
 ) : PropData<AudioLinesData> {

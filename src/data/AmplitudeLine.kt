@@ -2,8 +2,8 @@ package data
 
 import coordinate.Point
 import util.atAmountAlong
+import util.interpolation.CubicSpline1D
 import util.interpolation.Interpolator1D
-import util.interpolation.Interpolator1D.CubicSpline1D
 import util.interpolation.getSpacingForDataPoints
 import util.numbers.ifNan
 import util.polylines.PolyLine
@@ -12,7 +12,7 @@ import util.polylines.walkWithPercentAndSegment
 
 data class AmplitudeLine(
   val origValues: DoubleArray,
-  val interpolator: Interpolator1D = CubicSpline1D,
+  val interpolator: Interpolator1D = CubicSpline1D(),
   val lengthBetweenValues: Double = getSpacingForDataPoints(origValues),
   val scaleFactor: Double = 0.0,
 ) {
@@ -23,11 +23,6 @@ data class AmplitudeLine(
   private val defaultXEndpoint get() = lengthBetweenValues * (origValues.size - 1)
 
   val meanAmplitude by lazy { origValues.average() * scaleFactor }
-
-  fun getUninterpolatedLine(xLength: Double) =
-    origValues.mapIndexed { index, yVal ->
-      Point((index / (origValues.size.toDouble() - 1)) * xLength, yVal)
-    }
 
   private fun getAtPercent(percent: Double) =
     interpolator

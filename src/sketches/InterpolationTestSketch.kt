@@ -17,8 +17,8 @@ import kotlinx.serialization.Serializable
 import sketches.base.SimpleCanvasSketch
 import util.base.letWith
 import util.interpolation.InterpolationFunction1D
-import util.interpolation.Interpolator1D
-import util.interpolation.Interpolator1D.CubicSpline1D
+import util.interpolation.Interpolator1DType
+import util.interpolation.Interpolator1DType.CubicSpline1DType
 import util.iterators.meanByOrNull
 import util.numbers.ifNan
 import util.polylines.PolyLine
@@ -50,7 +50,7 @@ class InterpolationTestSketch : SimpleCanvasSketch<InterpolationTestData>(
 
 
   override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
-    val (points, appendToEnd, forceEquidistantPoints, equidistantPointsWidth, interpolation, interpolation2D, interpolationSampleStep) = drawInfo.dataValues
+    val (points, _, forceEquidistantPoints, equidistantPointsWidth, interpolation, interpolation2D, interpolationSampleStep) = drawInfo.dataValues
 
     val pointsMapped = if (forceEquidistantPoints) {
       val baseLine =
@@ -91,7 +91,7 @@ class InterpolationTestSketch : SimpleCanvasSketch<InterpolationTestData>(
     }
 
     withStroke(Color.GREEN) {
-      drawInterpolatedLine(interpolation)
+      drawInterpolatedLine(interpolation.create())
 
       val (x, y) = getTextLocation(2)
       withFill(Color.GREEN) {
@@ -116,7 +116,7 @@ data class InterpolationTestData(
   var appendToEnd: Boolean = true,
   var forceEquidistantPoints: Boolean = true,
   var equidistantPointsWidth: Double = 1.0,
-  var interpolation: Interpolator1D = CubicSpline1D,
+  var interpolation: Interpolator1DType = CubicSpline1DType,
   var interpolation2D: PointInterpolator1D = CubicSpline2D,
   var interpolationSampleStep: Double = 1.0,
 ) : PropData<InterpolationTestData> {
