@@ -4,6 +4,7 @@ import appletExtensions.withStroke
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.audioSelect
@@ -40,12 +41,9 @@ private val Colors: List<Color> = listOf(
  *
  * Copy and paste this to create a new sketch.
  */
-class AudioLines : SimpleCanvasSketch<AudioLinesData>(
-  "AudioLines",
-  defaultData = AudioLinesData(),
-) {
+class AudioLines : SimpleCanvasSketch<AudioLinesData>("AudioLines", AudioLinesData()) {
   override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
-    val (audio, sampleSize, interpolationStep, linesToShow, drawSize, drawCenter, amplitudeScale, numLayers, interpolationType, interpolationSpread, noise) = drawInfo.dataValues
+    val (audio, sampleSize, interpolationStep, linesToShow, drawSize, drawCenter, amplitudeScale, numLayers, interpolationType, noise, drawBaseLines) = drawInfo.dataValues
 
     val features = audio.getFeatures(sampleSize) ?: return
 
@@ -58,7 +56,7 @@ class AudioLines : SimpleCanvasSketch<AudioLinesData>(
       val pressures = features
         .pressuresFrom(sampleIndex..(sampleIndex + samplesPerLine))
         .mapDoubleArray { it * amplitudeScale }
-      AmplitudeLine(pressures, interpolationType.create(), interpolationSpread, amplitudeScale)
+      AmplitudeLine(pressures, interpolationType.create(), scaleFactor = amplitudeScale)
     }
 
     numLayers.map { layerIndex ->
@@ -74,18 +72,16 @@ class AudioLines : SimpleCanvasSketch<AudioLinesData>(
 
           val baseLine = baseBounds.topSegment.warped(noise.with(seed = noise.seed + layerIndex))
 
-          withStroke(Color.YELLOW) {
-            baseLine.draw(boundRect)
+          if (drawBaseLines) {
+            withStroke(Color.YELLOW) { baseLine.draw(boundRect) }
           }
 
-          amplitudes
-            .interpolateAlong(baseLine, step = interpolationStep) { point, transformedPoint ->
-              val diff =
-                (transformedPoint - point) - ((transformedPoint - point).normalized * amplitudes.meanAmplitude)
+          amplitudes.interpolateAlong(baseLine, interpolationStep) { point, transformedPoint ->
+            val diff = transformedPoint - point
+            val diffOffset = diff + (diff.normalized * amplitudes.meanAmplitude)
 
-              point + diff
-            }
-            .draw(boundRect)
+            point + diffOffset
+          }.draw(boundRect)
         }
       }
     }
@@ -103,8 +99,8 @@ data class AudioLinesData(
   var amplitudeScale: Double = 1.0,
   var numLayers: Int = 1,
   var interpolationType: Interpolator1DType = CubicSpline1DType,
-  var interpolationSpread: Double = 1.0,
   var noise: Noise = Noise.DEFAULT,
+  var drawBaseLines: Boolean = false,
 ) : PropData<AudioLinesData> {
   override fun bind() = tabs {
     tab("audio") {
@@ -114,9 +110,9 @@ data class AudioLinesData(
 
         dropdown(::interpolationType)
         col {
-          slider(::interpolationSpread, 1..50)
           slider(::sampleSize, 10..20_000)
           slider(::interpolationStep, range = 1.0..100.0)
+          toggle(::drawBaseLines)
         }
       }
       row(style = ControlStyle.Red) {

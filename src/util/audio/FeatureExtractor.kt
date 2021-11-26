@@ -11,7 +11,7 @@ import java.io.File
  *
  * @param f
  * @param sampleSize if the entire file has 100 samples, and your sampleSize is 2, the result
- *    will have length 50, because we calculate the soundpressure once at each samplesize
+ *    will have length 50, because we calculate the sound pressure once at each sample size
  *    chunk.
  * @return an AudioFeatures object with pitches and pressures
  */
@@ -19,7 +19,9 @@ fun getFeatures(f: File, sampleSize: Int = DefaultSampleSize): AudioFeatures {
   val silenceDetector = SilenceDetector()
   return f.toAudioDispatcher(sampleSize = sampleSize).let { dispatcher ->
     val pressures =
-      dispatcher.processAudioEvents { audioEvent -> silenceDetector.getPressure(audioEvent) }
+      dispatcher
+        .processAudioEvents { audioEvent -> silenceDetector.getPressure(audioEvent) }
+        .filter(Double::isFinite)
     val pitches = dispatcher.processPitch(sampleSize = sampleSize)
     dispatcher.run()
 

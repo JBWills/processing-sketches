@@ -3,8 +3,8 @@ package data
 import coordinate.Point
 import util.atAmountAlong
 import util.interpolation.CubicSpline1D
+import util.interpolation.DefaultAmplitudeSampleDist
 import util.interpolation.Interpolator1D
-import util.interpolation.getSpacingForDataPoints
 import util.numbers.ifNan
 import util.polylines.PolyLine
 import util.polylines.walkWithPercentAndSegment
@@ -13,7 +13,7 @@ import util.polylines.walkWithPercentAndSegment
 data class AmplitudeLine(
   val origValues: DoubleArray,
   val interpolator: Interpolator1D = CubicSpline1D(),
-  val lengthBetweenValues: Double = getSpacingForDataPoints(origValues),
+  val lengthBetweenValues: Double = DefaultAmplitudeSampleDist,
   val scaleFactor: Double = 0.0,
 ) {
   init {
