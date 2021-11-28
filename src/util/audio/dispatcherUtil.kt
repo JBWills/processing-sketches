@@ -18,3 +18,11 @@ val toAudioDispatcherMemo: File.(Int, Int) -> AudioDispatcher =
 
 fun File.toAudioDispatcher(sampleSize: Int = DefaultSampleSize, bufferOverlap: Int = 0) =
   toAudioDispatcherMemo(this, sampleSize, bufferOverlap)
+
+fun <T1, T2> AudioDispatcher.processAndRun(
+  block: AudioDispatcher.() -> Pair<AudioProcessGetter<T1>, AudioProcessGetter<T2>>
+): Pair<List<T1>, List<T2>> {
+  val (getter1, getter2) = this.block()
+  run()
+  return getter1.getAudioResults() to getter2.getAudioResults()
+}
