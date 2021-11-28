@@ -41,8 +41,14 @@ private fun smile1D(construct: (x: DoubleArray, y: DoubleArray) -> Interpolation
   { arr: DoubleArray, xLength: Double ->
 
     val (xValues, yValues) = amplitudeToPoints(arr, xLength)
-    val interpolation = construct(xValues, yValues);
-    { x -> interpolation.interpolate(x) }
+    if (arr.isEmpty()) {
+      throw Exception("Array size must be at least one")
+    } else if (arr.size < 2) {
+      { _ -> arr.first() }
+    } else {
+      val interpolation = construct(xValues, yValues);
+      { x -> interpolation.interpolate(x) }
+    }
   }
 
 private fun rbf(rbf: RadialBasisFunction) = smile1D { x, y -> RBFInterpolation1D(x, y, rbf) }

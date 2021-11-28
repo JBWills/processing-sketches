@@ -6,14 +6,14 @@ import be.tarsos.dsp.AudioProcessor
 
 fun <T> AudioDispatcher.processAudioEvents(
   block: (a: AudioEvent) -> T
-): List<T> {
-  val result = mutableListOf<T>()
+): AudioProcessGetter<T> {
+  val result = AudioProcessGetter<T>()
 
   addAudioProcessor(
     object : AudioProcessor {
       override fun processingFinished() {}
       override fun process(audioEvent: AudioEvent): Boolean {
-        result.add(block(audioEvent))
+        result.addProcessedResult(block(audioEvent))
         return true
       }
     },
