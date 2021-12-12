@@ -1,7 +1,5 @@
 package util.iterators
 
-import util.base.DoubleRange
-
 inline fun <reified T> timesArray(iterations: Int, block: (i: Int) -> T): Array<T> =
   (0 until iterations).map(block).toTypedArray()
 
@@ -28,29 +26,3 @@ inline fun <reified T> IntArray.mapArray(block: (index: Int, value: Int) -> T): 
 // from https://gist.github.com/yuhki50/ca8363c0bee588cd79ad6637edfaedf3
 fun IntArray.toByteArray(): ByteArray =
   foldIndexed(ByteArray(size)) { i, a, v -> a.apply { set(i, v.toByte()) } }
-
-val DoubleArray.minMax: DoubleRange?
-  get() {
-    var min: Double? = null
-    var max: Double? = null
-
-    forEach { item ->
-      min.let { frozenMin ->
-        if (frozenMin == null || item < frozenMin) {
-          min = item
-        }
-      }
-
-      max.let { frozenMax ->
-        if (frozenMax == null || item > frozenMax) {
-          max = item
-        }
-      }
-    }
-
-    val minNonNull = min ?: return null
-    val maxNonNull = max ?: return null
-
-    return minNonNull..maxNonNull
-  }
-

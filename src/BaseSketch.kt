@@ -131,7 +131,9 @@ abstract class BaseSketch(
       val layers = getLayers()
       layers.forEachIndexed { index, layer ->
         drawOnce(index, layer)
-        yield(Unit)
+        if (index != layers.size - 1) {
+          nextLayer()
+        }
       }
     }
 

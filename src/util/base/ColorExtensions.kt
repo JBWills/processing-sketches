@@ -52,6 +52,7 @@ fun Color.withRed(v: Int) = withColorSet(v, 0)
 fun Color.withGreen(v: Int) = withColorSet(v, 1)
 fun Color.withBlue(v: Int) = withColorSet(v, 2)
 fun Color.withAlpha(v: Int) = Color(red, green, blue, v)
+fun Color.withAlpha(v: Int?) = v?.let { withAlpha(it) } ?: this
 fun Color.withAlphaFloat(v: Float) = withAlpha(v.toRGBInt())
 fun Color.withAlphaDouble(v: Double) = withAlpha(v.toRGBInt())
 

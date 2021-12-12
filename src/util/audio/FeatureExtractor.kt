@@ -3,8 +3,7 @@ package util.audio
 import be.tarsos.dsp.SilenceDetector
 import data.AudioFeatures
 import getPressure
-import util.audio.extensions.processPitch
-import util.tuple.map
+import util.audio.extensions.processFFT
 import java.io.File
 
 /**
@@ -21,9 +20,12 @@ fun getFeatures(f: File, sampleSize: Int = DefaultSampleSize): AudioFeatures {
   val (pressures, pitches) =
     f.toAudioDispatcher(sampleSize = sampleSize)
       .processAndRun {
-        processAudioEvents(silenceDetector::getPressure) to processPitch(sampleSize = sampleSize)
+        processAudioEvents(silenceDetector::getPressure) to processFFT()
       }
-      .map { it.filter(Double::isFinite).toDoubleArray() }
 
-  return AudioFeatures(pressures = pressures, pitches = pitches, sampleSize)
+  return AudioFeatures(
+    pressures = pressures.filter(Double::isFinite).toDoubleArray(),
+    pitches = pitches.toTypedArray(),
+    sampleSize,
+  )
 }

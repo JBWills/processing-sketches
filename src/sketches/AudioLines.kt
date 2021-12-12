@@ -1,6 +1,5 @@
 package sketches
 
-import appletExtensions.withStroke
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
@@ -11,19 +10,16 @@ import controls.panels.panelext.audioSelect
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
-import coordinate.BoundRect
 import coordinate.BoundRect.Companion.centeredRect
 import coordinate.Point
-import data.AmplitudeLine
+import data.AmplitudeLine2D
 import data.Audio
 import fastnoise.Noise
-import fastnoise.Noise.Companion.warped
 import kotlinx.serialization.Serializable
 import sketches.base.SimpleCanvasSketch
 import util.audio.DefaultSampleSize
 import util.interpolation.Interpolator1DType
 import util.interpolation.Interpolator1DType.CubicSpline1DType
-import util.iterators.mapDoubleArray
 import util.numbers.map
 import java.awt.Color
 
@@ -43,7 +39,7 @@ private val Colors: List<Color> = listOf(
  */
 class AudioLines : SimpleCanvasSketch<AudioLinesData>("AudioLines", AudioLinesData()) {
   override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
-    val (audio, sampleSize, interpolationStep, linesToShow, drawSize, drawCenter, amplitudeScale, numLayers, interpolationType, noise, drawBaseLines) = drawInfo.dataValues
+    val (audio, sampleSize, interpolationStep, linesToShow, drawSize, drawCenter, amplitudeScale, numLayers, interpolationType, noise, drawBaseLines, percentThroughSong1) = drawInfo.dataValues
 
     val features = audio.getFeatures(sampleSize) ?: return
 
@@ -51,38 +47,46 @@ class AudioLines : SimpleCanvasSketch<AudioLinesData>("AudioLines", AudioLinesDa
     val samplesPerLine = pressureSamples / linesToShow
     val linesBound = centeredRect(boundRect.pointAt(drawCenter), boundRect.size * drawSize)
 
-    val amplitudeLines = linesToShow.map { lineIndex ->
-      val sampleIndex = (lineIndex * samplesPerLine)
-      val pressures = features
-        .pressuresFrom(sampleIndex..(sampleIndex + samplesPerLine))
-        .mapDoubleArray { it * amplitudeScale }
-      AmplitudeLine(pressures, interpolationType.create(), scaleFactor = amplitudeScale)
-    }
+//    val amplitudeLines = linesToShow.map { lineIndex ->
+//      val sampleIndex = (lineIndex * samplesPerLine)
+//      val pressures = features
+//        .pressuresFrom(sampleIndex..(sampleIndex + samplesPerLine))
+//        .mapDoubleArray { it * amplitudeScale }
+//      AmplitudeLine2D(pressures, interpolationType.create(), scaleFactor = amplitudeScale)
+//    }
 
+    val amplitudeLine2D =
+      AmplitudeLine2D(features.pitches, scaleFactor = amplitudeScale)
+
+    // todo add interpolated spectrogram processing here
     numLayers.map { layerIndex ->
       newLayerStyled(stroke = Colors[layerIndex % Colors.size]) {
-        linesToShow.map { lineIndex ->
-          val amplitudes = amplitudeLines[lineIndex]
+        val line = boundRect.topSegment.translated(Point(0, boundRect.height / 2)).expand(-30)
+        amplitudeLine2D
+          .interpolateAlong(line.toPolyLine(), percentThroughSong1, interpolationStep)
+          .draw(boundRect)
 
-          val baseBounds = BoundRect(
-            linesBound.topLeft + Point(0, (lineIndex.toDouble() / linesToShow) * linesBound.height),
-            width = linesBound.width,
-            height = 0,
-          )
-
-          val baseLine = baseBounds.topSegment.warped(noise.with(seed = noise.seed + layerIndex))
-
-          if (drawBaseLines) {
-            withStroke(Color.YELLOW) { baseLine.draw(boundRect) }
-          }
-
-          amplitudes.interpolateAlong(baseLine, interpolationStep) { point, transformedPoint ->
-            val diff = transformedPoint - point
-            val diffOffset = diff + (diff.normalized * amplitudes.meanAmplitude)
-
-            point + diffOffset
-          }.draw(boundRect)
-        }
+//        linesToShow.map { lineIndex ->
+//
+//          val baseBounds = BoundRect(
+//            linesBound.topLeft + Point(0, (lineIndex.toDouble() / linesToShow) * linesBound.height),
+//            width = linesBound.width,
+//            height = 0,
+//          )
+//
+//          val baseLine = baseBounds.topSegment.warped(noise.with(seed = noise.seed + layerIndex))
+//
+//          if (drawBaseLines) {
+//            withStroke(Color.YELLOW) { baseLine.draw(boundRect) }
+//          }
+//
+//          val percentThroughSong =
+//            if (linesToShow == 1) 0.5 else lineIndex.toDouble() / (linesToShow - 1)
+//
+//          amplitudeLine2D
+//            .interpolateAlong(baseLine, percentThroughSong, interpolationStep)
+//            .draw(boundRect)
+//        }
       }
     }
   }
@@ -101,6 +105,7 @@ data class AudioLinesData(
   var interpolationType: Interpolator1DType = CubicSpline1DType,
   var noise: Noise = Noise.DEFAULT,
   var drawBaseLines: Boolean = false,
+  var percentThroughSong: Double = 0.5
 ) : PropData<AudioLinesData> {
   override fun bind() = tabs {
     tab("audio") {
@@ -119,7 +124,8 @@ data class AudioLinesData(
         sliderPair(::drawSize, 0.0..2.0)
         slider2D(::drawCenter, 0..1 to 0..1)
       }
-      slider(::amplitudeScale, range = 0..100)
+      slider(::percentThroughSong, range = 0.0..1.0)
+      slider(::amplitudeScale, range = 0.0..1.0)
       slider(::numLayers, range = 0..10)
     }
     tab("Noise") {

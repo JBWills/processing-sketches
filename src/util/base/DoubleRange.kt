@@ -1,6 +1,7 @@
 package util.base
 
 import util.interpolation.interpolate
+import util.numbers.roundedString
 import kotlin.math.abs
 
 typealias DoubleRange = ClosedRange<Double>
@@ -89,3 +90,6 @@ infix fun DoubleRange.numSteps(numSteps: Number) =
   step((endInclusive - start) / (numSteps.toDouble() - 1))
 
 infix fun Double.until(s: Double) = DoubleProgression(this, s - 1)
+
+fun DoubleRange.toRoundedString(decimals: Int = 2) =
+  "${start.roundedString(decimals)}..${endInclusive.roundedString(decimals)}"

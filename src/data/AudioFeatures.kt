@@ -6,7 +6,7 @@ import util.audio.DefaultSampleSize
 @Serializable
 data class AudioFeatures(
   val pressures: DoubleArray,
-  val pitches: DoubleArray,
+  val pitches: Array<DoubleArray>,
   val sampleSize: Int = DefaultSampleSize
 ) {
 

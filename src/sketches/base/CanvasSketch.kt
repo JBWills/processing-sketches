@@ -48,14 +48,16 @@ abstract class CanvasSketch(
         Style(color = if (needsDarkStroke) layerConfig.style.color?.darkened(0.5) else null),
       )
 
-    withStyle(style) {
-      drawOnce(layer)
 
-      val isLastLayer = layer == getLayers().size - 1
-      if (isLastLayer && canvasProps.drawBoundRect) {
-        nextLayer()
+
+    withStyle(style) {
+      val isFirstLayer = layer == 0
+      if (isFirstLayer && canvasProps.drawBoundRect) {
         drawBoundRect()
+        nextLayer()
       }
+
+      drawOnce(layer)
     }
   }
 }

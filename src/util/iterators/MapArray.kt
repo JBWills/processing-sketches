@@ -16,6 +16,14 @@ inline fun <T, reified R> List<T>.mapArray(block: (T) -> R): Array<R> =
 inline fun DoubleArray.mapDoubleArray(block: (Double) -> Double): DoubleArray =
   DoubleArray(size) { block(this[it]) }
 
+
+inline fun Array<DoubleArray>.mapDoubleArray(block: (Double) -> Double): Array<DoubleArray> =
+  Array(size) { row ->
+    DoubleArray(this[row].size) { col ->
+      block(this[row][col])
+    }
+  }
+
 inline fun <reified R> DoubleArray.mapArray(block: (Double) -> R): Array<R> =
   Array(size) { block(this[it]) }
 
