@@ -95,7 +95,7 @@ abstract class BaseSketch(
     block: () -> Unit
   ) = withFillAndStroke(stroke, fill) {
     block()
-    yield(Unit)
+    nextLayer()
   }
 
 
@@ -131,9 +131,7 @@ abstract class BaseSketch(
       val layers = getLayers()
       layers.forEachIndexed { index, layer ->
         drawOnce(index, layer)
-        if (index != layers.size - 1) {
-          nextLayer()
-        }
+        nextLayer()
       }
     }
 

@@ -5,7 +5,7 @@ import processing.data.XML
 
 fun XML.set(vararg pairs: Pair<String, String>): XML = apply {
   pairs.forEach { (key, value) ->
-    setString(key, value)
+    setString(key, value.trimEnd('/'))
   }
 }
 

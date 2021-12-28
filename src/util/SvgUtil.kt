@@ -35,9 +35,9 @@ fun PApplet.drawLayeredSvg(
 
   // Set inkscape namespace, so we can add inkscape layer definitions.
   xml.set(
-    "xmlns:ns" to "http://www.inkscape.org/namespaces/inkscape/",
-    "xmlns:inkscape" to "http://www.inkscape.org/namespaces/inkscape/",
+    "xmlns:inkscape" to "http://www.inkscape.org/namespaces/inkscape",
   )
+
 
   var prevStyle: PStyle? = graphics?.style
 
@@ -81,30 +81,5 @@ fun PApplet.drawLayeredSvg(
   // is too small, processing will record an invalid paper size which screws up your drawings.
   xml.setSizePx(sketchSize)
 
-  File(resultFile).let { f ->
-    xml.save(f)
-    removeInkscapeNamespaceHack(f)
-  }
-}
-
-/**
- * This is a hack to remove the xmlns:inkscape definition from the top of the file. Why? Because
- * inkscape only shows layers if this is not defined.
- *
- * But then why was the namespace added in the first place? Because the XML class we're using
- * requires correct input or else it crashes, so the only way we can do inkscape:groupMode, etc.
- * we need to set the definition, add those values, then call this hack to remove the definition in
- * the finished file (outside the XML parser which would complain).
- *
- * @param file the file to find-and-replace in
- */
-fun removeInkscapeNamespaceHack(f: File) {
-  val lines = f.readLines().toMutableList()
-  val inkDefIndex = lines.indexOfFirst { it.contains("xmlns:inkscape") }
-  lines[inkDefIndex] = lines[inkDefIndex].replace(
-    "xmlns:inkscape=\"http://www.inkscape.org/namespaces/inkscape/\"",
-    "",
-  )
-
-  f.writeText(lines.joinToString("\n"))
+  xml.save(File(resultFile))
 }
