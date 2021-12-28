@@ -10,6 +10,9 @@ import processing.core.PImage
 import util.base.luminance
 import util.image.ImageCrop
 import util.image.ImageCrop.Crop
+import util.image.opencvMat.resize
+import util.image.opencvMat.toMat
+import util.image.opencvMat.toPImage
 import java.awt.Color
 
 val PImage.aspect: Double get() = width.toDouble() / height
@@ -20,7 +23,7 @@ val PImage.size: Point get() = Point(width, height)
 fun PImage.get(p: Point): Color = Color(get(p.xi, p.yi))
 
 private val _resized = { image: PImage, p: Point ->
-  image.copy().apply { resize(p.xi, p.yi) }
+  image.toMat().resize(p).toPImage()
 }.memoize()
 
 fun PImage.resized(p: Point): PImage = _resized(this, p)

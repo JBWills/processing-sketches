@@ -18,7 +18,7 @@ class BaseSketchWindow(private val title: String, private val surface: PSurface)
       if (wasLoading == isLoading) return
 
       if (isLoading) {
-        surface.setTitle("$title + (Loading)")
+        surface.setTitle("$title (Loading)")
         surface.setCursor(Cursor.WAIT_CURSOR)
       } else {
         surface.setTitle(title)
@@ -44,10 +44,11 @@ class BaseSketchWindow(private val title: String, private val surface: PSurface)
     newControls: List<ControlTab>
   ) {
     val lastControlFrame = controlFrame
+    val lastLocation = lastControlFrame?.getWindowLocation() ?: Point.Zero
     val (tab, index) = lastControlFrame?.getActiveTabAndIndex() ?: (null to 0)
     lastControlFrame?.close()
 
-    controlFrame = ControlFrame(sketch, size.xi, size.yi, newControls).also {
+    controlFrame = ControlFrame(sketch, size, newControls, lastLocation).also {
       var newTabIndex = it.indexOfTab(tab?.name) ?: index
       if (newTabIndex >= it.numTabs()) newTabIndex = 0
 

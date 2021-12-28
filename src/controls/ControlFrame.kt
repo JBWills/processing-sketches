@@ -11,16 +11,18 @@ import controls.panels.ControlPanel
 import controls.panels.ControlTab
 import coordinate.BoundRect
 import coordinate.PaddingRect
+import coordinate.Point
 import processing.core.PApplet
 import util.equalsIgnoreCase
 import util.style
+import util.window.setLocation
 import java.awt.Color
 
 class ControlFrame(
   private val sketch: BaseSketch,
-  private val w: Int,
-  private val h: Int,
+  private val size: Point,
   private var tabs: List<ControlTab>,
+  private val startLocation: Point = Point.Zero,
 ) : PApplet() {
   private val cp5: ControlP5 by lazy {
     ControlP5(this).apply {
@@ -30,7 +32,7 @@ class ControlFrame(
 
   private val tabHeight: Int = 16
   private val tabBound: BoundRect
-    get() = BoundRect(w, h).minusPadding(PaddingRect(top = tabHeight))
+    get() = BoundRect(size.x, size.y).minusPadding(PaddingRect(top = tabHeight))
 
   fun getActiveTabAndIndex(): Pair<ControlTab, Int>? {
     val currentTabName = cp5.controlWindow.currentTab?.name ?: return null
@@ -69,7 +71,7 @@ class ControlFrame(
     allTabs.mapIndexed { index, tab -> (tab as Tab).apply { isActive = index == indexOfTab } }
   }
 
-  override fun settings() = size(w, h)
+  override fun settings() = size(size.xi, size.yi)
 
   private fun setupTab(tab: ControlTab) {
     val style = tab.tabStyle
@@ -103,6 +105,7 @@ class ControlFrame(
     panelItem.draw(sketch, cp5, controlTab, bound)
 
   override fun setup() {
+    setLocation(startLocation)
     tabs.forEach { setupTab(it) }
   }
 
