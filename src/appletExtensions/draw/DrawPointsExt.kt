@@ -10,7 +10,8 @@ import java.awt.Color
 
 fun PApplet.drawPoint(p: Point, radius: Number = 2, color: Color? = null) {
   withStroke(color) {
-    if (radius.toDouble() > 0) circle(Circ(p, radius))
+    if (radius.toDouble() > 1) circle(Circ(p, radius))
+    else if (radius.toDouble() > 0) point(p)
   }
 }
 

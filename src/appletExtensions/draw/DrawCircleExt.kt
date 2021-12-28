@@ -1,6 +1,7 @@
 package appletExtensions.draw
 
 import appletExtensions.clipInsideRect
+import appletExtensions.withStyle
 import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
@@ -9,9 +10,21 @@ import coordinate.Point
 import processing.core.PApplet
 import processing.core.PGraphics
 import util.numbers.toRadians
+import util.print.CustomPx
+import util.print.Style
 
 fun PGraphics.circle(c: Point, r: Double) = circle(c.xf, c.yf, r.toFloat() * 2)
 fun PGraphics.circle(c: Circ) = circle(c.origin.xf, c.origin.yf, c.diameter.toFloat())
+
+fun PApplet.point(p: Point) {
+  // We may need to override the strokeweight if it's <1, because the java renderer doesn't show
+  // points with weight < 1
+  val strokeWeightOverrides: Style? =
+    if (graphics.strokeWeight < 1) Style(weight = CustomPx(1.0)) else null
+  withStyle(strokeWeightOverrides) {
+    point(p.xf, p.yf)
+  }
+}
 
 fun PApplet.circle(c: Point, r: Double) = circle(c.xf, c.yf, r.toFloat() * 2)
 fun PApplet.circle(c: Circ) = circle(c.origin.xf, c.origin.yf, c.diameter.toFloat())

@@ -71,8 +71,8 @@ data class BoundRect(
   val widthPx: Int get() = width.toInt()
   val heightPx: Int get() = height.toInt()
 
-  val xPixels: Iterable<Int> get() = left.toInt()..right.toInt()
-  val yPixels: Iterable<Int> get() = top.toInt()..bottom.toInt()
+  val xPixels: IntRange get() = left.toInt()..right.toInt()
+  val yPixels: IntRange get() = top.toInt()..bottom.toInt()
 
   val topSegment get() = Segment(topLeft, topRight)
   val bottomSegment get() = Segment(bottomLeft, bottomRight)
