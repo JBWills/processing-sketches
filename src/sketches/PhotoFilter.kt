@@ -2,11 +2,11 @@ package sketches
 
 import appletExtensions.draw.drawSquare
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.ControlStyle
 import controls.panels.TabStyle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
-import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import controls.props.types.PhotoProp
@@ -53,16 +53,16 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
     if (photo.drawImage)
       image(image, imageBounds.topLeft.xf, imageBounds.topLeft.yf)
 
-    image.bounds.forEachSampled(sampleRate.x, sampleRate.y) { imagePoint ->
+    image.bounds.mapStepped(sampleRate.x, sampleRate.y) { imagePoint ->
       val canvasPoint = imagePoint + imageBounds.topLeft
 
       if (photo.shouldCrop && !photo.cropShape.contains(boundRect, imagePoint))
-        return@forEachSampled
+        return@mapStepped
 
       val lumAtP = image.get(imagePoint).red / 255.0
 
       val length = (objectSize.x..objectSize.y).atAmountAlong(lumAtP)
-      if (length < 0) return@forEachSampled
+      if (length < 0) return@mapStepped
 
       when (filterType) {
         Circles -> canvasPoint.draw(length)

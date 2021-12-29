@@ -14,19 +14,21 @@ import fastnoise.toOpenCVMat
 import interfaces.shape.transform
 import kotlinx.serialization.Serializable
 import sketches.InputType.Image
+import sketches.RandomizePositionType.EqualDistances
+import sketches.RandomizePositionType.RandomDistances
 import sketches.base.SimpleCanvasSketch
-import util.base.doIf
-import util.comparators.ApproxPointComparator
 import util.image.opencvMat.bounds
 import util.image.opencvMat.filters.vignetteFilter
 import util.image.opencvMat.findContours
 import util.image.opencvMat.getOr
 import util.image.opencvMat.threshold
+import util.iterators.deepMap
 import util.numbers.bound
-import util.numbers.map
+import util.numbers.sqrt
 import util.polylines.closed
 import util.polylines.transform
-import util.randomPoint
+import util.randomDouble
+import util.translatedRandomDirection
 
 
 /**
@@ -78,7 +80,6 @@ class PointillismSketch : SimpleCanvasSketch<PointillismData>("Pointillism", Poi
         inputData.photo.loadMatMemoized()
 //          ?.vignetteFilter((1 - inputData.vignetteAmount), inPlace = false)
 
-
       val imageBounds = photoMat
         .bounds
         .recentered(boundRect.pointAt(inputData.photo.imageCenter))
@@ -97,29 +98,43 @@ class PointillismSketch : SimpleCanvasSketch<PointillismData>("Pointillism", Poi
       }
     }
 
-    var lastLayer = 0
-    val filteredPoints = pointsData.numPoints
-      .map { boundRect.randomPoint() }
-      .filter { getShowPoint(it) }
-      .doIf(isRecording) { it.sortedWith(ApproxPointComparator()) }
+    /*
+     * w * h = numPX
+     * h/w = ratioHW
+     * h = ratioHW * w
+     * w * (ratioHW * w) = numPX
+     * w ^ 2 = numPix / ratioHW
+     * w = sqrt(numPix / ratioHW)
+     * h = ratioHW * sqrt(numPix / ratioHW)
+     */
+    val ratioHW = boundRect.height / boundRect.width
+    val dotsX = (pointsData.numPoints.toDouble() / ratioHW).sqrt()
+    val dotsY = ratioHW * dotsX
 
-    filteredPoints.mapIndexed { index, point ->
-      val layer = ((index / filteredPoints.size.toDouble()) * pointsData.numLayers).toInt()
-      if (layer != lastLayer) {
-        nextLayer()
+    boundRect
+      .mapSampled(dotsX, dotsY) { p -> p }
+      .deepMap { point ->
+        val dist = when (pointsData.randomizePositionType) {
+          RandomDistances -> randomDouble(0.0..pointsData.randomizePosition)
+          EqualDistances -> pointsData.randomizePosition
+        }
+        val movedPoint = point.translatedRandomDirection(dist, pointsData.pointsSeed)
+
+        if (boundRect.contains(movedPoint) && getShowPoint(movedPoint)) {
+          movedPoint.draw(pointsData.pointSize)
+        }
       }
-
-      point.draw(pointsData.pointSize)
-
-      lastLayer = layer
-    }
   }
 }
 
-enum class InputType {
-  Noise,
-  Image
-}
+enum class InputType { Noise, Image }
+enum class RandomizePositionType { EqualDistances, RandomDistances }
+
+//@Serializable
+//data class PointsLayer(
+//  var color: Color = Color.BLACK,
+//
+//  )
 
 @Serializable
 data class InputData(
@@ -137,13 +152,15 @@ data class PointsData(
   var numPoints: Int = 5_000,
   var numLayers: Int = 1,
   var pointSize: Int = 3,
-  var pointsSeed: Int = 0
+  var pointsSeed: Int = 0,
+  var randomizePosition: Double = 0.0,
+  var randomizePositionType: RandomizePositionType = RandomDistances,
 )
 
 @Serializable
 data class PointillismData(
-  var inputData: InputData = InputData(),
-  var pointsData: PointsData = PointsData(),
+  val inputData: InputData = InputData(),
+  val pointsData: PointsData = PointsData(),
 ) : PropData<PointillismData> {
   override fun bind() = tabs {
     tab("input") {
@@ -171,6 +188,11 @@ data class PointillismData(
       slider(pointsData::numPoints, 0..1_000_000)
       slider(pointsData::numLayers, 1..5)
       slider(pointsData::pointSize, 1..10)
+      slider(pointsData::pointsSeed, 1..10_000)
+      row {
+        dropdown(pointsData::randomizePositionType)
+        slider(pointsData::randomizePosition, 0.0..100.0)
+      }
     }
   }
 

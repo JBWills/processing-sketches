@@ -255,22 +255,34 @@ data class BoundRect(
   override fun diff(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
     toPolyLine().clip(polyLine, ClipType.DIFFERENCE)
 
-  fun forEachGrid(block: (Point) -> Unit) = forEachSampled(1.0, 1.0, block)
+  inline fun <T> mapGrid(block: (Point) -> T) = mapStepped(1.0, 1.0, block)
 
-  fun forEachSampled(stepX: Number, stepY: Number, block: (Point) -> Unit) =
-    (left..right step stepX.toDouble()).forEach { x ->
-      (top..bottom step stepY.toDouble()).forEach { y ->
-        block(Point(x, y))
-      }
-    }
+  inline fun <T> mapSampledIndexed(
+    numX: Number,
+    numY: Number,
+    block: (indexes: Pair<Int, Int>, point: Point) -> T
+  ) = mapSteppedIndexed(
+    width / numX.toDouble(),
+    height / numY.toDouble(),
+    block,
+  )
 
-  fun forEachSampledIndexed(
+  inline fun <T> mapSampled(numX: Number, numY: Number, block: (Point) -> T) =
+    mapSteppedIndexed(
+      width / numX.toDouble(),
+      height / numY.toDouble(),
+    ) { _, point -> block(point) }
+
+  inline fun <T> mapStepped(stepX: Number, stepY: Number, block: (Point) -> T) =
+    mapSteppedIndexed(stepX, stepY) { _, point -> block(point) }
+
+  inline fun <T> mapSteppedIndexed(
     stepX: Number,
     stepY: Number,
-    block: (indexes: Pair<Int, Int>, point: Point) -> Unit
-  ) =
-    (left..right step stepX.toDouble()).forEachIndexed { indexX, x ->
-      (top..bottom step stepY.toDouble()).forEachIndexed { indexY, y ->
+    block: (indexes: Pair<Int, Int>, point: Point) -> T
+  ): List<List<T>> =
+    (left..right step stepX.toDouble()).mapIndexed { indexX, x ->
+      (top..bottom step stepY.toDouble()).mapIndexed { indexY, y ->
         block(indexX to indexY, Point(x, y))
       }
     }

@@ -3,10 +3,10 @@ package sketches.base
 import LayerConfig
 import controls.controlsealedclasses.Button.Companion.button
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.ControlTab
 import controls.panels.ControlTab.Companion.tab
 import controls.panels.panelext.markDirtyIf
-import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.panelext.textInput
 import controls.props.LayerAndGlobalProps
 import controls.props.LayerAndGlobalProps.Companion.props
@@ -85,7 +85,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   override fun getLayers(): List<LayerConfig> =
     getLayerColors(numLayers)
       .map { LayerConfig(Style(Thick(), it).applyOverrides(Style(weightOverride))) }
-      .plus(LayerConfig(Pen.ThickGellyWhite.style))
+      .plus(LayerConfig(Pen.GellyWhite.style))
 
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
     tab(PRESETS_TAB_NAME) {

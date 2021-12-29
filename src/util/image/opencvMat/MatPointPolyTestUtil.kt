@@ -35,7 +35,7 @@ fun MatOfPoint2f.pointPolyTest(p: Point, measureDist: Boolean = true): Double =
 fun List<MatOfPoint2f>.pointPolyTest(m: Mat): Mat {
   val mat = m.cloneEmpty(format = Float32)
 
-  mat.bounds.forEachGrid { p ->
+  mat.bounds.mapGrid { p ->
     val allResults = map { it.pointPolyTest(p) }
     val (allResultsPositiveOrZero, allResultsNegative) = allResults.partition { it >= 0 }
 
