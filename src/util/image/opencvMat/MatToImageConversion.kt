@@ -30,7 +30,7 @@ fun Mat.toByteArray(): ByteArray = getByteArray()
 /**
  * Paste the contents of a PImage to a mat
  *
- * @param m Mat, must by ARGB and have space for all pixels
+ * @param m Mat, must be ARGB and have space for all pixels
  */
 fun PImage.copyTo(m: Mat, offset: Point = Point.Zero) {
   loadPixels()
@@ -43,4 +43,4 @@ fun PImage.copyTo(m: Mat, offset: Point = Point.Zero) {
   m.put(bArray, offset)
 }
 
-fun PImage.toMat(): Mat = toEmptyMat(format = ARGB).also { mat -> copyTo(mat) }
+fun PImage.toMat(): Mat = toEmptyMat(format = ARGB).also(this::copyTo)

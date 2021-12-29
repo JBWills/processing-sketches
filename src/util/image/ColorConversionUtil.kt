@@ -6,6 +6,7 @@ import org.opencv.imgproc.Imgproc
 import processing.core.PImage
 import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Alpha
+import util.image.ImageFormat.Companion.getFormat
 import util.image.ImageFormat.Float32
 import util.image.ImageFormat.Gray
 import util.image.ImageFormat.RGB
@@ -19,7 +20,7 @@ import java.awt.Color
 
 fun Mat.toArgbPImage(from: ImageFormat): PImage = converted(from, ARGB).toPImage()
 
-fun Mat.converted(from: ImageFormat, to: ImageFormat): Mat {
+fun Mat.converted(from: ImageFormat = getFormat(), to: ImageFormat = getFormat()): Mat {
   if (from == to) return this
 
   val splitMat: List<Mat> = split()

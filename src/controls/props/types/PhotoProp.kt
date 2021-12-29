@@ -12,12 +12,19 @@ import controls.panels.panelext.imageSelect
 import controls.props.PropData
 import coordinate.Point
 import kotlinx.serialization.Serializable
+import org.opencv.core.Mat
 import processing.core.PImage
 import util.base.ZeroToOne
 import util.base.doIf
 import util.image.blurred
 import util.image.inverted
 import util.image.luminance
+import util.image.opencvMat.filters.clamp
+import util.image.opencvMat.filters.invert
+import util.image.opencvMat.flags.ImreadFlags
+import util.image.opencvMat.gaussianBlur
+import util.image.opencvMat.loadImageMatMemo
+import util.image.opencvMat.scaleByLargestDimension
 import util.image.pimage.scaleByLargestDimension
 import util.image.threshold
 import util.io.loadImageMemo
@@ -63,6 +70,14 @@ data class PhotoProp(
 
   fun loadMemoized(sketch: BaseSketch): PImage? = _transformImage(
     sketch.loadImageMemo(photoFile),
+    imageSize,
+    imageBlackPoint to imageWhitePoint,
+    invert,
+    blurRadius,
+  )
+
+  fun loadMatMemoized(): Mat = _loadAndTransformMat(
+    photoFile,
     imageSize,
     imageBlackPoint to imageWhitePoint,
     invert,
@@ -116,3 +131,26 @@ private val _transformImage = {
     ?.doIf(blurRadius > 1) { it.blurred(blurRadius) }
     ?.doIf(invert) { it.inverted() }
 }.memoize()
+
+private val _loadAndTransformMat: (
+  String,
+  Double,
+  Pair<Int, Int>,
+  Boolean,
+  Double
+) -> Mat = {
+    path: String,
+    imageSize: Double,
+    imageBlackAndWhitePoint: Pair<Int, Int>,
+    invert: Boolean,
+    blurRadius: Double,
+  ->
+  loadImageMatMemo(path, ImreadFlags.ImreadGrayscale)
+    .scaleByLargestDimension(imageSize)
+    .clamp(
+      min = imageBlackAndWhitePoint.first.toDouble(),
+      max = imageBlackAndWhitePoint.second.toDouble(),
+    )
+    .doIf(blurRadius > 1) { it.gaussianBlur(blurRadius.toInt()) }
+    .doIf(invert) { it.invert(inPlace = false) }
+}

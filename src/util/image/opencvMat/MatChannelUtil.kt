@@ -37,6 +37,10 @@ fun Mat.splitArgb(): Pair4<Mat, Mat, Mat, Mat> {
     throw Exception("Trying to split with wrong number of channels! Expected 4 channels, got ${channels()}")
   }
   val channels = split()
+
+  if (channels.size != 4) {
+    throw Exception("For some reason the result of split() is returning a different number of mats than the number of channels")
+  }
   return Pair4(channels[0], channels[1], channels[2], channels[3])
 }
 

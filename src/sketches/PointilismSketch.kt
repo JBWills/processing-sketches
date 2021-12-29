@@ -15,73 +15,101 @@ import interfaces.shape.transform
 import kotlinx.serialization.Serializable
 import sketches.InputType.Image
 import sketches.base.SimpleCanvasSketch
+import util.base.doIf
+import util.comparators.ApproxPointComparator
+import util.image.opencvMat.bounds
 import util.image.opencvMat.filters.vignetteFilter
 import util.image.opencvMat.findContours
 import util.image.opencvMat.getOr
 import util.image.opencvMat.threshold
 import util.numbers.bound
-import util.numbers.times
+import util.numbers.map
 import util.polylines.closed
 import util.polylines.transform
 import util.randomPoint
 
 
 /**
- * Starter sketch that uses all the latest bells and whistles.
- *
- * Copy and paste this to create a new sketch.
+ * Draw grayscale image using dots.
  */
 class PointillismSketch : SimpleCanvasSketch<PointillismData>("Pointillism", PointillismData()) {
 
   override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
     val (inputData, pointsData) = drawInfo.dataValues
 
-    val matToScreen = TranslateTransform(boundRect.topLeft - Point(10, 10))
-    val screenToMat = matToScreen.inverted()
 
-    val noiseMatBounds = boundRect.expand(10)
+    val getShowPoint: ((p: Point) -> Boolean) = if (inputData.inputType == InputType.Noise) {
+      val matToScreen = TranslateTransform(boundRect.topLeft - Point(10, 10))
+      val screenToMat = matToScreen.inverted()
 
-    val noiseMat =
-      inputData.noise
-        .toOpenCVMat(noiseMatBounds)
-        .vignetteFilter((1 - inputData.vignetteAmount), inPlace = true)
+      val noiseMatBounds = boundRect.expand(10)
 
-    if (inputData.drawNoiseField && !isRecording) {
-      noiseMat.draw(noiseMatBounds.topLeft)
-    }
+      val noiseMat =
+        inputData.noise
+          .toOpenCVMat(noiseMatBounds)
+          .vignetteFilter((1 - inputData.vignetteAmount), inPlace = true)
 
-    val noiseMatThreshold = noiseMat.threshold(inputData.threshold * 255)
+      if (inputData.drawNoiseField && !isRecording) {
+        noiseMat.draw(noiseMatBounds.topLeft)
+      }
 
-    val noiseShape = noiseMatThreshold
-      .findContours()
-      .map { it.closed() }
-      .transform(matToScreen)
+      val noiseMatThreshold = noiseMat.threshold(inputData.threshold * 255)
 
-    if (inputData.drawThresholdShape) {
-      noiseShape
-        .draw(boundRect)
-      nextLayer()
+      val noiseShape = noiseMatThreshold
+        .findContours()
+        .map { it.closed() }
+        .transform(matToScreen)
+
+      if (inputData.drawThresholdShape) {
+        noiseShape
+          .draw(boundRect)
+        nextLayer()
+      }
+      { p ->
+        val percentToThreshold = (noiseMat.getOr(
+          p.transform(screenToMat),
+          0.0,
+        ) / 255.0).bound(0.0..inputData.threshold) / inputData.threshold
+
+        percentToThreshold >= random(1f).toDouble()
+      }
+    } else {
+      val photoMat =
+        inputData.photo.loadMatMemoized()
+//          ?.vignetteFilter((1 - inputData.vignetteAmount), inPlace = false)
+
+
+      val imageBounds = photoMat
+        .bounds
+        .recentered(boundRect.pointAt(inputData.photo.imageCenter))
+
+      if (inputData.photo.drawImage) {
+        photoMat.draw(offset = imageBounds.topLeft)
+      }
+
+      { p: Point ->
+        val percentToThreshold = (photoMat.getOr(
+          p - imageBounds.topLeft,
+          0.0,
+        ) / 255.0).bound(0.0..inputData.threshold) / inputData.threshold
+
+        percentToThreshold >= random(1f).toDouble()
+      }
     }
 
     var lastLayer = 0
-    pointsData.numPoints.times { pointIndex ->
-      val layer = ((pointIndex / pointsData.numPoints.toDouble()) * pointsData.numLayers).toInt()
+    val filteredPoints = pointsData.numPoints
+      .map { boundRect.randomPoint() }
+      .filter { getShowPoint(it) }
+      .doIf(isRecording) { it.sortedWith(ApproxPointComparator()) }
+
+    filteredPoints.mapIndexed { index, point ->
+      val layer = ((index / filteredPoints.size.toDouble()) * pointsData.numLayers).toInt()
       if (layer != lastLayer) {
         nextLayer()
       }
 
-      val point = boundRect.randomPoint()
-
-      val percentToThreshold = (noiseMat.getOr(
-        point.transform(screenToMat),
-        0.0,
-      ) / 255.0).bound(0.0..inputData.threshold) / inputData.threshold
-
-      val shouldDraw = percentToThreshold >= random(1f).toDouble()
-
-      if (shouldDraw) {
-        point.draw(pointsData.pointSize)
-      }
+      point.draw(pointsData.pointSize)
 
       lastLayer = layer
     }
@@ -140,7 +168,7 @@ data class PointillismData(
     }
 
     tab("Points") {
-      slider(pointsData::numPoints, 0..100_000)
+      slider(pointsData::numPoints, 0..1_000_000)
       slider(pointsData::numLayers, 1..5)
       slider(pointsData::pointSize, 1..10)
     }

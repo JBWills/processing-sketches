@@ -12,6 +12,13 @@ import util.image.ImageFormat.Companion.getFormat
 
 fun Mat.crop(crop: BoundRect) = submat(crop)
 
+fun Mat.scaleByLargestDimension(newSize: Number): Mat =
+  if (cols() > rows()) scaleByWidth(newSize) else scaleByHeight(newSize)
+
+fun Mat.scaleByWidth(newWidth: Number): Mat = resize(Point(newWidth, getNewHeight(newWidth)))
+
+fun Mat.scaleByHeight(newHeight: Number): Mat = resize(Point(getNewWidth(newHeight), newHeight))
+
 fun Mat.scale(amount: Number) = resize(size * amount)
 fun Mat.scale(amount: Point) = resize(size * amount)
 

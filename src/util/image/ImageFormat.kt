@@ -41,7 +41,7 @@ enum class ImageFormat(val openCVFormat: Int, val pImageFormat: Int, val numChan
   }
 
   companion object {
-    fun Mat.getFormat() = fromOpenCVInt(type())
+    fun Mat.getFormat(): ImageFormat = fromOpenCVInt(type())
 
     fun PImage.getFormat() = when (format) {
       PConstants.ARGB -> ARGB
