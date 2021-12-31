@@ -3,7 +3,6 @@ package sketches
 import appletExtensions.withStyle
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
-import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.noisePanel
 import controls.props.PropData
@@ -43,7 +42,7 @@ class PointillismSketch : SimpleCanvasSketch<PointillismData>("Pointillism", Poi
           .vignetteFilter((1 - inputData.vignetteAmount), inPlace = true)
         mat to bounds
       }
-      InputType.Image -> {
+      Image -> {
         val mat = inputData.photo.loadMatMemoized()
         // ?.vignetteFilter((1 - inputData.vignetteAmount), inPlace = false)
         val bounds = mat
@@ -93,8 +92,6 @@ data class InputData(
   var threshold: Double = 0.5,
   var vignetteAmount: Double = 0.0,
   var photo: PhotoProp = PhotoProp(),
-  var drawThresholdShape: Boolean = true,
-  var drawNoiseField: Boolean = true,
 )
 
 @Serializable
@@ -124,12 +121,7 @@ data class PointillismData(
     when (inputData.inputType) {
       InputType.Noise -> tab("Noise") {
         noisePanel(inputData::noise)
-        row {
-          toggle(inputData::drawThresholdShape)
-          toggle(inputData::drawNoiseField)
-        }
       }
-
       Image -> tab("Image") {
         panel(inputData::photo)
       }
