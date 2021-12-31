@@ -1,17 +1,18 @@
 package sketches
 
+import appletExtensions.withStyle
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.noisePanel
 import controls.props.PropData
+import controls.props.types.PenProp
 import controls.props.types.PhotoProp
 import coordinate.Point
-import coordinate.transforms.TranslateTransform
+import coordinate.util.mapPoints
 import fastnoise.Noise
 import fastnoise.toOpenCVMat
-import interfaces.shape.transform
 import kotlinx.serialization.Serializable
 import sketches.InputType.Image
 import sketches.RandomizePositionType.EqualDistances
@@ -19,14 +20,10 @@ import sketches.RandomizePositionType.RandomDistances
 import sketches.base.SimpleCanvasSketch
 import util.image.opencvMat.bounds
 import util.image.opencvMat.filters.vignetteFilter
-import util.image.opencvMat.findContours
 import util.image.opencvMat.getOr
-import util.image.opencvMat.threshold
-import util.iterators.deepMap
+import util.iterators.flatMapNonNull
 import util.numbers.bound
-import util.numbers.sqrt
-import util.polylines.closed
-import util.polylines.transform
+import util.rand
 import util.randomDouble
 import util.translatedRandomDirection
 
@@ -35,106 +32,59 @@ import util.translatedRandomDirection
  * Draw grayscale image using dots.
  */
 class PointillismSketch : SimpleCanvasSketch<PointillismData>("Pointillism", PointillismData()) {
-
   override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
-    val (inputData, pointsData) = drawInfo.dataValues
+    val (inputData, pointsData, pen) = drawInfo.dataValues
 
-
-    val getShowPoint: ((p: Point) -> Boolean) = if (inputData.inputType == InputType.Noise) {
-      val matToScreen = TranslateTransform(boundRect.topLeft - Point(10, 10))
-      val screenToMat = matToScreen.inverted()
-
-      val noiseMatBounds = boundRect.expand(10)
-
-      val noiseMat =
-        inputData.noise
-          .toOpenCVMat(noiseMatBounds)
+    val (inputMat, inputBounds) = when (inputData.inputType) {
+      InputType.Noise -> {
+        val bounds = boundRect.expand(10)
+        val mat = inputData.noise
+          .toOpenCVMat(bounds)
           .vignetteFilter((1 - inputData.vignetteAmount), inPlace = true)
-
-      if (inputData.drawNoiseField && !isRecording) {
-        noiseMat.draw(noiseMatBounds.topLeft)
+        mat to bounds
       }
-
-      val noiseMatThreshold = noiseMat.threshold(inputData.threshold * 255)
-
-      val noiseShape = noiseMatThreshold
-        .findContours()
-        .map { it.closed() }
-        .transform(matToScreen)
-
-      if (inputData.drawThresholdShape) {
-        noiseShape
-          .draw(boundRect)
-        nextLayer()
-      }
-      { p ->
-        val percentToThreshold = (noiseMat.getOr(
-          p.transform(screenToMat),
-          0.0,
-        ) / 255.0).bound(0.0..inputData.threshold) / inputData.threshold
-
-        percentToThreshold >= random(1f).toDouble()
-      }
-    } else {
-      val photoMat =
-        inputData.photo.loadMatMemoized()
-//          ?.vignetteFilter((1 - inputData.vignetteAmount), inPlace = false)
-
-      val imageBounds = photoMat
-        .bounds
-        .recentered(boundRect.pointAt(inputData.photo.imageCenter))
-
-      if (inputData.photo.drawImage) {
-        photoMat.draw(offset = imageBounds.topLeft)
-      }
-
-      { p: Point ->
-        val percentToThreshold = (photoMat.getOr(
-          p - imageBounds.topLeft,
-          0.0,
-        ) / 255.0).bound(0.0..inputData.threshold) / inputData.threshold
-
-        percentToThreshold >= random(1f).toDouble()
+      InputType.Image -> {
+        val mat = inputData.photo.loadMatMemoized()
+        // ?.vignetteFilter((1 - inputData.vignetteAmount), inPlace = false)
+        val bounds = mat
+          .bounds
+          .recentered(boundRect.pointAt(inputData.photo.imageCenter))
+        mat to bounds
       }
     }
 
-    /*
-     * w * h = numPX
-     * h/w = ratioHW
-     * h = ratioHW * w
-     * w * (ratioHW * w) = numPX
-     * w ^ 2 = numPix / ratioHW
-     * w = sqrt(numPix / ratioHW)
-     * h = ratioHW * sqrt(numPix / ratioHW)
-     */
-    val ratioHW = boundRect.height / boundRect.width
-    val dotsX = (pointsData.numPoints.toDouble() / ratioHW).sqrt()
-    val dotsY = ratioHW * dotsX
+    fun shouldShowPoint(p: Point): Boolean {
+      val percentToThreshold =
+        inputMat.getOr(p - inputBounds.topLeft, 0.0)
+          .div(255.0 * inputData.threshold)
+          .bound(0.0..1.0)
 
-    boundRect
-      .mapSampled(dotsX, dotsY) { p -> p }
-      .deepMap { point ->
-        val dist = when (pointsData.randomizePositionType) {
-          RandomDistances -> randomDouble(0.0..pointsData.randomizePosition)
-          EqualDistances -> pointsData.randomizePosition
-        }
-        val movedPoint = point.translatedRandomDirection(dist, pointsData.pointsSeed)
+      return percentToThreshold >= rand(pointsData.pointsSeed)
+    }
 
-        if (boundRect.contains(movedPoint) && getShowPoint(movedPoint)) {
-          movedPoint.draw(pointsData.pointSize)
+    withStyle(pen.style) {
+      boundRect
+        .boundsIntersection(inputBounds)
+        ?.mapPoints(pointsData.numPoints)
+        ?.flatMapNonNull { point ->
+          val dist = when (pointsData.randomizePositionType) {
+            RandomDistances -> randomDouble(
+              0.0..pointsData.randomizePosition,
+              pointsData.pointsSeed,
+            )
+            EqualDistances -> pointsData.randomizePosition
+          }
+          val movedPoint = point.translatedRandomDirection(dist, pointsData.pointsSeed)
+
+          if (shouldShowPoint(movedPoint)) movedPoint else null
         }
-      }
+        ?.drawPoints(pointsData.pointSize)
+    }
   }
 }
 
 enum class InputType { Noise, Image }
 enum class RandomizePositionType { EqualDistances, RandomDistances }
-
-//@Serializable
-//data class PointsLayer(
-//  var color: Color = Color.BLACK,
-//
-//  )
 
 @Serializable
 data class InputData(
@@ -161,6 +111,7 @@ data class PointsData(
 data class PointillismData(
   val inputData: InputData = InputData(),
   val pointsData: PointsData = PointsData(),
+  var pen: PenProp = PenProp()
 ) : PropData<PointillismData> {
   override fun bind() = tabs {
     tab("input") {
@@ -193,6 +144,10 @@ data class PointillismData(
         dropdown(pointsData::randomizePositionType)
         slider(pointsData::randomizePosition, 0.0..100.0)
       }
+    }
+
+    tab("Pen") {
+      panel(::pen)
     }
   }
 

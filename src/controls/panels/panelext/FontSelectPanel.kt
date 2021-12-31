@@ -3,7 +3,7 @@ package controls.panels.panelext
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
-import controls.props.GenericProp
+import controls.panels.Panelable
 import util.fonts.FontData
 import util.fonts.FontData.Companion.toFontData
 import util.io.fontDir
@@ -18,15 +18,8 @@ fun getFonts(): List<FontData> =
 fun PanelBuilder.fontSelect(
   ref: KMutableProperty0<FontData>,
   style: ControlStyle? = null,
-) = addNewPanel(style) {
+): Panelable {
   val fonts: Map<String, FontData> = getFonts().associateBy { it.displayString() }
 
-  GenericProp(ref) {
-    dropdown("Font Family", fonts.keys.toList(), ref.get().family) { fontName: String ->
-      fonts[fontName]?.let { fontData ->
-        ref.set(fontData)
-        markDirty()
-      }
-    }
-  }
+  return dropdown(ref, ref.name, fonts.values.toList(), getName = { it.family }, style)
 }

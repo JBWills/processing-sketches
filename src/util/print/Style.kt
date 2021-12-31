@@ -1,8 +1,11 @@
 package util.print
 
+import kotlinx.serialization.Serializable
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PGraphics
+import util.io.serialization.ColorSerializer
+import util.io.serialization.NumberSerializer
 import util.print.Alignment.Baseline
 import util.print.Alignment.Center
 import java.awt.Color
@@ -35,12 +38,16 @@ enum class TextAlign(val textAlignX: Alignment, val textAlignY: Alignment) {
   fun apply(g: PGraphics) = g.textAlign(textAlignX.alignInt, textAlignY.alignInt)
 }
 
+@Serializable
 data class Style(
   val weight: StrokeWeight? = null,
+  @Serializable(with = ColorSerializer::class)
   val color: Color? = null,
   val join: StrokeJoin? = null,
+  @Serializable(with = ColorSerializer::class)
   val fillColor: Color? = null,
   val textAlign: TextAlign? = null,
+  @Serializable(with = NumberSerializer::class)
   val textSize: Number? = null,
   val noStroke: Boolean? = null,
   val noFill: Boolean? = null,

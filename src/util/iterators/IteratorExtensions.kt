@@ -56,22 +56,22 @@ fun <T, R> Iterable<T>.mapIf(
   block: (T) -> R,
 ): List<R> = mapNotNull { if (predicate(it)) block(it) else null }
 
-fun <T> Iterable<T>.addIf(predicate: () -> Boolean, item: () -> T) =
-  if (predicate()) this + item() else this.copy()
-
-
 fun <T> Iterable<T>.prependIf(condition: Boolean, getItem: () -> T): List<T> =
   if (condition) listOf(getItem()) + this else toList()
 
 fun <T> Iterable<T>.prependIf(condition: Boolean, item: T): List<T> =
   prependIf(condition) { item }
 
-fun <T> Iterable<T>.addIf(condition: Boolean, item: () -> T) = this.addIf({ condition }, item)
-fun <T> Iterable<T>.addIf(condition: Boolean, item: T): List<T> =
-  addIf(condition) { item }
+fun <T> Iterable<T>.plusIf(predicate: () -> Boolean, item: () -> T) =
+  if (predicate()) this + item() else this.copy()
 
-fun <T> Iterable<T>.addNotNull(item: T?) = item?.let { this + it } ?: this.copy()
+fun <T> Iterable<T>.plusIf(condition: Boolean, item: () -> T): List<T> =
+  if (condition) this + item() else this.copy()
 
+fun <T> Iterable<T>.plusIf(condition: Boolean, item: T): List<T> =
+  if (condition) this + item else this.copy()
+
+fun <T> Iterable<T>.plusNotNull(item: T?) = item?.let { this + it } ?: this.copy()
 
 fun <T, R> Iterable<T>.reduceGeneral(initial: R, block: (R, T) -> R): R {
   var r = initial

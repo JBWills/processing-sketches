@@ -2,7 +2,6 @@ package tests.util.iterators
 
 import coordinate.Point
 import org.junit.jupiter.api.Test
-import util.iterators.addIf
 import util.iterators.forEachPair
 import util.iterators.forEachWithNextIndexed
 import util.iterators.forEachWithSurrounding
@@ -10,6 +9,7 @@ import util.iterators.forEachWithSurroundingCyclical
 import util.iterators.limit
 import util.iterators.map2D
 import util.iterators.mapEachPairNonNull
+import util.iterators.plusIf
 import util.iterators.prependIf
 import util.iterators.replaceKey
 import util.iterators.sumByDoubleIndexed
@@ -181,10 +181,10 @@ internal class IteratorExtensionsTest {
   @Test
   fun testAddIf() {
     val l = listOf(1, 2)
-    assertEquals(l, l.addIf(false) { 0 })
-    assertEquals(listOf(1, 2, 0), l.addIf(true) { 0 })
-    assertEquals(l, l.addIf(false, 0))
-    assertEquals(listOf(1, 2, 0), l.addIf(true, 0))
+    assertEquals(l, l.plusIf(false) { 0 })
+    assertEquals(listOf(1, 2, 0), l.plusIf(true) { 0 })
+    assertEquals(l, l.plusIf(false, 0))
+    assertEquals(listOf(1, 2, 0), l.plusIf(true, 0))
   }
 
   @Test

@@ -13,6 +13,7 @@ import controls.props.types.PhotoProp
 import coordinate.Deg
 import coordinate.Point
 import coordinate.Segment.Companion.toUnitVectorSegment
+import coordinate.util.mapStepped
 import kotlinx.serialization.Serializable
 import sketches.FilterType.Circles
 import sketches.FilterType.Crosses

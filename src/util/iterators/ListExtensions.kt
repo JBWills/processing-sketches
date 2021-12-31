@@ -11,14 +11,6 @@ fun <T> List<T>.skipLast() = if (isEmpty()) listOf() else slice(0 until size - 1
 
 fun <T> List<T>.endPointPair() = Pair(first(), last())
 
-fun <T, K> List<List<T>>.deepMap(f: (T) -> K): List<List<K>> =
-  map { it.map(f) }
-
-fun <T, R> List<List<List<T>>>.deepDeepMap(block: (T) -> R): List<List<List<R>>> =
-  map { outerList ->
-    outerList.map { list -> list.map(block) }
-  }
-
 fun <T> List<T>.mapPercentToIndex(lerpAmt: Double): Double {
   val boundAmt = lerpAmt.bound(0.0, 1.0)
   return indices.atAmountAlong(boundAmt)

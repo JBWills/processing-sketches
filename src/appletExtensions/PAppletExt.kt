@@ -29,9 +29,9 @@ import util.base.lerp
 import util.image.opencvMat.getTransformedMat
 import util.image.opencvMat.toPImage
 import util.image.pimage.scale
-import util.iterators.addNotNull
 import util.iterators.forEach2D
 import util.iterators.mapWithNext
+import util.iterators.plusNotNull
 import util.numbers.boundMin
 import util.polylines.PolyLine
 import util.polylines.clipping.clip
@@ -79,7 +79,7 @@ open class PAppletExt : PApplet() {
   fun noiseXY(x: Number, y: Number) = noiseXY(Point(x, y))
 
   fun PolyLine.toSegments(): List<Segment> = mapWithNext { curr, next -> Segment(curr, next) }
-  fun List<Segment>.toVertices(): PolyLine = map { it.p1 }.addNotNull(lastOrNull()?.p2)
+  fun List<Segment>.toVertices(): PolyLine = map { it.p1 }.plusNotNull(lastOrNull()?.p2)
 
   private fun PolyLine.shape() {
     beginShape()
@@ -160,6 +160,10 @@ open class PAppletExt : PApplet() {
   }
 
   fun Iterable<Point>.drawPoints(radius: Number = 2) = drawPoints(this, radius)
+
+  @JvmName("drawPointsListOfLists")
+  fun Iterable<Iterable<Point>>.drawPoints(radius: Number = 2) =
+    forEach { drawPoints(it, radius) }
 
   fun PImage.draw(topLeft: Point) = image(this, topLeft.xf, topLeft.yf)
   fun PImage.draw(bound: BoundRect) = scale(bound.size).draw(bound.topLeft)

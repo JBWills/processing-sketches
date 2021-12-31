@@ -85,7 +85,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   override fun getLayers(): List<LayerConfig> =
     getLayerColors(numLayers)
       .map { LayerConfig(Style(Thick(), it).applyOverrides(Style(weightOverride))) }
-      .plus(LayerConfig(Pen.GellyWhite.style))
+      .plus(LayerConfig(Pen.GellyColorWhite.style))
 
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
     tab(PRESETS_TAB_NAME) {
