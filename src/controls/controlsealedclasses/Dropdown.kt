@@ -39,10 +39,11 @@ class Dropdown(
     }
 
     fun <T> PanelBuilder.dropdown(
-      ref: KMutableProperty0<T>,
-      name: String = ref.name,
+      name: String,
       options: List<T>,
+      initialValue: T,
       getName: (value: T) -> String,
+      onSetValue: BaseSketch.(value: T) -> Unit,
       style: ControlStyle? = null,
       shouldMarkDirty: Boolean = true,
       onChange: BaseSketch.(String, T) -> Unit = { _, _ -> },
@@ -55,17 +56,36 @@ class Dropdown(
       return dropdown(
         name = name,
         options = options.indices.map { indexToNames.getOrDefault(it, defaultName) },
-        initialValue = valuesToName.getOrDefault(ref.get(), defaultName),
+        initialValue = getName(initialValue),
         style = style,
         shouldMarkDirty = shouldMarkDirty,
         onChange = { nameString ->
           val value = nameToValues[nameString]
             ?: throw Exception("No value exists for that name: $nameString")
-          ref.set(value)
+          onSetValue(value)
           onChange(nameString, value)
         },
       )
     }
+
+    fun <T> PanelBuilder.dropdown(
+      ref: KMutableProperty0<T>,
+      name: String = ref.name,
+      options: List<T>,
+      getName: (value: T) -> String,
+      style: ControlStyle? = null,
+      shouldMarkDirty: Boolean = true,
+      onChange: BaseSketch.(String, T) -> Unit = { _, _ -> },
+    ): Panelable = dropdown(
+      name = name,
+      options = options,
+      initialValue = ref.get(),
+      getName = getName,
+      onSetValue = { v -> ref.set(v) },
+      style = style,
+      shouldMarkDirty = shouldMarkDirty,
+      onChange = onChange,
+    )
 
     fun PanelBuilder.dropdown(
       name: String,

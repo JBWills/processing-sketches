@@ -14,7 +14,6 @@ import coordinate.Point
 import kotlinx.serialization.Serializable
 import org.opencv.core.Mat
 import processing.core.PImage
-import util.base.ZeroToOne
 import util.base.doIf
 import util.image.blurred
 import util.image.inverted
@@ -28,7 +27,6 @@ import util.image.opencvMat.scaleByLargestDimension
 import util.image.pimage.scaleByLargestDimension
 import util.image.threshold
 import util.io.loadImageMemo
-import util.tuple.and
 
 @Serializable
 data class PhotoProp(
@@ -98,8 +96,8 @@ data class PhotoProp(
     slider(::blurRadius, 0..50)
 
     row {
-      slider2D(::imageCenter, ZeroToOne and ZeroToOne)
-      slider(::imageSize, 2..2000)
+      slider2D(::imageCenter, 0..2)
+      slider(::imageSize, 2..4000)
     }
 
     row {

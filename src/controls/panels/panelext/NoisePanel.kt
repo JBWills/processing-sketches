@@ -1,16 +1,18 @@
 package controls.panels.panelext
 
 import BaseSketch
-import controls.controlsealedclasses.EnumDropdown
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider
 import controls.controlsealedclasses.Slider2D
-import controls.panels.ControlList
+import controls.panels.ControlList.Companion.col
 import controls.panels.ControlPanel
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
+import controls.panels.Panelable
 import controls.props.GenericProp
 import coordinate.Point
 import fastnoise.Noise
+import util.generics.getValues
 import java.awt.Color
 import kotlin.reflect.KMutableProperty0
 
@@ -39,16 +41,31 @@ private fun noiseControls(
 
   val noise = noiseProp.get()
 
-  return ControlList.col(noiseProp.name) {
-    row {
-      +EnumDropdown("Quality", noise.quality) {
-        updateNoiseField { with(quality = it) }
-      }.withHeight(4)
+  fun <E : Enum<E>> PanelBuilder.noiseDropdown(
+    name: String,
+    value: E,
+    getNewField: ((oldNoise: Noise, newField: E) -> Noise)
+  ): Panelable = dropdown(
+    name,
+    options = value.getValues(),
+    initialValue = value,
+    getName = { it.name },
+    onSetValue = { updateNoiseField { getNewField(this, it) } },
+    shouldMarkDirty = false,
+  )
 
-      +EnumDropdown("Type", noise.noiseType) {
-        updateNoiseField { with(noiseType = it) }
-      }.withHeight(4)
+  return col(noiseProp.name) {
+    row {
+      heightRatio = 4
+      noiseDropdown(name = "Quality", value = noise.quality) { oldNoise, newField ->
+        oldNoise.with(quality = newField)
+      }
+
+      noiseDropdown(name = "Type", value = noise.noiseType) { oldNoise, newField ->
+        oldNoise.with(noiseType = newField)
+      }
     }
+
     if (showStrengthSliders) row {
       +Slider(
         "Strength X",
@@ -72,9 +89,11 @@ private fun noiseControls(
       0.0..2000.0,
       noise.seed.toDouble(),
     ) { updateNoiseField { with(seed = it.toInt()) } }
+
     +Slider("Scale", 0.0..2.0, noise.scale) {
       updateNoiseField { with(scale = it) }
     }
+
     +Slider2D(
       "Offset",
       Point.One..Point(1000, 1000),
