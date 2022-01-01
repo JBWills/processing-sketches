@@ -16,11 +16,17 @@ data class PenProp(
   var penType: PenType = PenType.GellyColor,
   var pen: Pen = Pen.GellyColorWhite,
   var weight: StrokeWeight = Gelly1(),
+  val filterByWeight: Boolean = false,
 ) : PropData<PenProp> {
 
   val style: Style get() = pen.style.applyOverrides(Style(weight = weight))
 
-  constructor(penProp: PenProp) : this(penProp.penType, penProp.pen, penProp.weight)
+  constructor(penProp: PenProp) : this(
+    penProp.penType,
+    penProp.pen,
+    penProp.weight,
+    penProp.filterByWeight,
+  )
 
   override fun toSerializer() = serializer()
 
@@ -28,14 +34,27 @@ data class PenProp(
 
   override fun bind(): List<ControlTab> = singleTab("Photo") {
     row {
-      dropdown(::penType) {
-        if (pen.type != penType) {
-          pen = Pen.withType(penType)[0]
+      if (filterByWeight) {
+        dropdown(::weight, options = Pen.AllWeights, getName = { it.name }) { _, _ ->
+          updateControls()
         }
-        updateControls()
+        dropdown(
+          ::pen,
+          options = Pen.withThickness(weight),
+          getName = { it.colorName },
+        ) { _, newPen ->
+          penType = newPen.type
+        }
+      } else {
+        dropdown(::penType) {
+          if (pen.type != penType) {
+            pen = Pen.withType(penType)[0]
+          }
+          updateControls()
+        }
+        dropdown(::pen, options = Pen.withType(penType), getName = { it.colorName })
+        dropdown(::weight, options = pen.weights.toList(), getName = { it.name })
       }
-      dropdown(::pen, options = Pen.withType(penType), getName = { it.colorName })
-      dropdown(::weight, options = pen.weights.toList(), getName = { it.name })
     }
   }
 }

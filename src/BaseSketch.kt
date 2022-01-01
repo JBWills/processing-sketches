@@ -208,7 +208,12 @@ abstract class BaseSketch(
     *getControlTabs(),
   )
 
-  fun updateControls() = window.updateControls(this, CONTROL_PANEL_SIZE, getAllControls())
+  fun updateControls(newTabName: String? = null) = window.updateControls(
+    this,
+    CONTROL_PANEL_SIZE,
+    getAllControls(),
+    newTabName = newTabName,
+  )
 
   fun setActiveTab(tabName: String) = window.controlFrame?.setActiveTab(tabName)
 

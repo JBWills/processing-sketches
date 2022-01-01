@@ -41,7 +41,8 @@ class BaseSketchWindow(private val title: String, private val surface: PSurface)
   fun updateControls(
     sketch: BaseSketch,
     size: Point,
-    newControls: List<ControlTab>
+    newControls: List<ControlTab>,
+    newTabName: String? = null
   ) {
     val lastControlFrame = controlFrame
     val lastLocation = lastControlFrame?.getWindowLocation() ?: Point.Zero
@@ -49,10 +50,12 @@ class BaseSketchWindow(private val title: String, private val surface: PSurface)
     lastControlFrame?.close()
 
     controlFrame = ControlFrame(sketch, size, newControls, lastLocation).also {
-      var newTabIndex = it.indexOfTab(tab?.name) ?: index
-      if (newTabIndex >= it.numTabs()) newTabIndex = 0
+      var newTabIndex = it.indexOfTab(newTabName) ?: it.indexOfTab(tab?.name) ?: index
+      if (it.numTabs() >= 2) {
+        if (newTabIndex >= it.numTabs() - 1) newTabIndex = 0
 
-      it.setActiveTab(newTabIndex)
+        it.setActiveTab(newTabIndex)
+      }
     }
   }
 }

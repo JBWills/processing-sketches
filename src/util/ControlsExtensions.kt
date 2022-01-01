@@ -11,6 +11,7 @@ import coordinate.BoundRect
 import coordinate.Point
 import processing.core.PFont
 import util.base.DoubleRange
+import java.awt.Color
 
 val Controller<*>.topLeft get(): Point = Point(position[0], position[1])
 
@@ -37,7 +38,7 @@ fun <T> Controller<T>.style(controlStyle: ControlStyle): Controller<T> {
   setColorForeground(controlStyle.color.rgb)
   setColorLabel(controlStyle.textColor.rgb)
   setFont(PFont(controlStyle.font.toFont(), true))
-  
+
   alignCaptionAndLabel(
     valueAlign = controlStyle.labelAlign,
     captionAlign = controlStyle.captionAlign,
@@ -47,8 +48,11 @@ fun <T> Controller<T>.style(controlStyle: ControlStyle): Controller<T> {
 }
 
 fun Tab.style(tabStyle: TabStyle): Tab {
-  tabStyle.tabBackgroundColor?.let { setColorBackground(it.rgb) }
-  tabStyle.tabOnHoverColor?.let { setColorActive(it.rgb) }
-  tabStyle.tabColor?.let { setColorForeground(it.rgb) }
+  fun Color.applyStyle(applyFunction: (Int) -> Unit) = applyFunction(this.rgb)
+
+  tabStyle.tabBackgroundColor?.applyStyle(this::setColorBackground)
+  tabStyle.tabOnHoverColor?.applyStyle(this::setColorActive)
+  tabStyle.tabColor?.applyStyle(this::setColorForeground)
+  tabStyle.tabTextColor?.applyStyle(this::setColorLabel)
   return this
 }

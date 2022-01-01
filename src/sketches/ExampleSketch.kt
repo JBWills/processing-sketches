@@ -1,7 +1,7 @@
 package sketches
 
-import controls.panels.TabsBuilder.Companion.singleTab
 import controls.controlsealedclasses.Slider.Companion.slider
+import controls.panels.TabsBuilder.Companion.tabs
 import controls.props.PropData
 import kotlinx.serialization.Serializable
 import sketches.base.SimpleCanvasSketch
@@ -20,10 +20,12 @@ class ExampleSketch : SimpleCanvasSketch<ExampleData>("Example", ExampleData()) 
 
 @Serializable
 data class ExampleData(
-  var exampleGlobalField: Int = 1,
+  var exampleField: Int = 1,
 ) : PropData<ExampleData> {
-  override fun bind() = singleTab("Global") {
-    slider(::exampleGlobalField, 0..10)
+  override fun bind() = tabs {
+    tab("Global") {
+      slider(::exampleField, 0..10)
+    }
   }
 
   override fun clone() = copy()

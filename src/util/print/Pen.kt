@@ -184,7 +184,11 @@ enum class Pen(
 
   val style get() = Style(color = color)
 
+
   companion object {
+    val AllWeights by lazy { values().flatMap { it.weights.toList() }.toSet().sortedBy { it.name } }
+    val GellyColors = values().filter { it.type === GellyColor }
+
     private val withTypeMemo: (PenType) -> List<Pen> = { penType: PenType ->
       values().filter { it.type === penType }
     }.memoize()

@@ -3,6 +3,8 @@
 package controls.panels
 
 import coordinate.PaddingRect
+import util.base.darkened
+import util.base.getTextColorForBackground
 import util.constants.Black0
 import util.constants.Black1
 import util.constants.Black2
@@ -35,6 +37,7 @@ import util.constants.Yellow0
 import util.constants.Yellow1
 import util.constants.Yellow2
 import util.constants.Yellow3
+import util.print.Pen
 import java.awt.Color
 
 data class TabStyle(
@@ -43,9 +46,9 @@ data class TabStyle(
   val tabBackgroundColor: Color? = null,
   val tabColor: Color? = null,
   val tabOnHoverColor: Color? = null,
+  val tabTextColor: Color? = null,
   val padding: PaddingRect? = null,
 ) {
-
   val nonNullControlStyle = controlStyle ?: ControlStyle.EmptyStyle
 
   val nonNullPadding by lazy { padding ?: BASE_TAB_PADDING }
@@ -57,6 +60,7 @@ data class TabStyle(
     tabBackgroundColor: Color? = null,
     tabColor: Color? = null,
     tabOnHoverColor: Color? = null,
+    tabTextColor: Color? = null,
     padding: PaddingRect? = null,
   ) : this(
     controlStyle ?: tabStyle.controlStyle,
@@ -64,6 +68,7 @@ data class TabStyle(
     tabBackgroundColor ?: tabStyle.tabBackgroundColor,
     tabColor ?: tabStyle.tabColor,
     tabOnHoverColor ?: tabStyle.tabOnHoverColor,
+    tabTextColor ?: tabStyle.tabTextColor,
     padding ?: tabStyle.padding,
   )
 
@@ -93,6 +98,14 @@ data class TabStyle(
       Purple,
       controlStyle = ControlStyle.EmptyStyle,
       padding = BASE_TAB_PADDING,
+    )
+
+    fun Pen.toTabStyle(): TabStyle = TabStyle(
+      tabBackgroundColor = color,
+      tabOnHoverColor = color,
+      tabColor = color,
+      frameBackgroundColor = color.darkened(0.3),
+      tabTextColor = getTextColorForBackground(color),
     )
   }
 }

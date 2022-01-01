@@ -48,7 +48,7 @@ class Dropdown(
       shouldMarkDirty: Boolean = true,
       onChange: BaseSketch.(String, T) -> Unit = { _, _ -> },
     ): Panelable {
-      val defaultName = getName(options.first())
+      val defaultName = options.getOrNull(0)?.let(getName) ?: ""
       val valuesToName: Map<T, String> = options.associateBy({ it }, { getName(it) })
       val nameToValues = valuesToName.flipMap()
       val indexToNames = options.mapIndexed { index, t -> index to getName(t) }.toMap()

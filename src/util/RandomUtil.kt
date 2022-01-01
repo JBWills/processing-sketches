@@ -20,6 +20,14 @@ fun getRandomInstance(seed: Int = DefaultSeed): Random {
   return seedToRandomInstance.getOrPut(seed) { Random(seed) }
 }
 
+fun <T> List<T>.randItem(seed: Int = DefaultSeed): T =
+  if (this.isEmpty()) throw Exception("Trying to get a random item from an empty list")
+  else this[randomInt(0 until size, seed)]
+
+fun <T> Array<T>.randItem(seed: Int = DefaultSeed): T =
+  if (this.isEmpty()) throw Exception("Trying to get a random item from an empty list")
+  else this[randomInt(0 until size, seed)]
+
 fun rand(seed: Int = DefaultSeed): Double = getRandomInstance(seed).nextDouble()
 fun randomInt(range: IntRange, seed: Int = DefaultSeed): Int =
   if (range.first == range.last) range.first

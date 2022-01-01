@@ -13,10 +13,18 @@ class TabsBuilder(val tabs: MutableList<ControlTab>) : MutableList<ControlTab> b
     +TabBuilder(name, tabStyle ?: TabStyle.Base).apply(block).buildTab()
   }
 
-  fun layerTab(
-    style: TabStyle? = null,
-    block: TabBuilder.() -> Unit,
-  ): Unit = tab("L", style, block)
+  fun <T> tabs(
+    items: List<T>,
+    getTabName: (Int, T) -> String,
+    getTabStyle: ((Int, T) -> TabStyle)? = null,
+    block: PanelBuilder.(Int, T) -> Unit
+  ) {
+    items.forEachIndexed { index, item ->
+      val name = getTabName(index, item)
+      val style = getTabStyle?.invoke(index, item) ?: TabStyle.Base
+      +TabBuilder(name, style) { block(index, item) }.buildTab()
+    }
+  }
 
   companion object {
     fun tabs(block: TabsBuilder.() -> Unit): List<ControlTab> =

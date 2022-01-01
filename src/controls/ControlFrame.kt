@@ -65,7 +65,7 @@ class ControlFrame(
 
     val indexOfTab = allTabs.indexOfFirst { it.name.equalsIgnoreCase(tabName) }
     if (indexOfTab == allTabs.size - 1) {
-      throw Exception("Sorry, you can't programmatically select the last tab because of a bug in getCurrentTab in controlP5. You should probably just add a dummy tab after this one.")
+      throw Exception("Error trying to select tab $tabName at index: $indexOfTab with tabs length: ${allTabs.size}. Sorry, you can't programmatically select the last tab because of a bug in getCurrentTab in controlP5. You should probably just add a dummy tab after this one.")
     }
 
     allTabs.mapIndexed { index, tab -> (tab as Tab).apply { isActive = index == indexOfTab } }
