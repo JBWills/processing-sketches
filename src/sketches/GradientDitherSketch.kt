@@ -1,7 +1,7 @@
 package sketches
 
-import appletExtensions.withStyle
 import controls.controlsealedclasses.Button.Companion.button
+import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
 import controls.controlsealedclasses.Toggle.Companion.toggle
@@ -9,11 +9,20 @@ import controls.panels.TabStyle.Companion.toTabStyle
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.props.PropData
 import controls.props.types.PenProp
+import coordinate.BoundRect
 import coordinate.Point
+import coordinate.util.mapPoints
 import kotlinx.serialization.Serializable
+import sketches.RandomizePositionType2.RandomDistances
 import sketches.base.SimpleCanvasSketch
+import util.iterators.deepForEach
+import util.numbers.squared
 import util.print.Pen
 import util.randItem
+import util.random.randomWeightedIndex
+import util.randomDouble
+import util.translatedRandomDirection
+import java.awt.Color
 
 /**
  * Starter sketch that uses all the latest bells and whistles.
@@ -24,24 +33,67 @@ class GradientDitherSketch : SimpleCanvasSketch<GradientDitherData>(
   "GradientDither",
   GradientDitherData(),
 ) {
-  override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
-    val (points, radius, drawAsScribbles) = drawInfo.dataValues.pointData
 
-    points.forEach {
-      withStyle(it.penProp.style) {
-        boundRect.pointAt(it.center).draw(radius)
+  private fun distanceToProbability(distanceToAnchor: Double, anchorIntensity: Double): Double =
+    anchorIntensity.squared() / distanceToAnchor.squared()
+
+
+  override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
+    val (gradientAnchors, radius, drawAsScribbles, numPoints, pointsSeed, randomizePosition, randomizePositionType) = drawInfo.dataValues.pointData
+    if (gradientAnchors.size == 0) return
+
+    fun getAnchor(p: Point): GradientPoint {
+      val distances: List<Pair<GradientPoint, Double>> =
+        gradientAnchors.map { it to it.centerInRect(boundRect).dist(p) }
+      val probabilities =
+        distances.map { (anchor, dist) -> distanceToProbability(dist, anchor.intensity) }
+
+      return gradientAnchors[probabilities.randomWeightedIndex(pointsSeed)]
+    }
+
+    val anchorToPoints: MutableMap<GradientPoint, MutableList<Point>> = mutableMapOf()
+
+    boundRect.mapPoints(numPoints) {
+      val dist = when (randomizePositionType) {
+        RandomizePositionType2.RandomDistances -> randomDouble(
+          0.0..randomizePosition,
+          pointsSeed,
+        )
+        RandomizePositionType2.EqualDistances -> randomizePosition
       }
+      it.translatedRandomDirection(dist, pointsSeed)
+    }.deepForEach { point ->
+      if (boundRect.contains(point)) {
+        anchorToPoints
+          .getOrPut(getAnchor(point)) { mutableListOf() }
+          .add(point)
+      }
+    }
+
+    anchorToPoints.forEach { (anchor, points) ->
+      newLayerStyled(anchor.penProp.style) {
+        points.drawPoints(radius)
+      }
+    }
+
+    if (drawInfo.dataValues.debugMode) {
+      gradientAnchors.forEach { it.centerInRect(boundRect).draw(5, Color.WHITE) }
     }
   }
 }
 
+enum class RandomizePositionType2 { EqualDistances, RandomDistances }
+
 @Serializable
 data class GradientPoint(
   var center: Point = Point(0.5, 0.5),
-  var penProp: PenProp = PenProp(pen = Pen.GellyColors.randItem(), filterByWeight = true)
+  var penProp: PenProp = PenProp(pen = Pen.GellyColors.randItem(), filterByWeight = true),
+  var intensity: Double = 1.0,
   // consider adding intensity field here
 ) {
   constructor(p: GradientPoint) : this(p.center.copy(), p.penProp.clone())
+
+  fun centerInRect(rect: BoundRect) = rect.pointAt(center)
 }
 
 
@@ -49,39 +101,56 @@ data class GradientPoint(
 data class PointData(
   val points: MutableList<GradientPoint> = mutableListOf(),
   var radius: Double = 1.0,
-  var drawAsScribbles: Boolean = false
+  var drawAsScribbles: Boolean = false,
+  var numPoints: Int = 10_000,
+  var pointsSeed: Int = 0,
+  var randomizePosition: Double = 0.0,
+  var randomizePositionType: RandomizePositionType2 = RandomDistances,
 )
 
 private const val GlobalTabName = "Global"
 
 @Serializable
 data class GradientDitherData(
+  var debugMode: Boolean = false,
   val pointData: PointData = PointData(),
 ) : PropData<GradientDitherData> {
-  val points get() = pointData.points
+  private val gradientAnchors get() = pointData.points
   override fun bind() = tabs {
-    fun getPointTabName(index: Int) = "p$index"
+    fun getGradientAnchorName(index: Int) = "p$index"
     tab(GlobalTabName) {
       row {
         button("Add New Point") {
-          points.add(GradientPoint())
-          updateControls(newTabName = getPointTabName(points.size - 1))
+          gradientAnchors.add(GradientPoint())
+          updateControls(newTabName = getGradientAnchorName(gradientAnchors.size - 1))
+          markDirty()
         }
         button("Clear Points") {
-          points.clear()
+          gradientAnchors.clear()
           updateControls()
+          markDirty()
         }
+        toggle(::debugMode)
       }
 
       row {
         toggle(pointData::drawAsScribbles)
         slider(pointData::radius, 0..10)
       }
+
+      row {
+        slider(pointData::numPoints, 0..100_000)
+        slider(pointData::pointsSeed, 0..1_000)
+      }
+      row {
+        dropdown(pointData::randomizePositionType)
+        slider(pointData::randomizePosition, 0.0..100.0)
+      }
     }
 
     tabs(
-      points,
-      getTabName = { index, _ -> getPointTabName(index) },
+      gradientAnchors,
+      getTabName = { index, _ -> getGradientAnchorName(index) },
       getTabStyle = { index, gradientPoint -> gradientPoint.penProp.pen.toTabStyle() },
     ) { index, gradientPoint ->
       row {
@@ -90,17 +159,19 @@ data class GradientDitherData(
       }
       row {
         button("Clone") {
-          points.add(GradientPoint(gradientPoint))
-          updateControls(newTabName = getPointTabName(points.size - 1))
+          gradientAnchors.add(GradientPoint(gradientPoint))
+          updateControls(newTabName = getGradientAnchorName(gradientAnchors.size - 1))
+          markDirty()
         }
 
         button("Delete") {
-          points.removeAt(index)
-          val newIndex = if (points.size > index) index else index - 1
+          gradientAnchors.removeAt(index)
+          val newIndex = if (gradientAnchors.size > index) index else index - 1
           val newTabName =
-            if (points.indices.contains(newIndex)) getPointTabName(newIndex)
+            if (gradientAnchors.indices.contains(newIndex)) getGradientAnchorName(newIndex)
             else GlobalTabName
           updateControls(newTabName = newTabName)
+          markDirty()
         }
       }
 
@@ -108,7 +179,8 @@ data class GradientDitherData(
         panel(gradientPoint::penProp)
       }
 
-      slider2D(gradientPoint::center, -2..2).withHeight(2)
+      slider(gradientPoint::intensity, 0..10)
+      slider2D(gradientPoint::center, 0..1).withHeight(2)
     }
   }
 

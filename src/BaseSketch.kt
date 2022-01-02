@@ -98,6 +98,14 @@ abstract class BaseSketch(
     nextLayer()
   }
 
+  suspend inline fun SequenceScope<Unit>.newLayerStyled(
+    style: Style,
+    block: () -> Unit
+  ) = withStyle(style) {
+    block()
+    nextLayer()
+  }
+
 
   suspend inline fun SequenceScope<Unit>.nextLayer() {
     yield(Unit)

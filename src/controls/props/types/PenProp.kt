@@ -42,9 +42,7 @@ data class PenProp(
           ::pen,
           options = Pen.withThickness(weight),
           getName = { it.colorName },
-        ) { _, newPen ->
-          penType = newPen.type
-        }
+        ) { _, newPen -> penType = newPen.type }
       } else {
         dropdown(::penType) {
           if (pen.type != penType) {
