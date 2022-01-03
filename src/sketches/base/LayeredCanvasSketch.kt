@@ -19,6 +19,7 @@ import controls.utils.savePresetToFile
 import kotlinx.serialization.KSerializer
 import util.constants.getLayerColors
 import util.iterators.mapArrayIndexed
+import util.layers.LayerSVGConfig
 import util.print.Pen
 import util.print.StrokeWeight
 import util.print.Style
@@ -31,10 +32,13 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   layerToDefaultTab: (Int) -> TabValues,
   val maxLayers: Int = MAX_LAYERS,
 ) : CanvasSketch(svgBaseFilename, CanvasProp()) {
-  private val globalSerializer: KSerializer<GlobalValues> = defaultGlobal.toSerializer()
-  private val layerSerializer: KSerializer<TabValues> = layerToDefaultTab(0).toSerializer()
+  private val globalSerializer: KSerializer<GlobalValues> =
+    defaultGlobal.toSerializer()
+  private val layerSerializer: KSerializer<TabValues> =
+    layerToDefaultTab(0).toSerializer()
 
-  private val fallbackProps = props(maxLayers, CanvasProp(), defaultGlobal, layerToDefaultTab)
+  private val fallbackProps =
+    props(maxLayers, CanvasProp(), defaultGlobal, layerToDefaultTab)
 
   private var presets: Map<String, LayerAndGlobalProps<TabValues, GlobalValues>> =
     loadPresets(maxLayers, globalSerializer, layerSerializer)
@@ -54,7 +58,8 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   override var canvasProps
     get() = layerAndGlobalProps.canvasValues
     set(value) {
-      layerAndGlobalProps = LayerAndGlobalProps(layerAndGlobalProps, canvasData = value)
+      layerAndGlobalProps =
+        LayerAndGlobalProps(layerAndGlobalProps, canvasData = value)
     }
 
   /**
@@ -64,33 +69,45 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
    * @param block block to modify the parent props in-place. Return true if the sketch should be marked dirty.
    */
   fun modifyPropsDirectly(
-    block: (mutableProps: LayerAndGlobalProps<TabValues, GlobalValues>) -> Boolean
+    block: (mutableProps: LayerAndGlobalProps<TabValues, GlobalValues>) -> Boolean,
   ) =
     markDirtyIf(block(layerAndGlobalProps))
 
   final override fun setup() {
     super.setup()
 
-    setActiveTab(layerAndGlobalProps.globalControlTabs.firstOrNull()?.name ?: CANVAS_TAB_NAME)
+    setActiveTab(
+      layerAndGlobalProps.globalControlTabs.firstOrNull()?.name
+        ?: CANVAS_TAB_NAME,
+    )
 
     onSwitchCanvas(DEFAULT_PRESET_NAME)
   }
 
   abstract fun drawOnce(layerInfo: LayerInfo)
-  open suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {}
+  open suspend fun SequenceScope<LayerSVGConfig>.drawLayers(layerInfo: DrawInfo) {}
 
   open fun drawSetup(layerInfo: DrawInfo) {}
   open fun drawInteractive(layerInfo: DrawInfo) {}
 
   override fun getLayers(): List<LayerConfig> =
     getLayerColors(numLayers)
-      .map { LayerConfig(Style(Thick(), it).applyOverrides(Style(weightOverride))) }
+      .map {
+        LayerConfig(
+          Style(
+            Thick(),
+            it,
+          ).applyOverrides(Style(weightOverride)),
+        )
+      }
       .plus(LayerConfig(Pen.GellyColorWhite.style))
 
   override fun getControlTabs(): Array<ControlTab> = arrayOf(
     tab(PRESETS_TAB_NAME) {
       row {
-        button("Override $DEFAULT_PRESET_NAME preset") { savePreset(DEFAULT_PRESET_NAME) }
+        button("Override $DEFAULT_PRESET_NAME preset") {
+          savePreset(DEFAULT_PRESET_NAME)
+        }
 
         if (currentPreset != DEFAULT_PRESET_NAME) {
           button("Override $currentPreset preset") { savePreset(currentPreset) }
@@ -98,7 +115,10 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
         }
       }
 
-      textInput(textFieldLabel = "New Preset Name", submitButtonLabel = "Save new preset") {
+      textInput(
+        textFieldLabel = "New Preset Name",
+        submitButtonLabel = "Save new preset",
+      ) {
         savePreset(it)
       }
 
@@ -144,9 +164,15 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
     frozenValues?.let { drawSetup(it) }
   }
 
-  final override suspend fun SequenceScope<Unit>.drawOnce(layer: Int) {
+  final override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(layer: Int) {
     val frozenValues = frozenValues ?: return
-    drawOnce(LayerInfo(layer, frozenValues.globalValues, frozenValues.allTabValues))
+    drawOnce(
+      LayerInfo(
+        layer,
+        frozenValues.globalValues,
+        frozenValues.allTabValues,
+      ),
+    )
     drawLayers(frozenValues)
   }
 

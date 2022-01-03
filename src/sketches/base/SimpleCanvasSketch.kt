@@ -16,6 +16,7 @@ import controls.utils.deletePresetFile
 import controls.utils.loadPresets
 import controls.utils.savePresetToFile
 import kotlinx.serialization.KSerializer
+import util.layers.LayerSVGConfig
 import util.print.Style
 
 abstract class SimpleCanvasSketch<Data : PropData<Data>>(
@@ -65,7 +66,7 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
     onSwitchCanvas(DEFAULT_PRESET_NAME)
   }
 
-  abstract suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo)
+  abstract suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo)
 
   open fun drawSetup(drawInfo: DrawInfo) {}
   open fun drawInteractive(layerInfo: DrawInfo) {}
@@ -135,7 +136,7 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
     frozenValues?.let { drawSetup(it) }
   }
 
-  final override suspend fun SequenceScope<Unit>.drawOnce(layer: Int) {
+  final override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(layer: Int) {
     val frozenValues = frozenValues ?: return
     drawLayers(frozenValues)
   }

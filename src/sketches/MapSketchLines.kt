@@ -37,6 +37,7 @@ import util.image.opencvMat.threshold
 import util.io.geoJson.loadGeoMatAndBlurMemo
 import util.iterators.deepMap
 import util.iterators.groupToSortedList
+import util.layers.LayerSVGConfig
 import util.polylines.PolyLine
 import util.polylines.bound
 import util.polylines.clipping.ForceClosedOption.Close
@@ -120,7 +121,7 @@ class MapSketchLines :
 
   val loadScaleAndRotateMatMemo = ::loadScaleAndRotateMat.memoize()
 
-  override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
+  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
     val (geoTiffFile, drawMat, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, drawMinElevationOutline, occludeLines, drawOceanLines, blurAmount, lineSimplifyEpsilon, imageRotation, oceanContours, initialOceanLinesOffset, maxOceanDistanceFromLand) = drawInfo.dataValues
     geoTiffFile ?: return
 
@@ -200,7 +201,7 @@ class MapSketchLines :
     }
 
     if (drawOceanLines) {
-      yield(Unit)
+      nextLayer()
       stroke(Color.BLUE)
 
       val simplifyAmount = oceanContours.simplifier.simplifyAmount

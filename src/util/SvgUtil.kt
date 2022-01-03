@@ -7,6 +7,7 @@ import processing.data.XML
 import util.io.getSVGNameAndPath
 import util.io.getTempFileNameAndPath
 import util.io.getTempFilepath
+import util.layers.LayerSVGConfig
 import util.print.applyStyle
 import util.xml.set
 import util.xml.setSizePx
@@ -23,7 +24,7 @@ fun PApplet.drawLayeredSvg(
   baseSketchName: String,
   fileSuffix: String,
   sketchSize: Point,
-  drawLayerSequence: Sequence<Unit>,
+  drawLayerSequence: Sequence<LayerSVGConfig>,
 ) {
   val time: Instant = Instant.now()
   val resultFile = getSVGNameAndPath(baseSketchName, fileSuffix, time)
@@ -49,15 +50,15 @@ fun PApplet.drawLayeredSvg(
     }
   }
 
-  fun tearDown(index: Int, andWrite: Boolean, tempFileName: String) {
+  fun tearDown(index: Int, andWrite: Boolean, tempFileName: String, layerName: String) {
     prevStyle = recorder?.style ?: graphics?.style
     endRecord()
     if (!andWrite) return
     xml.addChild(
       XML("g").also { layerChild ->
         layerChild.setString("inkscape:groupmode", "layer")
-        layerChild.setString("inkscape:label", "$index.layer")
-        layerChild.setString("id", "layer$index")
+        layerChild.setString("inkscape:label", "$index.${layerName}")
+        layerChild.setString("id", "$index.${layerName}")
         XML(File(tempFileName))
           .children
           .filter { child -> child.name == "g" }
@@ -68,12 +69,20 @@ fun PApplet.drawLayeredSvg(
 
   setup(getTempFileNameAndPath(baseSketchName, fileSuffix, 0, time))
 
-  drawLayerSequence.forEachIndexed { index, _ ->
-    tearDown(index, true, getTempFileNameAndPath(baseSketchName, fileSuffix, index, time))
+  var nextLayerName: String? = null
+  drawLayerSequence.forEachIndexed { index, config ->
+    val layerName = config.layerName ?: nextLayerName ?: ""
+    tearDown(
+      index,
+      true,
+      getTempFileNameAndPath(baseSketchName, fileSuffix, index, time),
+      layerName,
+    )
     setup(getTempFileNameAndPath(baseSketchName, fileSuffix, index + 1, time))
+    nextLayerName = config.nextLayerName
   }
 
-  tearDown(-1, false, "")
+  tearDown(-1, false, "", "")
 
   File(tempFolder).deleteRecursively()
 

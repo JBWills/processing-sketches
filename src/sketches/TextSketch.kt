@@ -23,6 +23,7 @@ import util.iterators.skipFirst
 import util.javageom.DefaultFlatness
 import util.javageom.boundRect
 import util.javageom.toPolyLine
+import util.layers.LayerSVGConfig
 import util.polylines.PolyLine
 import util.polylines.clipping.offsetBy
 import java.awt.Color
@@ -40,7 +41,7 @@ class TextSketch : LayeredCanvasSketch<TextData, TextLayerData>(
   override fun drawSetup(layerInfo: DrawInfo) {}
   override fun drawOnce(layerInfo: LayerInfo) {}
 
-  override suspend fun SequenceScope<Unit>.drawLayers(layerInfo: DrawInfo) {
+  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(layerInfo: DrawInfo) {
     val (lineWidth, lineHeight, centerPoint, rotation, flatness, font, text, interiorOffsets, exteriorOffsets, lockOffsetsDistance) = layerInfo.globalValues
 
     fun List<PolyLine>.offset(amounts: Iterable<Double>) =
@@ -82,7 +83,7 @@ class TextSketch : LayeredCanvasSketch<TextData, TextLayerData>(
       .offset(interiorOffsetsList)
       .draw(boundRect)
 
-    yield(Unit)
+    nextLayer()
     stroke(Color.red)
 
     val exteriorOffsetsIterator = exteriorOffsets.let {

@@ -4,13 +4,14 @@ import BaseSketch
 import LayerConfig
 import appletExtensions.draw.line
 import appletExtensions.draw.rect
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.controlsealedclasses.Slider.Companion.slider
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Line
 import coordinate.Point
+import util.layers.LayerSVGConfig
 import util.numbers.pow
 import util.numbers.times
 import java.awt.Color
@@ -32,7 +33,7 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
     slider(::lineDegrees, 0..360)
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(
+  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
   ) {

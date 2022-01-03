@@ -6,13 +6,14 @@ import appletExtensions.draw.arc
 import appletExtensions.draw.circle
 import appletExtensions.draw.rect
 import appletExtensions.intersection
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.panelext.sliderPair
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
+import util.layers.LayerSVGConfig
 import java.awt.Color
 
 open class ArcTestSketch(
@@ -44,7 +45,7 @@ open class ArcTestSketch(
     slider(::arcSize, 0..150)
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(
+  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
   ) {

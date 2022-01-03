@@ -5,6 +5,7 @@ import controls.panels.TabsBuilder.Companion.tabs
 import controls.props.PropData
 import kotlinx.serialization.Serializable
 import sketches.base.SimpleCanvasSketch
+import util.layers.LayerSVGConfig
 
 /**
  * Starter sketch that uses all the latest bells and whistles.
@@ -13,7 +14,7 @@ import sketches.base.SimpleCanvasSketch
  */
 class ExampleSketch : SimpleCanvasSketch<ExampleData>("Example", ExampleData()) {
 
-  override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
+  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
     val (exampleGlobalField) = drawInfo.dataValues
   }
 }

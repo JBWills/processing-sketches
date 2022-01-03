@@ -21,6 +21,7 @@ import util.image.opencvMat.bounds
 import util.image.opencvMat.filters.vignetteFilter
 import util.image.opencvMat.getOr
 import util.iterators.flatMapNonNull
+import util.layers.LayerSVGConfig
 import util.numbers.bound
 import util.rand
 import util.randomDouble
@@ -31,7 +32,7 @@ import util.translatedRandomDirection
  * Draw grayscale image using dots.
  */
 class PointillismSketch : SimpleCanvasSketch<PointillismData>("Pointillism", PointillismData()) {
-  override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
+  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
     val (inputData, pointsData, pen) = drawInfo.dataValues
 
     val (inputMat, inputBounds) = when (inputData.inputType) {

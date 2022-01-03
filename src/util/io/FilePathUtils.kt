@@ -6,7 +6,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyMMdd--hh-mm-ss")
+private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm")
   .withLocale(Locale.US)
   .withZone(ZoneId.systemDefault())
 
@@ -42,14 +42,35 @@ private fun getSVGFilepath(baseSketchName: String) = getOutputPath(baseSketchNam
 fun getTempFilepath(baseSketchName: String) =
   getOutputPath(baseSketchName, "temp")
 
-private fun getSVGFilename(fileSuffix: String = "", time: Instant) =
-  "${getDateString(time)}--$fileSuffix.svg"
+private fun getSVGFilename(
+  fileSuffix: String = "",
+  time: Instant,
+  copyNumber: Int? = null
+): String {
+  val copySuffix = if (copyNumber != null) "--$copyNumber" else ""
+  return "${getDateString(time)}--$fileSuffix$copySuffix.svg"
+}
 
 private fun getTempFilename(fileSuffix: String = "", layerNum: Int, time: Instant) =
   "$${getDateString(time)}--$fileSuffix--layer-${layerNum}.svg"
 
-fun getSVGNameAndPath(baseSketchName: String, fileSuffix: String, time: Instant = Instant.now()) =
-  "${getSVGFilepath(baseSketchName)}/${getSVGFilename(fileSuffix, time)}"
+fun getSVGNameAndPath(
+  baseSketchName: String,
+  fileSuffix: String,
+  time: Instant = Instant.now()
+): String {
+  fun getPath(count: Int? = null) =
+    "${getSVGFilepath(baseSketchName)}/${getSVGFilename(fileSuffix, time, count)}"
+
+  var path = getPath()
+  var duplicateIndicator = 1
+  while (File(path).exists()) {
+    path = getPath(duplicateIndicator)
+    duplicateIndicator++
+  }
+
+  return path
+}
 
 fun getTempFileNameAndPath(
   baseSketchName: String,

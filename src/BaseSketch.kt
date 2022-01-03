@@ -20,6 +20,7 @@ import processing.event.MouseEvent
 import util.drawLayeredSvg
 import util.image.ImageFormat
 import util.iterators.iterate
+import util.layers.LayerSVGConfig
 import util.lineLimit
 import util.print.StrokeJoin
 import util.print.Style
@@ -89,29 +90,31 @@ abstract class BaseSketch(
 
   open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(Thick(), color = strokeColor)))
 
-  suspend inline fun SequenceScope<Unit>.newLayerStyled(
+  suspend inline fun SequenceScope<LayerSVGConfig>.newLayerStyled(
     stroke: Color,
     fill: Color? = null,
+    config: LayerSVGConfig = LayerSVGConfig(),
     block: () -> Unit
   ) = withFillAndStroke(stroke, fill) {
     block()
-    nextLayer()
+    nextLayer(config)
   }
 
-  suspend inline fun SequenceScope<Unit>.newLayerStyled(
+  suspend inline fun SequenceScope<LayerSVGConfig>.newLayerStyled(
     style: Style,
+    config: LayerSVGConfig = LayerSVGConfig(),
     block: () -> Unit
   ) = withStyle(style) {
     block()
-    nextLayer()
+    nextLayer(config)
   }
 
 
-  suspend inline fun SequenceScope<Unit>.nextLayer() {
-    yield(Unit)
+  suspend inline fun SequenceScope<LayerSVGConfig>.nextLayer(c: LayerSVGConfig = LayerSVGConfig()) {
+    yield(c)
   }
 
-  abstract suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig)
+  abstract suspend fun SequenceScope<LayerSVGConfig>.drawOnce(layer: Int, layerConfig: LayerConfig)
 
   open fun getFilenameSuffix(): String = ""
 

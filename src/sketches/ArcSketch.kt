@@ -5,12 +5,13 @@ import LayerConfig
 import appletExtensions.draw.boundArc
 import appletExtensions.draw.rect
 import appletExtensions.intersection
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.controlsealedclasses.Slider.Companion.slider
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
+import util.layers.LayerSVGConfig
 import util.numbers.pow
 import java.awt.Color
 
@@ -50,7 +51,7 @@ open class ArcSketch(
     slider(::power2, 0.0..2.0)
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(
+  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
   ) {

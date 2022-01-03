@@ -17,6 +17,7 @@ import fastnoise.Noise
 import fastnoise.Noise.Companion.warpedRadially
 import fastnoise.NoiseQuality.High
 import fastnoise.mapNoiseToPositiveValues
+import util.layers.LayerSVGConfig
 import java.awt.Color
 
 open class CircleWarpSketch(
@@ -76,7 +77,7 @@ open class CircleWarpSketch(
     markDirty()
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(
+  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
   ) {

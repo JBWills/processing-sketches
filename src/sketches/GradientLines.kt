@@ -4,12 +4,13 @@ import BaseSketch
 import LayerConfig
 import appletExtensions.draw.rect
 import appletExtensions.drawParallelLinesInBound
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
-import controls.controlsealedclasses.Slider.Companion.slider
 import coordinate.BoundRect
 import coordinate.Deg
 import coordinate.Point
+import util.layers.LayerSVGConfig
 import java.awt.Color
 
 open class GradientLinesSketch(
@@ -41,7 +42,7 @@ open class GradientLinesSketch(
       segmentHeight * numSegs,
     )
 
-  override suspend fun SequenceScope<Unit>.drawOnce(
+  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
   ) {

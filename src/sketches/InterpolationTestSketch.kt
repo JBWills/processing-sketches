@@ -20,6 +20,7 @@ import util.interpolation.InterpolationFunction1D
 import util.interpolation.Interpolator1DType
 import util.interpolation.Interpolator1DType.CubicSpline1DType
 import util.iterators.meanByOrNull
+import util.layers.LayerSVGConfig
 import util.numbers.ifNan
 import util.polylines.PolyLine
 import util.polylines.walk
@@ -48,8 +49,7 @@ class InterpolationTestSketch : SimpleCanvasSketch<InterpolationTestData>(
     }
   }
 
-
-  override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
+  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
     val (points, _, forceEquidistantPoints, equidistantPointsWidth, interpolation, interpolation2D, interpolationSampleStep) = drawInfo.dataValues
 
     val pointsMapped = if (forceEquidistantPoints) {
@@ -58,7 +58,12 @@ class InterpolationTestSketch : SimpleCanvasSketch<InterpolationTestData>(
           Point(0, 0),
           Point(boundRect.width * equidistantPointsWidth, 0),
         ).plus(boundRect.topLeft)
-          .plus(Point((boundRect.width * (1 - equidistantPointsWidth)) / 2, boundRect.height / 2))
+          .plus(
+            Point(
+              (boundRect.width * (1 - equidistantPointsWidth)) / 2,
+              boundRect.height / 2,
+            ),
+          )
           .also { it.draw() }
       val avgY = points.meanByOrNull { it.y } ?: 0.0
       points.mapIndexed { index, point ->

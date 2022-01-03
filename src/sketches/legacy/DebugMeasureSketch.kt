@@ -13,6 +13,7 @@ import coordinate.BoundRect
 import coordinate.Point
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
+import util.layers.LayerSVGConfig
 import util.print.DPI.InkScape
 import util.print.Orientation.Landscape
 import util.print.Paper
@@ -83,7 +84,7 @@ open class DebugMeasureSketch(
     }
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(
+  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
   ) {

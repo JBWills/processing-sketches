@@ -17,6 +17,7 @@ import coordinate.Point
 import coordinate.Spiral
 import fastnoise.Noise
 import fastnoise.NoiseQuality.High
+import util.layers.LayerSVGConfig
 import util.numbers.squared
 import util.polylines.polyLine.normalizeDistances
 import java.awt.Color
@@ -107,7 +108,7 @@ open class SpiralSketch(
     markDirty()
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(
+  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
   ) {

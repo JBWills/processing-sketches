@@ -14,6 +14,7 @@ import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
 import coordinate.BoundRect
 import coordinate.Point
+import util.layers.LayerSVGConfig
 import java.awt.Color
 
 open class WarpSketch(
@@ -96,7 +97,7 @@ open class WarpSketch(
     return (noisePoint * Point(moveAmountX, moveAmountY))
   }
 
-  override suspend fun SequenceScope<Unit>.drawOnce(
+  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
   ) {

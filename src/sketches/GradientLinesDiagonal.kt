@@ -5,6 +5,7 @@ import appletExtensions.draw.rect
 import appletExtensions.drawParallelLinesInBound
 import coordinate.Deg
 import coordinate.Point
+import util.layers.LayerSVGConfig
 import java.awt.Color
 
 class GradientLinesDiagonalSketch(
@@ -13,7 +14,10 @@ class GradientLinesDiagonalSketch(
   size: Point = Point(576, 864),
 ) : GradientLinesSketch(lineDegrees, backgroundColor, size) {
 
-  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
+    layer: Int,
+    layerConfig: LayerConfig,
+  ) {
     noStroke()
 
     stroke(Color.BLACK.rgb)

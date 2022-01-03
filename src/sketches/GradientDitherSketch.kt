@@ -16,6 +16,7 @@ import kotlinx.serialization.Serializable
 import sketches.RandomizePositionType2.RandomDistances
 import sketches.base.SimpleCanvasSketch
 import util.iterators.deepForEach
+import util.layers.LayerSVGConfig
 import util.numbers.squared
 import util.print.Pen
 import util.randItem
@@ -37,8 +38,7 @@ class GradientDitherSketch : SimpleCanvasSketch<GradientDitherData>(
   private fun distanceToProbability(distanceToAnchor: Double, anchorIntensity: Double): Double =
     anchorIntensity.squared() / distanceToAnchor.squared()
 
-
-  override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
+  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
     val (gradientAnchors, radius, drawAsScribbles, numPoints, pointsSeed, randomizePosition, randomizePositionType) = drawInfo.dataValues.pointData
     if (gradientAnchors.size == 0) return
 
@@ -71,7 +71,10 @@ class GradientDitherSketch : SimpleCanvasSketch<GradientDitherData>(
     }
 
     anchorToPoints.forEach { (anchor, points) ->
-      newLayerStyled(anchor.penProp.style) {
+      newLayerStyled(
+        anchor.penProp.style,
+        LayerSVGConfig(layerName = anchor.penProp.pen.name),
+      ) {
         points.drawPoints(radius)
       }
     }

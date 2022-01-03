@@ -20,6 +20,7 @@ import sketches.base.SimpleCanvasSketch
 import util.audio.DefaultSampleSize
 import util.interpolation.Interpolator1DType
 import util.interpolation.Interpolator1DType.CubicSpline1DType
+import util.layers.LayerSVGConfig
 import util.numbers.map
 import java.awt.Color
 
@@ -38,7 +39,7 @@ private val Colors: List<Color> = listOf(
  * Copy and paste this to create a new sketch.
  */
 class AudioLines : SimpleCanvasSketch<AudioLinesData>("AudioLines", AudioLinesData()) {
-  override suspend fun SequenceScope<Unit>.drawLayers(drawInfo: DrawInfo) {
+  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
     val (audio, sampleSize, interpolationStep, linesToShow, drawSize, drawCenter, amplitudeScale, numLayers, interpolationType, noise, drawBaseLines, percentThroughSong1) = drawInfo.dataValues
 
     val features = audio.getFeatures(sampleSize) ?: return

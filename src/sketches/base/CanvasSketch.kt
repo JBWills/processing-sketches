@@ -8,6 +8,7 @@ import controls.panels.Panelable
 import controls.props.types.CanvasProp
 import util.base.alsoIf
 import util.base.darkened
+import util.layers.LayerSVGConfig
 import util.print.Style
 import java.awt.Color
 
@@ -34,9 +35,12 @@ abstract class CanvasSketch(
         it.add(boundRect.shrink(0.2))
       }.forEach { rect(it) }
 
-  abstract suspend fun SequenceScope<Unit>.drawOnce(layer: Int)
+  abstract suspend fun SequenceScope<LayerSVGConfig>.drawOnce(layer: Int)
 
-  override suspend fun SequenceScope<Unit>.drawOnce(layer: Int, layerConfig: LayerConfig) {
+  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
+    layer: Int,
+    layerConfig: LayerConfig
+  ) {
     noFill()
 
     val needsDarkStroke: Boolean =
@@ -54,7 +58,7 @@ abstract class CanvasSketch(
       val isFirstLayer = layer == 0
       if (isFirstLayer && canvasProps.drawBoundRect) {
         drawBoundRect()
-        nextLayer()
+        nextLayer(LayerSVGConfig(layerName = "bounds"))
       }
 
       drawOnce(layer)
