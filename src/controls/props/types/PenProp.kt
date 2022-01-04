@@ -2,6 +2,7 @@ package controls.props.types
 
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.panels.ControlTab
+import controls.panels.PanelBuilder
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.props.PropData
 import kotlinx.serialization.Serializable
@@ -16,7 +17,6 @@ data class PenProp(
   var penType: PenType = PenType.GellyColor,
   var pen: Pen = Pen.GellyColorWhite,
   var weight: StrokeWeight = Gelly1(),
-  val filterByWeight: Boolean = false,
 ) : PropData<PenProp> {
 
   val style: Style get() = pen.style.applyOverrides(Style(weight = weight))
@@ -25,24 +25,28 @@ data class PenProp(
     penProp.penType,
     penProp.pen,
     penProp.weight,
-    penProp.filterByWeight,
   )
 
   override fun toSerializer() = serializer()
 
   override fun clone() = PenProp(this)
 
-  override fun bind(): List<ControlTab> = singleTab("Photo") {
+  fun penPanel(
+    builder: PanelBuilder,
+    updateControlsOnPenChange: Boolean = false,
+    filterByWeight: Boolean = false
+  ) = builder.apply {
     row {
       if (filterByWeight) {
-        dropdown(::weight, options = Pen.AllWeights, getName = { it.name }) { _, _ ->
-          updateControls()
-        }
+        dropdown(::weight, options = Pen.AllWeights, getName = { it.name }) { updateControls() }
         dropdown(
           ::pen,
           options = Pen.withThickness(weight),
           getName = { it.colorName },
-        ) { _, newPen -> penType = newPen.type }
+        ) {
+          penType = it.data.type
+          if (updateControlsOnPenChange) updateControls()
+        }
       } else {
         dropdown(::penType) {
           if (pen.type != penType) {
@@ -50,9 +54,13 @@ data class PenProp(
           }
           updateControls()
         }
-        dropdown(::pen, options = Pen.withType(penType), getName = { it.colorName })
+        dropdown(::pen, options = Pen.withType(penType), getName = { it.colorName }) {
+          if (updateControlsOnPenChange) updateControls()
+        }
         dropdown(::weight, options = pen.weights.toList(), getName = { it.name })
       }
     }
   }
+
+  override fun bind(): List<ControlTab> = singleTab("Photo") { penPanel(this) }
 }

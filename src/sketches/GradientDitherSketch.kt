@@ -90,15 +90,13 @@ enum class RandomizePositionType2 { EqualDistances, RandomDistances }
 @Serializable
 data class GradientPoint(
   var center: Point = Point(0.5, 0.5),
-  var penProp: PenProp = PenProp(pen = Pen.GellyColors.randItem(), filterByWeight = true),
+  var penProp: PenProp = PenProp(pen = Pen.GellyColors.randItem()),
   var intensity: Double = 1.0,
-  // consider adding intensity field here
 ) {
   constructor(p: GradientPoint) : this(p.center.copy(), p.penProp.clone())
 
   fun centerInRect(rect: BoundRect) = rect.pointAt(center)
 }
-
 
 @Serializable
 data class PointData(
@@ -157,10 +155,6 @@ data class GradientDitherData(
       getTabStyle = { index, gradientPoint -> gradientPoint.penProp.pen.toTabStyle() },
     ) { index, gradientPoint ->
       row {
-        heightRatio = 0.5
-        button("Refresh Controls Panel") { updateControls() }
-      }
-      row {
         button("Clone") {
           gradientAnchors.add(GradientPoint(gradientPoint))
           updateControls(newTabName = getGradientAnchorName(gradientAnchors.size - 1))
@@ -178,12 +172,17 @@ data class GradientDitherData(
         }
       }
 
-      row {
-        panel(gradientPoint::penProp)
-      }
+      gradientPoint.penProp.penPanel(
+        this,
+        updateControlsOnPenChange = true,
+        filterByWeight = true,
+      )
 
       slider(gradientPoint::intensity, 0..10)
-      slider2D(gradientPoint::center, 0..1).withHeight(2)
+      row {
+        heightRatio = 2
+        slider2D(gradientPoint::center, 0..1)
+      }
     }
   }
 

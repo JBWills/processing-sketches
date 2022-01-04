@@ -13,6 +13,12 @@ import util.generics.getValues
 import util.iterators.flipMap
 import kotlin.reflect.KMutableProperty0
 
+data class DropdownOption<T>(
+  val name: String,
+  val data: T,
+  val displayName: String = name,
+)
+
 class Dropdown(
   text: String,
   options: List<String>,
@@ -46,7 +52,7 @@ class Dropdown(
       onSetValue: BaseSketch.(value: T) -> Unit,
       style: ControlStyle? = null,
       shouldMarkDirty: Boolean = true,
-      onChange: BaseSketch.(String, T) -> Unit = { _, _ -> },
+      onChange: BaseSketch.(DropdownOption<T>) -> Unit = { },
     ): Panelable {
       val defaultName = options.getOrNull(0)?.let(getName) ?: ""
       val valuesToName: Map<T, String> = options.associateBy({ it }, { getName(it) })
@@ -63,7 +69,7 @@ class Dropdown(
           val value = nameToValues[nameString]
             ?: throw Exception("No value exists for that name: $nameString")
           onSetValue(value)
-          onChange(nameString, value)
+          onChange(DropdownOption(nameString, value))
         },
       )
     }
@@ -75,7 +81,7 @@ class Dropdown(
       getName: (value: T) -> String,
       style: ControlStyle? = null,
       shouldMarkDirty: Boolean = true,
-      onChange: BaseSketch.(String, T) -> Unit = { _, _ -> },
+      onChange: BaseSketch.(DropdownOption<T>) -> Unit = { },
     ): Panelable = dropdown(
       name = name,
       options = options,
@@ -94,7 +100,7 @@ class Dropdown(
       style: ControlStyle? = null,
       shouldMarkDirty: Boolean = true,
       onChange: BaseSketch.(String) -> Unit = {},
-    ) = dropdown(ref, name, options, { it }, style, shouldMarkDirty) { _, v -> onChange(v) }
+    ) = dropdown(ref, name, options, { it }, style, shouldMarkDirty) { onChange(it.data) }
 
     fun <E : Enum<E>> PanelBuilder.dropdown(
       ref: KMutableProperty0<E>,
@@ -107,7 +113,7 @@ class Dropdown(
       getName = { it.name },
       style = style,
       shouldMarkDirty = shouldMarkDirty,
-    ) { _, v -> onChange(v) }
+    ) { onChange(it.data) }
 
     fun <E : Enum<E>> PanelBuilder.dropdown(
       ref: KMutableProperty0<E?>,
@@ -121,7 +127,7 @@ class Dropdown(
       getName = { it?.name ?: "None" },
       style = style,
       shouldMarkDirty = shouldMarkDirty,
-    ) { _, v -> onChange(v) }
+    ) { onChange(it.data) }
 
     fun <E : NamedObject> PanelBuilder.dropdown(
       ref: KMutableProperty0<E>,
@@ -135,6 +141,6 @@ class Dropdown(
       getName = { it.name },
       style = style,
       shouldMarkDirty = shouldMarkDirty,
-    ) { _, v -> onChange(v) }
+    ) { onChange(it.data) }
   }
 }
