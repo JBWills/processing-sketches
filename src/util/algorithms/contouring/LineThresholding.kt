@@ -15,7 +15,7 @@ import util.algorithms.contouring.SegmentContourStatus.Outside
 import util.image.opencvMat.get
 import util.polylines.PolyLine
 import util.polylines.addPoints
-import util.polylines.forEachSegment
+import util.polylines.iterators.forEachSegment
 
 const val MIN_SEGMENT_LENGTH = 1
 

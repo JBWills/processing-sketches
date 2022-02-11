@@ -41,11 +41,12 @@ fun PolyLine.maskedByImage(
   inverted: Boolean = false,
   thresholdValueRange: DoubleRange = 128.0..Double.MAX_VALUE,
 ): List<PolyLine> {
-  val inMaskPredicate = { p: Point -> p.inMask(mask, thresholdValueRange, inverted) }
+  val inMaskPredicate =
+    { p: Point -> p.inMask(mask, thresholdValueRange, inverted) }
   return chunkFilterInterpolated(
-    predicate = inMaskPredicate,
-    getBoundaryValue = { (currPoint, _, _), (nextPoint, _, _) ->
-      Segment(currPoint, nextPoint)
+    predicate = { cursor -> inMaskPredicate(cursor.value) },
+    getBoundaryValue = { (currPoint, _), (nextPoint, _) ->
+      Segment(currPoint.value, nextPoint.value)
         .binarySearchForBoundary(inMaskPredicate)
     },
   )

@@ -4,6 +4,7 @@ import coordinate.Point
 import coordinate.Point.Companion.plusIf
 import coordinate.Segment
 import coordinate.Segment.Companion.toSegment
+import util.polylines.iterators.mapBySegment
 
 typealias PolyLine = List<Point>
 

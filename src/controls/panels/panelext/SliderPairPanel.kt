@@ -7,6 +7,7 @@ import controls.panels.PanelBuilder
 import controls.panels.panelext.util.RefGetter
 import controls.panels.panelext.util.pointWrapped
 import controls.panels.panelext.util.wrapSelf
+import controls.panels.panelext.util.wrapped
 import controls.props.GenericProp
 import coordinate.Point
 import util.base.DoubleRange
@@ -24,6 +25,24 @@ fun PanelBuilder.sliderPair(
   shouldMarkDirty: Boolean = true,
 ) = sliderPairPanel(
   pointWrapped(ref1, ref2),
+  range to range,
+  withLockToggle,
+  defaultLocked,
+  style,
+  shouldMarkDirty,
+)
+
+@JvmName("sliderPairDoubles")
+fun PanelBuilder.sliderPair(
+  ref1: RefGetter<Double>,
+  ref2: RefGetter<Double>,
+  range: DoubleRange = (0.0..1.0),
+  withLockToggle: Boolean = false,
+  defaultLocked: Boolean = false,
+  style: ControlStyle? = null,
+  shouldMarkDirty: Boolean = true,
+) = sliderPairPanel(
+  (ref1 to ref2).wrapped({ Point(first, second) }, { x to y }),
   range to range,
   withLockToggle,
   defaultLocked,

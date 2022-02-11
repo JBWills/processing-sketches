@@ -2,7 +2,7 @@ package util.algorithms.contouring
 
 import coordinate.Point
 import coordinate.Segment
-import util.polylines.mapBySegment
+import util.polylines.iterators.mapBySegment
 
 private const val MIN_SEGMENT_SIZE = 0.1
 private const val WALK_STEP = 1.0

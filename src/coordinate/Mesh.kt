@@ -2,8 +2,8 @@ package coordinate
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import util.iterators.mapWithNext
-import util.iterators.mapWithNextIndexed
+import util.iterators.mapWithSibling
+import util.iterators.mapWithSiblingIndexed
 import util.numbers.map
 import util.percentAlong
 import util.polylines.MutablePolyLine
@@ -91,8 +91,8 @@ data class Mesh(
     val yIndices = (0 until yPoints).toList()
 
     // First we loop over all the "boxes" and determine if all sides of the box are visible
-    xIndices.mapWithNext { x, nextX ->
-      yIndices.mapWithNext { y, nextY ->
+    xIndices.mapWithSibling { x, nextX ->
+      yIndices.mapWithSibling { y, nextY ->
         val isBox = isPointVisible(x, y) &&
           isPointVisible(nextX, y) &&
           isPointVisible(x, nextY) &&
@@ -115,10 +115,10 @@ data class Mesh(
     }
 
     // Then we loop over all the segments and merge them into horizontal and vertical lines.
-    xIndices.mapWithNextIndexed { xIndex, x, nextX ->
+    xIndices.mapWithSiblingIndexed { xIndex, x, nextX ->
       val verticalLineList = verticalLines[x]
       val isLastCol = xIndex == xIndices.last()
-      yIndices.mapWithNextIndexed { yIndex, y, nextY ->
+      yIndices.mapWithSiblingIndexed { yIndex, y, nextY ->
         val isLastRow = yIndex == yIndices.last()
         val horizontalLineList = horizontalLines[y]
         val verticalSegment = Segment(Point(x, y), Point(x, nextY))

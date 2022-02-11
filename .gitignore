@@ -12,6 +12,7 @@
 
 /presets
 /assets/fonts
+/assets/images/*
 
 # Package Files #
 *.jar

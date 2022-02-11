@@ -18,7 +18,7 @@ import sketches.base.LayeredCanvasSketch
 import util.image.opencvMat.contourMemo
 import util.image.opencvMat.geoTiffToGray
 import util.percentAlong
-import util.polylines.transform
+import util.polylines.iterators.transform
 
 /**
  * Draws a map with topology that can be offset to create a 3d effect.

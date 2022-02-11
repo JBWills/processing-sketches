@@ -4,7 +4,7 @@ import coordinate.Point
 import coordinate.Segment
 import util.numbers.times
 import util.polylines.PolyLine
-import util.polylines.mapBySegment
+import util.polylines.iterators.mapBySegment
 import util.tuple.map
 import java.util.LinkedList
 import java.util.Queue

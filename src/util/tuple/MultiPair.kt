@@ -17,4 +17,5 @@ infix fun <A, B, C, D> Pair3<A, B, C>.and(that: D) = Pair4(a, b, c, that)
 infix fun <A, B, C, D, E> Pair4<A, B, C, D>.and(that: E) = Pair5(a, b, c, d, that)
 infix fun <A, B, C, D, E, F> Pair5<A, B, C, D, E>.and(that: F) = Pair6(a, b, c, d, e, that)
 infix fun <A, B, C, D, E, F, G> Pair6<A, B, C, D, E, F>.and(that: G) = Pair7(a, b, c, d, e, f, that)
-infix fun <A, B, C, D, E, F, G, H> Pair7<A, B, C, D, E, F, G>.and(that: H) = Pair8(a, b, c, d, e, f, g, that)
+infix fun <A, B, C, D, E, F, G, H> Pair7<A, B, C, D, E, F, G>.and(that: H) =
+  Pair8(a, b, c, d, e, f, g, that)

@@ -1,6 +1,5 @@
 package controls.props.types
 
-import BaseSketch
 import arrow.core.memoize
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
@@ -10,19 +9,21 @@ import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.panels.panelext.imageSelect
 import controls.props.PropData
+import coordinate.BoundRect
 import coordinate.Point
 import kotlinx.serialization.Serializable
-import processing.core.PImage
+import org.opencv.core.Mat
 import util.base.doIf
-import util.image.blurred
-import util.image.inverted
-import util.image.luminance
-import util.image.pimage.scaleByLargestDimension
-import util.image.threshold
-import util.io.loadImageMemo
+import util.image.opencvMat.bounds
+import util.image.opencvMat.filters.clamp
+import util.image.opencvMat.filters.invert
+import util.image.opencvMat.flags.ImreadFlags
+import util.image.opencvMat.gaussianBlur
+import util.image.opencvMat.loadImageMatMemo
+import util.image.opencvMat.scaleByLargestDimension
 
 @Serializable
-data class PhotoProp(
+data class PhotoMatProp(
   var photoFile: String = "",
   var imageCenter: Point = Point.Half,
   var imageSize: Double = 500.0,
@@ -33,9 +34,9 @@ data class PhotoProp(
   var invert: Boolean = false,
   var cropShape: ShapeProp = ShapeProp(),
   var shouldCrop: Boolean = false,
-) : PropData<PhotoProp> {
+) : PropData<PhotoMatProp> {
   constructor(
-    s: PhotoProp,
+    s: PhotoMatProp,
     photoFile: String? = null,
     imageCenter: Point? = null,
     imageSize: Double? = null,
@@ -59,8 +60,11 @@ data class PhotoProp(
     shouldCrop ?: s.shouldCrop,
   )
 
-  fun loadMemoized(sketch: BaseSketch): PImage? = _transformImage(
-    sketch.loadImageMemo(photoFile),
+  fun getMatBounds(mat: Mat, boundRect: BoundRect) =
+    mat.bounds.recentered(boundRect.pointAt(imageCenter))
+
+  fun loadMatMemoized(): Mat? = _loadAndTransformMat(
+    photoFile,
     imageSize,
     imageBlackPoint to imageWhitePoint,
     invert,
@@ -69,7 +73,7 @@ data class PhotoProp(
 
   override fun toSerializer() = serializer()
 
-  override fun clone() = PhotoProp(this)
+  override fun clone() = PhotoMatProp(this)
 
   override fun bind(): List<ControlTab> = singleTab("Photo") {
     row {
@@ -97,20 +101,26 @@ data class PhotoProp(
   }
 }
 
-private val _transformImage = {
-    img: PImage?,
+private val _loadAndTransformMat: (
+  String,
+  Double,
+  Pair<Int, Int>,
+  Boolean,
+  Double
+) -> Mat? = {
+    path: String,
     imageSize: Double,
     imageBlackAndWhitePoint: Pair<Int, Int>,
     invert: Boolean,
     blurRadius: Double,
   ->
-  img
+  loadImageMatMemo(path, ImreadFlags.ImreadGrayscale)
     ?.scaleByLargestDimension(imageSize)
-    ?.luminance()
-    ?.threshold(
-      min = imageBlackAndWhitePoint.first,
-      max = imageBlackAndWhitePoint.second,
+    ?.clamp(
+      min = imageBlackAndWhitePoint.first.toDouble(),
+      max = imageBlackAndWhitePoint.second.toDouble(),
     )
-    ?.doIf(blurRadius > 1) { it.blurred(blurRadius) }
-    ?.doIf(invert) { it.inverted() }
-}.memoize()
+    ?.doIf(blurRadius > 1) { it.gaussianBlur(blurRadius.toInt()) }
+    ?.doIf(invert) { it.invert(inPlace = false) }
+}
+  .memoize()

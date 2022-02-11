@@ -3,7 +3,7 @@ package coordinate
 import coordinate.ContinuousPoints.Companion.splitInBounds
 import coordinate.Point.Companion.addIf
 import interfaces.shape.Maskable
-import util.iterators.forEachWithSurroundingCyclical
+import util.iterators.forEachWithSurroundingIndexedCyclical
 import util.polylines.MutablePolyLine
 import util.polylines.PolyLine
 import util.polylines.connectWith
@@ -54,7 +54,7 @@ class ContinuousMaskedShape(allPoints: PolyLine, val bound: Maskable) {
   fun toBoundPoints(boundInside: Boolean): List<PolyLine> {
     val result: MutableList<PolyLine> = mutableListOf()
 
-    points.forEachWithSurroundingCyclical { prev, curr, next, index ->
+    points.forEachWithSurroundingIndexedCyclical { index, prev, curr, next ->
       val isAtFirstEdge = index == 0 && !isClosed
       val isAtLastEdge = index == points.size - 1 && !isClosed
 

@@ -3,9 +3,9 @@ package tests.util.iterators
 import coordinate.Point
 import org.junit.jupiter.api.Test
 import util.iterators.forEachPair
-import util.iterators.forEachWithNextIndexed
 import util.iterators.forEachWithSurrounding
 import util.iterators.forEachWithSurroundingCyclical
+import util.iterators.forEachWithSurroundingIndexed
 import util.iterators.limit
 import util.iterators.map2D
 import util.iterators.mapEachPairNonNull
@@ -125,7 +125,7 @@ internal class IteratorExtensionsTest {
 
     val tuplesWithIndex = mutableListOf<Pair4<Int?, Int, Int?, Int>>()
 
-    listOf(5, 6, 7).forEachWithSurrounding { prev, curr, next, index ->
+    listOf(5, 6, 7).forEachWithSurroundingIndexed { index, prev, curr, next ->
       tuplesWithIndex.add(Pair4(prev, curr, next, index))
     }
 
@@ -140,7 +140,7 @@ internal class IteratorExtensionsTest {
 
     val tuplesWithNext = mutableListOf<Pair3<Int, Int?, Int>>()
 
-    listOf(5, 6, 7).forEachWithNextIndexed { curr, next, index ->
+    listOf(5, 6, 7).forEachWithSurroundingIndexed { index, _, curr, next ->
       tuplesWithNext.add(Pair3(curr, next, index))
     }
 

@@ -1,10 +1,10 @@
 package sketches
 
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.ControlStyle
 import controls.panels.TabStyle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
-import controls.controlsealedclasses.Slider.Companion.slider
 import controls.props.PropData
 import controls.props.types.PhotoProp
 import controls.props.types.SpiralProp
@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.image.pimage.bounds
 import util.image.pimage.get
-import util.polylines.mapWithLength
+import util.polylines.iterators.mapWithLength
 
 /**
  * Starter sketch that uses all of the latest bells and whistles.

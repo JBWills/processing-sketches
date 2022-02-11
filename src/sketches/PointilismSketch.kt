@@ -7,7 +7,7 @@ import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.noisePanel
 import controls.props.PropData
 import controls.props.types.PenProp
-import controls.props.types.PhotoProp
+import controls.props.types.PhotoMatProp
 import coordinate.Point
 import coordinate.util.mapPoints
 import fastnoise.Noise
@@ -17,7 +17,6 @@ import sketches.InputType.Image
 import sketches.RandomizePositionType.EqualDistances
 import sketches.RandomizePositionType.RandomDistances
 import sketches.base.SimpleCanvasSketch
-import util.image.opencvMat.bounds
 import util.image.opencvMat.filters.vignetteFilter
 import util.image.opencvMat.getOr
 import util.iterators.flatMapNonNull
@@ -44,12 +43,10 @@ class PointillismSketch : SimpleCanvasSketch<PointillismData>("Pointillism", Poi
         mat to bounds
       }
       Image -> {
-        val mat = inputData.photo.loadMatMemoized()
-        // ?.vignetteFilter((1 - inputData.vignetteAmount), inPlace = false)
-        val bounds = mat
-          .bounds
-          .recentered(boundRect.pointAt(inputData.photo.imageCenter))
-        mat to bounds
+        inputData.photo.loadMatMemoized()?.let { mat ->
+          val bounds = inputData.photo.getMatBounds(mat, boundRect)
+          mat to bounds
+        } ?: return
       }
     }
 
@@ -92,7 +89,7 @@ data class InputData(
   var noise: Noise = Noise.DEFAULT,
   var threshold: Double = 0.5,
   var vignetteAmount: Double = 0.0,
-  var photo: PhotoProp = PhotoProp(),
+  var photo: PhotoMatProp = PhotoMatProp(),
 )
 
 @Serializable

@@ -44,9 +44,9 @@ import util.polylines.clipping.ForceClosedOption.Close
 import util.polylines.clipping.ForceClosedOption.NoClose
 import util.polylines.clipping.clip
 import util.polylines.clipping.offsetByMemo
+import util.polylines.iterators.transform
 import util.polylines.moveEndpoints
 import util.polylines.simplify
-import util.polylines.transform
 import util.tuple.map
 import java.awt.Color
 

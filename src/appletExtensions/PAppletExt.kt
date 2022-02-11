@@ -30,12 +30,12 @@ import util.image.opencvMat.getTransformedMat
 import util.image.opencvMat.toPImage
 import util.image.pimage.scale
 import util.iterators.forEach2D
-import util.iterators.mapWithNext
+import util.iterators.mapWithSibling
 import util.iterators.plusNotNull
 import util.numbers.boundMin
 import util.polylines.PolyLine
 import util.polylines.clipping.clip
-import util.polylines.forEachSegment
+import util.polylines.iterators.forEachSegment
 import util.polylines.toPolyLine
 import java.awt.Color
 
@@ -78,7 +78,7 @@ open class PAppletExt : PApplet() {
   fun noiseXY(p: Point) = Point(Noise.GetNoise(p.xf, p.yf, 0f), Noise.GetNoise(p.xf, p.yf, 100f))
   fun noiseXY(x: Number, y: Number) = noiseXY(Point(x, y))
 
-  fun PolyLine.toSegments(): List<Segment> = mapWithNext { curr, next -> Segment(curr, next) }
+  fun PolyLine.toSegments(): List<Segment> = mapWithSibling { curr, next -> Segment(curr, next) }
   fun List<Segment>.toVertices(): PolyLine = map { it.p1 }.plusNotNull(lastOrNull()?.p2)
 
   private fun PolyLine.shape() {

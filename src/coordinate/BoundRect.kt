@@ -14,8 +14,8 @@ import util.numbers.equalsZero
 import util.numbers.min
 import util.polylines.PolyLine
 import util.polylines.clipping.clip
+import util.polylines.iterators.transform
 import util.polylines.rotate
-import util.polylines.transform
 import kotlin.math.abs
 import kotlin.math.max
 

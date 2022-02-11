@@ -4,7 +4,7 @@ import coordinate.Segment
 import util.base.DoubleRange
 import util.numbers.boundMin
 import util.polylines.PolyLine
-import util.polylines.forEachSegment
+import util.polylines.iterators.forEachSegment
 import util.polylines.toPolyLine
 import util.polylines.toSegments
 
