@@ -13,10 +13,12 @@ import coordinate.Point
 import coordinate.Segment
 import kotlinx.serialization.Serializable
 import sketches.base.SimpleCanvasSketch
-import util.image.algorithms.ditherAlongPath
+import util.algorithms.contouring.walkThreshold
 import util.iterators.deepMap
 import util.layers.LayerSVGConfig
 import util.numbers.map
+import util.polylines.walk
+import util.rand
 
 /**
  * Gucci sketch for Scot.
@@ -73,17 +75,15 @@ class GucciSketch :
     val screenToMatTransform = photo.getScreenToMatTransform(mat, boundRect)
     val matToScreenTransform = photo.getMatToScreenTransform(mat, boundRect)
 
-//    Segment(boundRect.leftSegment.center, boundRect.rightSegment.center).toPolyLine()
-//      .walk(5)
-//      .ditherConsistently(ditherData.percentInked)
-//      .draw(boundRect)
-
     (xLines + yLines).map { line ->
       boundRect.intersection(line)
         .map { segment -> segment.toPolyLine() }
         .map { path ->
-          mat.ditherAlongPath(path.map(screenToMatTransform), ditherData.step, ditherData.chunkSize)
+          val pathThreshold = rand() * 255
+          path.walk(ditherData.step).map(screenToMatTransform).walkThreshold(mat, pathThreshold)
             .deepMap(matToScreenTransform)
+//          mat.ditherAlongPath(path.map(screenToMatTransform), ditherData.step, ditherData.chunkSize)
+//            .deepMap(matToScreenTransform)
         }
     }
       .draw()
