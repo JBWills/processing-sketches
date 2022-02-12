@@ -145,7 +145,7 @@ open class PAppletExt : PApplet() {
     flatten().draw(bound, boundInside)
 
   @JvmName("drawManyPolyLinesList")
-  fun List<List<List<PolyLine>>>.draw(bound: BoundRect, boundInside: Boolean = true) =
+  fun List<List<List<PolyLine>>>.draw(bound: BoundRect? = null, boundInside: Boolean = true) =
     flatten().flatten().draw(bound, boundInside)
 
   fun Circ.draw() = circle(this)

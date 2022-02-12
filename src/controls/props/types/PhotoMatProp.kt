@@ -32,8 +32,6 @@ data class PhotoMatProp(
   var drawImage: Boolean = true,
   var blurRadius: Double = 3.0,
   var invert: Boolean = false,
-  var cropShape: ShapeProp = ShapeProp(),
-  var shouldCrop: Boolean = false,
 ) : PropData<PhotoMatProp> {
   constructor(
     s: PhotoMatProp,
@@ -45,8 +43,6 @@ data class PhotoMatProp(
     drawImage: Boolean? = null,
     blurRadius: Double? = null,
     invert: Boolean? = null,
-    cropShape: ShapeProp? = null,
-    shouldCrop: Boolean? = null,
   ) : this(
     photoFile ?: s.photoFile,
     imageCenter ?: s.imageCenter,
@@ -56,12 +52,22 @@ data class PhotoMatProp(
     drawImage ?: s.drawImage,
     blurRadius ?: s.blurRadius,
     invert ?: s.invert,
-    cropShape ?: s.cropShape,
-    shouldCrop ?: s.shouldCrop,
   )
 
   fun getMatBounds(mat: Mat, boundRect: BoundRect) =
     mat.bounds.recentered(boundRect.pointAt(imageCenter))
+
+  fun getScreenToMatTransform(mat: Mat, boundRect: BoundRect): (Point) -> Point {
+    val matScreenBounds = getMatBounds(mat, boundRect)
+
+    return { p -> p - matScreenBounds.topLeft }
+  }
+
+  fun getMatToScreenTransform(mat: Mat, boundRect: BoundRect): (Point) -> Point {
+    val matScreenBounds = getMatBounds(mat, boundRect)
+
+    return { p -> p + matScreenBounds.topLeft }
+  }
 
   fun loadMatMemoized(): Mat? = _loadAndTransformMat(
     photoFile,
@@ -95,9 +101,6 @@ data class PhotoMatProp(
       slider(::imageWhitePoint, 0..255)
       toggle(::invert, style = ControlStyle.Black)
     }
-
-    toggle(::shouldCrop)
-    panel(::cropShape, style = ControlStyle.Red)
   }
 }
 

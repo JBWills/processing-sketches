@@ -1,5 +1,6 @@
 package sketches
 
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.sliderPair
@@ -12,6 +13,8 @@ import coordinate.Point
 import coordinate.Segment
 import kotlinx.serialization.Serializable
 import sketches.base.SimpleCanvasSketch
+import util.image.algorithms.ditherAlongPath
+import util.iterators.deepMap
 import util.layers.LayerSVGConfig
 import util.numbers.map
 
@@ -43,13 +46,13 @@ class GucciSketch :
   }
 
   override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
-    val (linesData, photo) = drawInfo.dataValues
+    val (linesData, ditherData, photo) = drawInfo.dataValues
 
     val centerPoint = boundRect.pointAt(linesData.lineCenter)
 
-    val mat = photo.loadMatMemoized()
+    val mat = photo.loadMatMemoized() ?: return
 
-    if (photo.drawImage && mat !== null) {
+    if (photo.drawImage) {
       mat.draw(photo.getMatBounds(mat, boundRect).topLeft)
     }
 
@@ -67,8 +70,23 @@ class GucciSketch :
       linesData.lineAnglesBase + linesData.lineAnglesDifference,
     )
 
-    xLines.map { it.draw(boundRect) }
-    yLines.map { it.draw(boundRect) }
+    val screenToMatTransform = photo.getScreenToMatTransform(mat, boundRect)
+    val matToScreenTransform = photo.getMatToScreenTransform(mat, boundRect)
+
+//    Segment(boundRect.leftSegment.center, boundRect.rightSegment.center).toPolyLine()
+//      .walk(5)
+//      .ditherConsistently(ditherData.percentInked)
+//      .draw(boundRect)
+
+    (xLines + yLines).map { line ->
+      boundRect.intersection(line)
+        .map { segment -> segment.toPolyLine() }
+        .map { path ->
+          mat.ditherAlongPath(path.map(screenToMatTransform), ditherData.step, ditherData.chunkSize)
+            .deepMap(matToScreenTransform)
+        }
+    }
+      .draw()
   }
 }
 
@@ -82,8 +100,16 @@ data class GucciLinesData(
 )
 
 @Serializable
+data class GucciDitherData(
+  var step: Double = 5.0,
+  var chunkSize: Double = 50.0,
+  var percentInked: Double = 0.5
+)
+
+@Serializable
 data class GucciData(
   var linesData: GucciLinesData = GucciLinesData(),
+  var ditherData: GucciDitherData = GucciDitherData(),
   var photo: PhotoMatProp = PhotoMatProp(),
 ) : PropData<GucciData> {
   override fun bind() = tabs {
@@ -109,6 +135,11 @@ data class GucciData(
     }
     tab("Photo") {
       panel(::photo)
+    }
+    tab("Dither") {
+      slider(ditherData::step, 0.5..50.0)
+      slider(ditherData::chunkSize, 5.0..500.0)
+      slider(ditherData::percentInked, 0.0..1.0)
     }
   }
 
