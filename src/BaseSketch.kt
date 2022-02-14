@@ -57,7 +57,7 @@ abstract class BaseSketch(
 
   private var lastDrawImage: PImage? = null
 
-  val interactiveGraphicsLayer: PGraphics by lazy { createGraphics(size, ImageFormat.ARGB) }
+  val interactiveGraphicsLayer: PGraphics by lazy { createGraphics(size, ImageFormat.RgbaOpenCV) }
 
   private val mouseListeners: MutableSet<MouseListener> = mutableSetOf()
 

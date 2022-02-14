@@ -26,21 +26,22 @@ fun Mat.splitRgb(): Pair3<Mat, Mat, Mat> {
   return Pair3(channels[0], channels[1], channels[2])
 }
 
-fun Mat.split(): List<Mat> {
-  val mats = mutableListOf<Mat>()
-  Core.split(this, mats)
-  return mats
-}
+fun Mat.split(): List<Mat> = mutableListOf<Mat>().also { Core.split(this, it) }
 
-fun Mat.splitArgb(): Pair4<Mat, Mat, Mat, Mat> {
+fun Mat.split4(): Pair4<Mat, Mat, Mat, Mat>? {
   if (channels() != 4) {
     throw Exception("Trying to split with wrong number of channels! Expected 4 channels, got ${channels()}")
   }
   val channels = split()
 
-  if (channels.size != 4) {
-    throw Exception("For some reason the result of split() is returning a different number of mats than the number of channels")
+  if (channels.isEmpty()) {
+    return null
   }
+
+  if (channels.size != 4) {
+    throw Exception("For some reason the result of split() is returning a different number of mats than the number of channels, SplitChannels: ${channels.size}")
+  }
+
   return Pair4(channels[0], channels[1], channels[2], channels[3])
 }
 

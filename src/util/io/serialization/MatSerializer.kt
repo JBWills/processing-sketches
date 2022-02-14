@@ -8,7 +8,7 @@ import kotlinx.serialization.encoding.Encoder
 import org.opencv.core.Mat
 import util.image.ImageFormat
 import util.image.ImageFormat.Companion.getFormat
-import util.image.opencvMat.toByteArray
+import util.image.opencvMat.getByteArray
 import util.image.opencvMat.toMat
 
 @Serializable
@@ -41,7 +41,7 @@ object MatSerializer : KSerializer<Mat> {
       SimpleMatData(
         colCount = value.cols(),
         rowCount = value.rows(),
-        data = value.toByteArray(),
+        data = value.getByteArray(),
         format = value.getFormat(),
       ),
     )

@@ -6,6 +6,7 @@ import org.bytedeco.opencv.global.opencv_core
 import org.opencv.core.Mat
 import util.image.ImageFormat.Companion.getFormat
 import util.image.opencvMat.BorderType.BorderReflect101
+import java.awt.Color
 
 fun Mat.contains(col: Int, row: Int) = contains(Point(col, row))
 fun Mat.contains(p: Point) = bounds.contains(p)
@@ -15,8 +16,15 @@ fun Mat.get(p: Point, band: Int = 0): Double? = (p.x.toInt() to p.y.toInt()).let
   get(row, col)?.get(band)?.let { if (it.isNaN()) null else it }
 }
 
+fun Mat.getColor(p: Point): Color? = (p.x.toInt() to p.y.toInt()).let { (col, row) ->
+  if (!contains(col, row)) return null
+  val res = get(row, col) ?: return null
+
+  return getFormat().toColor(res)
+}
+
 fun Mat.getOr(p: Point, default: Double, band: Int = 0): Double = get(p, band) ?: default
-fun Mat.getInt(p: Point): Int = getFormat().toIntValue(getByteArray(p))
+fun Mat.getInt(p: Point): Int = getFormat().toRgbInt(getByteArray(p))
 
 fun Mat.getSubPix(p: Point, band: Int = 0): Double? {
   val x = p.xi

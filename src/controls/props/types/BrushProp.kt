@@ -36,9 +36,9 @@ import util.base.lerp
 import util.base.with
 import util.base.withAlpha
 import util.base.withAlphaDouble
-import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Gray
-import util.image.ImageFormat.RGB
+import util.image.ImageFormat.Rgb
+import util.image.ImageFormat.RgbaOpenCV
 import util.image.blurAlpha
 import util.image.converted
 import util.image.opencvMat.asDisplayAlpha
@@ -94,7 +94,7 @@ data class BrushProp(
       col {
         button("Clear") {
           getNonNullAlphaMask(this)
-            .overlayARGBImage(createImage(format = ARGB) { background(Color.black) })
+            .overlayARGBImage(createImage(format = RgbaOpenCV) { background(Color.black) })
           markDirty()
         }
         toggle(::showMask, shouldMarkDirty = false)
@@ -167,7 +167,7 @@ data class BrushProp(
 
     val mouseDrags = mouseDragListener.popDrags()
     if (mouseDrags.isNotEmpty()) {
-      val brushMaskImage: PImage = sketch.createImage(format = ARGB) {
+      val brushMaskImage: PImage = sketch.createImage(format = RgbaOpenCV) {
         fun drawBrushAndBlur() = drawBrushStrokes(mouseDrags, applyFeather = true)
 
         when (brushType) {
@@ -190,7 +190,7 @@ data class BrushProp(
   private fun PGraphics.overlayARGBImage(image: PImage) {
     latestAlphaMat = withDrawToImage { overlay(image) }
       .toMat()
-      .converted(ARGB, Gray)
+      .converted(RgbaOpenCV, Gray)
     updateMaskDisplay()
   }
 
@@ -218,7 +218,7 @@ data class BrushProp(
   }
 
   private fun initAlphaMask(sketch: BaseSketch): PGraphics {
-    val newAlphaMask = sketch.createGraphicsAndDraw(sketch.size, RGB) {
+    val newAlphaMask = sketch.createGraphicsAndDraw(sketch.size, Rgb) {
       background(Color.black.rgb)
 
       latestAlphaMat?.asDisplayAlpha(Color.WHITE)?.draw(this)

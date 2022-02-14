@@ -15,43 +15,45 @@ import kotlinx.serialization.Serializable
 import org.opencv.core.Mat
 import util.base.doIf
 import util.image.opencvMat.bounds
+import util.image.opencvMat.copy
 import util.image.opencvMat.filters.clamp
 import util.image.opencvMat.filters.invert
-import util.image.opencvMat.flags.ImreadFlags
+import util.image.opencvMat.flags.ImreadFlags.ImreadGrayscale
+import util.image.opencvMat.flags.ImreadFlags.ImreadUnchanged
 import util.image.opencvMat.gaussianBlur
 import util.image.opencvMat.loadImageMatMemo
 import util.image.opencvMat.scaleByLargestDimension
+
+@Serializable
+data class ImageTransformProps(
+  var imageBlackPoint: Int = 0,
+  var imageWhitePoint: Int = 255,
+  var blurRadius: Double = 3.0,
+  var invert: Boolean = false,
+  var grayscale: Boolean = true,
+)
 
 @Serializable
 data class PhotoMatProp(
   var photoFile: String = "",
   var imageCenter: Point = Point.Half,
   var imageSize: Double = 500.0,
-  var imageBlackPoint: Int = 0,
-  var imageWhitePoint: Int = 255,
   var drawImage: Boolean = true,
-  var blurRadius: Double = 3.0,
-  var invert: Boolean = false,
+  var transformProps: ImageTransformProps = ImageTransformProps()
 ) : PropData<PhotoMatProp> {
   constructor(
     s: PhotoMatProp,
     photoFile: String? = null,
     imageCenter: Point? = null,
     imageSize: Double? = null,
-    imageBlackPoint: Int? = null,
-    imageWhitePoint: Int? = null,
     drawImage: Boolean? = null,
-    blurRadius: Double? = null,
-    invert: Boolean? = null,
+    transformProps: ImageTransformProps? = null,
   ) : this(
     photoFile ?: s.photoFile,
     imageCenter ?: s.imageCenter,
     imageSize ?: s.imageSize,
-    imageBlackPoint ?: s.imageBlackPoint,
-    imageWhitePoint ?: s.imageWhitePoint,
     drawImage ?: s.drawImage,
-    blurRadius ?: s.blurRadius,
-    invert ?: s.invert,
+    transformProps ?: s.transformProps,
   )
 
   fun getMatBounds(mat: Mat, boundRect: BoundRect) =
@@ -72,9 +74,7 @@ data class PhotoMatProp(
   fun loadMatMemoized(): Mat? = _loadAndTransformMat(
     photoFile,
     imageSize,
-    imageBlackPoint to imageWhitePoint,
-    invert,
-    blurRadius,
+    transformProps.copy(),
   )
 
   override fun toSerializer() = serializer()
@@ -88,18 +88,19 @@ data class PhotoMatProp(
       toggle(::drawImage).withWidth(0.25)
     }
 
-    slider(::blurRadius, 0..50)
-
     row {
       slider2D(::imageCenter, 0..2)
       slider(::imageSize, 2..4000)
     }
 
+    slider(transformProps::blurRadius, 0..50)
+
     row {
       style = ControlStyle.Gray
-      slider(::imageBlackPoint, 0..255)
-      slider(::imageWhitePoint, 0..255)
-      toggle(::invert, style = ControlStyle.Black)
+      slider(transformProps::imageBlackPoint, 0..255)
+      slider(transformProps::imageWhitePoint, 0..255)
+      toggle(transformProps::invert, style = ControlStyle.Black)
+      toggle(transformProps::grayscale, style = ControlStyle.Black)
     }
   }
 }
@@ -107,23 +108,23 @@ data class PhotoMatProp(
 private val _loadAndTransformMat: (
   String,
   Double,
-  Pair<Int, Int>,
-  Boolean,
-  Double
+  ImageTransformProps
 ) -> Mat? = {
     path: String,
     imageSize: Double,
-    imageBlackAndWhitePoint: Pair<Int, Int>,
-    invert: Boolean,
-    blurRadius: Double,
+    imageTransform: ImageTransformProps,
   ->
-  loadImageMatMemo(path, ImreadFlags.ImreadGrayscale)
+  loadImageMatMemo(path, if (imageTransform.grayscale) ImreadGrayscale else ImreadUnchanged)
+    ?.copy()
     ?.scaleByLargestDimension(imageSize)
     ?.clamp(
-      min = imageBlackAndWhitePoint.first.toDouble(),
-      max = imageBlackAndWhitePoint.second.toDouble(),
+      min = imageTransform.imageBlackPoint.toDouble(),
+      max = imageTransform.imageWhitePoint.toDouble(),
+      inPlace = true,
     )
-    ?.doIf(blurRadius > 1) { it.gaussianBlur(blurRadius.toInt()) }
-    ?.doIf(invert) { it.invert(inPlace = false) }
+    ?.doIf(imageTransform.blurRadius > 1) {
+      it.gaussianBlur(imageTransform.blurRadius.toInt(), inPlace = true)
+    }
+    ?.doIf(imageTransform.invert) { it.invert(inPlace = true) }
 }
   .memoize()

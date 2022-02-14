@@ -4,16 +4,33 @@ import coordinate.Point
 import org.opencv.core.Mat
 import processing.core.PImage
 import util.image.ImageFormat
-import util.image.ImageFormat.ARGB
+import util.image.ImageFormat.ArgbProcessing
 import util.image.ImageFormat.Companion.getFormat
+import util.image.ImageFormat.RgbaOpenCV
+import util.image.converted
+import util.image.opencvMat.debug.printDebug
 import java.nio.ByteBuffer
 
+
 fun Mat.copyTo(pImage: PImage) {
-  copyTo(pImage.pixels)
+  also { it.printDebug("Before") }
+  converted(to = RgbaOpenCV)
+    .also { it.printDebug("Middle") }
+    .converted(to = ArgbProcessing)
+    .also { it.printDebug("After") }
+    .getByteArray()
+    .asIntBuffer()
+    .get(pImage.pixels)
   pImage.updatePixels()
 }
 
-fun Mat.toPImage(): PImage = toEmptyPImage().also { copyTo(it) }
+fun Mat.toPImage(): PImage = toEmptyPImage(RgbaOpenCV).also {
+//  val pImageData = IntArray(width * height)
+//  val matData = converted(to = Rgba).getByteArray()
+//  ByteBuffer.wrap(matData).asIntBuffer().get(pImageData)
+//  arrayCopy(pImageData, it.pixels)
+  copyTo(it)
+}
 
 fun Mat.toEmptyPImage(format: ImageFormat = getFormat()): PImage =
   PImage(cols(), rows(), format.pImageFormat)
@@ -24,8 +41,6 @@ fun PImage.toEmptyMat(format: ImageFormat = getFormat()): Mat =
 fun ByteArray.toMat(width: Int, height: Int, format: ImageFormat): Mat =
   Mat(height, width, format.openCVFormat)
     .also { mat -> mat.put(0, 0, this) }
-
-fun Mat.toByteArray(): ByteArray = getByteArray()
 
 /**
  * Paste the contents of a PImage to a mat
@@ -43,4 +58,4 @@ fun PImage.copyTo(m: Mat, offset: Point = Point.Zero) {
   m.put(bArray, offset)
 }
 
-fun PImage.toMat(): Mat = toEmptyMat(format = ARGB).also(this::copyTo)
+fun PImage.toMat(): Mat = toEmptyMat(format = RgbaOpenCV).also(this::copyTo)

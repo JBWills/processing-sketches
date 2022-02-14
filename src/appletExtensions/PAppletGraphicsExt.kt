@@ -24,14 +24,14 @@ fun PImage.draw(g: PGraphics, topLeft: Point = Point(0, 0)) = g.image(this, topL
 
 fun PAppletExt.createGraphics(
   size: Point,
-  format: ImageFormat = ImageFormat.ARGB,
+  format: ImageFormat = ImageFormat.RgbaOpenCV,
   renderer: String = JAVA2D,
 ): PGraphics = createGraphics(size.xi, size.yi, renderer)
   .also { it.init(size.xi, size.yi, format.pImageFormat) }
 
 fun PAppletExt.createGraphicsAndDraw(
   size: Point,
-  format: ImageFormat = ImageFormat.ARGB,
+  format: ImageFormat = ImageFormat.RgbaOpenCV,
   renderer: String = JAVA2D,
   block: PGraphics.() -> Unit
 ): PGraphics = createGraphics(size, format, renderer).withDraw {
@@ -41,7 +41,7 @@ fun PAppletExt.createGraphicsAndDraw(
 
 fun PAppletExt.createImage(
   size: Point = Point(width, height),
-  format: ImageFormat = ImageFormat.ARGB,
+  format: ImageFormat = ImageFormat.RgbaOpenCV,
   renderer: String = JAVA2D,
   style: Style? = null,
   block: PGraphics.() -> Unit

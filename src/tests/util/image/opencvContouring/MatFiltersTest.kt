@@ -23,7 +23,7 @@ internal class MatFiltersTest {
   @Test
   fun testSubmat() {
 
-    val smallMatOnes = Mat.ones(3, 3, Gray.openCVFormat)
+    val smallMatOnes = Mat.ones(3, 3, Gray.openCVFormat!!)
     assertEquals(
       arrayOf(
         intArrayOf(1, 1, 1),
@@ -62,7 +62,7 @@ internal class MatFiltersTest {
   @Test
   fun testCopyTo() {
 
-    val smallMatOnes = Mat.ones(3, 3, Gray.openCVFormat)
+    val smallMatOnes = Mat.ones(3, 3, Gray.openCVFormat!!)
     val largeMatZeros = Mat.zeros(5, 5, Gray.openCVFormat)
 
     val newMatTopLeft = smallMatOnes.copyTo(largeMatZeros, Point.Zero)

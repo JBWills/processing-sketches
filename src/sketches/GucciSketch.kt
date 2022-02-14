@@ -14,6 +14,8 @@ import coordinate.Segment
 import kotlinx.serialization.Serializable
 import sketches.base.SimpleCanvasSketch
 import util.algorithms.contouring.walkThreshold
+import util.base.luminance
+import util.image.opencvMat.getColor
 import util.iterators.deepMap
 import util.layers.LayerSVGConfig
 import util.numbers.map
@@ -80,10 +82,12 @@ class GucciSketch :
         .map { segment -> segment.toPolyLine() }
         .map { path ->
           val pathThreshold = rand() * 255
-          path.walk(ditherData.step).map(screenToMatTransform).walkThreshold(mat, pathThreshold)
+          path.map(screenToMatTransform)
+            .walk(ditherData.step)
+            .walkThreshold { p ->
+              (mat.getColor(p)?.luminance ?: 0.0) < pathThreshold
+            }
             .deepMap(matToScreenTransform)
-//          mat.ditherAlongPath(path.map(screenToMatTransform), ditherData.step, ditherData.chunkSize)
-//            .deepMap(matToScreenTransform)
         }
     }
       .draw()
@@ -123,7 +127,7 @@ data class GucciData(
       )
       sliderPair(
         linesData::lineSpacing,
-        0.0..100.0,
+        0.0..10.0,
         withLockToggle = true,
         defaultLocked = false,
       )

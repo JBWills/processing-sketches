@@ -5,11 +5,10 @@ import coordinate.Point
 import org.opencv.core.Mat
 import org.opencv.core.Rect
 import org.opencv.imgproc.Imgproc
-import util.image.ImageFormat.ARGB
 import util.image.ImageFormat.Companion.getFormat
 import util.image.ImageFormat.Gray
-import util.image.ImageFormat.RGB
-import util.image.converted
+import util.image.ImageFormat.Rgb
+import util.image.ImageFormat.RgbaOpenCV
 import util.image.opencvMat.BorderType.BorderReflect
 import util.image.opencvMat.OpenCVThresholdType.ThreshBinary
 import util.numbers.coerceOdd
@@ -61,12 +60,12 @@ fun Mat.biLateralBlur(radius: Int): Mat = when (radius) {
  * @return a new mat.
  */
 fun Mat.gaussianBlurAlpha(radius: Int, fillColor: Color, sigma: Double = radius / 2.0): Mat {
-  if (getFormat() != ARGB) {
+  if (getFormat() != RgbaOpenCV) {
     throw Exception("Tried to call gaussianBlurAlpha with non-ARGB format: ${getFormat()}")
   }
 
   val alphaChannel = split()[0]
-  val rgbFill = createMat(rows(), cols(), RGB, fillColor)
+  val rgbFill = createMat(rows(), cols(), Rgb, fillColor)
 
   setChannels(alphaChannel.gaussianBlur(radius, sigma), *rgbFill.splitArray())
 
@@ -84,15 +83,6 @@ fun Mat.asDisplayAlpha(fillColor: Color): Mat {
   val maxAlpha = fillColor.alpha / 255.0
   val newAlpha = multiply(maxAlpha, inPlace = false)
 
-  val fillMat = createMat(rows(), cols(), RGB, fillColor)
-  return (listOf(newAlpha) + fillMat.split()).merge(ARGB)
+  val fillMat = createMat(rows(), cols(), Rgb, fillColor)
+  return (listOf(newAlpha) + fillMat.split()).merge(RgbaOpenCV)
 }
-
-/**
- * convert an ARGB image to a grayscale image
- *
- * @param fillColor
- * @return
- */
-fun Mat.luminanceToAlpha(fillColor: Color): Mat =
-  converted(ARGB, Gray).asDisplayAlpha(fillColor)
