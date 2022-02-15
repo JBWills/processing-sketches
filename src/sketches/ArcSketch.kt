@@ -51,9 +51,10 @@ open class ArcSketch(
     slider(::power2, 0.0..2.0)
   }
 
-  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
+  override fun drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
+    onNextLayer: (LayerSVGConfig) -> Unit
   ) {
     noStroke()
 

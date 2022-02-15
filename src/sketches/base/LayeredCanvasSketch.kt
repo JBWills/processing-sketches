@@ -85,7 +85,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
   }
 
   abstract fun drawOnce(layerInfo: LayerInfo)
-  open suspend fun SequenceScope<LayerSVGConfig>.drawLayers(layerInfo: DrawInfo) {}
+  open fun drawLayers(layerInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {}
 
   open fun drawSetup(layerInfo: DrawInfo) {}
   open fun drawInteractive(layerInfo: DrawInfo) {}
@@ -164,7 +164,10 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
     frozenValues?.let { drawSetup(it) }
   }
 
-  final override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(layer: Int) {
+  final override fun drawOnce(
+    layer: Int,
+    onNextLayer: (LayerSVGConfig) -> Unit
+  ) {
     val frozenValues = frozenValues ?: return
     drawOnce(
       LayerInfo(
@@ -173,7 +176,7 @@ abstract class LayeredCanvasSketch<GlobalValues : PropData<GlobalValues>, TabVal
         frozenValues.allTabValues,
       ),
     )
-    drawLayers(frozenValues)
+    drawLayers(frozenValues, onNextLayer)
   }
 
   private fun savePreset(presetName: String) {

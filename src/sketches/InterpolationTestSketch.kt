@@ -49,7 +49,7 @@ class InterpolationTestSketch : SimpleCanvasSketch<InterpolationTestData>(
     }
   }
 
-  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
+  override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
     val (points, _, forceEquidistantPoints, equidistantPointsWidth, interpolation, interpolation2D, interpolationSampleStep) = drawInfo.dataValues
 
     val pointsMapped = if (forceEquidistantPoints) {

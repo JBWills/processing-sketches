@@ -24,7 +24,7 @@ fun PApplet.drawLayeredSvg(
   baseSketchName: String,
   fileSuffix: String,
   sketchSize: Point,
-  drawLayerSequence: Sequence<LayerSVGConfig>,
+  block: (onNewLayer: (LayerSVGConfig) -> Unit) -> Unit
 ) {
   val time: Instant = Instant.now()
   val resultFile = getSVGNameAndPath(baseSketchName, fileSuffix, time)
@@ -70,7 +70,10 @@ fun PApplet.drawLayeredSvg(
   setup(getTempFileNameAndPath(baseSketchName, fileSuffix, 0, time))
 
   var nextLayerName: String? = null
-  drawLayerSequence.forEachIndexed { index, config ->
+
+  var index = 0
+
+  fun onBlockCalled(config: LayerSVGConfig) {
     val layerName = config.layerName ?: nextLayerName ?: ""
     tearDown(
       index,
@@ -80,7 +83,11 @@ fun PApplet.drawLayeredSvg(
     )
     setup(getTempFileNameAndPath(baseSketchName, fileSuffix, index + 1, time))
     nextLayerName = config.nextLayerName
+
+    index++
   }
+
+  block { config -> onBlockCalled(config) }
 
   tearDown(-1, false, "", "")
 

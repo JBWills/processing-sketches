@@ -108,9 +108,10 @@ open class SpiralSketch(
     markDirty()
   }
 
-  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
+  override fun drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
+    onNextLayer: (LayerSVGConfig) -> Unit
   ) {
     noStroke()
 

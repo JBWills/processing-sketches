@@ -14,11 +14,14 @@ import coordinate.Segment
 import kotlinx.serialization.Serializable
 import sketches.base.SimpleCanvasSketch
 import util.algorithms.contouring.walkThreshold
-import util.base.luminance
-import util.image.opencvMat.getColor
+import util.concurrency.pmap
+import util.image.ImageFormat.Gray
+import util.image.converted
+import util.image.opencvMat.getOr
 import util.iterators.deepMap
 import util.layers.LayerSVGConfig
 import util.numbers.map
+import util.polylines.PolyLine
 import util.polylines.walk
 import util.rand
 
@@ -49,7 +52,7 @@ class GucciSketch :
     }
   }
 
-  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
+  override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
     val (linesData, ditherData, photo) = drawInfo.dataValues
 
     val centerPoint = boundRect.pointAt(linesData.lineCenter)
@@ -77,20 +80,22 @@ class GucciSketch :
     val screenToMatTransform = photo.getScreenToMatTransform(mat, boundRect)
     val matToScreenTransform = photo.getMatToScreenTransform(mat, boundRect)
 
-    (xLines + yLines).map { line ->
-      boundRect.intersection(line)
+    val luminanceMat = mat.converted(to = Gray)
+
+    fun traverseLine(line: Line): List<List<PolyLine>> {
+      return boundRect.intersection(line)
         .map { segment -> segment.toPolyLine() }
         .map { path ->
           val pathThreshold = rand() * 255
           path.map(screenToMatTransform)
             .walk(ditherData.step)
-            .walkThreshold { p ->
-              (mat.getColor(p)?.luminance ?: 0.0) < pathThreshold
-            }
+            .walkThreshold { p -> luminanceMat.getOr(p, 0.0) < pathThreshold }
             .deepMap(matToScreenTransform)
         }
     }
-      .draw()
+
+    val xyLines = xLines + yLines
+    xyLines.pmap(::traverseLine).draw()
   }
 }
 

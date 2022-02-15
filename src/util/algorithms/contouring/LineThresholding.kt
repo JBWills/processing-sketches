@@ -1,6 +1,5 @@
 package util.algorithms.contouring
 
-import arrow.core.memoize
 import coordinate.Point
 import coordinate.Segment
 import fastnoise.Noise
@@ -63,10 +62,6 @@ fun Segment.getPointAtThreshold(isUnderThreshold: (Point) -> Boolean): Point {
   }.getPointAtThreshold(isUnderThreshold)
 }
 
-val _getPointAtThresholdMemoized = { s: Segment, isUnderThreshold: (Point) -> Boolean ->
-  s.getPointAtThreshold(isUnderThreshold)
-}.memoize()
-
 fun PolyLine.walkThreshold(isUnderThreshold: (Point) -> Boolean): List<PolyLine> {
   val result = mutableListOf<PolyLine>()
 
@@ -85,11 +80,11 @@ fun PolyLine.walkThreshold(isUnderThreshold: (Point) -> Boolean): List<PolyLine>
       Outside -> completeCurrSegment()
       Entering -> {
         completeCurrSegment()
-        val midPoint = _getPointAtThresholdMemoized(segment, isUnderThreshold)
+        val midPoint = segment.getPointAtThreshold(isUnderThreshold)
         curr.addAll(listOf(midPoint, segment.p2))
       }
       Exiting -> {
-        val midPoint = _getPointAtThresholdMemoized(segment, isUnderThreshold)
+        val midPoint = segment.getPointAtThreshold(isUnderThreshold)
 
         curr.addPoints(segment.p1, midPoint)
 
@@ -97,19 +92,19 @@ fun PolyLine.walkThreshold(isUnderThreshold: (Point) -> Boolean): List<PolyLine>
       }
       InOutIn -> {
         val (first, second) = segment.splitAtMidpoint()
-        val firstMidPoint = _getPointAtThresholdMemoized(first, isUnderThreshold)
+        val firstMidPoint = first.getPointAtThreshold(isUnderThreshold)
 
         curr.addPoints(first.p1, firstMidPoint)
 
         completeCurrSegment()
 
-        val secondMidPoint = _getPointAtThresholdMemoized(second, isUnderThreshold)
+        val secondMidPoint = second.getPointAtThreshold(isUnderThreshold)
         curr.addAll(listOf(secondMidPoint, second.p2))
       }
       OutInOut -> {
         val (first, second) = segment.splitAtMidpoint()
-        val firstMidPoint = _getPointAtThresholdMemoized(first, isUnderThreshold)
-        val secondMidPoint = _getPointAtThresholdMemoized(second, isUnderThreshold)
+        val firstMidPoint = first.getPointAtThreshold(isUnderThreshold)
+        val secondMidPoint = second.getPointAtThreshold(isUnderThreshold)
         curr.addPoints(firstMidPoint, secondMidPoint)
         completeCurrSegment()
       }

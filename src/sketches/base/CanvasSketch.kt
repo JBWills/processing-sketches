@@ -35,11 +35,15 @@ abstract class CanvasSketch(
         it.add(boundRect.shrink(0.2))
       }.forEach { rect(it) }
 
-  abstract suspend fun SequenceScope<LayerSVGConfig>.drawOnce(layer: Int)
-
-  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
+  abstract fun drawOnce(
     layer: Int,
-    layerConfig: LayerConfig
+    onNextLayer: (LayerSVGConfig) -> Unit
+  )
+
+  override fun drawOnce(
+    layer: Int,
+    layerConfig: LayerConfig,
+    onNextLayer: (LayerSVGConfig) -> Unit
   ) {
     noFill()
 
@@ -58,10 +62,10 @@ abstract class CanvasSketch(
       val isFirstLayer = layer == 0
       if (isFirstLayer && canvasProps.drawBoundRect) {
         drawBoundRect()
-        nextLayer(LayerSVGConfig(layerName = "bounds"))
+        onNextLayer(LayerSVGConfig(layerName = "bounds"))
       }
 
-      drawOnce(layer)
+      drawOnce(layer, onNextLayer)
     }
   }
 }

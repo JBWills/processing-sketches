@@ -31,7 +31,7 @@ import util.translatedRandomDirection
  * Draw grayscale image using dots.
  */
 class PointillismSketch : SimpleCanvasSketch<PointillismData>("Pointillism", PointillismData()) {
-  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
+  override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
     val (inputData, pointsData, pen) = drawInfo.dataValues
 
     val (inputMat, inputBounds) = when (inputData.inputType) {

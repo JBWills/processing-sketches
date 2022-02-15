@@ -13,13 +13,13 @@ import controls.panels.Panelable
 import controls.panels.TabsBuilder.Companion.singleTab
 import coordinate.Point
 import interfaces.listeners.MouseListener
+import kotlinx.coroutines.DelicateCoroutinesApi
 import nu.pattern.OpenCV
 import processing.core.PGraphics
 import processing.core.PImage
 import processing.event.MouseEvent
 import util.drawLayeredSvg
 import util.image.ImageFormat
-import util.iterators.iterate
 import util.layers.LayerSVGConfig
 import util.lineLimit
 import util.print.StrokeJoin
@@ -39,6 +39,7 @@ enum class RecordMode {
 
 val CONTROL_PANEL_SIZE = Point(500, 800)
 
+@OptIn(DelicateCoroutinesApi::class)
 abstract class BaseSketch(
   var backgroundColor: Color = Color.white,
   var strokeColor: Color = Color.BLACK,
@@ -90,31 +91,32 @@ abstract class BaseSketch(
 
   open fun getLayers(): List<LayerConfig> = listOf(LayerConfig(Style(Thick(), color = strokeColor)))
 
-  suspend inline fun SequenceScope<LayerSVGConfig>.newLayerStyled(
+  inline fun newLayerStyled(
     stroke: Color,
     fill: Color? = null,
     config: LayerSVGConfig = LayerSVGConfig(),
+    onNextLayer: (LayerSVGConfig) -> Unit,
     block: () -> Unit
   ) = withFillAndStroke(stroke, fill) {
     block()
-    nextLayer(config)
+    onNextLayer(config)
   }
 
-  suspend inline fun SequenceScope<LayerSVGConfig>.newLayerStyled(
+  inline fun newLayerStyled(
     style: Style,
     config: LayerSVGConfig = LayerSVGConfig(),
+    onNextLayer: (LayerSVGConfig) -> Unit,
     block: () -> Unit
   ) = withStyle(style) {
     block()
-    nextLayer(config)
+    onNextLayer(config)
   }
 
-
-  suspend inline fun SequenceScope<LayerSVGConfig>.nextLayer(c: LayerSVGConfig = LayerSVGConfig()) {
-    yield(c)
-  }
-
-  abstract suspend fun SequenceScope<LayerSVGConfig>.drawOnce(layer: Int, layerConfig: LayerConfig)
+  abstract fun drawOnce(
+    layer: Int,
+    layerConfig: LayerConfig,
+    onNextLayer: (LayerSVGConfig) -> Unit
+  )
 
   open fun getFilenameSuffix(): String = ""
 
@@ -138,11 +140,10 @@ abstract class BaseSketch(
   open fun drawInteractive() {}
 
   override fun draw() {
-    fun getLayerSequence() = sequence {
-      val layers = getLayers()
-      layers.forEachIndexed { index, layer ->
-        drawOnce(index, layer)
-        nextLayer()
+    fun drawLayers(onNewLayer: (LayerSVGConfig) -> Unit) {
+      getLayers().forEachIndexed { index, layer ->
+        drawOnce(index, layer, onNewLayer)
+        onNewLayer(LayerSVGConfig())
       }
     }
 
@@ -152,11 +153,12 @@ abstract class BaseSketch(
       try {
         drawSetup()
         if (recordMode == RecordSVG) {
-          drawLayeredSvg(svgBaseFileName, getFilenameSuffix(), size, getLayerSequence())
+          drawLayeredSvg(svgBaseFileName, getFilenameSuffix(), size) { drawLayers(it) }
+
 
           recordMode = NoRecord
         } else {
-          getLayerSequence().iterate()
+          drawLayers {}
         }
       } catch (e: Exception) {
         e.printStackTrace()

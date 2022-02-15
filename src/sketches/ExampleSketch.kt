@@ -13,8 +13,7 @@ import util.layers.LayerSVGConfig
  * Copy and paste this to create a new sketch.
  */
 class ExampleSketch : SimpleCanvasSketch<ExampleData>("Example", ExampleData()) {
-
-  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
+  override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
     val (exampleGlobalField) = drawInfo.dataValues
   }
 }

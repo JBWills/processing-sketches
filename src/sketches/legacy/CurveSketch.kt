@@ -23,7 +23,6 @@ open class CurveSketch(
   svgBaseFileName = "svgs.CurveSketch",
   size = size,
 ) {
-
   private val outerPaddingX: Double = size.x * 0.02
   private val outerPaddingY: Double = size.y * 0.02
   var drawBound: BoundRect = BoundRect(
@@ -70,9 +69,10 @@ open class CurveSketch(
     return (noisePoint * moveAmount)
   }
 
-  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
+  override fun drawOnce(
     layer: Int,
-    layerConfig: LayerConfig
+    layerConfig: LayerConfig,
+    onNextLayer: (LayerSVGConfig) -> Unit
   ) {
     noStroke()
 

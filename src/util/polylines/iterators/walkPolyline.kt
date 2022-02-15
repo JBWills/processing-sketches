@@ -13,10 +13,10 @@ import kotlin.math.abs
 /**
  * @param step must be positive
  */
-private fun <T> walkWithPercentAndSegmentForwardsOnly(
+inline fun <T> walkWithPercentAndSegmentForwardsOnly(
   line: PolyLine,
   step: Double,
-  block: (index: Int, percent: Double, segment: Segment, point: Point) -> T,
+  crossinline block: (index: Int, percent: Double, segment: Segment, point: Point) -> T,
 ): List<T> {
   if (step <= 0.0) {
     throw Exception("Cannot call walkWithPercentAndSegmentForwardsOnly with a step <= 0.0")
@@ -73,14 +73,14 @@ private fun <T> walkWithPercentAndSegmentForwardsOnly(
   return walkedLine
 }
 
-private fun walkWithPercentAndSegmentForwardsOnly(
+inline fun walkWithPercentAndSegmentForwardsOnly(
   line: PolyLine,
   step: Double,
 ): PolyLine = walkWithPercentAndSegmentForwardsOnly(line, step) { _, _, _, point -> point }
 
-fun <T> PolyLine.walkWithPercentAndSegment(
+inline fun <T> PolyLine.walkWithPercentAndSegment(
   step: Number,
-  block: (percent: Double, segment: Segment, point: Point) -> T
+  crossinline block: (percent: Double, segment: Segment, point: Point) -> T
 ): List<T> {
   if (step.toDouble() == 0.0) {
     throw Exception("Can't walk along a line with a step of 0, it will be infinite!")
@@ -96,9 +96,9 @@ fun <T> PolyLine.walkWithPercentAndSegment(
   }
 }
 
-fun <T> PolyLine.walkWithPercentAndSegmentIndexed(
+inline fun <T> PolyLine.walkWithPercentAndSegmentIndexed(
   step: Number,
-  block: (index: Int, percent: Double, segment: Segment, point: Point) -> T
+  crossinline block: (index: Int, percent: Double, segment: Segment, point: Point) -> T
 ): List<T> {
   if (step.toDouble() == 0.0) {
     throw Exception("Can't walk along a line with a step of 0, it will be infinite!")

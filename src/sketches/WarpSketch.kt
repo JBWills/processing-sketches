@@ -97,9 +97,10 @@ open class WarpSketch(
     return (noisePoint * Point(moveAmountX, moveAmountY))
   }
 
-  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
+  override fun drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
+    onNextLayer: (LayerSVGConfig) -> Unit
   ) {
     Noise.SetSeed(seed)
     Noise.SetNoiseType(noiseType)

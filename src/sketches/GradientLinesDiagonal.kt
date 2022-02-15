@@ -14,9 +14,10 @@ class GradientLinesDiagonalSketch(
   size: Point = Point(576, 864),
 ) : GradientLinesSketch(lineDegrees, backgroundColor, size) {
 
-  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
+  override fun drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
+    onNextLayer: (LayerSVGConfig) -> Unit
   ) {
     noStroke()
 

@@ -39,7 +39,7 @@ private val Colors: List<Color> = listOf(
  * Copy and paste this to create a new sketch.
  */
 class AudioLines : SimpleCanvasSketch<AudioLinesData>("AudioLines", AudioLinesData()) {
-  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
+  override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
     val (audio, sampleSize, interpolationStep, linesToShow, drawSize, drawCenter, amplitudeScale, numLayers, interpolationType, noise, drawBaseLines, percentThroughSong1) = drawInfo.dataValues
 
     val features = audio.getFeatures(sampleSize) ?: return
@@ -61,7 +61,7 @@ class AudioLines : SimpleCanvasSketch<AudioLinesData>("AudioLines", AudioLinesDa
 
     // todo add interpolated spectrogram processing here
     numLayers.map { layerIndex ->
-      newLayerStyled(stroke = Colors[layerIndex % Colors.size]) {
+      newLayerStyled(stroke = Colors[layerIndex % Colors.size], onNextLayer = onNextLayer) {
         val line = boundRect.topSegment.translated(Point(0, boundRect.height / 2)).expand(-30)
         amplitudeLine2D
           .interpolateAlong(line.toPolyLine(), percentThroughSong1, interpolationStep)

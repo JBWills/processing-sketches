@@ -121,7 +121,7 @@ class MapSketchLines :
 
   val loadScaleAndRotateMatMemo = ::loadScaleAndRotateMat.memoize()
 
-  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
+  override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
     val (geoTiffFile, drawMat, mapCenter, mapScale, minElevation, maxElevation, elevationMoveVector, samplePointsXY, drawMinElevationOutline, occludeLines, drawOceanLines, blurAmount, lineSimplifyEpsilon, imageRotation, oceanContours, initialOceanLinesOffset, maxOceanDistanceFromLand) = drawInfo.dataValues
     geoTiffFile ?: return
 
@@ -201,7 +201,7 @@ class MapSketchLines :
     }
 
     if (drawOceanLines) {
-      nextLayer()
+      onNextLayer(LayerSVGConfig())
       stroke(Color.BLUE)
 
       val simplifyAmount = oceanContours.simplifier.simplifyAmount

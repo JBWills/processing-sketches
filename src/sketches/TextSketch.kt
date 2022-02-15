@@ -41,8 +41,8 @@ class TextSketch : LayeredCanvasSketch<TextData, TextLayerData>(
   override fun drawSetup(layerInfo: DrawInfo) {}
   override fun drawOnce(layerInfo: LayerInfo) {}
 
-  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(layerInfo: DrawInfo) {
-    val (lineWidth, lineHeight, centerPoint, rotation, flatness, font, text, interiorOffsets, exteriorOffsets, lockOffsetsDistance) = layerInfo.globalValues
+  override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
+    val (lineWidth, lineHeight, centerPoint, rotation, flatness, font, text, interiorOffsets, exteriorOffsets, lockOffsetsDistance) = drawInfo.globalValues
 
     fun List<PolyLine>.offset(amounts: Iterable<Double>) =
       offsetBy(amounts, JoinType.ROUND, CLOSED_POLYGON)
@@ -83,7 +83,7 @@ class TextSketch : LayeredCanvasSketch<TextData, TextLayerData>(
       .offset(interiorOffsetsList)
       .draw(boundRect)
 
-    nextLayer()
+    onNextLayer(LayerSVGConfig())
     stroke(Color.red)
 
     val exteriorOffsetsIterator = exteriorOffsets.let {

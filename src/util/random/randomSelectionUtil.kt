@@ -1,6 +1,5 @@
 package util.random
 
-import util.debugLog
 import util.rand
 
 fun List<Double>.randomWeightedIndex(seed: Int): Int {
@@ -13,8 +12,6 @@ fun List<Double>.randomWeightedIndex(seed: Int): Int {
     runningTotal += weight
     if (randomNumber <= runningTotal) return index
   }
-
-  debugLog(this, total, randomNumber)
-
+  
   return -1
 }

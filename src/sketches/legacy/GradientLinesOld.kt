@@ -33,9 +33,10 @@ class GradientLinesOldSketch(var lineDegrees: Int = 0) : BaseSketch(
     slider(::lineDegrees, 0..360)
   }
 
-  override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(
+  override fun drawOnce(
     layer: Int,
     layerConfig: LayerConfig,
+    onNextLayer: (LayerSVGConfig) -> Unit
   ) {
     fun getPointsLinesShouldCrossThrough(
       bound: BoundRect, deg: Deg, numLines: Int,

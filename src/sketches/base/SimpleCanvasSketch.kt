@@ -66,7 +66,7 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
     onSwitchCanvas(DEFAULT_PRESET_NAME)
   }
 
-  abstract suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo)
+  abstract fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit)
 
   open fun drawSetup(drawInfo: DrawInfo) {}
   open fun drawInteractive(layerInfo: DrawInfo) {}
@@ -136,9 +136,9 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
     frozenValues?.let { drawSetup(it) }
   }
 
-  final override suspend fun SequenceScope<LayerSVGConfig>.drawOnce(layer: Int) {
+  final override fun drawOnce(layer: Int, onNextLayer: (LayerSVGConfig) -> Unit) {
     val frozenValues = frozenValues ?: return
-    drawLayers(frozenValues)
+    drawLayers(frozenValues, onNextLayer)
   }
 
   private fun savePreset(presetName: String) {

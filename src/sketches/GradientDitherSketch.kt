@@ -38,7 +38,7 @@ class GradientDitherSketch : SimpleCanvasSketch<GradientDitherData>(
   private fun distanceToProbability(distanceToAnchor: Double, anchorIntensity: Double): Double =
     anchorIntensity.squared() / distanceToAnchor.squared()
 
-  override suspend fun SequenceScope<LayerSVGConfig>.drawLayers(drawInfo: DrawInfo) {
+  override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
     val (gradientAnchors, radius, drawAsScribbles, numPoints, pointsSeed, randomizePosition, randomizePositionType) = drawInfo.dataValues.pointData
     if (gradientAnchors.size == 0) return
 
@@ -74,6 +74,7 @@ class GradientDitherSketch : SimpleCanvasSketch<GradientDitherData>(
       newLayerStyled(
         anchor.penProp.style,
         LayerSVGConfig(layerName = anchor.penProp.pen.name),
+        onNextLayer,
       ) {
         points.drawPoints(radius)
       }
