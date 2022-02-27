@@ -12,6 +12,9 @@ import controls.panels.panelext.imageSelect
 import controls.props.PropData
 import coordinate.BoundRect
 import coordinate.Point
+import coordinate.transforms.ScaleTransform
+import coordinate.transforms.ShapeTransform
+import coordinate.transforms.TranslateTransform
 import kotlinx.serialization.Serializable
 import org.opencv.core.Mat
 import util.base.doIf
@@ -70,16 +73,15 @@ data class PhotoMatProp(
   fun getMatBounds(mat: Mat, boundRect: BoundRect) =
     mat.bounds.scale(Point(imageSizeMul), boundRect.pointAt(imageCenter + 0.5))
 
-  fun getScreenToMatTransform(mat: Mat, boundRect: BoundRect): (Point) -> Point {
+  fun getScreenToMatTransform(mat: Mat, boundRect: BoundRect): ShapeTransform {
     val matScreenBounds = getMatBounds(mat, boundRect)
 
-    return { p -> p - matScreenBounds.topLeft }
+    return TranslateTransform(-matScreenBounds.topLeft)
+      .addTransform(ScaleTransform(Point(1 / imageSizeMul), Point.Zero))
   }
 
-  fun getMatToScreenTransform(mat: Mat, boundRect: BoundRect): (Point) -> Point {
-    val matScreenBounds = getMatBounds(mat, boundRect)
-
-    return { p -> p + matScreenBounds.topLeft }
+  fun getMatToScreenTransform(mat: Mat, boundRect: BoundRect): ShapeTransform {
+    return getScreenToMatTransform(mat, boundRect).inverted()
   }
 
   fun loadMatMemoized(): Mat? = _loadAndTransformMat(

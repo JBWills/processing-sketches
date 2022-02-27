@@ -100,10 +100,10 @@ class GucciSketch :
       .map { segment -> segment.toPolyLine() }
       .map { path ->
         val pathThreshold = 128
-        path.map(screenToMatTransform)
+        path.map { p -> screenToMatTransform.transform(p) }
           .walk(ditherData.step)
           .walkThreshold { p -> luminanceMat.getOr(p, 0.0) < pathThreshold }
-          .deepMap(matToScreenTransform)
+          .deepMap { p -> matToScreenTransform.transform(p) }
       }
 
     (xLines + yLines).pmap(::traverseLine).draw()
