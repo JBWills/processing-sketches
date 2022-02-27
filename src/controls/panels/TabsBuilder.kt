@@ -1,5 +1,8 @@
 package controls.panels
 
+import controls.props.PropData
+import kotlin.reflect.KMutableProperty0
+
 class TabsBuilder(val tabs: MutableList<ControlTab>) : MutableList<ControlTab> by tabs {
   constructor() : this(mutableListOf())
 
@@ -24,6 +27,14 @@ class TabsBuilder(val tabs: MutableList<ControlTab>) : MutableList<ControlTab> b
       val style = getTabStyle?.invoke(index, item) ?: TabStyle.Base
       +TabBuilder(name, style) { block(index, item) }.buildTab()
     }
+  }
+
+  fun <T : PropData<T>> panelTabs(
+    ref: KMutableProperty0<T>,
+    style: TabStyle? = null,
+  ) = ref.get().asControlTabs().map { tab ->
+    val tabToAdd = style?.let { tab.withStyle(style) } ?: tab
+    +tabToAdd
   }
 
   companion object {

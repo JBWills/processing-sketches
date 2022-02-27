@@ -63,7 +63,10 @@ fun <T, TWrap> RefGetter<T>.wrapped(
 fun <T, K, TWrap> Pair<RefGetter<T>, RefGetter<K>>.wrapped(
   wrap: Pair<T, K>.() -> TWrap,
   unwrap: TWrap.() -> Pair<T, K>,
+  name: String? = null
 ) = object : RefWrapper2<T, K, TWrap> {
+  override val name: String
+    get() = name ?: super.name
   override val backingRef1: RefGetter<T> = this@wrapped.first
   override val backingRef2: RefGetter<K> = this@wrapped.second
 

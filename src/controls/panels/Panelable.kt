@@ -9,7 +9,7 @@ fun interface Panelable {
   fun withWidth(width: Number): ControlPanel =
     toControlPanel().with(widthRatio = width.toDouble())
 
-  fun withStyle(style: ControlStyle): ControlPanel =
+  fun withStyle(style: ControlStyle?): ControlPanel =
     toControlPanel().with(style = style)
 
   fun applyStyleOverrides(style: ControlStyle?): Panelable =

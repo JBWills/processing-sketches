@@ -3,6 +3,7 @@ package sketches
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
 import controls.panels.ControlStyle
+import controls.panels.TabStyle
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.sliderPair
 import controls.panels.panelext.util.doubleWrapped
@@ -81,14 +82,14 @@ class GucciSketch :
       linesData.numLines.xi,
       centerPoint,
       linesData.lineSpacing.x,
-      linesData.lineAnglesBase,
+      linesData.angle1,
     )
 
     val yLines = getLines(
       linesData.numLines.yi,
       centerPoint,
       linesData.lineSpacing.y,
-      linesData.lineAnglesBase + linesData.lineAnglesDifference,
+      linesData.angle2,
     )
 
     val screenToMatTransform = photo.getScreenToMatTransform(mat, boundRect)
@@ -115,8 +116,8 @@ data class GucciLinesData(
   var numLines: Point = Point(100, 100),
   var lineCenter: Point = Point(0.5, 0.5),
   var lineSpacing: Point = Point(10, 10),
-  var lineAnglesBase: Deg = Deg.HORIZONTAL,
-  var lineAnglesDifference: Deg = Deg(90),
+  var angle1: Deg = Deg.HORIZONTAL,
+  var angle2: Deg = Deg(90),
   var curveScale: Double = 0.0,
   var curveAspect: Double = 0.5,
 )
@@ -124,8 +125,6 @@ data class GucciLinesData(
 @Serializable
 data class GucciDitherData(
   var step: Double = 5.0,
-  var chunkSize: Double = 50.0,
-  var percentInked: Double = 0.5
 )
 
 @Serializable
@@ -135,39 +134,35 @@ data class GucciData(
   var photo: PhotoMatProp = PhotoMatProp(),
 ) : PropData<GucciData> {
   override fun bind() = tabs {
+    panelTabs(::photo, style = TabStyle.Red)
+
     tab("Lines") {
       slider2D(linesData::lineCenter, 0..1 to 0..1)
       sliderPair(
         linesData::numLines,
         0.0..1000.0,
         withLockToggle = true,
-        defaultLocked = false,
+        defaultLocked = true,
       )
       sliderPair(
         linesData::lineSpacing,
         0.0..10.0,
         withLockToggle = true,
-        defaultLocked = false,
+        defaultLocked = true,
       )
       sliderPair(
-        linesData::lineAnglesBase.doubleWrapped(),
-        linesData::lineAnglesDifference.doubleWrapped(),
+        linesData::angle1.doubleWrapped(),
+        linesData::angle2.doubleWrapped(),
         0.0..180.0,
       )
+
+      slider(ditherData::step, 0.5..50.0)
 
       row {
         style = ControlStyle.Yellow
         slider(linesData::curveScale, 0.0..1000.0)
         slider(linesData::curveAspect, 0..1)
       }
-    }
-    tab("Photo") {
-      panel(::photo)
-    }
-    tab("Dither") {
-      slider(ditherData::step, 0.5..50.0)
-      slider(ditherData::chunkSize, 5.0..500.0)
-      slider(ditherData::percentInked, 0.0..1.0)
     }
   }
 

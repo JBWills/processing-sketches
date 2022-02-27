@@ -1,6 +1,7 @@
 package controls.props.types
 
 import arrow.core.memoize
+import controls.controlsealedclasses.Button.Companion.button
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
@@ -105,25 +106,35 @@ data class PhotoMatProp(
       row {
         heightRatio = 3
         slider2D(::imageCenter, -1..1)
+        col {
+          widthRatio = 0.3
+
+          button("Center image") { imageCenter = Point(0, 0); updateControls() }
+        }
       }
 
       row {
         slider(::imageSizeFine, 2..4000)
         slider(::imageSizeMul, 1..10)
       }
+    }
 
+    tab("filters") {
       slider(transformProps::blurRadius, 0..50)
 
-      row {
+      col {
         style = ControlStyle.Gray
-        slider(transformProps::imageBlackPoint, 0..255)
-        slider(transformProps::imageWhitePoint, 0..255)
-        toggle(transformProps::invert, style = ControlStyle.Black)
-        toggle(transformProps::grayscale, style = ControlStyle.Black)
+        row {
+          slider(transformProps::imageBlackPoint, 0..255)
+          slider(transformProps::imageWhitePoint, 0..255)
+        }
+        row {
+          toggle(transformProps::invert, style = ControlStyle.Black)
+          toggle(transformProps::grayscale, style = ControlStyle.Black)
+        }
       }
-
+      
       row {
-        heightRatio = 2
         toggle(transformProps::shouldDither)
         dropdown(transformProps::ditherType)
         slider(transformProps::ditherThreshold, 0.0..255.0)

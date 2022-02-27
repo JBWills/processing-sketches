@@ -30,6 +30,8 @@ fun PanelBuilder.sliderPair(
   defaultLocked,
   style,
   shouldMarkDirty,
+  xName = ref1.name,
+  yName = ref2.name,
 )
 
 @JvmName("sliderPairDoubles")
@@ -48,6 +50,8 @@ fun PanelBuilder.sliderPair(
   defaultLocked,
   style,
   shouldMarkDirty,
+  xName = ref1.name,
+  yName = ref2.name,
 )
 
 @JvmName("sliderPairDoubleRange")
@@ -121,12 +125,14 @@ private fun PanelBuilder.sliderPairPanel(
   defaultLocked: Boolean = false,
   style: ControlStyle? = null,
   shouldMarkDirty: Boolean = true,
+  xName: String? = null,
+  yName: String? = null,
 ) = addNewPanel(style) {
   GenericProp(ref) {
     var locked: Boolean = defaultLocked && ref.get().x == ref.get().y
     var ctrlY: Slider? = null
     val ctrlX = Slider(
-      "${ref.name} X",
+      xName ?: "${ref.name} X",
       range = ranges.first,
       getter = { ref.get().x },
       setter = {
@@ -140,7 +146,7 @@ private fun PanelBuilder.sliderPairPanel(
     ) { markDirtyIf(shouldMarkDirty) }
 
     ctrlY = Slider(
-      "${ref.name} Y",
+      yName ?: "${ref.name} Y",
       range = ranges.second,
       getter = { ref.get().y },
       setter = {

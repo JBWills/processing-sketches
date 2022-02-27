@@ -41,7 +41,7 @@ fun ByteArray.toInt8Array(): IntArray {
   val depth = ByteBuf.depth
   checkDepth(depth)
 
-  return map { it.toInt() + 128 }.toIntArray()
+  return map { it.toUByte().toInt() }.toIntArray()
 }
 
 fun ByteArray.toInt16Array(): IntArray =

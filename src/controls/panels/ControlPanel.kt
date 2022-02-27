@@ -104,6 +104,18 @@ class ControlTab(
     }
   }
 
+  @Deprecated(
+    "Use withStyle(TabStyle) instead.",
+    ReplaceWith("withStyle(tabStyle)", "controls.panels.ControlTab"),
+  )
+  override fun withStyle(style: ControlStyle?): ControlPanel {
+    return ControlTab(name, tabStyle.copy(controlStyle = style), panel)
+  }
+
+  fun withStyle(style: TabStyle): ControlTab {
+    return ControlTab(name, style, panel)
+  }
+
   constructor(
     name: String,
     tabStyle: TabStyle = TabStyle.Base,
