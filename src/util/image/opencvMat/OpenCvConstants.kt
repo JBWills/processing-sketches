@@ -7,6 +7,7 @@ import org.opencv.core.Core.FILLED
 import org.opencv.core.Core.LINE_4
 import org.opencv.core.Core.LINE_8
 import org.opencv.core.Core.LINE_AA
+import org.opencv.core.Mat
 import org.opencv.imgproc.Imgproc
 import org.opencv.imgproc.Imgproc.HISTCMP_BHATTACHARYYA
 import org.opencv.imgproc.Imgproc.HISTCMP_CHISQR
@@ -42,15 +43,23 @@ enum class ContourApproximationMode(val type: Int) {
   TC89KCOS(Imgproc.CHAIN_APPROX_TC89_KCOS),
 }
 
-enum class ChannelDepth(val type: Int) {
-  CV_8U(opencv_core.CV_8U),
-  CV_8S(opencv_core.CV_8S),
-  CV_16U(opencv_core.CV_16U),
-  CV_16S(opencv_core.CV_16S),
-  CV_32S(opencv_core.CV_32S),
-  CV_32F(opencv_core.CV_32F),
-  CV_64F(opencv_core.CV_64F),
-  CV_16F(opencv_core.CV_16F),
+enum class ChannelDepth(val type: Int, val byteDepth: Int) {
+  CV_8U(opencv_core.CV_8U, 1),
+  CV_8S(opencv_core.CV_8S, 1),
+  CV_16U(opencv_core.CV_16U, 2),
+  CV_16S(opencv_core.CV_16S, 2),
+  CV_32S(opencv_core.CV_32S, 4),
+  CV_32F(opencv_core.CV_32F, 4),
+  CV_64F(opencv_core.CV_64F, 8),
+  CV_16F(opencv_core.CV_16F, 2),
+  ;
+
+  companion object {
+    fun Mat.channelDepth(): ChannelDepth {
+      val depth = depth()
+      return values().first { depth == type() }
+    }
+  }
 }
 
 enum class BorderType(val type: Int) {

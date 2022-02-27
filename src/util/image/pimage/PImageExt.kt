@@ -22,17 +22,9 @@ val PImage.size: Point get() = Point(width, height)
 
 fun PImage.get(p: Point): Color = Color(get(p.xi, p.yi))
 
-private val _resized = { image: PImage, p: Point ->
-  image.toMat().resize(p).toPImage()
-}.memoize()
+fun PImage.resized(p: Point): PImage = toMat().resize(p).toPImage()
 
-fun PImage.resized(p: Point): PImage = _resized(this, p)
-
-private val _get = { image: PImage, topLeft: Point, size: Point ->
-  image.get(topLeft.xi, topLeft.yi, size.xi, size.yi)
-}.memoize()
-
-fun PImage.get(topLeft: Point, size: Point): PImage = _get(this, topLeft, size)
+fun PImage.get(topLeft: Point, size: Point): PImage = get(topLeft.xi, topLeft.yi, size.xi, size.yi)
 
 fun PImage.get(bounds: BoundRect): PImage = get(bounds.topLeft, bounds.size)
 

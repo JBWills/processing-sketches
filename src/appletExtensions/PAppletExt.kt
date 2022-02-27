@@ -27,7 +27,9 @@ import processing.core.PImage
 import util.atAmountAlong
 import util.base.lerp
 import util.image.opencvMat.getTransformedMat
+import util.image.opencvMat.size
 import util.image.opencvMat.toPImage
+import util.image.opencvMat.width
 import util.image.pimage.scale
 import util.iterators.forEach2D
 import util.iterators.mapWithSibling
@@ -165,9 +167,12 @@ open class PAppletExt : PApplet() {
   fun Iterable<Iterable<Point>>.drawPoints(radius: Number = 2) =
     forEach { drawPoints(it, radius) }
 
-  fun PImage.draw(topLeft: Point) = image(this, topLeft.xf, topLeft.yf)
+  fun PImage.draw(topLeft: Point, scale: Double = 1.0) =
+    image(this, topLeft.xf, topLeft.yf, width * scale.toFloat(), height * scale.toFloat())
+
   fun PImage.draw(bound: BoundRect) = scale(bound.size).draw(bound.topLeft)
-  fun Mat.draw(offset: Point = Point.Zero) = toPImage().draw(offset)
+  fun Mat.draw(bound: BoundRect) = toPImage().draw(bound.topLeft, bound.width / width)
+  fun Mat.draw(offset: Point) = toPImage().draw(BoundRect(offset, offset + size))
 
   fun Mat.draw(matToScreenTransform: ShapeTransform, boundRect: BoundRect) {
     getTransformedMat(matToScreenTransform, boundRect)?.draw(boundRect.topLeft)

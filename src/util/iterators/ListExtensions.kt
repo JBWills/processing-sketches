@@ -51,20 +51,6 @@ fun <T, R> List<T>.mapEachPairNonNull(block: (index1: Int, index2: Int, item1: T
   return res
 }
 
-fun <T> List<List<T>>.forEach2D(block: (rowIndex: Int, colIndex: Int, item: T) -> Unit) =
-  forEachIndexed { rowIndex, row ->
-    row.forEachIndexed { colIndex, item ->
-      block(rowIndex, colIndex, item)
-    }
-  }
-
-fun <T, K> List<List<T>>.map2D(block: (rowIndex: Int, colIndex: Int, item: T) -> K): List<List<K>> =
-  mapIndexed { rowIndex, row ->
-    row.mapIndexed { colIndex, item ->
-      block(rowIndex, colIndex, item)
-    }
-  }
-
 fun <T> List<T>.extendCyclical(num: Int): List<T> {
   if (isEmpty()) throw Exception("Can't call extendCyclical on empty list.")
 

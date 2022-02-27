@@ -8,7 +8,6 @@ import util.image.ImageFormat.Bgra
 import util.image.ImageFormat.Rgb
 import util.image.ImageFormat.RgbaOpenCV
 import util.image.converted
-import util.image.opencvMat.debug.printDebug
 import util.image.opencvMat.flags.ImreadFlags
 import java.io.File
 
@@ -17,11 +16,9 @@ import java.io.File
  */
 private fun Mat.convertFromBgrToRgb(): Mat {
   if (channels() == 4) {
-    printDebug("OnloadBefore")
-    return converted(from = Bgra, to = RgbaOpenCV).also { it.printDebug("onLoadAfter") }
+    return converted(from = Bgra, to = RgbaOpenCV)
   } else if (channels() == 3) {
-    printDebug("OnloadBefore")
-    return converted(from = Bgr, to = Rgb).also { it.printDebug("onLoadAfter") }
+    return converted(from = Bgr, to = Rgb)
   }
 
   // Don't do anything with grayscale images.

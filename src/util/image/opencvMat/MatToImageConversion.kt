@@ -8,16 +8,12 @@ import util.image.ImageFormat.ArgbProcessing
 import util.image.ImageFormat.Companion.getFormat
 import util.image.ImageFormat.RgbaOpenCV
 import util.image.converted
-import util.image.opencvMat.debug.printDebug
 import java.nio.ByteBuffer
 
 
 fun Mat.copyTo(pImage: PImage) {
-  also { it.printDebug("Before") }
   converted(to = RgbaOpenCV)
-    .also { it.printDebug("Middle") }
     .converted(to = ArgbProcessing)
-    .also { it.printDebug("After") }
     .getByteArray()
     .asIntBuffer()
     .get(pImage.pixels)

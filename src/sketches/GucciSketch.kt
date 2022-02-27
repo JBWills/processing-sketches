@@ -2,6 +2,7 @@ package sketches
 
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.sliderPair
 import controls.panels.panelext.util.doubleWrapped
@@ -23,10 +24,9 @@ import util.layers.LayerSVGConfig
 import util.numbers.map
 import util.polylines.PolyLine
 import util.polylines.walk
-import util.rand
 
 /**
- * Gucci sketch for Scot.
+ * Sketch of Gucci for Scot.
  */
 class GucciSketch :
   SimpleCanvasSketch<GucciData>("Gucci", GucciData()) {
@@ -52,6 +52,20 @@ class GucciSketch :
     }
   }
 
+//  private fun Line.curveLine(linesData: GucciLinesData, ditherData: GucciDitherData): PolyLine {
+//
+//    if (linesData.curveScale == 0.0) {
+//      return boundRect.intersection(this).toPolyLine().walk(ditherData.step)
+//    }
+//
+//    val segment = boundRect.expand(linesData.curveScale).intersection(this)
+//    val totalDist = segment.len
+//      .toPolyLine()
+//      .walkWithPercentAndSegment(step) {
+//
+//      }
+//  }
+
   override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
     val (linesData, ditherData, photo) = drawInfo.dataValues
 
@@ -60,7 +74,7 @@ class GucciSketch :
     val mat = photo.loadMatMemoized() ?: return
 
     if (photo.drawImage) {
-      mat.draw(photo.getMatBounds(mat, boundRect).topLeft)
+      mat.draw(photo.getMatBounds(mat, boundRect))
     }
 
     val xLines = getLines(
@@ -82,20 +96,17 @@ class GucciSketch :
 
     val luminanceMat = mat.converted(to = Gray)
 
-    fun traverseLine(line: Line): List<List<PolyLine>> {
-      return boundRect.intersection(line)
-        .map { segment -> segment.toPolyLine() }
-        .map { path ->
-          val pathThreshold = rand() * 255
-          path.map(screenToMatTransform)
-            .walk(ditherData.step)
-            .walkThreshold { p -> luminanceMat.getOr(p, 0.0) < pathThreshold }
-            .deepMap(matToScreenTransform)
-        }
-    }
+    fun traverseLine(line: Line): List<List<PolyLine>> = boundRect.intersection(line)
+      .map { segment -> segment.toPolyLine() }
+      .map { path ->
+        val pathThreshold = 128
+        path.map(screenToMatTransform)
+          .walk(ditherData.step)
+          .walkThreshold { p -> luminanceMat.getOr(p, 0.0) < pathThreshold }
+          .deepMap(matToScreenTransform)
+      }
 
-    val xyLines = xLines + yLines
-    xyLines.pmap(::traverseLine).draw()
+    (xLines + yLines).pmap(::traverseLine).draw()
   }
 }
 
@@ -106,6 +117,8 @@ data class GucciLinesData(
   var lineSpacing: Point = Point(10, 10),
   var lineAnglesBase: Deg = Deg.HORIZONTAL,
   var lineAnglesDifference: Deg = Deg(90),
+  var curveScale: Double = 0.0,
+  var curveAspect: Double = 0.5,
 )
 
 @Serializable
@@ -141,6 +154,12 @@ data class GucciData(
         linesData::lineAnglesDifference.doubleWrapped(),
         0.0..180.0,
       )
+
+      row {
+        style = ControlStyle.Yellow
+        slider(linesData::curveScale, 0.0..1000.0)
+        slider(linesData::curveAspect, 0..1)
+      }
     }
     tab("Photo") {
       panel(::photo)
