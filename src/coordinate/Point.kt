@@ -131,6 +131,9 @@ data class Point(val x: Double, val y: Double) :
 
   fun lineTo(other: Point) = Segment(this, other)
 
+  fun perpendicularDistanceTo(line: Line): Double =
+    perpendicularDistanceTo(Segment(line.origin, line.getPointAtDist(10.0)))
+
   fun perpendicularDistanceTo(line: Segment): Double {
     val (x0, y0) = this
     val (x1, y1) = line.p1

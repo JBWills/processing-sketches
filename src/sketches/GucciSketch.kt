@@ -14,9 +14,12 @@ import coordinate.Line
 import coordinate.Point
 import coordinate.Segment
 import kotlinx.serialization.Serializable
+import org.opencv.core.Mat
 import sketches.base.SimpleCanvasSketch
 import util.algorithms.contouring.walkThreshold
+import util.base.doIf
 import util.concurrency.pmap
+import util.debugLog
 import util.image.ImageFormat.Gray
 import util.image.converted
 import util.image.opencvMat.getOr
@@ -24,6 +27,7 @@ import util.iterators.deepMap
 import util.layers.LayerSVGConfig
 import util.numbers.map
 import util.polylines.PolyLine
+import util.polylines.clipping.simplify.removeSmallGaps
 import util.polylines.walk
 
 /**
@@ -32,7 +36,15 @@ import util.polylines.walk
 class GucciSketch :
   SimpleCanvasSketch<GucciData>("Gucci", GucciData()) {
 
-  private fun getLines(numLines: Int, center: Point, spacing: Double, angle: Deg): List<Line> {
+  private fun getLines(
+    numLines: Int,
+    center: Point,
+    spacing: Double,
+    angle: Deg,
+    curveScale: Double,
+    curveAspect: Double,
+    curveOffsetPercent: Double
+  ): List<PolyLine> {
     val totalDist = spacing * numLines
     val walkLine = Line(center, angle.perpendicular).let { line ->
       Segment(
@@ -41,31 +53,39 @@ class GucciSketch :
       )
     }
 
-    if (numLines == 1) {
-      return listOf(Line(walkLine.getPointAtPercent(0.5), angle))
+    val lines =
+      if (numLines == 1) {
+        listOf(Line(walkLine.getPointAtPercent(0.5), angle))
+      } else {
+        numLines.map { i ->
+          Line(
+            walkLine.getPointAtPercent(i / (numLines - 1).toDouble()),
+            angle,
+          )
+        }
+      }
+
+    return lines.mapNotNull { line ->
+      val boundLine = boundRect.expand(curveScale)
+        .intersection(line, false)
+        .firstOrNull()
+        ?.toPolyLine()
+        ?: return@mapNotNull null
+
+      val moveDir = line.slope.perpendicular.unitVector
+
+      boundLine.doIf(curveScale > 0 && curveAspect > 0) {
+        it.walk(2.0) { p ->
+          val x = p.perpendicularDistanceTo(walkLine) / (curveScale * curveAspect)
+          val offset = curveOffsetPercent * PI
+          val moveAmount = kotlin.math.sin(offset + x) * curveScale
+
+          p + moveDir * moveAmount
+        }
+      }
     }
 
-    return numLines.map { i ->
-      Line(
-        walkLine.getPointAtPercent(i / (numLines - 1).toDouble()),
-        angle,
-      )
-    }
   }
-
-//  private fun Line.curveLine(linesData: GucciLinesData, ditherData: GucciDitherData): PolyLine {
-//
-//    if (linesData.curveScale == 0.0) {
-//      return boundRect.intersection(this).toPolyLine().walk(ditherData.step)
-//    }
-//
-//    val segment = boundRect.expand(linesData.curveScale).intersection(this)
-//    val totalDist = segment.len
-//      .toPolyLine()
-//      .walkWithPercentAndSegment(step) {
-//
-//      }
-//  }
 
   override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
     val (linesData, ditherData, photo) = drawInfo.dataValues
@@ -73,6 +93,14 @@ class GucciSketch :
     val centerPoint = boundRect.pointAt(linesData.lineCenter)
 
     val mat = photo.loadMatMemoized() ?: return
+    val mat2 =
+      photo.copy(
+        transformProps = photo.transformProps.copy(
+          imageWhitePoint = (255 * ditherData.otherDitherWhitePoint).toInt(),
+          imageBlackPoint = (255 * ditherData.otherDitherBlackPoint).toInt(),
+        ),
+      )
+        .loadMatMemoized() ?: return
 
     if (photo.drawImage) {
       mat.draw(photo.getMatBounds(mat, boundRect))
@@ -83,6 +111,9 @@ class GucciSketch :
       centerPoint,
       linesData.lineSpacing.x,
       linesData.angle1,
+      linesData.curveScale,
+      linesData.curveAspect,
+      linesData.curveOffsetPercent,
     )
 
     val yLines = getLines(
@@ -90,24 +121,37 @@ class GucciSketch :
       centerPoint,
       linesData.lineSpacing.y,
       linesData.angle2,
+      linesData.curveScale,
+      linesData.curveAspect,
+      linesData.curveOffsetPercent,
     )
 
     val screenToMatTransform = photo.getScreenToMatTransform(mat, boundRect)
     val matToScreenTransform = photo.getMatToScreenTransform(mat, boundRect)
 
     val luminanceMat = mat.converted(to = Gray)
+    val luminanceMat2 = mat2.converted(to = Gray)
 
-    fun traverseLine(line: Line): List<List<PolyLine>> = boundRect.intersection(line)
-      .map { segment -> segment.toPolyLine() }
+    var linesBefore = 0
+    var linesAfter = 0
+
+    fun traverseLine(line: PolyLine, m: Mat): List<List<PolyLine>> = boundRect.intersection(line)
       .map { path ->
         val pathThreshold = 128
-        path.map { p -> screenToMatTransform.transform(p) }
+        var x = path.map { p -> screenToMatTransform.transform(p) }
           .walk(ditherData.step)
-          .walkThreshold { p -> luminanceMat.getOr(p, 0.0) < pathThreshold }
-          .deepMap { p -> matToScreenTransform.transform(p) }
+          .walkThreshold { p -> m.getOr(p, 0.0) < pathThreshold }
+        linesBefore += x.size
+        x = x.removeSmallGaps(linesData.lineGapMin)
+        linesAfter += x.size
+
+        x.deepMap(matToScreenTransform::transform)
       }
 
-    (xLines + yLines).pmap(::traverseLine).draw()
+    xLines.pmap { line -> traverseLine(line, luminanceMat) }.draw()
+    yLines.pmap { line -> traverseLine(line, luminanceMat2) }.draw()
+
+    debugLog("Saved ${linesBefore - linesAfter} lines! LinesBefore: $linesBefore, linesAfter:$linesAfter")
   }
 }
 
@@ -116,15 +160,19 @@ data class GucciLinesData(
   var numLines: Point = Point(100, 100),
   var lineCenter: Point = Point(0.5, 0.5),
   var lineSpacing: Point = Point(10, 10),
+  var lineGapMin: Double = 0.0,
   var angle1: Deg = Deg.HORIZONTAL,
   var angle2: Deg = Deg(90),
   var curveScale: Double = 0.0,
   var curveAspect: Double = 0.5,
+  var curveOffsetPercent: Double = 0.0
 )
 
 @Serializable
 data class GucciDitherData(
   var step: Double = 5.0,
+  var otherDitherWhitePoint: Double = 1.0,
+  var otherDitherBlackPoint: Double = 0.0
 )
 
 @Serializable
@@ -137,6 +185,11 @@ data class GucciData(
     panelTabs(::photo, style = TabStyle.Red)
 
     tab("Lines") {
+      row {
+        style = ControlStyle.Gray
+        slider(ditherData::otherDitherBlackPoint)
+        slider(ditherData::otherDitherWhitePoint)
+      }
       slider2D(linesData::lineCenter, 0..1 to 0..1)
       sliderPair(
         linesData::numLines,
@@ -156,12 +209,16 @@ data class GucciData(
         0.0..180.0,
       )
 
-      slider(ditherData::step, 0.5..50.0)
+      row {
+        slider(linesData::lineGapMin, 0.0..10.0)
+        slider(ditherData::step, 0.5..50.0)
+      }
 
       row {
         style = ControlStyle.Yellow
         slider(linesData::curveScale, 0.0..1000.0)
-        slider(linesData::curveAspect, 0..1)
+        slider(linesData::curveAspect, 0..10)
+        slider(linesData::curveOffsetPercent, 0..1)
       }
     }
   }
