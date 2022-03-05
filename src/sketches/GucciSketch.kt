@@ -26,6 +26,7 @@ import util.image.opencvMat.getOr
 import util.iterators.deepMap
 import util.layers.LayerSVGConfig
 import util.numbers.map
+import util.numbers.roundedString
 import util.polylines.PolyLine
 import util.polylines.clipping.simplify.removeSmallGaps
 import util.polylines.walk
@@ -135,23 +136,27 @@ class GucciSketch :
     var linesBefore = 0
     var linesAfter = 0
 
-    fun traverseLine(line: PolyLine, m: Mat): List<List<PolyLine>> = boundRect.intersection(line)
-      .map { path ->
-        val pathThreshold = 128
-        var x = path.map { p -> screenToMatTransform.transform(p) }
+    fun traverseLine(line: PolyLine, m: Mat): List<PolyLine> = boundRect.intersection(line)
+      .flatMap { path ->
+        path.map { p -> screenToMatTransform.transform(p) }
           .walk(ditherData.step)
-          .walkThreshold { p -> m.getOr(p, 0.0) < pathThreshold }
-        linesBefore += x.size
-        x = x.removeSmallGaps(linesData.lineGapMin)
-        linesAfter += x.size
-
-        x.deepMap(matToScreenTransform::transform)
+          .walkThreshold { p -> m.getOr(p, 0.0) < 128 }
+          .also { linesBefore += it.size }
+          .removeSmallGaps(linesData.lineGapMin)
+          .also { linesAfter += it.size }
+          .deepMap(matToScreenTransform::transform)
       }
 
     xLines.pmap { line -> traverseLine(line, luminanceMat) }.draw()
+    onNextLayer(LayerSVGConfig())
     yLines.pmap { line -> traverseLine(line, luminanceMat2) }.draw()
 
-    debugLog("Saved ${linesBefore - linesAfter} lines! LinesBefore: $linesBefore, linesAfter:$linesAfter")
+    val numLinesSaved = linesBefore - linesAfter
+    val percentSaved = (numLinesSaved.toDouble() * 100) / linesBefore.toDouble()
+
+    debugLog(
+      "Saved $numLinesSaved lines (${percentSaved.roundedString(2)}%)! LinesBefore: $linesBefore, linesAfter:$linesAfter",
+    )
   }
 }
 
