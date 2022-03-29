@@ -1,13 +1,15 @@
 package sketches
 
+import controls.controlsealedclasses.Button.Companion.button
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.TabStyle
+import controls.panels.TabStyle.Companion.toTabStyle
 import controls.panels.TabsBuilder.Companion.tabs
-import controls.panels.panelext.sliderPair
-import controls.panels.panelext.util.doubleWrapped
 import controls.props.PropData
+import controls.props.types.PenProp
 import controls.props.types.PhotoMatProp
 import coordinate.Deg
 import coordinate.Line
@@ -85,92 +87,85 @@ class GucciSketch :
         }
       }
     }
-
   }
 
   override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
-    val (linesData, ditherData, photo) = drawInfo.dataValues
+    val (layers, lineGapMin, curveScale, curveAspect, photo) = drawInfo.dataValues
 
-    val centerPoint = boundRect.pointAt(linesData.lineCenter)
-
-    val mat = photo.loadMatMemoized() ?: return
-    val mat2 =
-      photo.copy(
-        transformProps = photo.transformProps.copy(
-          imageWhitePoint = (255 * ditherData.otherDitherWhitePoint).toInt(),
-          imageBlackPoint = (255 * ditherData.otherDitherBlackPoint).toInt(),
-        ),
-      )
-        .loadMatMemoized() ?: return
-
-    if (photo.drawImage) {
-      mat.draw(photo.getMatBounds(mat, boundRect))
-    }
-
-    val xLines = getLines(
-      linesData.numLines.xi,
-      centerPoint,
-      linesData.lineSpacing.x,
-      linesData.angle1,
-      linesData.curveScale,
-      linesData.curveAspect,
-      linesData.curveOffsetPercent,
-    )
-
-    val yLines = getLines(
-      linesData.numLines.yi,
-      centerPoint,
-      linesData.lineSpacing.y,
-      linesData.angle2,
-      linesData.curveScale,
-      linesData.curveAspect,
-      linesData.curveOffsetPercent,
-    )
-
-    val screenToMatTransform = photo.getScreenToMatTransform(mat, boundRect)
-    val matToScreenTransform = photo.getMatToScreenTransform(mat, boundRect)
-
-    val luminanceMat = mat.converted(to = Gray)
-    val luminanceMat2 = mat2.converted(to = Gray)
-
-    var linesBefore = 0
-    var linesAfter = 0
-
-    fun traverseLine(line: PolyLine, m: Mat): List<PolyLine> = boundRect.intersection(line)
-      .flatMap { path ->
-        path.map { p -> screenToMatTransform.transform(p) }
-          .walk(ditherData.step)
-          .walkThreshold { p -> m.getOr(p, 0.0) < 128 }
-          .also { linesBefore += it.size }
-          .removeSmallGaps(linesData.lineGapMin)
-          .also { linesAfter += it.size }
-          .deepMap(matToScreenTransform::transform)
+    layers.forEachIndexed { index, (show, pen, lineData, ditherData) ->
+      if (!show) {
+        return@forEachIndexed
       }
 
-    xLines.pmap { line -> traverseLine(line, luminanceMat) }.draw()
-    onNextLayer(LayerSVGConfig())
-    yLines.pmap { line -> traverseLine(line, luminanceMat2) }.draw()
+      val centerPoint = boundRect.pointAt(lineData.lineCenter)
+      val mat =
+        photo.copy(
+          transformProps = photo.transformProps.copy(
+            imageWhitePoint = (255 * ditherData.otherDitherWhitePoint).toInt(),
+            imageBlackPoint = (255 * ditherData.otherDitherBlackPoint).toInt(),
+          ),
+        )
+          .loadMatMemoized() ?: return
 
-    val numLinesSaved = linesBefore - linesAfter
-    val percentSaved = (numLinesSaved.toDouble() * 100) / linesBefore.toDouble()
+      if (photo.drawImage && index == 0) {
+        mat.draw(photo.getMatBounds(mat, boundRect))
+      }
 
-    debugLog(
-      "Saved $numLinesSaved lines (${percentSaved.roundedString(2)}%)! LinesBefore: $linesBefore, linesAfter:$linesAfter",
-    )
+      newLayerStyled(
+        pen.style,
+        LayerSVGConfig(layerName = pen.pen.name),
+        onNextLayer,
+      ) {
+        val lines = getLines(
+          lineData.numLines,
+          centerPoint,
+          lineData.lineSpacing,
+          lineData.angle,
+          curveScale,
+          curveAspect,
+          lineData.curveOffsetPercent,
+        )
+
+        val screenToMatTransform = photo.getScreenToMatTransform(mat, boundRect)
+        val matToScreenTransform = photo.getMatToScreenTransform(mat, boundRect)
+
+        val luminanceMat = mat.converted(to = Gray)
+
+        var linesBefore = 0
+        var linesAfter = 0
+
+        fun traverseLine(line: PolyLine, m: Mat): List<PolyLine> = boundRect.intersection(line)
+          .flatMap { path ->
+            path.map { p -> screenToMatTransform.transform(p) }
+              .walk(ditherData.step)
+              .walkThreshold { p -> m.getOr(p, 0.0) < 128 }
+              .also { linesBefore += it.size }
+              .removeSmallGaps(lineGapMin)
+              .also { linesAfter += it.size }
+              .deepMap(matToScreenTransform::transform)
+          }
+
+        lines.pmap { line -> traverseLine(line, luminanceMat) }.draw()
+
+        val numLinesSaved = linesBefore - linesAfter
+        val percentSaved = (numLinesSaved.toDouble() * 100) / linesBefore.toDouble()
+
+        debugLog(
+          "Saved $numLinesSaved lines (${percentSaved.roundedString(2)}%)! LinesBefore: $linesBefore, linesAfter:$linesAfter",
+        )
+      }
+    }
   }
 }
 
+
 @Serializable
 data class GucciLinesData(
-  var numLines: Point = Point(100, 100),
+  var numLines: Int = 100,
   var lineCenter: Point = Point(0.5, 0.5),
-  var lineSpacing: Point = Point(10, 10),
-  var lineGapMin: Double = 0.0,
-  var angle1: Deg = Deg.HORIZONTAL,
-  var angle2: Deg = Deg(90),
-  var curveScale: Double = 0.0,
-  var curveAspect: Double = 0.5,
-  var curveOffsetPercent: Double = 0.0
+  var lineSpacing: Double = 10.0,
+  var angle: Deg = Deg.HORIZONTAL,
+  var curveOffsetPercent: Double = 0.0,
 )
 
 @Serializable
@@ -181,49 +176,110 @@ data class GucciDitherData(
 )
 
 @Serializable
-data class GucciData(
-  var linesData: GucciLinesData = GucciLinesData(),
+data class GucciLayer(
+  var show: Boolean = true,
+  var pen: PenProp = PenProp(),
+  var lineData: GucciLinesData = GucciLinesData(),
   var ditherData: GucciDitherData = GucciDitherData(),
+) {
+
+  constructor(p: GucciLayer) : this(
+    p.show,
+    p.pen.clone(),
+    p.lineData.copy(),
+    p.ditherData.copy(),
+  )
+}
+
+private const val GlobalTabName = "Global"
+
+@Serializable
+data class GucciData(
+  var layers: MutableList<GucciLayer> = mutableListOf(),
+  var lineGapMin: Double = 0.0,
+  var curveScale: Double = 0.0,
+  var curveAspect: Double = 0.5,
   var photo: PhotoMatProp = PhotoMatProp(),
 ) : PropData<GucciData> {
   override fun bind() = tabs {
+    fun getLayerName(index: Int) = "l$index"
+
     panelTabs(::photo, style = TabStyle.Red)
 
-    tab("Lines") {
+    tab("Base lines") {
       row {
-        style = ControlStyle.Gray
-        slider(ditherData::otherDitherBlackPoint)
-        slider(ditherData::otherDitherWhitePoint)
+        button("Add layer") {
+          layers.add(GucciLayer())
+          updateControls(newTabName = getLayerName(layers.size - 1))
+          markDirty()
+        }
+
+        button("Clear layers") {
+          layers.clear()
+          updateControls()
+          markDirty()
+        }
       }
-      slider2D(linesData::lineCenter, 0..1 to 0..1)
-      sliderPair(
-        linesData::numLines,
-        0.0..1000.0,
-        withLockToggle = true,
-        defaultLocked = true,
-      )
-      sliderPair(
-        linesData::lineSpacing,
-        0.0..10.0,
-        withLockToggle = true,
-        defaultLocked = true,
-      )
-      sliderPair(
-        linesData::angle1.doubleWrapped(),
-        linesData::angle2.doubleWrapped(),
-        0.0..180.0,
-      )
 
       row {
-        slider(linesData::lineGapMin, 0.0..10.0)
-        slider(ditherData::step, 0.5..50.0)
+        slider(::lineGapMin, 0.0..10.0)
       }
 
       row {
         style = ControlStyle.Yellow
-        slider(linesData::curveScale, 0.0..1000.0)
-        slider(linesData::curveAspect, 0..10)
-        slider(linesData::curveOffsetPercent, 0..1)
+        slider(::curveScale, 0.0..1000.0)
+        slider(::curveAspect, 0..10)
+      }
+    }
+
+    layers.forEachIndexed { index, layer ->
+      val name = getLayerName(index)
+      val tabStyle = layer.pen.pen.toTabStyle()
+      tab(name, tabStyle) {
+        row {
+          heightRatio = 0.5
+          toggle(layer::show)
+        }
+
+        row {
+          button("Clone") {
+            layers.add(GucciLayer(layer))
+            updateControls(newTabName = getLayerName(layers.size - 1))
+            markDirty()
+          }
+
+          button("Delete") {
+            layers.removeAt(index)
+            val newIndex = if (layers.size > index) index else index - 1
+            val newTabName =
+              if (layers.indices.contains(newIndex)) getLayerName(newIndex)
+              else GlobalTabName
+            updateControls(newTabName = newTabName)
+            markDirty()
+          }
+        }
+
+        layer.pen.penPanel(
+          this,
+          updateControlsOnPenChange = true,
+          filterByWeight = true,
+        )
+
+        row {
+          style = ControlStyle.Gray
+          slider(layer.ditherData::otherDitherBlackPoint)
+          slider(layer.ditherData::otherDitherWhitePoint)
+          slider(layer.ditherData::step, 0.5..50.0)
+        }
+      }
+
+      tab("${name}_lines", tabStyle) {
+        slider2D(layer.lineData::lineCenter, 0..2 to 0..2)
+        slider(layer.lineData::angle, range = 0.0..90.0)
+        slider(layer.lineData::curveOffsetPercent, range = 0.0..1.0)
+        slider(layer.lineData::numLines, 0..1000)
+
+        slider(layer.lineData::lineSpacing, 0..10)
       }
     }
   }
