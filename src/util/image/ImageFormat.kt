@@ -94,6 +94,11 @@ enum class ImageFormat(val openCVFormat: Int, val pImageFormat: Int, val numChan
     return Color(getRed(intArr), getBlue(intArr), getGreen(intArr), getAlpha(intArr))
   }
 
+  fun toColor(arr: Array<Int>): Color {
+    val intList = arr.toList()
+    return Color(getRed(intList), getBlue(intList), getGreen(intList), getAlpha(intList))
+  }
+
   companion object {
     fun Mat.getFormat(): ImageFormat = fromOpenCVInt(type())
 

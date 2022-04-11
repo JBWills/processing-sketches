@@ -1,5 +1,10 @@
+@file:Suppress("unused")
+
 package util.base
 
+import com.dajudge.colordiff.ColorDiff
+import com.dajudge.colordiff.LabColor
+import com.github.ajalt.colormath.model.RGB
 import org.opencv.core.Scalar
 import util.iterators.endPointPair
 import util.iterators.getLerpIndices
@@ -18,6 +23,10 @@ val Color.rd get() = r.toDouble()
 val Color.gd get() = g.toDouble()
 val Color.bd get() = b.toDouble()
 val Color.ad get() = a.toDouble()
+val Color.rf get() = r.toFloat()
+val Color.gf get() = g.toFloat()
+val Color.bf get() = b.toFloat()
+val Color.af get() = a.toFloat()
 
 fun Number.toRgbInt() = (bound(0f, 1f) * 255).toInt()
 
@@ -26,6 +35,8 @@ fun Color.toRgbaScalar() = Scalar(rd, gd, bd, ad)
 fun Color.toArgbScalar() = Scalar(ad, rd, gd, bd)
 fun Color.toBgrScalar() = Scalar(bd, gd, rd)
 fun Color.toBgraScalar() = Scalar(bd, gd, rd, ad)
+
+fun Color.toFloatArray() = floatArrayOf(rf, gf, bf)
 
 val Color.luminance get() = luminance()
 val Color.alphaDouble get() = alpha / 255.0
@@ -106,3 +117,12 @@ fun Color.darkened(percent: Double) =
  */
 fun Color.lightened(percent: Double) =
   map { (it * (1 + percent)).boundInt((percent * 255).toInt(), 255) }
+
+fun Color.toColorMathRGB() = RGB(this.rf, this.gf, this.bf)
+
+fun Color.toLab() = toColorMathRGB().toLAB().toArray()
+fun Color.toLabColor(): LabColor =
+  toLab().let { (L, a, b) -> LabColor(L.toDouble(), a.toDouble(), b.toDouble()) }
+
+fun Color.deltaE2000(other: Color): Double =
+  ColorDiff.diff(toLabColor(), other.toLabColor())

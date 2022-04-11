@@ -2,6 +2,7 @@ package controls.props.types
 
 import arrow.core.memoize
 import controls.controlsealedclasses.Button.Companion.button
+import controls.controlsealedclasses.ColorPicker.Companion.colorPicker
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
@@ -19,19 +20,30 @@ import coordinate.transforms.TranslateTransform
 import kotlinx.serialization.Serializable
 import org.opencv.core.Mat
 import util.base.doIf
+import util.image.ImageFormat.Companion.getFormat
 import util.image.opencvMat.bounds
 import util.image.opencvMat.copy
 import util.image.opencvMat.filters.clamp
 import util.image.opencvMat.filters.dithering.DitherType
 import util.image.opencvMat.filters.dithering.DitherType.Burkes
-import util.image.opencvMat.filters.dithering.dither
+import util.image.opencvMat.filters.dithering.ditherByColor
 import util.image.opencvMat.filters.invert
 import util.image.opencvMat.flags.ImreadFlags.ImreadGrayscale
 import util.image.opencvMat.flags.ImreadFlags.ImreadUnchanged
 import util.image.opencvMat.gaussianBlur
 import util.image.opencvMat.loadImageMatMemo
 import util.image.opencvMat.scaleByLargestDimension
+import util.io.serialization.ColorSerializer
+import java.awt.Color
 
+@Serializable
+data class DitherProps(
+  var shouldDither: Boolean = false,
+  @Serializable(with = ColorSerializer::class)
+  var color: Color = Color.WHITE,
+  var ditherType: DitherType = Burkes,
+  var maxDiff: Double = 15.0
+)
 
 @Serializable
 data class ImageTransformProps(
@@ -40,9 +52,7 @@ data class ImageTransformProps(
   var blurRadius: Double = 3.0,
   var invert: Boolean = false,
   var grayscale: Boolean = true,
-  var shouldDither: Boolean = false,
-  var ditherType: DitherType = Burkes,
-  var ditherThreshold: Double = 128.0,
+  var dither: DitherProps = DitherProps(),
 )
 
 @Serializable
@@ -133,11 +143,12 @@ data class PhotoMatProp(
           toggle(transformProps::grayscale, style = ControlStyle.Black)
         }
       }
-      
+
       row {
-        toggle(transformProps::shouldDither)
-        dropdown(transformProps::ditherType)
-        slider(transformProps::ditherThreshold, 0.0..255.0)
+        toggle(transformProps.dither::shouldDither)
+        dropdown(transformProps.dither::ditherType)
+        slider(transformProps.dither::maxDiff, 0.0..100.0)
+        colorPicker(transformProps.dither::color)
       }
     }
   }
@@ -152,7 +163,7 @@ private val _loadAndTransformMat: (
     imageSize: Double,
     imageTransform: ImageTransformProps,
   ->
-  val (imageBlackPoint, imageWhitePoint, blurRadius, invert, grayscale, shouldDither, ditherType, ditherThreshold) = imageTransform
+  val (imageBlackPoint, imageWhitePoint, blurRadius, invert, grayscale, dither) = imageTransform
 
   loadImageMatMemo(path, if (grayscale) ImreadGrayscale else ImreadUnchanged)
     ?.copy()
@@ -166,6 +177,14 @@ private val _loadAndTransformMat: (
       it.gaussianBlur(blurRadius.toInt(), inPlace = true)
     }
     ?.doIf(invert) { it.invert(inPlace = true) }
-    ?.doIf(shouldDither) { it.dither(ditherType, ditherThreshold, inPlace = false) }
+    ?.doIf(dither.shouldDither) {
+      it.ditherByColor(
+        dither.ditherType,
+        dither.color,
+        dither.maxDiff,
+        it.getFormat(),
+        inPlace = false,
+      )
+    }
 }
   .memoize()

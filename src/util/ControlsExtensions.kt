@@ -1,6 +1,8 @@
 package util
 
+import controlP5.ControlGroup
 import controlP5.Controller
+import controlP5.ControllerInterface
 import controlP5.Slider
 import controlP5.Slider2D
 import controlP5.Tab
@@ -13,9 +15,9 @@ import processing.core.PFont
 import util.base.DoubleRange
 import java.awt.Color
 
-val Controller<*>.topLeft get(): Point = Point(position[0], position[1])
+val ControllerInterface<*>.topLeft get(): Point = Point(position[0], position[1])
 
-val Controller<*>.bounds get(): BoundRect = BoundRect(topLeft, width, height)
+val ControllerInterface<*>.bounds get(): BoundRect = BoundRect(topLeft, width, height)
 
 fun Slider.range(r: DoubleRange): Slider = setRange(r.start.toFloat(), r.endInclusive.toFloat())
 fun Slider2D.range(x: DoubleRange, y: DoubleRange): Slider2D =
@@ -26,23 +28,36 @@ fun Slider2D.range(x: DoubleRange, y: DoubleRange): Slider2D =
     y.endInclusive.toFloat(),
   )
 
-fun <T> Controller<T>.positionAndSize(bound: BoundRect): Controller<T> {
+fun <T> ControllerInterface<T>.positionAndSize(bound: BoundRect): ControllerInterface<T> {
   bound.topLeft.let { setPosition(it.xf, it.yf) }
-  bound.size.toPixelPoint().let { setSize(it.x, it.y) }
+  bound.size.toPixelPoint().also {
+    if (this is ControlGroup) {
+      setSize(it.x, it.y)
+    } else if (this is Controller) {
+      setSize(it.x, it.y)
+    }
+  }
   return this
 }
 
-fun <T> Controller<T>.style(controlStyle: ControlStyle): Controller<T> {
+fun <T> ControllerInterface<T>.style(controlStyle: ControlStyle): ControllerInterface<T> {
   setColorBackground(controlStyle.backgroundColor.rgb)
   setColorActive(controlStyle.onHoverColor.rgb)
   setColorForeground(controlStyle.color.rgb)
   setColorLabel(controlStyle.textColor.rgb)
   setFont(PFont(controlStyle.font.toFont(), true))
 
-  alignCaptionAndLabel(
-    valueAlign = controlStyle.labelAlign,
-    captionAlign = controlStyle.captionAlign,
-  )
+  if (this is ControlGroup) {
+    alignCaptionAndLabel(
+      valueAlign = controlStyle.labelAlign,
+      captionAlign = controlStyle.captionAlign,
+    )
+  } else if (this is Controller) {
+    alignCaptionAndLabel(
+      valueAlign = controlStyle.labelAlign,
+      captionAlign = controlStyle.captionAlign,
+    )
+  }
 
   return this
 }

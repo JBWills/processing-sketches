@@ -97,6 +97,7 @@ fun Int.pow(other: Int): Int = toDouble().pow(other.toDouble()).toInt()
 fun Int.pow(other: Number): Double = toDouble().pow(other.toDouble())
 fun Number.pow(other: Number): Double = toDouble().pow(other.toDouble())
 fun Double.squared(): Double = this * this
+fun Float.squared(): Float = this * this
 fun Double.sqrt(): Double = kotlin.math.sqrt(this)
 
 fun Number.toRadians(): Double = toRadians(toDouble())

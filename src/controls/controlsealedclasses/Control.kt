@@ -2,7 +2,7 @@ package controls.controlsealedclasses
 
 import BaseSketch
 import controlP5.ControlP5
-import controlP5.Controller
+import controlP5.ControllerInterface
 import controlP5.Tab
 import controls.panels.ControlItem
 import controls.panels.ControlPanel
@@ -24,7 +24,7 @@ val DEFAULT_RANGE = 0.0..1.0
  * @property createFunc
  * @property block
  */
-sealed class Control<T : Controller<T>>(
+sealed class Control<T : ControllerInterface<T>>(
   var name: String,
   val createFunc: ControlP5.(id: String) -> T,
   val block: T.(BaseSketch, ControlStyle) -> Unit,
@@ -47,7 +47,7 @@ sealed class Control<T : Controller<T>>(
     bound: BoundRect
   ) {
     ref = controlP5.createFunc(panel.id).apply {
-      label = this@Control.name
+      setLabel(this@Control.name)
       moveTo(tab)
       positionAndSize(bound)
       style(panel.styleFromParents)

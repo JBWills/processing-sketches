@@ -9,6 +9,7 @@ import util.image.bytesAndBuffers.toDoubleArray
 import util.image.bytesAndBuffers.toIntArray
 import util.image.opencvMat.ChannelDepth.Companion.channelDepth
 import util.iterators.filterNotNull
+import util.iterators.mapEvery
 import util.numbers.times
 import java.awt.Color
 import java.nio.ByteBuffer
@@ -35,6 +36,20 @@ fun Mat.toIntArray(bandIndex: Int = 0): Array<IntArray> {
     val row = singleBandMat.row(rowIndex)
 
     result[rowIndex] = row.getByteArray().toIntArray(row.channelDepth().byteDepth)
+  }
+
+  return result.filterNotNull()
+}
+
+fun Mat.toColorArray(format: ImageFormat): Array<Array<Color>> {
+  val result = Array<Array<Color>?>(rows()) { null }
+  rows().times { rowIndex ->
+    val row = row(rowIndex)
+
+    result[rowIndex] =
+      row.getByteArray()
+        .toIntArray(row.channelDepth().byteDepth)
+        .mapEvery(format.numChannels, format::toColor)
   }
 
   return result.filterNotNull()

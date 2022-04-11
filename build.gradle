@@ -9,6 +9,7 @@ group 'org.example'
 version '1.0-SNAPSHOT'
 
 repositories {
+    maven { url "https://www2.ph.ed.ac.uk/maven2/" }
     maven { url "https://repo.osgeo.org/repository/release" }
     mavenCentral()
     maven { url 'https://jcenter.bintray.com/' }
@@ -48,6 +49,13 @@ dependencies {
     // https://mvnrepository.com/artifact/com.github.axet/TarsosDSP
     implementation 'com.github.axet:TarsosDSP:2.4-1'
 
+    // https://github.com/dajudge/color-diff
+    implementation 'com.dajudge.color-diff:color-diff:0.0.4'
+
+    // https://github.com/ajalt/colormath
+    implementation("com.github.ajalt.colormath:colormath:3.2.0")
+
+
     // http://haifengl.github.io/faq.html
     implementation("com.github.haifengl:smile-core:2.6.0")
     // https://github.com/haifengl/smile
@@ -59,7 +67,7 @@ dependencies {
             'org.assertj:assertj-core:3.22.0',
             'org.junit.jupiter:junit-jupiter-api:5.8.2'
     )
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.6.0"
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.10'
 
     /// LOCAL JARS BELOW
     // This is where we load controlP5 and processing.svg, neither of which have maven dists.

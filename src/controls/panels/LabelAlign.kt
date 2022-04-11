@@ -1,5 +1,6 @@
 package controls.panels
 
+import controlP5.ControlGroup
 import controlP5.ControlP5
 import controlP5.Controller
 import controlP5.Label
@@ -38,6 +39,11 @@ data class LabelAlign(val horizontal: LabelAlignHorizontal, val vertical: LabelA
     val Centered: LabelAlign = LabelAlign(Center, LabelAlignVertical.Center)
     fun Label.align(labelAlign: LabelAlign) = labelAlign.applyTo(this)
     fun Controller<*>.alignCaptionAndLabel(valueAlign: LabelAlign, captionAlign: LabelAlign) {
+      valueLabel.align(valueAlign)
+      captionLabel.align(captionAlign)
+    }
+
+    fun ControlGroup<*>.alignCaptionAndLabel(valueAlign: LabelAlign, captionAlign: LabelAlign) {
       valueLabel.align(valueAlign)
       captionLabel.align(captionAlign)
     }

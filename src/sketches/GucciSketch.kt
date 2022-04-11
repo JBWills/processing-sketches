@@ -61,10 +61,7 @@ class GucciSketch :
         listOf(Line(walkLine.getPointAtPercent(0.5), angle))
       } else {
         numLines.map { i ->
-          Line(
-            walkLine.getPointAtPercent(i / (numLines - 1).toDouble()),
-            angle,
-          )
+          Line(walkLine.getPointAtPercent(i / (numLines - 1).toDouble()), angle)
         }
       }
 
@@ -157,7 +154,6 @@ class GucciSketch :
     }
   }
 }
-
 
 @Serializable
 data class GucciLinesData(
