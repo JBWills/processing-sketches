@@ -2,7 +2,6 @@ package fastnoise
 
 import FastNoiseLite
 import FastNoiseLite.NoiseType
-import FastNoiseLite.NoiseType.Cellular
 import FastNoiseLite.NoiseType.Perlin
 import arrow.core.memoize
 import coordinate.Arc
@@ -100,16 +99,17 @@ data class Noise(
     fastNoise.GetNoise(p.xf, p.yf, 100f),
   ) * strength
 
-  private fun noiseAt(p: Point) = fastNoise.GetNoise(p.xf, p.yf, 0f).toDouble()
-    .let {
-      if (noiseType == Cellular) it - 0.5
-      else it
-    }
+  private fun noiseAt(p: Point, z: Number = 0.0) =
+    fastNoise.GetNoise(p.xf, p.yf, z.toFloat()).toDouble()
 
   private fun getPointOnNoisePlane(pointInDrawSpace: Point) = (pointInDrawSpace + offset) * scale
 
-  fun get(x: Number, y: Number) = noiseAt(getPointOnNoisePlane(Point(x, y)))
-  fun getPositive(x: Number, y: Number) = noiseAt(getPointOnNoisePlane(Point(x, y))) + 0.5
+  fun get(x: Number, y: Number, z: Number) =
+    noiseAt(getPointOnNoisePlane(Point(x, y)), z.toDouble() + offset.magnitude)
+
+  fun get(x: Number, y: Number) = get(x, y, 0)
+  fun getPositive(x: Number, y: Number, z: Number) = get(x, y, z) + 0.5
+  fun getPositive(x: Number, y: Number) = getPositive(x, y, 0)
 
   private fun move(p: Point, scaleFn: (Point) -> Point = { it }): Point {
     val noisePoint = noiseAt2D(getPointOnNoisePlane(p))

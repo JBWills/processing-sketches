@@ -75,13 +75,14 @@ fun PanelBuilder.sliderPair(
 fun PanelBuilder.sliderPair(
   ref: KMutableProperty0<Pair<Double, Double>>,
   range: DoubleRange = (0.0..1.0),
+  range2: DoubleRange = range,
   withLockToggle: Boolean = false,
   defaultLocked: Boolean = false,
   style: ControlStyle? = null,
   shouldMarkDirty: Boolean = true,
 ) = sliderPairPanel(
   ref.pointWrapped(),
-  range to range,
+  range to range2,
   withLockToggle,
   defaultLocked,
   style,

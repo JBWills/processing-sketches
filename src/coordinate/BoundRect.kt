@@ -54,6 +54,18 @@ data class BoundRect(
   val left: Double get() = topLeft.x
   val bottom: Double get() = topLeft.y + height
   val right: Double get() = topLeft.x + width
+
+  val centerLineHorizontal: Segment
+    get() = Segment(
+      Point(left, center.y),
+      Point(right, center.y),
+    )
+  val centerLineVertical: Segment
+    get() = Segment(
+      Point(center.x, top),
+      Point(center.x, bottom),
+    )
+
   val bottomRight get() = Point(right, bottom)
   val topRight get() = Point(right, top)
   val bottomLeft get() = Point(left, bottom)
