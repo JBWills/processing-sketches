@@ -120,9 +120,7 @@ fun Color.lightened(percent: Double) =
 
 fun Color.toColorMathRGB() = RGB(this.rf, this.gf, this.bf)
 
-fun Color.toLab() = toColorMathRGB().toLAB().toArray()
-fun Color.toLabColor(): LabColor =
-  toLab().let { (L, a, b) -> LabColor(L.toDouble(), a.toDouble(), b.toDouble()) }
+fun Color.toLab(): LabColor = ColorDiff.rgb_to_lab(this)
 
 fun Color.deltaE2000(other: Color): Double =
-  ColorDiff.diff(toLabColor(), other.toLabColor())
+  ColorDiff.diff(toLab(), other.toLab())

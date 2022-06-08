@@ -8,9 +8,7 @@ import util.image.ImageFormat.Companion.getFormat
 import util.image.bytesAndBuffers.toDoubleArray
 import util.image.bytesAndBuffers.toIntArray
 import util.image.opencvMat.ChannelDepth.Companion.channelDepth
-import util.iterators.filterNotNull
 import util.iterators.mapEvery
-import util.numbers.times
 import java.awt.Color
 import java.nio.ByteBuffer
 import java.nio.IntBuffer
@@ -31,43 +29,32 @@ fun Mat.cloneEmpty(format: ImageFormat = getFormat()) = Mat(rows(), cols(), form
 fun Mat.toIntArray(bandIndex: Int = 0): Array<IntArray> {
   val singleBandMat = split().getOrNull(bandIndex) ?: return arrayOf()
 
-  val result = Array<IntArray?>(rows()) { null }
-  rows().times { rowIndex ->
+  return Array(rows()) { rowIndex ->
     val row = singleBandMat.row(rowIndex)
-
-    result[rowIndex] = row.getByteArray().toIntArray(row.channelDepth().byteDepth)
+    row.getByteArray().toIntArray(row.channelDepth().byteDepth)
   }
-
-  return result.filterNotNull()
 }
 
-fun Mat.toColorArray(format: ImageFormat): Array<Array<Color>> {
-  val result = Array<Array<Color>?>(rows()) { null }
-  rows().times { rowIndex ->
+fun Mat.toColorArray(format: ImageFormat): Array<Array<Color>> =
+  Array(rows()) { rowIndex ->
     val row = row(rowIndex)
-
-    result[rowIndex] =
-      row.getByteArray()
-        .toIntArray(row.channelDepth().byteDepth)
-        .mapEvery(format.numChannels, format::toColor)
+    val channelDepth = row.channelDepth()
+    row(rowIndex)
+      .getByteArray()
+      .toIntArray(channelDepth.byteDepth)
+      .mapEvery(format.numChannels, format::toColor)
   }
-
-  return result.filterNotNull()
-}
 
 fun Mat.toDoubleArray(bandIndex: Int = 0): Array<DoubleArray> {
   val singleBandMat = split().getOrNull(bandIndex) ?: return arrayOf()
 
-  val result = Array<DoubleArray?>(rows()) { null }
-  rows().times { rowIndex ->
+  return Array(rows()) { rowIndex ->
     val row = singleBandMat.row(rowIndex)
-
-    result[rowIndex] = row.getByteArray().toDoubleArray(row.channelDepth().byteDepth)
+    row
+      .getByteArray()
+      .toDoubleArray(row.channelDepth().byteDepth)
   }
-
-  return result.filterNotNull()
 }
-
 
 fun Mat.getByteArray(p: Point) =
   ByteArray(channels()).also { get(p.yi, p.xi, it) }

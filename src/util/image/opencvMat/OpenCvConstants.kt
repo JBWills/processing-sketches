@@ -57,7 +57,7 @@ enum class ChannelDepth(val type: Int, val byteDepth: Int) {
   companion object {
     fun Mat.channelDepth(): ChannelDepth {
       val depth = depth()
-      return values().first { depth == type() }
+      return values().first { depth == it.type }
     }
   }
 }

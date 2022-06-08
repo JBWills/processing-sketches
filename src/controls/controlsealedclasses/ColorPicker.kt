@@ -11,18 +11,28 @@ import util.splitCamelCase
 import java.awt.Color
 import kotlin.reflect.KMutableProperty0
 
+/**
+ * Hacky thing we have to do because colorpicker doesn't have a decent onChange.
+ */
+class ColorPlugClass(val onChange: () -> Unit) {
+  fun onColorChangedMustKeepNameConsistent(i: Int) {
+    onChange()
+  }
+}
+
 class ColorPicker(
   text: String,
   defaultValue: Color = Color.WHITE,
-  onChangeColor: BaseSketch.(Color) -> Unit,
+  onChange: BaseSketch.(Color) -> Unit
 ) : Control<ColorPicker>(
   text,
   ControlP5::addColorPicker,
   { sketch, _ ->
     colorValue = defaultValue.rgb
-    addListener { e ->
-      sketch.onChangeColor(Color(colorValue))
+    val colorPlug = ColorPlugClass {
+      sketch.onChange(Color(colorValue))
     }
+    plugTo(colorPlug, "onColorChangedMustKeepNameConsistent")
     captionLabel.align(ControlP5.CENTER, ControlP5.CENTER)
   },
 ) {

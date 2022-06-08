@@ -91,12 +91,12 @@ enum class ImageFormat(val openCVFormat: Int, val pImageFormat: Int, val numChan
 
   fun toColor(arr: DoubleArray): Color {
     val intArr = arr.map { it.toInt() }
-    return Color(getRed(intArr), getBlue(intArr), getGreen(intArr), getAlpha(intArr))
+    return Color(getRed(intArr), getGreen(intArr), getBlue(intArr), getAlpha(intArr))
   }
 
   fun toColor(arr: Array<Int>): Color {
     val intList = arr.toList()
-    return Color(getRed(intList), getBlue(intList), getGreen(intList), getAlpha(intList))
+    return Color(getRed(intList), getGreen(intList), getBlue(intList), getAlpha(intList))
   }
 
   companion object {

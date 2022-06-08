@@ -40,6 +40,15 @@ abstract class SimpleCanvasSketch<Data : PropData<Data>>(
   // Values that are locked during draw (so they don't change in the middle of a draw step)
   private var frozenValues: DrawInfo? = null
 
+  override fun mouseClicked(event: processing.event.MouseEvent?) {
+    super.mouseClicked(event)
+    mouseClicked(event, frozenValues)
+  }
+
+  open fun mouseClicked(event: processing.event.MouseEvent?, drawInfo: DrawInfo?) {
+
+  }
+
   override var canvasProps
     get() = props.canvasValues
     set(value) {

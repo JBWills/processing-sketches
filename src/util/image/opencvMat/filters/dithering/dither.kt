@@ -11,7 +11,6 @@ import util.iterators.forEach2D
 import util.iterators.getOrNull
 import util.numbers.bound
 import java.awt.Color
-import kotlin.math.max
 
 fun Mat.dither(
   type: DitherType,
@@ -31,7 +30,13 @@ fun Mat.dither(
 
       val (newValue, errorValue) = if (value >= thresholdInt) 255.0 to value - 255.0 else 0.0 to value
 
-      dest.put(rowIndex, colIndex, newValue)
+      if (dest.channels() == 1) {
+        dest.put(rowIndex, colIndex, newValue)
+      } else if (dest.channels() == 2) {
+        dest.put(rowIndex, colIndex, newValue, newValue)
+      } else if (dest.channels() == 3) {
+        dest.put(rowIndex, colIndex, newValue, newValue, newValue)
+      }
 
       val errorDivided = errorValue * type.divisor
 
@@ -53,6 +58,11 @@ fun Mat.ditherByColor(
 ): Mat {
   val boundMaxDiff = maxDiff.toDouble().bound(0.0, 100.0)
   return dither(type, format, inPlace = inPlace) { pixelColor ->
-    max(0.0, boundMaxDiff - color.deltaE2000(pixelColor)) * 2.55
+    val diff = color.deltaE2000(pixelColor)
+    if (diff > boundMaxDiff) {
+      return@dither 0.0
+    }
+
+    (255 / boundMaxDiff) * (boundMaxDiff - diff)
   }
 }

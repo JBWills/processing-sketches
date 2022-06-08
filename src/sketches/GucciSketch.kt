@@ -1,6 +1,7 @@
 package sketches
 
 import controls.controlsealedclasses.Button.Companion.button
+import controls.controlsealedclasses.ColorPicker.Companion.colorPicker
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
 import controls.controlsealedclasses.Toggle.Companion.toggle
@@ -25,6 +26,7 @@ import util.debugLog
 import util.image.ImageFormat.Gray
 import util.image.converted
 import util.image.opencvMat.getOr
+import util.io.serialization.ColorSerializer
 import util.iterators.deepMap
 import util.layers.LayerSVGConfig
 import util.numbers.map
@@ -32,6 +34,7 @@ import util.numbers.roundedString
 import util.polylines.PolyLine
 import util.polylines.clipping.simplify.removeSmallGaps
 import util.polylines.walk
+import java.awt.Color
 
 /**
  * Sketch of Gucci for Scot.
@@ -49,12 +52,13 @@ class GucciSketch :
     curveOffsetPercent: Double
   ): List<PolyLine> {
     val totalDist = spacing * numLines
-    val walkLine = Line(center, angle.perpendicular).let { line ->
-      Segment(
-        line.getPointAtDist(-totalDist / 2),
-        line.getPointAtDist(totalDist / 2),
-      )
-    }
+    val walkLine =
+      Line(center + angle.unitVector * 10_000, angle.perpendicular).let { line ->
+        Segment(
+          line.getPointAtDist(-totalDist / 2),
+          line.getPointAtDist(totalDist / 2),
+        )
+      }
 
     val lines =
       if (numLines == 1) {
@@ -100,6 +104,10 @@ class GucciSketch :
           transformProps = photo.transformProps.copy(
             imageWhitePoint = (255 * ditherData.otherDitherWhitePoint).toInt(),
             imageBlackPoint = (255 * ditherData.otherDitherBlackPoint).toInt(),
+            dither = photo.transformProps.dither.copy(
+              color = lineData.color,
+              maxDiff = lineData.maxDiff.toDouble(),
+            ),
           ),
         )
           .loadMatMemoized() ?: return
@@ -135,7 +143,7 @@ class GucciSketch :
           .flatMap { path ->
             path.map { p -> screenToMatTransform.transform(p) }
               .walk(ditherData.step)
-              .walkThreshold { p -> m.getOr(p, 0.0) < 128 }
+              .walkThreshold { p -> m.getOr(p, 0.0) > 128 }
               .also { linesBefore += it.size }
               .removeSmallGaps(lineGapMin)
               .also { linesAfter += it.size }
@@ -162,6 +170,9 @@ data class GucciLinesData(
   var lineSpacing: Double = 10.0,
   var angle: Deg = Deg.HORIZONTAL,
   var curveOffsetPercent: Double = 0.0,
+  @Serializable(with = ColorSerializer::class)
+  var color: Color = Color.WHITE,
+  var maxDiff: Int = 30
 )
 
 @Serializable
@@ -271,11 +282,15 @@ data class GucciData(
 
       tab("${name}_lines", tabStyle) {
         slider2D(layer.lineData::lineCenter, 0..2 to 0..2)
-        slider(layer.lineData::angle, range = 0.0..90.0)
+        slider(layer.lineData::angle, range = 0.0..180.0)
         slider(layer.lineData::curveOffsetPercent, range = 0.0..1.0)
         slider(layer.lineData::numLines, 0..1000)
 
         slider(layer.lineData::lineSpacing, 0..10)
+        row {
+          colorPicker(layer.lineData::color)
+          slider(layer.lineData::maxDiff, 0..100)
+        }
       }
     }
   }
