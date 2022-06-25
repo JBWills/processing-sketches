@@ -5,10 +5,10 @@ import org.opencv.core.Mat
 import util.image.opencvMat.get
 import util.iterators.PolyLineIterator
 import util.polylines.PolyLine
-import util.polylines.chunkedByDistance
+import util.polylines.iterators.chunkedByDistance
 import util.polylines.iterators.mergeConsecutiveIfConnected
+import util.polylines.iterators.walk
 import util.polylines.length
-import util.polylines.walk
 
 private const val DefaultDitherStep = 5.0
 private const val DefaultDitherChunkSize = 15.0

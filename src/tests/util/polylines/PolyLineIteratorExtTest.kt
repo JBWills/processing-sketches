@@ -2,7 +2,7 @@ package tests.util.polylines
 
 import coordinate.Point
 import org.junit.jupiter.api.Test
-import util.polylines.walk
+import util.polylines.iterators.walk
 import kotlin.test.assertEquals
 
 internal class PolyLineIteratorExtTest {

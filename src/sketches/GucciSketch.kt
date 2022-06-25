@@ -33,7 +33,7 @@ import util.numbers.map
 import util.numbers.roundedString
 import util.polylines.PolyLine
 import util.polylines.clipping.simplify.removeSmallGaps
-import util.polylines.walk
+import util.polylines.iterators.walk
 import java.awt.Color
 
 /**
@@ -156,7 +156,7 @@ class GucciSketch :
         val percentSaved = (numLinesSaved.toDouble() * 100) / linesBefore.toDouble()
 
         debugLog(
-          "Saved $numLinesSaved lines (${percentSaved.roundedString(2)}%)! LinesBefore: $linesBefore, linesAfter:$linesAfter",
+          "Saved $numLinesSaved lines (${percentSaved.roundedString(2)}%). LinesBefore: $linesBefore, linesAfter: $linesAfter",
         )
       }
     }

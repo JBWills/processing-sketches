@@ -23,7 +23,7 @@ import util.iterators.meanByOrNull
 import util.layers.LayerSVGConfig
 import util.numbers.ifNan
 import util.polylines.PolyLine
-import util.polylines.walk
+import util.polylines.iterators.walk
 import java.awt.Color
 
 /**

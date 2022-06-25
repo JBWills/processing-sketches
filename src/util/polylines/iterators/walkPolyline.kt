@@ -1,25 +1,36 @@
 @file:Suppress("unused")
 
-package util.polylines
+package util.polylines.iterators
 
 import coordinate.Point
 import coordinate.Segment
-import util.iterators.PolyLineIterator
 import util.iterators.secondOrNull
 import util.iterators.secondToLast
-import util.polylines.iterators.forEachSegmentIndexed
+import util.polylines.PolyLine
+import util.polylines.length
 import kotlin.math.abs
+
+data class WalkCursor(
+  val index: Int,
+  val pointIndex: Int,
+  val percent: Double,
+  val distance: Double,
+  val point: Point,
+  val segment: Segment
+) {
+  val normal get() = segment.normal(clockWise = true)
+}
 
 /**
  * @param step must be positive
  */
-inline fun <T> walkWithPercentAndSegmentForwardsOnly(
+inline fun <T> walkWithCursorForwardsOnly(
   line: PolyLine,
   step: Double,
-  crossinline block: (index: Int, percent: Double, segment: Segment, point: Point) -> T,
+  crossinline block: (WalkCursor) -> T,
 ): List<T> {
   if (step <= 0.0) {
-    throw Exception("Cannot call walkWithPercentAndSegmentForwardsOnly with a step <= 0.0")
+    throw Exception("Cannot call walkWithCursorForwardsOnly with a step <= 0.0")
   }
 
   val totalLength = line.length
@@ -27,10 +38,14 @@ inline fun <T> walkWithPercentAndSegmentForwardsOnly(
   if (line.isEmpty()) return listOf()
 
   val firstItemProcessed = block(
-    0,
-    0.0,
-    Segment(line.first(), line.secondOrNull() ?: line.first()),
-    line.first(),
+    WalkCursor(
+      index = 0,
+      pointIndex = 0,
+      percent = 0.0,
+      distance = 0.0,
+      segment = Segment(line.first(), line.secondOrNull() ?: line.first()),
+      point = line.first(),
+    ),
   )
   if (line.size < 2 || totalLength == 0.0) return listOf(firstItemProcessed)
 
@@ -38,7 +53,8 @@ inline fun <T> walkWithPercentAndSegmentForwardsOnly(
   var lastSegmentUnused = 0.0
 
   val walkedLine = mutableListOf(firstItemProcessed)
-  line.forEachSegmentIndexed { index, segment ->
+  var index = 1
+  line.forEachSegmentIndexed { pointIndex, segment ->
     val segmentEndLength = lengthSoFar + segment.length
 
     var currLength = lengthSoFar + step - lastSegmentUnused
@@ -47,10 +63,20 @@ inline fun <T> walkWithPercentAndSegmentForwardsOnly(
     val pointsOnSegmentUntransformed = mutableListOf<Point>()
     while (currLength < segmentEndLength) {
       val p = segment.getPointAtDist(currLength - lengthSoFar)
-      val transformedP = block(index, currLength / totalLength, segment, p)
+      val transformedP = block(
+        WalkCursor(
+          index = index,
+          pointIndex = pointIndex,
+          distance = currLength,
+          percent = currLength / totalLength,
+          segment = segment,
+          point = p,
+        ),
+      )
       pointsOnSegment.add(transformedP)
       pointsOnSegmentUntransformed.add(p)
       currLength += step
+      index++
     }
 
     if (pointsOnSegmentUntransformed.isNotEmpty()) {
@@ -66,21 +92,25 @@ inline fun <T> walkWithPercentAndSegmentForwardsOnly(
 
   if (lastSegmentUnused > 0.0) {
     walkedLine.add(
-      block(line.size - 1, 1.0, Segment(line.secondToLast(), line.last()), line.last()),
+      block(
+        WalkCursor(
+          index = index,
+          pointIndex = line.size - 1,
+          distance = totalLength,
+          percent = 1.0,
+          segment = Segment(line.secondToLast(), line.last()),
+          point = line.last(),
+        ),
+      ),
     )
   }
 
   return walkedLine
 }
 
-inline fun walkWithPercentAndSegmentForwardsOnly(
-  line: PolyLine,
-  step: Double,
-): PolyLine = walkWithPercentAndSegmentForwardsOnly(line, step) { _, _, _, point -> point }
-
-inline fun <T> PolyLine.walkWithPercentAndSegment(
+inline fun <T> PolyLine.walkWithCursor(
   step: Number,
-  crossinline block: (percent: Double, segment: Segment, point: Point) -> T
+  crossinline block: (WalkCursor) -> T
 ): List<T> {
   if (step.toDouble() == 0.0) {
     throw Exception("Can't walk along a line with a step of 0, it will be infinite!")
@@ -91,43 +121,13 @@ inline fun <T> PolyLine.walkWithPercentAndSegment(
   @Suppress("NAME_SHADOWING")
   val step = abs(step.toDouble())
 
-  return walkWithPercentAndSegmentForwardsOnly(line, step) { _, percent, segment, point ->
-    block(percent, segment, point)
-  }
+  return walkWithCursorForwardsOnly(line, step) { cursor -> block(cursor) }
 }
 
-inline fun <T> PolyLine.walkWithPercentAndSegmentIndexed(
-  step: Number,
-  crossinline block: (index: Int, percent: Double, segment: Segment, point: Point) -> T
-): List<T> {
-  if (step.toDouble() == 0.0) {
-    throw Exception("Can't walk along a line with a step of 0, it will be infinite!")
-  }
-
-  val line = if (step.toDouble() < 0.0) reversed() else this
-
-  @Suppress("NAME_SHADOWING")
-  val step = abs(step.toDouble())
-
-  return walkWithPercentAndSegmentForwardsOnly(line, step, block)
-}
-
-fun PolyLine.walkWithPercentAndSegment(step: Number): List<Point> =
-  walkWithPercentAndSegment(step) { _, _, point -> point }
+fun PolyLine.walkWithCursor(step: Number): List<Point> =
+  walkWithCursor(step) { it.point }
 
 fun <T> PolyLine.walk(step: Number, block: (point: Point) -> T): List<T> =
-  walkWithPercentAndSegment(step) { _, _, point -> block(point) }
+  walkWithCursor(step) { block(it.point) }
 
 fun PolyLine.walk(step: Number): List<Point> = walk(step) { it }
-
-fun PolyLine.chunkedByDistance(step: Number): List<PolyLine> {
-  val iterator = PolyLineIterator(this)
-
-  val result: MutableList<PolyLine> = mutableListOf()
-
-  while (!iterator.atEnd()) {
-    result.add(iterator.move(step.toDouble()).points)
-  }
-
-  return result
-}

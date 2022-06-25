@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import util.numbers.remap
 import util.polylines.PolyLine
-import util.polylines.walk
+import util.polylines.iterators.walk
 
 @Suppress("unused")
 enum class NoiseQuality(val step: Double) {

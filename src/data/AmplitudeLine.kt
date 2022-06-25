@@ -7,7 +7,7 @@ import util.interpolation.DefaultAmplitudeSampleDist
 import util.interpolation.Interpolator1D
 import util.numbers.ifNan
 import util.polylines.PolyLine
-import util.polylines.walkWithPercentAndSegment
+import util.polylines.iterators.walkWithCursor
 
 
 data class AmplitudeLine(
@@ -34,9 +34,9 @@ data class AmplitudeLine(
     poly: PolyLine,
     step: Double,
     block: (pointOnPoly: Point, transformedPoint: Point) -> Point = { _, transformedPoint -> transformedPoint }
-  ): PolyLine = poly.walkWithPercentAndSegment(step) { percent, segment, point ->
-    val interpolationMove = segment.normal().slope.unitVector * getAtPercent(percent)
-    block(point, point + interpolationMove)
+  ): PolyLine = poly.walkWithCursor(step) {
+    val interpolationMove = it.segment.normal().slope.unitVector * getAtPercent(it.percent)
+    block(it.point, it.point + interpolationMove)
   }
 
   override fun equals(other: Any?): Boolean {

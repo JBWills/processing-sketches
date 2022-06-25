@@ -2,6 +2,7 @@ package util.polylines
 
 import PointInterpolator1D.CubicSpline2D
 import coordinate.Point
+import util.polylines.iterators.walkWithCursor
 
 fun PolyLine.interpolate(step: Double = 1.0): PolyLine {
   var last: Point? = null
@@ -14,7 +15,8 @@ fun PolyLine.interpolate(step: Double = 1.0): PolyLine {
   val interpolator = CubicSpline2D
   interpolator.setData(filteredLine)
 
-  return filteredLine.walkWithPercentAndSegment(step) { _, _, point ->
+  return filteredLine.walkWithCursor(step) {
+    val point = it.point
     val interpolatedValue = interpolator.interpolate(point.x)
     if (interpolatedValue.isNaN()) point else Point(point.x, interpolatedValue)
   }

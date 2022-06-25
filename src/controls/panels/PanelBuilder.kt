@@ -66,7 +66,7 @@ open class PanelBuilder(val panels: MutableList<Panelable>) {
     items = panels.toTypedArray(),
   )
 
-  fun createAndAdd(
+  private fun createAndAdd(
     name: String? = null,
     style: ControlStyle? = null,
     direction: ListDirection,

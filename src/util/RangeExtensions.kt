@@ -46,8 +46,12 @@ fun PointRange.atAmountAlong(amountAlong: Double = 0.0) =
 fun IntRange.atAmountAlong(amountAlong: Double = 0.0) =
   start + ((endInclusive - start) * amountAlong)
 
-fun DoubleRange.percentAlong(num: Number) = (num.toDouble() - start) / (endInclusive - start)
-fun IntRange.percentAlong(num: Number) = (num.toDouble() - start) / (endInclusive - start)
+fun DoubleRange.percentAlong(num: Number) =
+  if (endInclusive - start == 0.0) 0.0 else (num.toDouble() - start) / (endInclusive - start)
+
+fun IntRange.percentAlong(num: Number) =
+  if (endInclusive - start == 0) 0.0 else (num.toDouble() - start) / (endInclusive - start)
+
 fun PointRange.percentAlong(p: Point): Double = ((p - start) / (endInclusive - start)).magnitude
 fun Number.mappedTo(r: IntRange) = r.atAmountAlong(toDouble())
 fun Number.mappedTo(r: DoubleRange) = r.atAmountAlong(toDouble())
