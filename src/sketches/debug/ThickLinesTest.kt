@@ -19,12 +19,16 @@ import util.polylines.iterators.walkWithCursor
  */
 class ThickLinesTest : SimpleCanvasSketch<ThickLinesData>("ThickLines", ThickLinesData()) {
   override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
-    val (sinWave1, sinWave2, sinWave3, drawOriginal, sampleFreq) = drawInfo.dataValues
+    val (sinWave1, sinWave2, sinWave3, drawOriginal, maxPxDistBetweenLines, sampleFreq) = drawInfo.dataValues
 
     boundRect.centerLineHorizontal.expand(-10)
       .toPolyLine()
       .walkWithCursor(1.0) { it.point.addY(sinWave1.f(it.percent)) }
-      .toThickLine(numKeyFrames = (1.0 / sampleFreq).toInt(), drawOriginal = drawOriginal) {
+      .toThickLine(
+        numKeyFrames = (1.0 / sampleFreq).toInt(),
+        maxPxDistBetweenLines = maxPxDistBetweenLines,
+        drawOriginal = drawOriginal,
+      ) {
         Thickness(
           amount = sinWave2.f(it.percent),
           centerAmount = sinWave3.f(it.percent),
@@ -39,8 +43,9 @@ class ThickLinesTest : SimpleCanvasSketch<ThickLinesData>("ThickLines", ThickLin
 data class ThickLinesData(
   var mainWave: SineWaveProp = SineWaveProp(amplitude = 200),
   var thicknessWave: SineWaveProp = SineWaveProp(amplitude = 50, freq = 4),
-  var offsetWave: SineWaveProp = SineWaveProp(amplitude = 0, freq = 4),
+  var offsetWave: SineWaveProp = SineWaveProp(amplitude = 0, freq = 4, ampMax = 1.0),
   var drawOriginal: Boolean = true,
+  var maxPxDistBetweenLines: Double = 3.0,
   var sampleFreq: Double = 0.05,
 ) : PropData<ThickLinesData> {
   override fun bind() = tabs {
@@ -49,6 +54,7 @@ data class ThickLinesData(
       panel(::thicknessWave)
       panel(::offsetWave)
       slider(::sampleFreq, 0.001..0.5)
+      slider(::maxPxDistBetweenLines, 1.0..20.0)
       toggle(::drawOriginal)
     }
   }

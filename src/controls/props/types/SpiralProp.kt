@@ -12,6 +12,7 @@ import coordinate.Point
 import coordinate.PointSpiral
 import kotlinx.serialization.Serializable
 import util.base.ZeroToOne
+import util.polylines.PolyLine
 import util.polylines.polyLine.normalizeDistances
 
 @Serializable
@@ -75,7 +76,7 @@ data class SpiralProp(
   fun spiral(
     drawBounds: BoundRect,
     mapPoint: (t: Double, percent: Double, deg: Deg, p: Point) -> Point,
-  ): List<Point> = PointSpiral(
+  ): PolyLine = PointSpiral(
     drawBounds.pointAt(origin),
     sizeRange = (sizeStart..sizeEnd),
     rotationsRange = rotationStart..(rotationStart + numRotations + numRotationsFine),

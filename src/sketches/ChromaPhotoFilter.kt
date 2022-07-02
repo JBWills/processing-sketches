@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.image.pimage.bounds
 import util.image.pimage.get
-import util.polylines.iterators.mapWithLength
+import util.polylines.iterators.walkWithCursor
 
 /**
  * Starter sketch that uses all of the latest bells and whistles.
@@ -43,7 +43,9 @@ class ChromaPhotoFilter :
 
     spiral.spiral(boundRect) { _, _, _, p ->
       p
-    }.mapWithLength { point, length ->
+    }.walkWithCursor(2) { cursor ->
+      val point = cursor.point
+      val length = cursor.distance
       val imagePoint =
         (point - imageBounds.topLeft).let { if (image.bounds.contains(it)) it else null }
 
@@ -56,7 +58,6 @@ class ChromaPhotoFilter :
 //      val moveVector =
 //        deg.unitVector * moveAmount + (deg.plus(90).unitVector * skew * ((-2 * length) / spiralFreq).sin() * lumAtP)
       point + degTwo.unitVector * spiralAmp * lumAtP
-
     }.draw()
   }
 }

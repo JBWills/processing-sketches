@@ -124,7 +124,7 @@ inline fun <T> PolyLine.walkWithCursor(
   return walkWithCursorForwardsOnly(line, step) { cursor -> block(cursor) }
 }
 
-fun PolyLine.walkWithCursor(step: Number): List<Point> =
+fun PolyLine.walkWithCursor(step: Number = 2): List<Point> =
   walkWithCursor(step) { it.point }
 
 fun <T> PolyLine.walk(step: Number, block: (point: Point) -> T): List<T> =

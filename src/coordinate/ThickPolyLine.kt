@@ -6,14 +6,17 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import util.interpolation.interpolate
 import util.iterators.uniqByInPlace
+import util.numbers.ceilInt
+import util.numbers.times
 import util.percentAlong
 import util.polylines.MutablePolyLine
 import util.polylines.PolyLine
 import util.polylines.iterators.WalkCursor
 import util.polylines.iterators.walkWithCursor
 import util.polylines.length
-import util.tuple.map
 import util.tuple.plus
+import util.tuple.sort
+import util.tuple.times
 
 const val MinPxDistToDrawDistinctLines = 0.01
 const val MaxPxDistToDrawDistinctLines = 2.0
@@ -33,7 +36,7 @@ data class Thickness(
    * 1 = all subsequent lines above line
    * -1 = all lines drawn below line
    */
-  val centerAmount: Double
+  val centerAmount: Double = 0.0
 )
 
 @Serializable
@@ -90,12 +93,14 @@ data class ThickPolyLine(
 
   fun toLines(): List<List<PolyLine>> {
     val length = lineLength
-    val result: MutableList<MutablePolyLine> =
-      mutableListOf(
-        if (drawOriginal) line.toMutableList() else mutableListOf(),
-        mutableListOf(),
-        mutableListOf(),
-      )
+
+    val maxAmount = processedKeys.maxByOrNull { it.amount }?.amount ?: 0.0
+
+    val maxPolylines = (maxAmount * 2 / maxPxDistBetweenLines).ceilInt()
+
+    val result: List<MutableList<MutablePolyLine>> =
+      Array(maxPolylines) { mutableListOf(mutableListOf<Point>()) }.toList()
+
     var keyframeIndex = 0
 
     fun getNewKeyframeIndex(currLen: Double): Int {
@@ -113,23 +118,40 @@ data class ThickPolyLine(
       return currIndex
     }
 
-    line.walkWithCursor(
-      step = 2,
-
-      ) { cursor ->
+    line.walkWithCursor(step = 2) { cursor ->
       val lenSoFar = length * cursor.percent
       val normal = cursor.normal
+      val point = cursor.point
       keyframeIndex = getNewKeyframeIndex(lenSoFar)
 
       val interpolatedKey = getInterpolatedKeyframe(keyframeIndex, lenSoFar)
-      val minMaxMoveAmount = (-1.0 to 1.0) + interpolatedKey.centerAmount
-      val minMax =
-        minMaxMoveAmount.map { (cursor.point + it * (normal.slope.unitVector * interpolatedKey.amount)) }
+      val (min, max) = (((-1.0 to 1.0) + interpolatedKey.centerAmount) * interpolatedKey.amount).sort()
 
-      result[1].add(minMax.first)
-      result[2].add(minMax.second)
+
+      val shouldDrawMaxLine = max != 0.0
+      val shouldDrawMinLine = min != 0.0
+
+      maxPolylines.times { index ->
+        if (index == 0 && shouldDrawMaxLine) {
+          result.first().last().add(point + max * (normal.slope.unitVector))
+          return@times
+        } else if (index == maxPolylines - 1 && shouldDrawMinLine) {
+          result.last().last().add(point + min * (normal.slope.unitVector))
+          return@times
+        }
+
+        val curr = max - maxPxDistBetweenLines * index
+
+        if ((min..max).contains(curr)) {
+          result[index].last()
+            .add((point + curr * (normal.slope.unitVector)))
+        } else if (result[index].last().isNotEmpty()) {
+          result[index].add(mutableListOf())
+        }
+      }
     }
-    return result.map { mutableListOf(it) }
+
+    return if (drawOriginal) result.plusElement(listOf(line)) else result
   }
 
 
@@ -208,11 +230,11 @@ data class ThickPolyLine(
 
     fun PolyLine.toThickLine(
       step: Double,
-      walk: (WalkCursor) -> Thickness,
       maxPxDistBetweenLines: Double = MaxPxDistToDrawDistinctLines,
       minPxDistToDrawDistinctLines: Double = MinPxDistToDrawDistinctLines,
       interpolationType: InterpolationType = Linear,
-      drawOriginal: Boolean = true
+      drawOriginal: Boolean = true,
+      walk: (WalkCursor) -> Thickness,
     ): ThickPolyLine {
       val len = length
       if (len == 0.0) {
@@ -236,6 +258,41 @@ data class ThickPolyLine(
         minPxDistToDrawDistinctLines,
         interpolationType,
         drawOriginal,
+      )
+    }
+
+    fun PolyLine.toThickLines(
+      step: Double,
+      maxPxDistBetweenLines: Double = MaxPxDistToDrawDistinctLines,
+      minPxDistToDrawDistinctLines: Double = MinPxDistToDrawDistinctLines,
+      interpolationType: InterpolationType = Linear,
+      drawOriginal: Boolean = true,
+      walk: (WalkCursor) -> Thickness,
+    ): List<List<PolyLine>> = toThickLine(
+      step,
+      maxPxDistBetweenLines,
+      minPxDistToDrawDistinctLines,
+      interpolationType,
+      drawOriginal,
+      walk,
+    ).toLines()
+
+    @JvmName("toThickLinesList")
+    fun List<PolyLine>.toThickLines(
+      step: Double,
+      maxPxDistBetweenLines: Double = MaxPxDistToDrawDistinctLines,
+      minPxDistToDrawDistinctLines: Double = MinPxDistToDrawDistinctLines,
+      interpolationType: InterpolationType = Linear,
+      drawOriginal: Boolean = true,
+      walk: (WalkCursor) -> Thickness,
+    ): List<List<PolyLine>> = flatMap {
+      it.toThickLines(
+        step,
+        maxPxDistBetweenLines,
+        minPxDistToDrawDistinctLines,
+        interpolationType,
+        drawOriginal,
+        walk,
       )
     }
   }
