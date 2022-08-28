@@ -48,7 +48,6 @@ fun AffineTransform.then(vararg transforms: AffineTransform): AffineTransform {
 }
 
 fun AffineTransform.applyTo(line: PolyLine): PolyLine =
-  line.toEmptyDoubleArray()
-    .also { resultArr ->
-      transform(line.toDoubleArray(), 0, resultArr, 0, 0)
-    }.toPolyLine()
+  line.toEmptyDoubleArray().also { resultArray ->
+    transform(line.toDoubleArray(), 0, resultArray, 0, line.size)
+  }.toPolyLine()

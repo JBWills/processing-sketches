@@ -21,8 +21,9 @@ import util.base.NegativeOneToOne
 import util.base.letWith
 import util.base.times
 import util.numbers.map
-import util.randomPoint
+import util.random.randomPoint
 import java.awt.Color
+import kotlin.random.Random
 
 class Packing : LayeredCanvasSketch<PackingData, PackingLayerData>(
   "Packing",
@@ -47,18 +48,19 @@ class Packing : LayeredCanvasSketch<PackingData, PackingLayerData>(
       circleOffset,
     ) = layerInfo.globalValues
 
-    randomSeed(centroidNoise.seed.toLong())
+
+    val r = Random(centroidNoise.seed.toLong())
 
     val c = Circ(center + circleOffset, circleSize)
 
     val points = dotNoise
-      .move(numDots.map { randomPoint(c) })
+      .move(numDots.map { r.randomPoint(c) })
       .letWith {
         return@letWith if (boundDotsToCircle) filter { c.contains(it) } else this
       }
 
     val centroids = centroidNoise
-      .move(numCentroids.map { randomPoint(c) })
+      .move(numCentroids.map { r.randomPoint(c) })
       .letWith {
         return@letWith if (boundDotsToCircle) filter { c.contains(it) } else this
       }

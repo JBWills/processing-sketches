@@ -222,8 +222,11 @@ class Segment(
   }
 
   companion object {
-    fun centered(center: Point, slope: Deg, length: Double): Segment =
-      Segment(center, 0, slope).expand(length)
+    fun centered(center: Point, slope: Deg, length: Number): Segment =
+      Segment(
+        center.translated(slope.unitVector * length / 2),
+        center.translated(-slope.unitVector * length / 2),
+      )
 
     fun Point.toUnitVectorSegment(center: Point) = Segment(
       center - (normalized / 2),

@@ -87,7 +87,7 @@ fun PApplet.drawLayeredSvg(
     index++
   }
 
-  block { config -> onBlockCalled(config) }
+  block(::onBlockCalled)
 
   tearDown(-1, false, "", "")
 

@@ -123,6 +123,11 @@ data class Point(val x: Double, val y: Double) :
 
   fun abs() = Point(abs(x), abs(y))
 
+  // Returns an orthogonal point
+  fun orthogonal() = Point(x, -y)
+  
+  fun dot(other: Point) = x * other.x + y * other.y
+
   override operator fun compareTo(other: Point): Int =
     if (x != other.x) x.compareTo(other.x)
     else y.compareTo(other.y)

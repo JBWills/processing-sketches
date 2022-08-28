@@ -1,17 +1,17 @@
 package util.random
 
-import util.rand
+import kotlin.random.Random
 
-fun List<Double>.randomWeightedIndex(seed: Int): Int {
-  val total = sum()
-  val randomNumber = rand(seed) * total
+fun Random.randomWeightedIndex(doubles: List<Double>): Int {
+  val total = doubles.sum()
+  val randomNumber = nextDouble() * total
 
   var runningTotal = 0.0
 
-  forEachIndexed { index, weight ->
+  doubles.forEachIndexed { index, weight ->
     runningTotal += weight
     if (randomNumber <= runningTotal) return index
   }
-  
+
   return -1
 }

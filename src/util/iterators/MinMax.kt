@@ -66,6 +66,48 @@ val List<Double>.minMax: DoubleRange?
 val List<Int>.minMax: IntRange?
   get() = minMax(List<Int>::forEach)
 
+fun <T> List<T>.minMaxByOrNull(by: (T) -> Number): DoubleRange? {
+  if (isEmpty()) {
+    return null
+  }
+
+  var min = Double.MAX_VALUE
+  var max = Double.MIN_VALUE
+  for (i in this) {
+    val v = by(i).toDouble()
+    if (v < min) {
+      min = v
+    }
+
+    if (v > max) {
+      max = v
+    }
+  }
+
+  return min..max
+}
+
+fun <T> Array<T>.minMaxByOrNull(by: (T) -> Number): DoubleRange? {
+  if (isEmpty()) {
+    return null
+  }
+
+  var min = Double.MAX_VALUE
+  var max = Double.MIN_VALUE
+  for (i in this) {
+    val v = by(i).toDouble()
+    if (v < min) {
+      min = v
+    }
+
+    if (v > max) {
+      max = v
+    }
+  }
+
+  return min..max
+}
+
 val Array<Double>.minMax: DoubleRange?
   get() = minMax(Array<Double>::forEach)
 

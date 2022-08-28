@@ -29,6 +29,7 @@ import util.print.Thick
 import util.window.BaseSketchWindow
 import java.awt.Color
 import java.io.File
+import kotlin.random.Random
 
 class LayerConfig(val style: Style)
 
@@ -45,11 +46,14 @@ abstract class BaseSketch(
   var strokeColor: Color = Color.BLACK,
   val svgBaseFileName: String = "output",
   var size: Point = Point(1000, 1000),
+  var randomSeed: Int = 0
 ) : PAppletExt() {
   init {
     // This has to happen before setup() so native methods work for deserialization.
     OpenCV.loadLocally()
   }
+
+  val random: Random = Random(randomSeed)
 
   private val window by lazy { BaseSketchWindow(svgBaseFileName, surface) }
   val sketchSize get() = Point(size.x, size.y)
@@ -139,6 +143,14 @@ abstract class BaseSketch(
    */
   open fun drawInteractive() {}
 
+  fun safePopStyle() {
+    try {
+      popStyle()
+    } catch (_: Exception) {
+
+    }
+  }
+
   override fun draw() {
     fun drawLayers(onNewLayer: (LayerSVGConfig) -> Unit) {
       getLayers().forEachIndexed { index, layer ->
@@ -153,12 +165,24 @@ abstract class BaseSketch(
       try {
         drawSetup()
         if (recordMode == RecordSVG) {
-          drawLayeredSvg(svgBaseFileName, getFilenameSuffix(), size) { drawLayers(it) }
+          drawLayeredSvg(svgBaseFileName, getFilenameSuffix(), size) { fn ->
+            val block: (LayerSVGConfig) -> Unit = { config ->
+              safePopStyle()
+              pushStyle()
+              config.style.apply(this)
+              fn(config)
+            }
+            drawLayers(block)
+          }
 
 
           recordMode = NoRecord
         } else {
-          drawLayers {}
+          drawLayers {
+            safePopStyle()
+            pushStyle()
+            it.style.apply(this)
+          }
         }
       } catch (e: Exception) {
         e.printStackTrace()

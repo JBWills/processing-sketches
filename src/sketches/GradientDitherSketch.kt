@@ -19,11 +19,12 @@ import util.iterators.deepForEach
 import util.layers.LayerSVGConfig
 import util.numbers.squared
 import util.print.Pen
-import util.randItem
+import util.random.randItem
+import util.random.randomDouble
 import util.random.randomWeightedIndex
-import util.randomDouble
-import util.translatedRandomDirection
+import util.random.translatedRandomDirection
 import java.awt.Color
+import kotlin.random.Random
 
 /**
  * Starter sketch that uses all the latest bells and whistles.
@@ -40,6 +41,7 @@ class GradientDitherSketch : SimpleCanvasSketch<GradientDitherData>(
 
   override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
     val (gradientAnchors, radius, drawAsScribbles, numPoints, pointsSeed, randomizePosition, randomizePositionType) = drawInfo.dataValues.pointData
+    val r = Random(pointsSeed)
     if (gradientAnchors.size == 0) return
 
     fun getAnchor(p: Point): GradientPoint {
@@ -48,20 +50,19 @@ class GradientDitherSketch : SimpleCanvasSketch<GradientDitherData>(
       val probabilities =
         distances.map { (anchor, dist) -> distanceToProbability(dist, anchor.intensity) }
 
-      return gradientAnchors[probabilities.randomWeightedIndex(pointsSeed)]
+      return gradientAnchors[r.randomWeightedIndex(probabilities)]
     }
 
     val anchorToPoints: MutableMap<GradientPoint, MutableList<Point>> = mutableMapOf()
 
     boundRect.mapPoints(numPoints) {
       val dist = when (randomizePositionType) {
-        RandomizePositionType2.RandomDistances -> randomDouble(
+        RandomDistances -> r.randomDouble(
           0.0..randomizePosition,
-          pointsSeed,
         )
         RandomizePositionType2.EqualDistances -> randomizePosition
       }
-      it.translatedRandomDirection(dist, pointsSeed)
+      r.translatedRandomDirection(it, dist)
     }.deepForEach { point ->
       if (boundRect.contains(point)) {
         anchorToPoints
@@ -91,7 +92,7 @@ enum class RandomizePositionType2 { EqualDistances, RandomDistances }
 @Serializable
 data class GradientPoint(
   var center: Point = Point(0.5, 0.5),
-  var penProp: PenProp = PenProp(pen = Pen.GellyColors.randItem()),
+  var penProp: PenProp = PenProp(pen = Random(0).randItem(Pen.GellyColors)),
   var intensity: Double = 1.0,
 ) {
   constructor(p: GradientPoint) : this(p.center.copy(), p.penProp.clone())

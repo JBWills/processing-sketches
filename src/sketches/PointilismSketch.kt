@@ -22,9 +22,9 @@ import util.image.opencvMat.getOr
 import util.iterators.flatMapNonNull
 import util.layers.LayerSVGConfig
 import util.numbers.bound
-import util.rand
-import util.randomDouble
-import util.translatedRandomDirection
+import util.random.randomDouble
+import util.random.translatedRandomDirection
+import kotlin.random.Random
 
 
 /**
@@ -33,6 +33,7 @@ import util.translatedRandomDirection
 class PointillismSketch : SimpleCanvasSketch<PointillismData>("Pointillism", PointillismData()) {
   override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
     val (inputData, pointsData, pen) = drawInfo.dataValues
+    val r = Random(pointsData.pointsSeed)
 
     val (inputMat, inputBounds) = when (inputData.inputType) {
       InputType.Noise -> {
@@ -56,7 +57,7 @@ class PointillismSketch : SimpleCanvasSketch<PointillismData>("Pointillism", Poi
           .div(255.0 * inputData.threshold)
           .bound(0.0..1.0)
 
-      return percentToThreshold >= rand(pointsData.pointsSeed)
+      return percentToThreshold >= r.nextDouble()
     }
 
     withStyle(pen.style) {
@@ -65,13 +66,12 @@ class PointillismSketch : SimpleCanvasSketch<PointillismData>("Pointillism", Poi
         ?.mapPoints(pointsData.numPoints)
         ?.flatMapNonNull { point ->
           val dist = when (pointsData.randomizePositionType) {
-            RandomDistances -> randomDouble(
+            RandomDistances -> r.randomDouble(
               0.0..pointsData.randomizePosition,
-              pointsData.pointsSeed,
             )
             EqualDistances -> pointsData.randomizePosition
           }
-          val movedPoint = point.translatedRandomDirection(dist, pointsData.pointsSeed)
+          val movedPoint = r.translatedRandomDirection(point, dist)
 
           if (shouldShowPoint(movedPoint)) movedPoint else null
         }

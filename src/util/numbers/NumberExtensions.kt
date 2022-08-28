@@ -69,8 +69,6 @@ fun Double.coerceTo(other: Number, threshold: Double = EPSILON): Double =
 fun Number.remap(fromRange: DoubleRange, toRange: DoubleRange): Double =
   toRange.atAmountAlong(fromRange.percentAlong(this))
 
-fun Double.roundedString(decimals: Int = 2) = "%.${decimals}f".format(this)
-
 fun Number.equalsDelta(other: Number, threshold: Double = EPSILON) =
   abs(this.toDouble() - other.toDouble()) < threshold
 

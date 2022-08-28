@@ -1,70 +1,58 @@
-package util
+package util.random
 
 import coordinate.BoundRect
 import coordinate.Circ
 import coordinate.Point
 import util.base.DoubleRange
 import java.awt.Color
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
 
-private const val DefaultSeed = 0
+fun <T> Random.randItem(l: List<T>): T =
+  randItemOrNull(l) ?: throw Exception("Trying to get a random item from an empty list")
 
-private val seedToRandomInstance: ConcurrentHashMap<Int, Random> = ConcurrentHashMap()
+fun <T> Random.randItem(arr: Array<T>): T =
+  randItemOrNull(arr) ?: throw Exception("Trying to get a random item from an empty list")
 
-fun getRandomInstance(seed: Int = DefaultSeed): Random {
-  return seedToRandomInstance.getOrPut(seed) { Random(seed) }
+fun <T> Random.randItemOrNull(l: List<T>): T? =
+  if (l.isEmpty()) null
+  else l[randomInt(l.indices)]
+
+fun <T> Random.randItemOrNull(arr: Array<T>): T? =
+  if (arr.isEmpty()) null
+  else arr[randomInt(arr.indices)]
+
+fun Random.randomInt(range: IntRange): Int =
+  if (range.first >= range.last) range.first
+  else nextInt(from = range.first, until = range.last)
+
+fun Random.randomDouble(range: DoubleRange) =
+  if (range.start >= range.endInclusive) range.start
+  else nextDouble(from = range.start, until = range.endInclusive)
+
+fun Random.randomPoint(boundRect: BoundRect) =
+  Point(
+    randomDouble(boundRect.left..boundRect.right),
+    randomDouble(boundRect.top..boundRect.bottom),
+  )
+
+fun Random.randomPoint(circ: Circ, onCircumferenceOnly: Boolean = false): Point {
+  val a: Double = nextDouble() * 2 * PI
+  val r: Double = circ.radius * if (onCircumferenceOnly) 1.0 else sqrt(nextDouble())
+
+  return circ.origin + Point(r * cos(a), r * sin(a))
 }
 
-fun <T> List<T>.randItem(seed: Int = DefaultSeed): T =
-  if (this.isEmpty()) throw Exception("Trying to get a random item from an empty list")
-  else this[randomInt(0 until size, seed)]
+fun Random.translatedRandomDirection(point: Point, dist: Double): Point =
+  randomPoint(Circ(point, dist), onCircumferenceOnly = true)
 
-fun <T> Array<T>.randItem(seed: Int = DefaultSeed): T =
-  if (this.isEmpty()) throw Exception("Trying to get a random item from an empty list")
-  else this[randomInt(0 until size, seed)]
-
-fun rand(seed: Int = DefaultSeed): Double = getRandomInstance(seed).nextDouble()
-fun randomInt(range: IntRange, seed: Int = DefaultSeed): Int =
-  if (range.first == range.last) range.first
-  else getRandomInstance(seed).nextInt(from = range.first, until = range.last)
-
-fun randomDouble(range: DoubleRange, seed: Int = DefaultSeed) =
-  if (range.start == range.endInclusive) range.start
-  else getRandomInstance(seed).nextDouble(from = range.start, until = range.endInclusive)
-
-fun BoundRect.randomPoint(seed: Int = DefaultSeed) =
-  Point(randomDouble(left..right), randomDouble(top..bottom))
-
-@JvmName("randomPointFunctional")
-fun randomPoint(boundRect: BoundRect, seed: Int = DefaultSeed) = boundRect.randomPoint(seed)
-
-@JvmName("randomPointFunctional")
-fun randomPoint(c: Circ, onCircumferenceOnly: Boolean = false, seed: Int = DefaultSeed): Point =
-  c.randomPoint(onCircumferenceOnly, seed)
-
-fun Circ.randomPoint(onCircumferenceOnly: Boolean = false, seed: Int = DefaultSeed): Point {
-  val a: Double = rand(seed) * 2 * PI
-  val r: Double = radius * if (onCircumferenceOnly) 1.0 else sqrt(rand(seed))
-
-  return origin + Point(r * cos(a), r * sin(a))
-}
-
-fun Point.translatedRandomDirection(dist: Double, seed: Int = DefaultSeed): Point {
-  if (dist == 0.0) return this
-  val a: Double = rand(seed) * 2 * PI
-
-  return this + Point(dist * cos(a), dist * sin(a))
-}
-
-fun randomColor() = Color(randomDouble(0.0..(255.0 * 255.0 * 255.0)).toInt())
-fun randomLightColor() =
+fun Random.randomColor() = Color(randomDouble(0.0..(255.0 * 255.0 * 255.0)).toInt())
+fun Random.randomLightColor() =
   Color(
-    randomDouble(100.0..255.0).toInt(),
-    randomDouble(100.0..255.0).toInt(),
-    randomDouble(100.0..255.0).toInt(),
+    randomInt(100..255),
+    randomInt(100..255),
+    randomInt(100..255),
   )
