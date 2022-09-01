@@ -106,16 +106,18 @@ class FlowLinesSketch : SimpleCanvasSketch<FlowLinesData>("FlowLines", FlowLines
     }
 
     if (!linesData.useOldVersion) {
-      streamLines(
-        generatorData.placementRandomSeed,
-        boundRect.expand(0.5),
-        distance = linesData.maxDistanceFromOtherLines,
-        lengthRange = linesData.minLength..linesData.length,
-        step = linesData.step,
-        dTest = linesData.maxDistanceFromOtherLines * linesData.dTest,
-      ) {
-        Deg(generatorData.fieldNoise.get(it) * 360 * generatorData.angleScale)
-      }.draw(boundRect)
+      withStroke(Pen.GellyColorDarkPeach.style.color) {
+        streamLines(
+          generatorData.placementRandomSeed,
+          boundRect.expand(0.5),
+          distance = linesData.maxDistanceFromOtherLines,
+          lengthRange = linesData.minLength..(if (linesData.enforceMaxLength) linesData.length else Double.MAX_VALUE),
+          step = linesData.step,
+          dTest = linesData.maxDistanceFromOtherLines * linesData.dTest,
+        ) {
+          Deg(generatorData.fieldNoise.get(it) * 360 * generatorData.angleScale)
+        }.draw(null)
+      }
     } else {
       circles
         .shuffled()
@@ -150,6 +152,7 @@ class FlowLinesSketch : SimpleCanvasSketch<FlowLinesData>("FlowLines", FlowLines
 data class FlowLineData(
   var step: Double = 3.0,
   var length: Double = 10.0,
+  var enforceMaxLength: Boolean = false,
   var minLength: Double = 0.0,
   var maxDistanceFromOtherLines: Double = 0.0,
   var dTest: Double = 0.5,
@@ -185,10 +188,18 @@ data class FlowLinesData(
 
     tab("Lines") {
       slider(linesData::step, 0.1..10.0)
-      slider(linesData::length, 0.0..800.0)
-      slider(linesData::dTest, 0.0..1.0)
+      row {
+        slider(linesData::length, 0.0..800.0)
+        col {
+          widthRatio = 0.3
+          toggle(linesData::enforceMaxLength)
+        }
+      }
       slider(linesData::minLength, 0.0..100.0)
-      slider(linesData::maxDistanceFromOtherLines, 0..100)
+      row {
+        slider(linesData::maxDistanceFromOtherLines, 0..100)
+        slider(linesData::dTest, 0.0..1.0)
+      }
       row {
         toggle(linesData::limitDistanceToOtherLines)
         toggle(linesData::useOldVersion)
