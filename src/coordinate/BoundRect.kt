@@ -135,7 +135,13 @@ data class BoundRect(
   )
 
   fun expand(amount: Number) = expand(amount, amount)
+
   fun expand(amount: Point) = expand(amount.x, amount.y)
+  fun expandPercent(percent: Number) =
+    expand(width * percent.toDouble(), height * percent.toDouble())
+
+  fun expandPercent(percent: Point) =
+    expand(width * percent.x, height * percent.y)
 
   /**
    * Move the top left corner without changing the bottom right corner.

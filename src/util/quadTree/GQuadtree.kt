@@ -16,6 +16,8 @@ class GQuadtree<T>(val toEnvelope: T.() -> Envelope) {
   val size get():  Int = backingTree.size()
 
   fun insert(item: T) = backingTree.insert(item.toEnvelope(), item)
+  fun insertAll(items: Collection<T>) =
+    items.map { item -> backingTree.insert(item.toEnvelope(), item) }
 
   fun remove(item: T): Boolean = backingTree.remove(item.toEnvelope(), item)
 

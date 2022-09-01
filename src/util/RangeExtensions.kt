@@ -8,6 +8,7 @@ import interfaces.math.Subtractable
 import util.base.DoubleRange
 import util.numbers.bound
 
+
 fun IntRange.toDoubleRange() = first.toDouble()..last.toDouble()
 
 fun ClosedRange<Int>.toIntRange(): IntRange = start..endInclusive

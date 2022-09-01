@@ -17,6 +17,9 @@ fun <T> Random.randItem(l: List<T>): T =
 fun <T> Random.randItem(arr: Array<T>): T =
   randItemOrNull(arr) ?: throw Exception("Trying to get a random item from an empty list")
 
+fun Random.randPoint(bound: BoundRect) =
+  Point(randomDouble(bound.xRange), randomDouble(bound.yRange))
+
 fun <T> Random.randItemOrNull(l: List<T>): T? =
   if (l.isEmpty()) null
   else l[randomInt(l.indices)]

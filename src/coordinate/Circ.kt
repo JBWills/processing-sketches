@@ -40,6 +40,11 @@ open class Circ(val origin: Point, val radius: Double) :
   val bounds: BoundRect get() = centeredRect(origin, diameter, diameter)
   val radiusSquared: Double get() = radius.squared()
 
+  val top: Double get() = origin.y - radius
+  val bottom: Double get() = origin.y + radius
+  val left: Double get() = origin.x - radius
+  val right: Double get() = origin.x + radius
+
   init {
     if (radius < 0) {
       throw Exception("Tried to make a circle with a negative radius: $radius and origin: $origin")

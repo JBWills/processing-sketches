@@ -108,6 +108,7 @@ data class Noise(
     noiseAt(getPointOnNoisePlane(Point(x, y)), z.toDouble() + offset.magnitude)
 
   fun get(x: Number, y: Number) = get(x, y, 0)
+  fun get(point: Point) = get(point.x, point.y)
   fun getPositive(x: Number, y: Number, z: Number) = get(x, y, z) + 0.5
   fun getPositive(x: Number, y: Number) = getPositive(x, y, 0)
 
