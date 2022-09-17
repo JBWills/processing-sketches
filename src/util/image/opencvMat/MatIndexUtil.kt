@@ -24,6 +24,9 @@ fun Mat.getColor(p: Point): Color? = (p.x.toInt() to p.y.toInt()).let { (col, ro
 }
 
 fun Mat.getOr(p: Point, default: Double, band: Int = 0): Double = get(p, band) ?: default
+fun Mat.getOr(p: Point, band: Int = 0, getDefault: () -> Double): Double =
+  get(p, band) ?: getDefault()
+
 fun Mat.getInt(p: Point): Int = getFormat().toRgbInt(getByteArray(p))
 
 fun Mat.getSubPix(p: Point, band: Int = 0): Double? {

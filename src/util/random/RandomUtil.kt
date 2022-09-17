@@ -30,7 +30,7 @@ fun <T> Random.randItemOrNull(arr: Array<T>): T? =
 
 fun Random.randomInt(range: IntRange): Int =
   if (range.first >= range.last) range.first
-  else nextInt(from = range.first, until = range.last)
+  else nextInt(from = range.first, until = range.last + 1)
 
 fun Random.randomDouble(range: DoubleRange) =
   if (range.start >= range.endInclusive) range.start

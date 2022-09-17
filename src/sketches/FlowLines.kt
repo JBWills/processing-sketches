@@ -22,7 +22,9 @@ import util.numbers.sqrt
 import util.polylines.PolyLine
 import util.print.Pen
 import util.quadTree.GQuadtree
+import util.random.randItem
 import util.random.randomLightColor
+import java.awt.Color
 import kotlin.random.Random
 
 /**
@@ -86,8 +88,17 @@ class FlowLinesSketch : SimpleCanvasSketch<FlowLinesData>("FlowLines", FlowLines
     return if (length > linesData.minLength) resultLine else null
   }
 
+  private fun List<PolyLine>.groupByColor(
+    random: Random,
+    colorData: FlowColorData
+  ): List<Pair<Color, PolyLine>> {
+    val colors = Array(colorData.numColors) { random.randomLightColor() }
+
+    return map { line -> random.randItem(colors) to line }
+  }
+
   override fun drawLayers(drawInfo: DrawInfo, onNextLayer: (LayerSVGConfig) -> Unit) {
-    val (generatorData, linesData) = drawInfo.dataValues
+    val (generatorData, linesData, colorData) = drawInfo.dataValues
     val maxDistDiv2 = linesData.maxDistanceFromOtherLines / 2
 
     onNextLayer(LayerSVGConfig(nextLayerName = "Circles", style = Pen.GellyColorDarkPeach.style))
@@ -105,18 +116,16 @@ class FlowLinesSketch : SimpleCanvasSketch<FlowLinesData>("FlowLines", FlowLines
       )
     }
 
-    if (!linesData.useOldVersion) {
-      withStroke(Pen.GellyColorDarkPeach.style.color) {
-        streamLines(
-          generatorData.placementRandomSeed,
-          boundRect.expand(0.5),
-          distance = linesData.maxDistanceFromOtherLines,
-          lengthRange = linesData.minLength..(if (linesData.enforceMaxLength) linesData.length else Double.MAX_VALUE),
-          step = linesData.step,
-          dTest = linesData.maxDistanceFromOtherLines * linesData.dTest,
-        ) {
-          Deg(generatorData.fieldNoise.get(it) * 360 * generatorData.angleScale)
-        }.draw(null)
+    val lines = if (!linesData.useOldVersion) {
+      streamLines(
+        generatorData.placementRandomSeed,
+        boundRect.expand(0.5),
+        distance = linesData.maxDistanceFromOtherLines,
+        lengthRange = linesData.minLength..(if (linesData.enforceMaxLength) linesData.length else Double.MAX_VALUE),
+        step = linesData.step,
+        dTest = linesData.maxDistanceFromOtherLines * linesData.dTest,
+      ) {
+        Deg(generatorData.fieldNoise.get(it) * 360 * generatorData.angleScale)
       }
     } else {
       circles
@@ -138,15 +147,20 @@ class FlowLinesSketch : SimpleCanvasSketch<FlowLinesData>("FlowLines", FlowLines
         }
         .filterNotNull()
         .toList()
-        .chunked(5_000).map { chunk ->
-          withStroke(r.randomLightColor()) {
-            chunk.draw(boundRect)
-          }
-        }
-        .toList()
+    }
+
+    lines.groupByColor(r, colorData).map { (color, lines) ->
+      withStroke(color) {
+        lines.draw(boundRect)
+      }
     }
   }
 }
+
+@Serializable
+data class FlowColorData(
+  var numColors: Int = 2,
+)
 
 @Serializable
 data class FlowLineData(
@@ -173,6 +187,7 @@ data class FlowGeneratorData(
 data class FlowLinesData(
   var generatorData: FlowGeneratorData = FlowGeneratorData(),
   var linesData: FlowLineData = FlowLineData(),
+  var colorData: FlowColorData = FlowColorData(),
 ) : PropData<FlowLinesData> {
   override fun bind() = tabs {
     tab("Global") {
@@ -204,6 +219,10 @@ data class FlowLinesData(
         toggle(linesData::limitDistanceToOtherLines)
         toggle(linesData::useOldVersion)
       }
+    }
+
+    tab("Colors") {
+      slider(colorData::numColors, 1..5)
     }
   }
 
