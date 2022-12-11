@@ -203,6 +203,11 @@ data class Point(val x: Double, val y: Double) :
     fun subtract(p1: Point, p2: Point) = p1 - p2
     fun multiply(p1: Point, f: Double) = p1 * f
 
+    fun sin(p: Point) = Point(kotlin.math.sin(p.x), kotlin.math.sin(p.y))
+    fun cos(p: Point) = Point(kotlin.math.cos(p.x), kotlin.math.cos(p.y))
+    fun tan(p: Point) = Point(kotlin.math.tan(p.x), kotlin.math.tan(p.y))
+    fun exp(p: Point) = Point(kotlin.math.exp(p.x), kotlin.math.exp(p.y))
+
     operator fun Number.times(p: Point) = p * toDouble()
     operator fun Number.minus(p: Point) = p - toDouble()
     operator fun Number.plus(p: Point) = p + toDouble()
@@ -235,6 +240,13 @@ data class Point(val x: Double, val y: Double) :
           block(Point(x, y))
         }
       }
+
+    fun sum(vararg map: Point): Point =
+      map.reduceRight { p, acc -> p + acc }
+
+    fun sum(map: List<Point>): Point =
+      map.reduceRight { p, acc -> p + acc }
+
 
     val Zero = Point(0, 0)
     val NegativeToPositive = Point(-1, 1)

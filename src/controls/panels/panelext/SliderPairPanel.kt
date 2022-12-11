@@ -91,6 +91,21 @@ fun PanelBuilder.sliderPair(
 
 fun PanelBuilder.sliderPair(
   ref: KMutableProperty0<Point>,
+  range: DoubleRange = 0.0..1.0,
+  range2: DoubleRange = range,
+  withLockToggle: Boolean = false,
+  defaultLocked: Boolean = false,
+  shouldMarkDirty: Boolean = true,
+) = sliderPair(
+  ref.wrapSelf(),
+  range to range2,
+  withLockToggle,
+  defaultLocked,
+  shouldMarkDirty = shouldMarkDirty,
+)
+
+fun PanelBuilder.sliderPair(
+  ref: RefGetter<Point>,
   range: DoubleRange,
   withLockToggle: Boolean = false,
   defaultLocked: Boolean = false,
@@ -104,14 +119,14 @@ fun PanelBuilder.sliderPair(
 )
 
 fun PanelBuilder.sliderPair(
-  ref: KMutableProperty0<Point>,
+  ref: RefGetter<Point>,
   ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0),
   withLockToggle: Boolean = false,
   defaultLocked: Boolean = false,
   style: ControlStyle? = null,
   shouldMarkDirty: Boolean = true,
 ) = sliderPairPanel(
-  ref.wrapSelf(),
+  ref,
   ranges,
   withLockToggle,
   defaultLocked,
@@ -119,7 +134,7 @@ fun PanelBuilder.sliderPair(
   shouldMarkDirty,
 )
 
-private fun PanelBuilder.sliderPairPanel(
+internal fun PanelBuilder.sliderPairPanel(
   ref: RefGetter<Point>,
   ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0),
   withLockToggle: Boolean = false,

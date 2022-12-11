@@ -27,7 +27,6 @@ import util.image.pimage.bounds
 import util.image.pimage.get
 import util.image.pimage.gradientAt
 import util.numbers.bound
-import util.tuple.and
 
 /**
  * Starter sketch that uses all of the latest bells and whistles.
@@ -75,6 +74,7 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
             .centeredWithSlope(baseRotation)
           listOf(segment, segment.centeredWithSlope(segment.slope + 90)).drawAsLine()
         }
+
         Crosses2 -> {
           val length1 = lumAtP.bound(0.0..0.5) * 2 * length
           val length2 = (lumAtP.bound(0.5, 1.0) - 0.5) * 2 * length
@@ -93,6 +93,7 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
             .filter { it.length > 1 }
             .drawAsLine()
         }
+
         Crosses4 -> {
           val length1 = lumAtP.bound(0.0, 0.25) * 4 * length
           val length2 = (lumAtP.bound(0.25, 0.5) - 0.25) * 4 * length
@@ -119,6 +120,7 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
             .filter { it.length > 1 }
             .drawAsLine()
         }
+
         Squares -> drawSquare(canvasPoint, length, rotation = baseRotation)
         Lines -> image
           .gradientAt(imagePoint, filterSize)
@@ -171,7 +173,7 @@ data class PhotoFilterData(
       style = ControlStyle.Blue
       dropdown(::filterType, style = ControlStyle.Gray)
       sliderPair(::sampleRate, 2.0..50.0, withLockToggle = true)
-      sliderPair(::objectSize, 0.0..20.0 and 2.0..30.0)
+      sliderPair(::objectSize, 0.0..20.0, 2.0..30.0)
       slider(::baseRotation)
       slider(::filterSize, 1..100)
     }

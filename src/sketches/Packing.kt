@@ -133,7 +133,7 @@ data class PackingData(
     slider(::iterations, 1..32)
     toggle(::equalCardinality)
     slider(::circleSize, 50.0..800.0)
-    sliderPair(::circleOffset, NegativeOneToOne * 500 to NegativeOneToOne * 500)
+    sliderPair(::circleOffset, NegativeOneToOne * 500)
   }
 
   override fun clone(): PackingData = copy()

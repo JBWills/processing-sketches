@@ -1,9 +1,9 @@
 package controls.props.types
 
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import controls.props.types.ShapeType.Ellipse
@@ -80,7 +80,7 @@ data class ShapeProp(
 
   override fun bind(): List<ControlTab> = singleTab("ShapeProp") {
     dropdown(::type)
-    sliderPair(::center, ZeroToOne to ZeroToOne)
+    sliderPair(::center, ZeroToOne)
     sliderPair(::size, 0.0..2000.0, withLockToggle = true, defaultLocked = true)
     slider(::rotation)
   }
