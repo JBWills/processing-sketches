@@ -9,7 +9,7 @@ import controls.panels.Panelable
 import controls.panels.panelext.markDirtyIf
 import controls.utils.setupDDList
 import interfaces.NamedObject
-import util.generics.getValues
+import util.base.getValues
 import util.iterators.flipMap
 import kotlin.reflect.KMutableProperty0
 

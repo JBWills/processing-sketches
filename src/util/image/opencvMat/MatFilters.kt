@@ -9,8 +9,10 @@ import util.image.ImageFormat.Companion.getFormat
 import util.image.ImageFormat.Gray
 import util.image.ImageFormat.Rgb
 import util.image.ImageFormat.RgbaOpenCV
-import util.image.opencvMat.BorderType.BorderReflect
-import util.image.opencvMat.OpenCVThresholdType.ThreshBinary
+import util.image.opencvMat.flags.BorderType.BorderReflect
+import util.image.opencvMat.flags.ChannelDepth
+import util.image.opencvMat.flags.OpenCVThresholdType
+import util.image.opencvMat.flags.OpenCVThresholdType.ThreshBinary
 import util.numbers.coerceOdd
 import java.awt.Color
 

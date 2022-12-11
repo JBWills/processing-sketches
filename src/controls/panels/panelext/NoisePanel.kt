@@ -10,9 +10,8 @@ import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
 import controls.panels.Panelable
 import controls.props.GenericProp
-import coordinate.Point
 import fastnoise.Noise
-import util.generics.getValues
+import util.base.getValues
 import java.awt.Color
 import kotlin.reflect.KMutableProperty0
 
@@ -96,7 +95,8 @@ private fun noiseControls(
 
     +Slider2D(
       "Offset",
-      Point.One..Point(1000, 1000),
+      1.0..1000.0,
+      1.0..1000.0,
       noise.offset,
     ) { updateNoiseField { with(offset = it) } }.withHeight(5)
   }

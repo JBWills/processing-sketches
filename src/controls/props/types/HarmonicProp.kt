@@ -3,9 +3,12 @@ package controls.props.types
 import controls.controlsealedclasses.Button.Companion.button
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.panels.ControlStyle
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.FineSliderPairArgs
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.fineSliderPair
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
@@ -59,7 +62,7 @@ data class HarmonicProp(
 
     row {
       heightRatio = 3.0
-      slider2D(::center, -1..2)
+      slider2D(::center, Slider2DArgs(-1..2))
       col {
         widthRatio = 0.2
         button("reset") {
@@ -70,39 +73,47 @@ data class HarmonicProp(
     }
     sliderPair(
       ::size,
-      1.0..2_000.0,
-      defaultLocked = true,
-      withLockToggle = true,
+      SliderPairArgs(
+        1.0..2_000.0,
+        defaultLocked = true,
+        withLockToggle = true,
+      ),
     )
 
     row {
       style = ControlStyle.Black
       fineSliderPair(
         ::frequency,
-        coarseRange = 0.0..15.0,
-        fineRange = 0.0..1.0,
-        defaultLocked = true,
-        withLockToggle = true,
+        FineSliderPairArgs(
+          coarseRange = 0.0..15.0,
+          fineRange = 0.0..1.0,
+          defaultLocked = true,
+          withLockToggle = true,
+        ),
       )
     }
     row {
       style = ControlStyle.Green
       fineSliderPair(
         ::delta,
-        coarseRange = 0.0..15.0,
-        fineRange = 0.0..1.0,
-        defaultLocked = true,
-        withLockToggle = true,
+        FineSliderPairArgs(
+          coarseRange = 0.0..15.0,
+          fineRange = 0.0..1.0,
+          defaultLocked = true,
+          withLockToggle = true,
+        ),
       )
     }
     row {
       style = ControlStyle.Blue
       fineSliderPair(
         ::dampening,
-        coarseRange = 0.0001..0.5,
-        fineRange = 0.0..0.05,
-        defaultLocked = true,
-        withLockToggle = true,
+        FineSliderPairArgs(
+          coarseRange = 0.0001..0.5,
+          fineRange = 0.0..0.05,
+          defaultLocked = true,
+          withLockToggle = true,
+        ),
       )
     }
   }

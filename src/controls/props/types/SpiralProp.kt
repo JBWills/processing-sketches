@@ -2,8 +2,10 @@ package controls.props.types
 
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import coordinate.BoundRect
@@ -49,18 +51,22 @@ data class SpiralProp(
   override fun clone() = SpiralProp(this)
 
   override fun bind(): List<ControlTab> = singleTab("SpiralProp") {
-    slider2D(::origin, range = -Point.Half..Point(1.5, 1.5))
+    slider2D(::origin, Slider2DArgs(-0.5..1.5))
     sliderPair(
       ::sizeStart,
-      0.0..1000.0,
-      defaultLocked = true,
-      withLockToggle = true,
+      SliderPairArgs(
+        0.0..1000.0,
+        defaultLocked = true,
+        withLockToggle = true,
+      ),
     )
     sliderPair(
       ::sizeEnd,
-      0.0..1000.0,
-      defaultLocked = true,
-      withLockToggle = true,
+      SliderPairArgs(
+        0.0..1000.0,
+        defaultLocked = true,
+        withLockToggle = true,
+      ),
     )
 
     row {

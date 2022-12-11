@@ -2,8 +2,10 @@ package sketches
 
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.tabs
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
@@ -77,11 +79,11 @@ data class GrassData(
 ) : PropData<GrassData> {
   override fun bind() = tabs {
     tab("Global") {
-      sliderPair(::lengthMinMax, 0.0..2_000.0, 1.0..2_000.0)
+      sliderPair(::lengthMinMax, SliderPairArgs(0.0..2_000.0, 1.0..2_000.0))
       slider(::threshold, 0..1)
-      sliderPair(::density, 0.0..1.0, withLockToggle = true, defaultLocked = true)
-      sliderPair(::size, 0.0..2.0, withLockToggle = true, defaultLocked = true)
-      slider2D(::center, -1..1)
+      sliderPair(::density, SliderPairArgs(0.0..1.0, withLockToggle = true, defaultLocked = true))
+      sliderPair(::size, SliderPairArgs(0.0..2.0, withLockToggle = true, defaultLocked = true))
+      slider2D(::center, Slider2DArgs(-1..1))
     }
     tab("spawnNoise") {
       noisePanel(::spawnNoise)

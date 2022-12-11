@@ -4,8 +4,10 @@ import appletExtensions.parallelLinesInBound
 import arrow.core.memoize
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.tabs
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.fileSelect
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
@@ -264,7 +266,7 @@ data class MapLinesData(
 
       row {
         heightRatio = 5
-        slider2D(::mapCenter, -1..1).withHeight(3)
+        slider2D(::mapCenter, Slider2DArgs(-1..1)).withHeight(3)
       }
       slider(::mapScale, 0.1..10.0)
       slider(::imageRotation)
@@ -281,7 +283,7 @@ data class MapLinesData(
         slider(::maxElevation, 0..5000)
       }
       panel(::elevationMoveVector)
-      sliderPair(::samplePointsXY, 1.0..3000.0)
+      sliderPair(::samplePointsXY, SliderPairArgs(1.0..3000.0))
     }
 
     tab("ocean") {

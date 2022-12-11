@@ -9,6 +9,7 @@ import controls.controlsealedclasses.Button.Companion.button
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
@@ -81,7 +82,7 @@ open class WarpSketch(
 
     row {
       heightRatio = 3
-      slider2D(::noiseOffset, Point.One..Point(1000, 1000))
+      slider2D(::noiseOffset, Slider2DArgs(0..1000))
     }
   }
 

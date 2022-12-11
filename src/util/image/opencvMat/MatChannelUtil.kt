@@ -3,6 +3,7 @@ package util.image.opencvMat
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import util.image.ImageFormat
+import util.image.opencvMat.flags.ChannelDepth
 import util.isAllUniqueChars
 import util.tuple.Pair3
 import util.tuple.Pair4

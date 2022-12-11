@@ -4,6 +4,7 @@ import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import controls.props.types.ShapeType.Ellipse
@@ -13,7 +14,6 @@ import coordinate.BoundRect.Companion.centeredRect
 import coordinate.Circ
 import coordinate.Deg
 import coordinate.Point
-import interfaces.shape.Maskable
 import kotlinx.serialization.Serializable
 import util.base.ZeroToOne
 import util.polylines.PolyLine
@@ -66,22 +66,14 @@ data class ShapeProp(
   fun roughBounds(bound: BoundRect) =
     centeredRect(bound.pointAt(center.x, center.y), size)
 
-  fun asMaskable(boundRect: BoundRect): Maskable {
-    val centerPoint = boundRect.pointAt(center.x, center.y)
-    return when (type) {
-      Ellipse -> Circ(centerPoint, size.x)
-      Rectangle -> centeredRect(centerPoint, size.x, size.y)
-    }
-  }
-
   override fun toSerializer() = serializer()
 
   override fun clone() = ShapeProp(this)
 
   override fun bind(): List<ControlTab> = singleTab("ShapeProp") {
     dropdown(::type)
-    sliderPair(::center, ZeroToOne)
-    sliderPair(::size, 0.0..2000.0, withLockToggle = true, defaultLocked = true)
+    sliderPair(::center, SliderPairArgs(range = ZeroToOne))
+    sliderPair(::size, SliderPairArgs(0.0..2000.0, withLockToggle = true, defaultLocked = true))
     slider(::rotation)
   }
 }

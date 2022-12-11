@@ -1,10 +1,11 @@
 package sketches
 
 import FastNoiseLite.NoiseType.ValueCubic
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.noisePanel
-import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import coordinate.Point
@@ -82,7 +83,7 @@ data class MoireLayerData(
   override fun bind() = layerTab {
     noisePanel(::noise)
     slider(::numRotations, 1.0..1000.0)
-    sliderPair(::centerPoint, -1.0..1.0)
+    sliderPair(::centerPoint, SliderPairArgs(-1.0..1.0))
     row {
       slider(::startRad, 0.0..200.0)
       slider(::endRad, 0.0..2000.0)

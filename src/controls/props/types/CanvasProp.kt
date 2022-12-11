@@ -6,6 +6,7 @@ import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import coordinate.BoundRect
@@ -82,7 +83,7 @@ data class CanvasProp(
       }
 
       sliderPair(::boundBoxCenter)
-      sliderPair(::boundBoxScale, withLockToggle = true, defaultLocked = false)
+      sliderPair(::boundBoxScale, SliderPairArgs(withLockToggle = true, defaultLocked = false))
     }
   }
 

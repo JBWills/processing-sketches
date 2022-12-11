@@ -1,7 +1,5 @@
 package coordinate
 
-import appletExtensions.PAppletExt
-import appletExtensions.draw.rect
 import coordinate.transforms.ShapeTransform
 import de.lighti.clipper.Clipper.ClipType
 import interfaces.shape.Maskable
@@ -307,9 +305,7 @@ data class BoundRect(
     val xRange = left..right
     line.all { it.y in yRange && it.x in xRange }
   }
-
-  override fun draw(sketch: PAppletExt) = sketch.rect(this)
-
+  
   override fun toString(): String {
     return "BoundRect(top=$top, left=$left, bottom=$bottom, right=$right)"
   }

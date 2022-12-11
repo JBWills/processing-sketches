@@ -4,6 +4,7 @@ import BaseSketch
 import arrow.core.memoize
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.ControlTab
@@ -81,7 +82,7 @@ data class PhotoProp(
     slider(::blurRadius, 0..50)
 
     row {
-      slider2D(::imageCenter, 0..2)
+      slider2D(::imageCenter, Slider2DArgs(0..2))
       slider(::imageSize, 2..4000)
     }
 

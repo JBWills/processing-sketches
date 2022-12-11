@@ -3,6 +3,7 @@ package sketches
 import controls.controlsealedclasses.Button.Companion.button
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.layerTab
@@ -118,11 +119,11 @@ data class MapData(
 
       row {
         heightRatio = 5
-        slider2D(::mapCenter, Point(-1)..Point(1)).withHeight(3)
+        slider2D(::mapCenter, Slider2DArgs(-1..1)).withHeight(3)
       }
       row {
         button("Reset") { layerMove = Point.Zero; markDirty() }
-        slider2D(::layerMove, Point(-1000)..Point(1000))
+        slider2D(::layerMove, Slider2DArgs(-1000..1000))
       }
       slider(::mapScale, 0.1..10.0)
     }

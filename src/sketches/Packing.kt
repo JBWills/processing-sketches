@@ -6,6 +6,7 @@ import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
@@ -133,7 +134,7 @@ data class PackingData(
     slider(::iterations, 1..32)
     toggle(::equalCardinality)
     slider(::circleSize, 50.0..800.0)
-    sliderPair(::circleOffset, NegativeOneToOne * 500)
+    sliderPair(::circleOffset, SliderPairArgs(range = NegativeOneToOne * 500))
   }
 
   override fun clone(): PackingData = copy()

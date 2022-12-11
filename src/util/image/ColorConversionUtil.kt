@@ -5,8 +5,8 @@ import org.opencv.imgproc.Imgproc
 import util.image.ImageFormat.ArgbProcessing
 import util.image.ImageFormat.Companion.getFormat
 import util.image.opencvMat.asBlankMat
-import util.image.opencvMat.enum.CConv
-import util.image.opencvMat.enum.CConv.RgbaToArgb
+import util.image.opencvMat.flags.CConv
+import util.image.opencvMat.flags.CConv.RgbaToArgb
 import util.image.opencvMat.merge
 import util.image.opencvMat.split4
 

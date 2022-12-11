@@ -1,9 +1,10 @@
 package controls.props.types
 
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.ControlStyle
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
-import controls.controlsealedclasses.Slider.Companion.slider
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import coordinate.BoundRect
@@ -62,10 +63,10 @@ data class ContourProp(
   override fun clone() = ContourProp(this)
 
   override fun bind(): List<ControlTab> = singleTab(this::class.simpleName!!) {
-    sliderPair(::thresholdRange, range = 0.0..1.0)
+    sliderPair(::thresholdRange, SliderPairArgs(range = 0.0..1.0))
     slider(::numThresholds, 1..100)
 
-    sliderPair(::thresholdEaseInOut, range = -1.0..5.0)
+    sliderPair(::thresholdEaseInOut, SliderPairArgs(range = -1.0..5.0))
 
     row {
       style = ControlStyle.Red

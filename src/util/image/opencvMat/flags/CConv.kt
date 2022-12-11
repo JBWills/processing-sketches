@@ -1,4 +1,4 @@
-package util.image.opencvMat.enum
+package util.image.opencvMat.flags
 
 import org.opencv.imgproc.Imgproc
 import util.image.ImageFormat

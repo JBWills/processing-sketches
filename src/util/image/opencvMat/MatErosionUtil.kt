@@ -5,7 +5,9 @@ import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
-import util.image.opencvMat.BorderType.BorderReflect
+import util.image.opencvMat.flags.BorderType
+import util.image.opencvMat.flags.BorderType.BorderReflect
+import util.image.opencvMat.flags.MorphShapes
 import util.numbers.bound
 
 val DilationKernel: Mat = Imgproc.getStructuringElement(MorphShapes.Ellipse.type, Size(5.0, 5.0))

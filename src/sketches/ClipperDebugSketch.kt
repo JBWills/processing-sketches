@@ -4,6 +4,7 @@ import appletExtensions.withStroke
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
@@ -128,7 +129,7 @@ data class ClipperDebugData(
 ) : PropData<ClipperDebugData> {
   override fun bind() = singleTab("Global") {
     row {
-      slider2D(::arcLocation, Point.Zero..Point.One)
+      slider2D(::arcLocation, Slider2DArgs(0..1))
       slider(::arcRadius, 0..500)
     }
     row {

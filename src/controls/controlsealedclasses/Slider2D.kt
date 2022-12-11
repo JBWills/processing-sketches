@@ -7,15 +7,52 @@ import controls.panels.PanelBuilder
 import controls.panels.panelext.markDirtyIf
 import controls.props.GenericProp
 import coordinate.Point
-import util.PointRange
 import util.base.DoubleRange
 import util.range
 import util.splitCamelCase
 import util.toDoubleRange
-import util.tuple.and
-import util.xRange
-import util.yRange
 import kotlin.reflect.KMutableProperty0
+
+data class Slider2DArgs(
+  val rangeX: DoubleRange,
+  val rangeY: DoubleRange,
+  val style: ControlStyle? = null,
+  val shouldMarkDirty: Boolean = true,
+  val name: String? = null,
+) {
+  constructor(
+    ranges: Pair<DoubleRange, DoubleRange>,
+    style: ControlStyle? = null,
+    shouldMarkDirty: Boolean = true,
+    name: String? = null,
+  ) :
+    this(ranges.first, ranges.second, style, shouldMarkDirty, name)
+
+  constructor(
+    range: DoubleRange = 0.0..1.0,
+    style: ControlStyle? = null,
+    shouldMarkDirty: Boolean = true,
+    name: String? = null,
+  ) :
+    this(range, range, style, shouldMarkDirty, name)
+
+  constructor(
+    range: IntRange,
+    style: ControlStyle? = null,
+    shouldMarkDirty: Boolean = true,
+    name: String? = null,
+  ) :
+    this(range.toDoubleRange(), range.toDoubleRange(), style, shouldMarkDirty, name)
+
+  constructor(
+    rangeX: IntRange,
+    rangeY: IntRange,
+    style: ControlStyle? = null,
+    shouldMarkDirty: Boolean = true,
+    name: String? = null,
+  ) :
+    this(rangeX.toDoubleRange(), rangeY.toDoubleRange(), style, shouldMarkDirty, name)
+}
 
 class Slider2D(
   text: String,
@@ -50,61 +87,22 @@ class Slider2D(
     },
   )
 
-  constructor(
-    text: String,
-    range: PointRange = Point.Zero..Point.One,
-    defaultValue: Point? = null,
-    handleChange: BaseSketch.(Point) -> Unit,
-  ) : this(text, range.xRange, range.yRange, defaultValue, handleChange)
-
   companion object {
-    @JvmName("slider2DWithSingleDoubleRange")
     fun PanelBuilder.slider2D(
       ref: KMutableProperty0<Point>,
-      range: DoubleRange = 0.0..1.0,
-      style: ControlStyle? = null,
-      shouldMarkDirty: Boolean = true,
-    ) = slider2D(ref, range and range, style, shouldMarkDirty)
+      args: Slider2DArgs? = null
+    ) = slider2DPanel(ref, args)
 
-    @JvmName("slider2DWithSingleIntRange")
-    fun PanelBuilder.slider2D(
+    private fun PanelBuilder.slider2DPanel(
       ref: KMutableProperty0<Point>,
-      range: IntRange = 0..1,
-      style: ControlStyle? = null,
-      shouldMarkDirty: Boolean = true,
-    ) = slider2D(ref, range and range, style, shouldMarkDirty)
-
-    @JvmName("slider2DWithIntRange")
-    fun PanelBuilder.slider2D(
-      ref: KMutableProperty0<Point>,
-      ranges: Pair<IntRange, IntRange> = (0..1) and (0..1),
-      style: ControlStyle? = null,
-      shouldMarkDirty: Boolean = true,
-    ) = slider2D(
-      ref,
-      ranges.first.toDoubleRange() and ranges.second.toDoubleRange(),
-      style,
-      shouldMarkDirty,
-    )
-
-    fun PanelBuilder.slider2D(
-      ref: KMutableProperty0<Point>,
-      ranges: Pair<DoubleRange, DoubleRange> = (0.0..1.0) and (0.0..1.0),
-      style: ControlStyle? = null,
-      shouldMarkDirty: Boolean = true,
+      args: Slider2DArgs? = null
     ) = addNewPanel(style) {
+      val argsNonNull = args ?: Slider2DArgs()
       GenericProp(ref) {
-        Slider2D(ref, ranges.first, ranges.second) {
-          markDirtyIf(shouldMarkDirty)
+        Slider2D(ref, argsNonNull.rangeX, argsNonNull.rangeY, text = argsNonNull.name ?: ref.name) {
+          markDirtyIf(argsNonNull.shouldMarkDirty)
         }
       }
     }
-
-    fun PanelBuilder.slider2D(
-      ref: KMutableProperty0<Point>,
-      range: PointRange = Point.Zero..Point.One,
-      style: ControlStyle? = null,
-      shouldMarkDirty: Boolean = true,
-    ) = slider2D(ref, ranges = range.xRange and range.yRange, style, shouldMarkDirty)
   }
 }

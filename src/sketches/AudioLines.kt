@@ -3,9 +3,11 @@ package sketches
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.tabs
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.audioSelect
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.sliderPair
@@ -122,8 +124,11 @@ data class AudioLinesData(
         }
       }
       row(style = ControlStyle.Red) {
-        sliderPair(::drawSize, 0.0..2.0)
-        slider2D(::drawCenter, 0..1 to 0..1)
+        sliderPair(
+          ::drawSize,
+          SliderPairArgs(0.0..2.0),
+        )
+        slider2D(::drawCenter, Slider2DArgs(0..1))
       }
       slider(::percentThroughSong, range = 0.0..1.0)
       slider(::amplitudeScale, range = 0.0..1.0)

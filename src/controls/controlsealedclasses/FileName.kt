@@ -14,7 +14,7 @@ class FileName(
   ControlP5::addButton,
   { sketch, _ ->
     fun updateLabel(path: String?) {
-      val noFileSelected = path == null || path.isEmpty()
+      val noFileSelected = path.isNullOrEmpty()
       label = fieldName
       setCaptionLabel(if (noFileSelected) "Select File" else path)
       isLabelVisible = true

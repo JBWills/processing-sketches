@@ -2,6 +2,7 @@ package controls.props.types
 
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.panels.ControlTab
 import controls.panels.TabsBuilder.Companion.singleTab
 import controls.props.PropData
@@ -22,7 +23,7 @@ data class VectorProp(
 
   override fun bind(): List<ControlTab> = singleTab(this::class.simpleName!!) {
     row {
-      slider2D(::direction, -1..1)
+      slider2D(::direction, Slider2DArgs(-1..1))
       slider(::magnitude, 0..3)
     }
   }

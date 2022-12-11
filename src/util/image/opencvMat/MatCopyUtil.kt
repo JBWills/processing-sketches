@@ -7,7 +7,7 @@ import util.image.ImageFormat
 import util.image.ImageFormat.Companion.getFormat
 import util.image.bytesAndBuffers.toDoubleArray
 import util.image.bytesAndBuffers.toIntArray
-import util.image.opencvMat.ChannelDepth.Companion.channelDepth
+import util.image.opencvMat.flags.ChannelDepth.Companion.channelDepth
 import util.iterators.mapEvery
 import java.awt.Color
 import java.nio.ByteBuffer

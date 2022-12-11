@@ -4,6 +4,7 @@ import controls.controlsealedclasses.Button.Companion.button
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabStyle.Companion.toTabStyle
 import controls.panels.TabsBuilder.Companion.tabs
@@ -60,6 +61,7 @@ class GradientDitherSketch : SimpleCanvasSketch<GradientDitherData>(
         RandomDistances -> r.randomDouble(
           0.0..randomizePosition,
         )
+
         RandomizePositionType2.EqualDistances -> randomizePosition
       }
       r.translatedRandomDirection(it, dist)
@@ -183,7 +185,7 @@ data class GradientDitherData(
       slider(gradientPoint::intensity, 0..10)
       row {
         heightRatio = 2
-        slider2D(gradientPoint::center, 0..1)
+        slider2D(gradientPoint::center, Slider2DArgs(0..1))
       }
     }
   }

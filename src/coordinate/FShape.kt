@@ -5,6 +5,9 @@ import util.atAmountAlong
 import util.base.DoubleRange
 import util.percentAlong
 
+/**
+ * FShape means functional shape
+ */
 open class FShape(val f: (Double, Double) -> Point, val tRange: DoubleRange) : Walkable {
 
   open fun pointAt(percentAlong: Double) = f(tRange.atAmountAlong(percentAlong), percentAlong)

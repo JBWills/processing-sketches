@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package util.image.opencvMat
+package util.image.opencvMat.flags
 
 import org.bytedeco.opencv.global.opencv_core
 import org.opencv.core.Core.FILLED

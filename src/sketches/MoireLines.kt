@@ -3,10 +3,11 @@ package sketches
 import FastNoiseLite.NoiseType.Perlin
 import appletExtensions.getParallelLinesInBound
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
+import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.noisePanel
-import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import coordinate.Circ
@@ -72,6 +73,7 @@ class MoireLines : LayeredCanvasSketch<MoireLinesData, MoireLinesLayerData>(
           it.warped(noise).clip(r.toPolyLine(), INTERSECTION)
         }
       }
+
       Circle -> {
         val cPath = Circ(
           centerPoint,
@@ -110,11 +112,13 @@ data class MoireLinesLayerData(
     slider(::lineOffset, 0.0..1.0)
     sliderPair(
       ::shapeSize,
-      0.0..2.0,
-      withLockToggle = true,
-      defaultLocked = true,
+      SliderPairArgs(
+        0.0..2.0,
+        withLockToggle = true,
+        defaultLocked = true,
+      ),
     )
-    sliderPair(::shapeCenter, -0.5..1.5)
+    sliderPair(::shapeCenter, SliderPairArgs(-0.5..1.5))
     noisePanel(::noise)
   }
 

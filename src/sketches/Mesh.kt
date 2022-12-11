@@ -6,6 +6,7 @@ import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.singleTab
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
@@ -158,9 +159,9 @@ data class MeshData(
       toggle(::showVerticals)
       toggle(::showHorizontals)
     }
-    sliderPair(::numDots, zeroTo(1000) + 2)
-    sliderPair(::size, zeroTo(1.5))
-    sliderPair(::dotRectCenter, ZeroToOne)
+    sliderPair(::numDots, SliderPairArgs(zeroTo(1000) + 2))
+    sliderPair(::size, SliderPairArgs(zeroTo(1.5)))
+    sliderPair(::dotRectCenter, SliderPairArgs(ZeroToOne))
   }
 
   override fun clone() = copy(

@@ -1,4 +1,4 @@
-package util.generics
+package util.base
 
 import kotlin.reflect.KMutableProperty0
 

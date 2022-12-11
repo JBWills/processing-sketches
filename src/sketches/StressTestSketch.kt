@@ -5,6 +5,7 @@ import FastNoiseLite.NoiseType.ValueCubic
 import controls.controlsealedclasses.Button.Companion.button
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.noisePanel
@@ -15,7 +16,6 @@ import fastnoise.Noise
 import kotlinx.serialization.Serializable
 import sketches.base.LayeredCanvasSketch
 import util.base.ZeroToOne
-import util.tuple.and
 
 /**
  * Starter sketch that uses all of the latest bells and whistles.
@@ -62,7 +62,7 @@ data class StressTestLayerData(
           style = ControlStyle.Orange
           heightRatio = 5
 
-          slider2D(::point, ZeroToOne and ZeroToOne)
+          slider2D(::point, Slider2DArgs(0..1))
           slider(::double, ZeroToOne)
         }
 
@@ -122,7 +122,7 @@ data class StressTestData(
           style = ControlStyle.Orange
           heightRatio = 5
 
-          slider2D(::pointGlobal, ZeroToOne and ZeroToOne)
+          slider2D(::pointGlobal, Slider2DArgs(ZeroToOne))
           slider(::doubleGlobal, ZeroToOne)
         }
 

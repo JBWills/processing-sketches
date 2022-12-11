@@ -6,6 +6,7 @@ import LayerConfig
 import appletExtensions.draw.rect
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.tabs
 import controls.panels.panelext.noisePanel
@@ -99,7 +100,7 @@ open class SpiralSketch(
 
       noisePanel(::noise)
 
-      slider2D(::centerOrigin, Point.Zero..Point.One)
+      slider2D(::centerOrigin, Slider2DArgs(0..1))
     }
   }.toTypedArray()
 

@@ -1,7 +1,5 @@
 package coordinate
 
-import appletExtensions.PAppletExt
-import appletExtensions.draw.circle
 import coordinate.BoundRect.Companion.centeredRect
 import interfaces.shape.Maskable
 import interfaces.shape.Transformable
@@ -83,7 +81,6 @@ open class Circ(val origin: Point, val radius: Double) :
   override fun diff(polyLine: PolyLine, memoized: Boolean): List<PolyLine> =
     ContinuousMaskedShape(polyLine, this).toBoundPoints(false)
 
-  override fun draw(sketch: PAppletExt) = sketch.circle(this)
 
   override fun scaled(scale: Point, anchor: Point): Circ =
     Circ(origin.scaled(scale, anchor), radius * scale.x)

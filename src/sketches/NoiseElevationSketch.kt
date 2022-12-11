@@ -4,6 +4,7 @@ import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.noisePanel
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
@@ -93,7 +94,7 @@ data class NoiseElevationData(
         slider(::maxThreshold, 0..1)
       }
       panel(::elevationMoveVector)
-      sliderPair(::samplePointsXY, 1.0..500.0)
+      sliderPair(::samplePointsXY, SliderPairArgs(1.0..500.0))
       row {
         toggle(::showHorizontalLines)
         toggle(::showVerticalLines)

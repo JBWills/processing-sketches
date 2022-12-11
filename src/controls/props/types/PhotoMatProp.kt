@@ -6,6 +6,7 @@ import controls.controlsealedclasses.ColorPicker.Companion.colorPicker
 import controls.controlsealedclasses.Dropdown.Companion.dropdown
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.ControlTab
@@ -115,7 +116,7 @@ data class PhotoMatProp(
 
       row {
         heightRatio = 3
-        slider2D(::imageCenter, -1..1)
+        slider2D(::imageCenter, Slider2DArgs(-1..1))
         col {
           widthRatio = 0.3
 

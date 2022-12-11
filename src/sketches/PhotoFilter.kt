@@ -7,6 +7,7 @@ import controls.panels.ControlStyle
 import controls.panels.TabStyle
 import controls.panels.TabsBuilder.Companion.layerTab
 import controls.panels.TabsBuilder.Companion.tabs
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.sliderPair
 import controls.props.PropData
 import controls.props.types.PhotoProp
@@ -172,8 +173,8 @@ data class PhotoFilterData(
       tabStyle = TabStyle.Green
       style = ControlStyle.Blue
       dropdown(::filterType, style = ControlStyle.Gray)
-      sliderPair(::sampleRate, 2.0..50.0, withLockToggle = true)
-      sliderPair(::objectSize, 0.0..20.0, 2.0..30.0)
+      sliderPair(::sampleRate, SliderPairArgs(2.0..50.0, withLockToggle = true))
+      sliderPair(::objectSize, SliderPairArgs(0.0..20.0, 2.0..30.0))
       slider(::baseRotation)
       slider(::filterSize, 1..100)
     }

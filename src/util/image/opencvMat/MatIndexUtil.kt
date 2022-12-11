@@ -5,7 +5,7 @@ import coordinate.Point
 import org.bytedeco.opencv.global.opencv_core
 import org.opencv.core.Mat
 import util.image.ImageFormat.Companion.getFormat
-import util.image.opencvMat.BorderType.BorderReflect101
+import util.image.opencvMat.flags.BorderType.BorderReflect101
 import java.awt.Color
 
 fun Mat.contains(col: Int, row: Int) = contains(Point(col, row))

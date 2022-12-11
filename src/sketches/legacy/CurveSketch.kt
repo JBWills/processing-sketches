@@ -6,13 +6,13 @@ import appletExtensions.draw.rect
 import controls.controlsealedclasses.Button.Companion.button
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
 import coordinate.BoundRect
 import coordinate.Point
 import util.layers.LayerSVGConfig
-import util.tuple.and
 import java.awt.Color
 
 open class CurveSketch(
@@ -53,7 +53,7 @@ open class CurveSketch(
     slider(::lineSpacing, range = 0.0..200.0)
     slider(::noiseScale, range = 1..100)
     slider(::moveAmount, range = 0..2000)
-    slider2D(::noiseOffset, 1.0..100.0 and 1.0..10.0)
+    slider2D(::noiseOffset, Slider2DArgs(1..100))
   }
 
   override fun mousePressed(p: Point) {

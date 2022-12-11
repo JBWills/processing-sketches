@@ -20,7 +20,6 @@ import coordinate.transforms.ShapeTransform
 import de.lighti.clipper.Clipper.ClipType
 import de.lighti.clipper.Clipper.ClipType.INTERSECTION
 import fastnoise.Noise
-import interfaces.shape.Maskable
 import org.opencv.core.Mat
 import processing.core.PApplet
 import processing.core.PImage
@@ -150,12 +149,27 @@ open class PAppletExt : PApplet() {
   fun List<List<List<PolyLine>>>.draw(bound: BoundRect? = null, boundInside: Boolean = true) =
     flatten().flatten().draw(bound, boundInside)
 
-  fun Circ.draw() = circle(this)
-  fun Segment.draw() = line(this)
-  fun Line.draw(bounds: BoundRect) = bounds.getBoundSegment(this)?.let { line(it) }
-  fun BoundRect.draw() = rect(this)
-  fun Arc.draw() = arc(this)
-  fun Maskable.draw() = draw(this@PAppletExt)
+  fun Circ.draw(bounds: BoundRect? = null) =
+    bounds?.let { toPolyLine().draw(bounds) } ?: circle(this)
+
+  fun Segment.draw(bounds: BoundRect? = null) =
+    if (bounds != null) {
+      val boundSegment = bounds.getBoundSegment(this)
+      boundSegment?.let { segment -> line(segment) }
+    } else {
+      line(this)
+    }
+
+  fun Line.draw(bounds: BoundRect) =
+    bounds.getBoundSegment(this)?.let { line(it) }
+
+
+  fun BoundRect.draw(bounds: BoundRect? = null) =
+    if (bounds == null) rect(this) else toPolyLine().draw(bounds)
+
+  fun Arc.draw(bounds: BoundRect? = null) =
+    if (bounds == null) arc(this) else toPolyLine().draw(bounds)
+
   fun Point.draw(radius: Number = 2, color: Color? = null) = drawPoint(this, radius, color)
   fun Point.draw(radii: List<Number>, color: Color? = null) = radii.forEach {
     draw(it, color)

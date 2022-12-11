@@ -4,6 +4,7 @@ import controls.controlsealedclasses.Button.Companion.button
 import controls.controlsealedclasses.ColorPicker.Companion.colorPicker
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.TabStyle
@@ -281,7 +282,7 @@ data class GucciData(
       }
 
       tab("${name}_lines", tabStyle) {
-        slider2D(layer.lineData::lineCenter, 0..2 to 0..2)
+        slider2D(layer.lineData::lineCenter, Slider2DArgs(0..2))
         slider(layer.lineData::angle, range = 0.0..180.0)
         slider(layer.lineData::curveOffsetPercent, range = 0.0..1.0)
         slider(layer.lineData::numLines, 0..1000)

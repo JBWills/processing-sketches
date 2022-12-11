@@ -21,7 +21,6 @@ const val MIN_SEGMENT_LENGTH = 1
 private fun Point.belowThreshold(noise: Noise, threshold: Double) =
   noise.getPositive(x, y) < threshold
 
-
 private enum class SegmentContourStatus {
   Inside,
   Outside,
@@ -83,6 +82,7 @@ fun PolyLine.walkThreshold(isUnderThreshold: (Point) -> Boolean): List<PolyLine>
         val midPoint = segment.getPointAtThreshold(isUnderThreshold)
         curr.addAll(listOf(midPoint, segment.p2))
       }
+
       Exiting -> {
         val midPoint = segment.getPointAtThreshold(isUnderThreshold)
 
@@ -90,6 +90,7 @@ fun PolyLine.walkThreshold(isUnderThreshold: (Point) -> Boolean): List<PolyLine>
 
         completeCurrSegment()
       }
+
       InOutIn -> {
         val (first, second) = segment.splitAtMidpoint()
         val firstMidPoint = first.getPointAtThreshold(isUnderThreshold)
@@ -101,6 +102,7 @@ fun PolyLine.walkThreshold(isUnderThreshold: (Point) -> Boolean): List<PolyLine>
         val secondMidPoint = second.getPointAtThreshold(isUnderThreshold)
         curr.addAll(listOf(secondMidPoint, second.p2))
       }
+
       OutInOut -> {
         val (first, second) = segment.splitAtMidpoint()
         val firstMidPoint = first.getPointAtThreshold(isUnderThreshold)

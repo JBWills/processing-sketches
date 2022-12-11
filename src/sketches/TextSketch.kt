@@ -2,6 +2,7 @@ package sketches
 
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.controlsealedclasses.Toggle.Companion.toggle
 import controls.panels.ControlStyle
 import controls.panels.TabsBuilder.Companion.layerTab
@@ -138,7 +139,7 @@ data class TextData(
         slider(::lineHeight, 5..2000)
       }
       slider(::rotation)
-      slider2D(::centerPoint, Point.Zero..Point.One)
+      slider2D(::centerPoint, Slider2DArgs(0..1))
       slider(::flatness, 0.1..10.0)
       textInput(::text)
     }

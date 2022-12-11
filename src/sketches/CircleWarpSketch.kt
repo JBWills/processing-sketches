@@ -6,6 +6,7 @@ import LayerConfig
 import appletExtensions.draw.rect
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.controlsealedclasses.Slider2D.Companion.slider2D
+import controls.controlsealedclasses.Slider2DArgs
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
 import controls.panels.panelext.noisePanel
@@ -68,7 +69,7 @@ open class CircleWarpSketch(
 
     row {
       heightRatio = 3
-      slider2D(::centerOrigin, Point.Zero..Point.One)
+      slider2D(::centerOrigin, Slider2DArgs(0..1))
     }
   }
 

@@ -9,6 +9,7 @@ import appletExtensions.intersection
 import controls.controlsealedclasses.Slider.Companion.slider
 import controls.panels.ControlList.Companion.col
 import controls.panels.Panelable
+import controls.panels.panelext.SliderPairArgs
 import controls.panels.panelext.sliderPair
 import coordinate.BoundRect
 import coordinate.Circ
@@ -41,7 +42,7 @@ open class ArcTestSketch(
   override fun getControls(): Panelable = col {
     slider(::startAngle, 0..360)
     slider(::length, 0..360)
-    sliderPair(::position, 0.0..size.x)
+    sliderPair(::position, SliderPairArgs(0.0..size.x))
     slider(::arcSize, 0..150)
   }
 

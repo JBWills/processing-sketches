@@ -8,9 +8,13 @@ import org.opencv.core.MatOfPoint
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import util.image.ImageFormat.Gray
-import util.image.opencvMat.ContourApproximationMode.TC89KCOS
-import util.image.opencvMat.ContourRetrievalMode.Tree
-import util.image.opencvMat.LineFillType.Filled
+import util.image.opencvMat.flags.ChannelDepth
+import util.image.opencvMat.flags.ContourApproximationMode
+import util.image.opencvMat.flags.ContourApproximationMode.TC89KCOS
+import util.image.opencvMat.flags.ContourRetrievalMode
+import util.image.opencvMat.flags.ContourRetrievalMode.Tree
+import util.image.opencvMat.flags.LineFillType
+import util.image.opencvMat.flags.LineFillType.Filled
 import util.io.geoJson.loadGeoMatAndBlurMemo
 import util.polylines.PolyLine
 import util.polylines.bounds

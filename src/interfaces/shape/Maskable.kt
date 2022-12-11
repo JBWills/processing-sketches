@@ -1,6 +1,5 @@
 package interfaces.shape
 
-import appletExtensions.PAppletExt
 import coordinate.Line
 import coordinate.Point
 import coordinate.Segment
@@ -19,5 +18,4 @@ interface Maskable {
   fun intersection(polyLine: PolyLine, memoized: Boolean = false): List<PolyLine>
   fun diff(polyLine: PolyLine, memoized: Boolean = false): List<PolyLine>
 
-  fun draw(sketch: PAppletExt)
 }
