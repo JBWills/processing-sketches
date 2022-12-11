@@ -5,6 +5,8 @@
 
 My personal Kotlin Processing sketches workbook
 
+The output of these sketches is into SVG, so I can plot them using the [AxiDraw plotter](https://www.axidraw.com/).
+
 ## Getting Started
 
 ### Downloading non-gradle libraries
