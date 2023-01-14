@@ -46,7 +46,7 @@ fun PanelBuilder.fineSliderPair(
   args: FineSliderPairArgs? = null
 ) = fineSliderPairPanel(ref.wrapSelf(), args)
 
-private fun PanelBuilder.fineSliderPairPanel(
+fun PanelBuilder.fineSliderPairPanel(
   ref: RefGetter<Point>,
   args: FineSliderPairArgs? = null
 ): Panelable {

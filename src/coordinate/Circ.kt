@@ -2,6 +2,7 @@ package coordinate
 
 import coordinate.BoundRect.Companion.centeredRect
 import interfaces.shape.Maskable
+import interfaces.shape.Polarable
 import interfaces.shape.Transformable
 import interfaces.shape.Walkable
 import util.atAmountAlong
@@ -28,7 +29,7 @@ fun Point.toLVector() = LVector2(x, y)
 open class Circ(val origin: Point, val radius: Double) :
   Walkable,
   Maskable,
-  Transformable<Circ> {
+  Transformable<Circ>, Polarable {
   constructor(origin: Point, radius: Number) : this(origin, radius.toDouble())
   constructor(radius: Number) : this(Point.Zero, radius.toDouble())
   constructor(c: Circ) : this(c.origin, c.radius)
@@ -103,6 +104,8 @@ open class Circ(val origin: Point, val radius: Double) :
   }
 
   fun isEmpty() = radius == 0.0
+
+  override fun polarRadius(rad: Double): Double = radius
 
   override fun walk(step: Double): List<Point> = walk(step) { it }
 

@@ -3,6 +3,7 @@ package coordinate
 import coordinate.transforms.ShapeTransform
 import de.lighti.clipper.Clipper.ClipType
 import interfaces.shape.Maskable
+import interfaces.shape.Polarable
 import interfaces.shape.Transformable
 import interfaces.shape.Walkable
 import kotlinx.serialization.Serializable
@@ -15,14 +16,17 @@ import util.polylines.clipping.clip
 import util.polylines.iterators.transform
 import util.polylines.rotate
 import kotlin.math.abs
+import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.sin
+import kotlin.math.tan
 
 @Serializable
 data class BoundRect(
   val topLeft: Point,
   val width: Double,
   val height: Double,
-) : Walkable, Maskable, Transformable<BoundRect> {
+) : Walkable, Maskable, Transformable<BoundRect>, Polarable {
   val size: Point
     get() = Point(width, height)
 
@@ -52,6 +56,8 @@ data class BoundRect(
   val left: Double get() = topLeft.x
   val bottom: Double get() = topLeft.y + height
   val right: Double get() = topLeft.x + width
+
+  val perimeter = 2 * (width + height)
 
   val centerLineHorizontal: Segment
     get() = Segment(
@@ -305,7 +311,7 @@ data class BoundRect(
     val xRange = left..right
     line.all { it.y in yRange && it.x in xRange }
   }
-  
+
   override fun toString(): String {
     return "BoundRect(top=$top, left=$left, bottom=$bottom, right=$right)"
   }
@@ -335,6 +341,11 @@ data class BoundRect(
     return result
   }
 
+  override fun polarRadius(theta: Double): Double {
+    val a = width / 2
+    val b = height / 2
+    return if (abs(tan(theta)) <= b / a) a / abs(cos(theta)) else b / abs(sin(theta))
+  }
 
   companion object {
     fun Point.mappedOnto(r: BoundRect) = Point(r.left + (x * r.width), r.top + (y * r.height))

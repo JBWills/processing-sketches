@@ -37,6 +37,7 @@ data class Noise(
   val scale: Double,
   val offset: Point,
   val strength: Point,
+  val offsetZ: Double = 0.0,
 ) {
   @Transient
   val fastNoise: FastNoiseLite = createFastNoise(seed, noiseType)
@@ -49,13 +50,15 @@ data class Noise(
     scale: Double? = null,
     offset: Point? = null,
     strength: Point? = null,
+    offsetZ: Double? = null,
   ) : this(
     seed ?: noise.seed,
     noiseType ?: noise.noiseType,
     quality ?: noise.quality,
     scale ?: noise.scale,
     Point(offset ?: noise.offset),
-    Point(strength ?: noise.strength),
+    strength = Point(strength ?: noise.strength),
+    offsetZ = offsetZ ?: noise.offsetZ,
   )
 
   constructor(n: Noise) : this(
@@ -65,6 +68,7 @@ data class Noise(
     n.scale,
     n.offset,
     n.strength,
+    n.offsetZ,
   )
 
   /**
@@ -84,6 +88,7 @@ data class Noise(
     scale: Double? = null,
     offset: Point? = null,
     strength: Point? = null,
+    offsetZ: Number? = null,
   ) = Noise(
     this,
     seed = seed,
@@ -92,11 +97,12 @@ data class Noise(
     scale = scale,
     offset = offset,
     strength = strength,
+    offsetZ = offsetZ?.toDouble(),
   )
 
-  private fun noiseAt2D(p: Point) = Point(
-    fastNoise.GetNoise(p.xf, p.yf, 0f),
-    fastNoise.GetNoise(p.xf, p.yf, 100f),
+  private fun noiseAt2D(p: Point, offsetZ: Double = 0.0) = Point(
+    fastNoise.GetNoise(p.xf, p.yf, 0f + offsetZ.toFloat()),
+    fastNoise.GetNoise(p.xf, p.yf, 100f + offsetZ.toFloat()),
   ) * strength
 
   private fun noiseAt(p: Point, z: Number = 0.0) =
@@ -105,7 +111,7 @@ data class Noise(
   private fun getPointOnNoisePlane(pointInDrawSpace: Point) = (pointInDrawSpace + offset) * scale
 
   fun get(x: Number, y: Number, z: Number) =
-    noiseAt(getPointOnNoisePlane(Point(x, y)), z.toDouble() + offset.magnitude)
+    noiseAt(getPointOnNoisePlane(Point(x, y)), z.toDouble() + offsetZ)
 
   fun get(x: Number, y: Number) = get(x, y, 0)
   fun get(point: Point) = get(point.x, point.y)
@@ -113,7 +119,7 @@ data class Noise(
   fun getPositive(x: Number, y: Number) = getPositive(x, y, 0)
 
   private fun move(p: Point, scaleFn: (Point) -> Point = { it }): Point {
-    val noisePoint = noiseAt2D(getPointOnNoisePlane(p))
+    val noisePoint = noiseAt2D(getPointOnNoisePlane(p), offsetZ)
     return p + scaleFn(noisePoint)
   }
 

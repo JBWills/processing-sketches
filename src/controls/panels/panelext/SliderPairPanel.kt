@@ -101,6 +101,7 @@ internal fun PanelBuilder.sliderPairPanel(
 ): Panelable {
   val (range1, range2, withLockToggle, defaultLocked, style, shouldMarkDirty, xName, yName) = args
     ?: SliderPairArgs()
+  
   return addNewPanel(style) {
     GenericProp(ref) {
       var locked: Boolean = defaultLocked && ref.get().x == ref.get().y

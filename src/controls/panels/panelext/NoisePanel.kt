@@ -9,7 +9,9 @@ import controls.panels.ControlPanel
 import controls.panels.ControlStyle
 import controls.panels.PanelBuilder
 import controls.panels.Panelable
+import controls.panels.panelext.util.RefGetter
 import controls.props.GenericProp
+import coordinate.Point
 import fastnoise.Noise
 import util.base.getValues
 import java.awt.Color
@@ -66,21 +68,36 @@ private fun noiseControls(
     }
 
     if (showStrengthSliders) row {
-      +Slider(
-        "Strength X",
-        0.0..2000.0,
-        noise.strength.x,
-      ) {
-        updateNoiseField {
-          with(strength = noise.strength.withX(it))
-        }
-      }
+      fineSliderPairPanel(
+        object : RefGetter<Point> {
+          override val name: String
+            get() = "Strength"
 
-      +Slider(
-        "Strength Y",
-        0.0..2000.0,
-        noise.strength.y,
-      ) { updateNoiseField { with(strength = noise.strength.withY(it)) } }
+          override fun get(): Point = noise.strength
+
+          override fun set(item: Point) = noiseProp.set(noise.with(strength = item))
+        },
+        FineSliderPairArgs(
+          coarseRange = 0.0..2000.0,
+          fineRange = -15.0..15.0,
+          shouldMarkDirty = shouldMarkDirty,
+        ),
+      )
+//      +Slider(
+//        "Strength X",
+//        0.0..2000.0,
+//        noise.strength.x,
+//      ) {
+//        updateNoiseField {
+//          with(strength = noise.strength.withX(it))
+//        }
+//      }
+//
+//      +Slider(
+//        "Strength Y",
+//        0.0..2000.0,
+//        noise.strength.y,
+//      ) { updateNoiseField { with(strength = noise.strength.withY(it)) } }
     }
 
     +Slider(
@@ -89,9 +106,20 @@ private fun noiseControls(
       noise.seed.toDouble(),
     ) { updateNoiseField { with(seed = it.toInt()) } }
 
-    +Slider("Scale", 0.0..2.0, noise.scale) {
-      updateNoiseField { with(scale = it) }
+    row {
+      fineSliderPanel(
+        object : RefGetter<Double> {
+          override val name: String get() = "Scale"
+          override fun get(): Double = noise.scale
+          override fun set(item: Double) = noiseProp.set(noise.with(scale = item))
+        },
+        FineSliderArgs(range = 0.0..20.0, fineRange = -1.0..1.0),
+      )
     }
+
+//    +Slider("Scale", 0.0..2.0, noise.scale) {
+//      updateNoiseField { with(scale = it) }
+//    }
 
     +Slider2D(
       "Offset",

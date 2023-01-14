@@ -13,6 +13,7 @@ import util.base.step
 import util.numbers.bound
 import util.numbers.equalsDelta
 import util.numbers.equalsZero
+import util.numbers.pow
 import util.numbers.roundedString
 import util.numbers.squared
 import util.numbers.toDegrees
@@ -125,6 +126,12 @@ data class Point(val x: Double, val y: Double) :
   operator fun rem(other: Number) = Point(x % other.toDouble(), y % other.toDouble())
 
   fun abs() = Point(abs(x), abs(y))
+  fun pow(n: Number) = Point(x.pow(n), y.pow(n))
+  fun pow(p: Point) = Point(x.pow(p.x), y.pow(p.y))
+  fun sign() = Point(kotlin.math.sign(x), kotlin.math.sign(y))
+  fun sqrt() = Point(sqrt(x), sqrt(y))
+
+  fun sum() = x + y
 
   // Returns an orthogonal point
   fun orthogonal() = Point(x, -y)

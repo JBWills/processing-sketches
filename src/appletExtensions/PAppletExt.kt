@@ -13,8 +13,10 @@ import appletExtensions.draw.vertex
 import coordinate.Arc
 import coordinate.BoundRect
 import coordinate.Circ
+import coordinate.Ellipse
 import coordinate.Line
 import coordinate.Point
+import coordinate.RoundedRect
 import coordinate.Segment
 import coordinate.transforms.ShapeTransform
 import de.lighti.clipper.Clipper.ClipType
@@ -166,6 +168,11 @@ open class PAppletExt : PApplet() {
 
   fun BoundRect.draw(bounds: BoundRect? = null) =
     if (bounds == null) rect(this) else toPolyLine().draw(bounds)
+
+  fun Ellipse.draw(bounds: BoundRect? = null) =
+    walk(1.0).draw(bounds)
+
+  fun RoundedRect.draw(bounds: BoundRect? = null) = polyLine.draw(bounds)
 
   fun Arc.draw(bounds: BoundRect? = null) =
     if (bounds == null) arc(this) else toPolyLine().draw(bounds)

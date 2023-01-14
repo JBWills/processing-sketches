@@ -13,3 +13,5 @@ fun DoubleRange.interpolate(
   linearPercent: Double,
   easingFunction: (Double) -> Double = { it }
 ): Double = atAmountAlong(easingFunction(linearPercent))
+
+fun DoubleRange.lerp(percent: Double): Double = atAmountAlong(percent)
