@@ -58,6 +58,8 @@ class Segment(
 
   fun splitAtMidpoint() = Pair(Segment(p1, midPoint), Segment(midPoint, p2))
 
+  fun perpendicularBisector() = Line(midPoint, slope.perpendicular)
+
   /**
    * Sometimes segments can get flipped, this flips them back to their correct direction.
    *

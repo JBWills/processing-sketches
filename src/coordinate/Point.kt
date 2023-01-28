@@ -60,7 +60,7 @@ data class Point(val x: Double, val y: Double) :
   val magnitude get() = sqrt(magnitudeSquared)
 
   // useful when you don't want to do expensive sqrt() calcs
-  val magnitudeSquared get() = x.squared() + y.squared()
+  private val magnitudeSquared get() = x.squared() + y.squared()
 
   val normalized: Point
     get() =

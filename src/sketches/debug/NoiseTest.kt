@@ -26,7 +26,7 @@ class NoiseTest : SimpleCanvasSketch<NoiseTestData>("NoiseTest", NoiseTestData()
       boundRect.centerLineHorizontal.expand(-boundRect.centerLineHorizontal.length / 2).translated(
         Point(0, -50),
       )
-    startEnd.draw()
+    startEnd.drawSegment()
 
     val buckets: MutableMap<Int, Int> = mutableMapOf()
     var maxInSingleBucket = 0
@@ -49,7 +49,7 @@ class NoiseTest : SimpleCanvasSketch<NoiseTestData>("NoiseTest", NoiseTestData()
 
       if (height != 0.0) {
         withStyle(Style(color = Color.PINK)) {
-          Segment(startPoint, startPoint.addY(-height)).draw()
+          Segment(startPoint, startPoint.addY(-height)).drawSegment()
         }
       }
 

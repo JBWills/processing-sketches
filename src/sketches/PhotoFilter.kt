@@ -128,7 +128,7 @@ class PhotoFilter : LayeredCanvasSketch<PhotoFilterData, PhotoFilterLayerData>(
           .toUnitVectorSegment(canvasPoint)
           .resizeCentered(length)
           .centeredWithSlope(baseRotation)
-          .draw()
+          .drawSegment()
       }
     }
   }

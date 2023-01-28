@@ -13,3 +13,8 @@ fun <K, V> Pair<K, V>.toEntry() = object : Map.Entry<K, V> {
   override val key: K = first
   override val value: V = second
 }
+
+inline fun <A, B> Pair3<A, A, A>.map(block: (A) -> (B)): Pair3<B, B, B> =
+  Pair3(block(a), block(b), block(c))
+
+fun <A> Pair3<A, A, A>.toList() = listOf(a, b, c)

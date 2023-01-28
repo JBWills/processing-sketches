@@ -2,6 +2,7 @@ package coordinate
 
 import coordinate.RotationDirection.Clockwise
 import coordinate.RotationDirection.EitherDirection
+import coordinate.RotationDirection.WhicheverLarger
 import kotlinx.serialization.Serializable
 import util.numbers.cos
 import util.numbers.equalsDelta
@@ -9,6 +10,7 @@ import util.numbers.sin
 import util.numbers.tan
 import util.numbers.toRadians
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.min
 
 @Suppress("unused")
@@ -16,6 +18,7 @@ enum class RotationDirection {
   Clockwise,
   CounterClockwise,
   EitherDirection,
+  WhicheverLarger,
 }
 
 fun lockValueTo360(v: Double) = (360 + (v % 360)) % 360
@@ -23,7 +26,7 @@ fun lockValueTo360(v: Double) = (360 + (v % 360)) % 360
 /**
  * Represents degrees from 0 to 360.
  *
- * On a 2d grid, assume 0 equals pointing right.
+ * On a 2d grid, assume 0 equals pointing right. increasing values move counter-clockwise
  */
 @Serializable
 data class Deg(private val inputValue: Double) {
@@ -58,12 +61,14 @@ data class Deg(private val inputValue: Double) {
 
   fun rotation(to: Deg, dir: RotationDirection = EitherDirection): Double {
     if (equals(to)) return 0.0
-    val start = if (dir == Clockwise) value else to.value
-    val end = if (dir == Clockwise) to.value else value
+    val (start, end) =
+      if (dir == Clockwise) value to to.value
+      else to.value to value
 
     val diff = abs(end - start)
 
     return when {
+      (dir == WhicheverLarger) -> max(diff, 360 - diff)
       (dir == EitherDirection) -> min(diff, 360 - diff)
       (end >= start) -> diff
       else -> 360 - diff

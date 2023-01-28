@@ -132,7 +132,7 @@ open class PAppletExt : PApplet() {
       beginShape()
       line.forEachSegment { segment ->
         withStroke(colors.lerp(currIndex.toDouble() / (totalSize - 1))) {
-          segment.draw()
+          segment.drawSegment()
         }
         currIndex += 1
       }
@@ -140,7 +140,7 @@ open class PAppletExt : PApplet() {
     }
   }
 
-  fun List<Segment>.drawAsSegments() = map { it.draw() }
+  fun List<Segment>.drawAsSegments() = map { it.drawSegment() }
   fun List<Segment>.drawAsLine() = toPolyLine().draw()
 
   @JvmName("drawManyPolyLines")
@@ -154,7 +154,7 @@ open class PAppletExt : PApplet() {
   fun Circ.draw(bounds: BoundRect? = null) =
     bounds?.let { toPolyLine().draw(bounds) } ?: circle(this)
 
-  fun Segment.draw(bounds: BoundRect? = null) =
+  fun Segment.drawSegment(bounds: BoundRect? = null) =
     if (bounds != null) {
       val boundSegment = bounds.getBoundSegment(this)
       boundSegment?.let { segment -> line(segment) }

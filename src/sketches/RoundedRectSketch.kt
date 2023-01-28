@@ -107,7 +107,6 @@ data class RoundedRectData(
           style = ControlStyle.Green
           fineSlider(baseData::radiusFalloff, FineSliderArgs(0.0..1.0, 0.0..0.01))
         }
-
       }
     }
 

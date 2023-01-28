@@ -30,6 +30,11 @@ open class Line(
     return getIntersectPoint(this2d, that2d)
   }
 
+  fun toSegmentAround(p: Point, distance: Double): Segment =
+    Segment(origin - slope.unitVector * (distance / 2), origin + slope.unitVector * (distance / 2))
+
+  fun toRayFrom(p: Point) = Ray(p, slope)
+
   open fun intersection(other: Segment): Point? {
     val this2d = toLine2d()
     val that2d = other.toLine2d()

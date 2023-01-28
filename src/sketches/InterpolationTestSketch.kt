@@ -64,7 +64,7 @@ class InterpolationTestSketch : SimpleCanvasSketch<InterpolationTestData>(
               boundRect.height / 2,
             ),
           )
-          .also { it.draw() }
+          .also { it.drawSegment() }
       val avgY = points.meanByOrNull { it.y } ?: 0.0
       points.mapIndexed { index, point ->
         val percent = (index.toDouble() / (points.size - 1)).ifNan { 0.5 }

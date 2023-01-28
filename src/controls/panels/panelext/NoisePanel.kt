@@ -81,23 +81,9 @@ private fun noiseControls(
           coarseRange = 0.0..2000.0,
           fineRange = -15.0..15.0,
           shouldMarkDirty = shouldMarkDirty,
+          withLockToggle = true,
         ),
       )
-//      +Slider(
-//        "Strength X",
-//        0.0..2000.0,
-//        noise.strength.x,
-//      ) {
-//        updateNoiseField {
-//          with(strength = noise.strength.withX(it))
-//        }
-//      }
-//
-//      +Slider(
-//        "Strength Y",
-//        0.0..2000.0,
-//        noise.strength.y,
-//      ) { updateNoiseField { with(strength = noise.strength.withY(it)) } }
     }
 
     +Slider(

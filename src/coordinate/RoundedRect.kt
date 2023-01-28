@@ -6,7 +6,6 @@ import interfaces.shape.Maskable
 import interfaces.shape.Transformable
 import interfaces.shape.Walkable
 import util.base.step
-import util.debugLog
 import util.easing.Ease.Linear
 import util.interpolation.interpolate
 import util.polar.polarToPoint
@@ -82,8 +81,6 @@ data class RoundedRect(val base: BoundRect, val r: Double, val step: Double = De
     if (r == 1.0) {
       return ellipse.walk(step)
     }
-
-    debugLog(r)
 
     val exponent = (2.0..100.0).interpolate(1 - r, Linear.f)
 
